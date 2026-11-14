@@ -12,6 +12,7 @@
 import { creerFiche, ajouterJournal, verifierFiche, resumer, migrerFiche, TYPES_CRITIQUES } from './fiche.js';
 import { decisionPurge, delaiEffectif, SurveillanceHorloge, PLANCHER_DEFAUT_H, DELAI_DEFAUT_H } from './purge.js';
 import { choisirReprise, fichesEnAttente } from './reprise.js';
+import { normaliserPersonnes } from './roles.js';
 
 export const BASES = { reel: 'urgences-fiches', simulation: 'urgences-simulation', reglages: 'urgences-reglages' };
 const MAGASIN_FICHES = 'fiches';
@@ -24,6 +25,7 @@ export const REGLAGES_PAR_DEFAUT = Object.freeze({
   theme: 'auto',
   mode_affichage: 'expert',
   champs_sensibles: {},
+  personnes: [],           // prénoms ou fonctions de l'équipe, saisis une fois et réutilisables (rôles, 4.4) : aucune donnée patient
 });
 const CLES_REGLAGES = Object.keys(REGLAGES_PAR_DEFAUT);
 
@@ -45,6 +47,7 @@ export function creerStockage({
   const auditeurs = new Set();
   const reportees = new Set();
   let reglagesCache = null;
+  let lectureReglages = null;
   let afficheeId = null;
   let purgeFaite = false;
   let resoudrePurge;
@@ -116,13 +119,14 @@ export function creerStockage({
   // ───────── Réglages de l'appareil ─────────
 
   function normaliser(brut) {
-    const r = { ...REGLAGES_PAR_DEFAUT, champs_sensibles: {} };
+    const r = { ...REGLAGES_PAR_DEFAUT, champs_sensibles: {}, personnes: [] };
     for (const cle of CLES_REGLAGES) if (brut && brut[cle] !== undefined && brut[cle] !== null) r[cle] = brut[cle];
     if (brut && brut.profession === null) r.profession = null;
     if (typeof r.profession !== 'string' && r.profession !== null) r.profession = null;
     if (!['auto', 'clair', 'sombre'].includes(r.theme)) r.theme = 'auto';
     if (!['expert', 'guide'].includes(r.mode_affichage)) r.mode_affichage = 'expert';
     if (r.champs_sensibles === null || typeof r.champs_sensibles !== 'object' || Array.isArray(r.champs_sensibles)) r.champs_sensibles = {};
+    r.personnes = normaliserPersonnes(r.personnes);
     r.delai_effacement_h = delaiEffectif(Number(r.delai_effacement_h), { plancherH: config.plancherH });
     return r;
   }
@@ -130,20 +134,24 @@ export function creerStockage({
   /** Réglages courants (copie). Base indisponible : valeurs par défaut, `reglagesEnMemoire` vrai. Ne lève jamais. */
   async function lireReglages() {
     if (reglagesCache) return structuredClone(reglagesCache);
-    try {
-      const cles = await executer(BASES.reglages, MAGASIN_REGLAGES, 'readonly', (s) => s.getAllKeys());
-      const valeurs = await executer(BASES.reglages, MAGASIN_REGLAGES, 'readonly', (s) => s.getAll());
-      reglagesCache = normaliser(Object.fromEntries(cles.map((c, i) => [c, valeurs[i]])));
-    } catch {
-      reglagesCache = normaliser({});
-    }
+    // une seule lecture à la fois : deux appels concurrents partagent la même, sinon la plus lente écraserait un réglage écrit entre-temps
+    lectureReglages ??= (async () => {
+      try {
+        const cles = await executer(BASES.reglages, MAGASIN_REGLAGES, 'readonly', (s) => s.getAllKeys());
+        const valeurs = await executer(BASES.reglages, MAGASIN_REGLAGES, 'readonly', (s) => s.getAll());
+        reglagesCache ??= normaliser(Object.fromEntries(cles.map((c, i) => [c, valeurs[i]])));
+      } catch {
+        reglagesCache ??= normaliser({});
+      }
+    })().finally(() => { lectureReglages = null; });
+    await lectureReglages;
     return structuredClone(reglagesCache);
   }
 
   /** Écrit un réglage. La valeur est prise en compte TOUT DE SUITE en mémoire ; renvoie true si l'écriture a aussi réussi. */
   async function ecrireReglage(cle, valeur) {
     if (!CLES_REGLAGES.includes(cle)) throw new Error(`réglage inconnu : ${cle}`);
-    await lireReglages();
+    if (!reglagesCache) await lireReglages(); // cache présent : la valeur est prise en compte SYNCHRONEMENT (un lecteur qui suit ne voit jamais l'ancienne)
     reglagesCache = normaliser({ ...reglagesCache, [cle]: valeur });
     try { await executer(BASES.reglages, MAGASIN_REGLAGES, 'readwrite', (s) => s.put(reglagesCache[cle], cle)); return true; } catch { return false; }
   }

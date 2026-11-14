@@ -70,9 +70,10 @@ const nouvelleIntervention = () => new Intervention({ stockage, son: app.son, ec
 function ouvrirInterface(i) {
   app.intervention = i;
   app.interface = new InterfaceIntervention({
-    intervention: i, son: app.son, ecran: app.ecran, numeros: () => app.numeros, structure: () => contexte.structure,
+    intervention: i, son: app.son, ecran: app.ecran, numeros: () => app.numeros, structure: () => contexte.structure, groupes: () => contexte.groupes,
     actions: {
       accueil: () => quitterIntervention({ aller: true }),
+      professionChangee: () => majPointProfession(),
       nouvelleUrgence: () => { quitterIntervention({ aller: false }); demarrerUrgence('reel'); },
       urgenceReelle: () => { quitterIntervention({ aller: false }); demarrerUrgence('reel'); }, // la simulation reste en pause, la VRAIE fiche s'ouvre
       terminee: () => quitterIntervention({ aller: true, detruite: true }),

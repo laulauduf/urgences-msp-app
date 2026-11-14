@@ -8,6 +8,9 @@ import { afficherSecours } from './secours.js';
 import { afficherAlerte } from './alerte.js';
 import { afficherLieu } from './lieu.js';
 import { testerSonEtEcran } from '../test-appareil.js';
+import { afficherRoles } from './roles.js';
+import { afficherProfession } from './profession.js';
+import { texteBandeau, texteBandeauCourt } from '../roles.js';
 import { ACR, AUTRE } from '../intervention.js';
 
 /** Boutons de la barre du bas. Chaque lot ajoute les siens : `disponible` passe à vrai quand son écran est livré (L6 : checklist, L7 : fiche). */
@@ -24,9 +27,9 @@ export class InterfaceIntervention {
    * @param {{racine?: Document, intervention: object, son: object, ecran: object, numeros: object, structure: () => object|null,
    *          actions: {accueil: () => void, nouvelleUrgence: () => void, urgenceReelle: () => void, terminee: () => void}}} options
    */
-  constructor({ intervention, son, ecran, numeros, structure, actions }) {
-    Object.assign(this, { intervention, son, ecran, numerosFn: numeros, structureFn: structure, actions });
-    this.panneau = null;            // null | 'alerte' | 'lieu' | 'menu' | 'situation'
+  constructor({ intervention, son, ecran, numeros, structure, groupes = () => [], actions }) {
+    Object.assign(this, { intervention, son, ecran, numerosFn: numeros, structureFn: structure, groupesFn: groupes, actions });
+    this.panneau = null;            // null | 'alerte' | 'lieu' | 'menu' | 'situation' | 'roles' | 'profession'
     this.secours = null; this.minuteur = null; this.debranchements = []; this.messageTest = null; this.echeances = new Map();
     this.zone = { entete: document.getElementById('entete'), barre: document.getElementById('barre'), contenu: document.getElementById('contenu'), bandeaux: document.getElementById('bandeaux'), appli: document.getElementById('appli') };
   }
@@ -69,7 +72,8 @@ export class InterfaceIntervention {
 
   surEvenement(e) {
     // pendant la saisie du lieu, un changement ne doit PAS reconstruire le formulaire (on perdrait la saisie en cours)
-    if (e.type === 'changement' && this.panneau !== 'lieu') this.rendre();
+    if (e.type === 'changement' && !['lieu', 'roles', 'profession'].includes(this.panneau)) this.rendre();
+    if (e.type === 'roles' || e.type === 'reglages') this.majPuceEtRoles();
     if (e.type === 'echeance') this.afficherEcheance(e);
     if (e.type === 'rattrapage') this.afficherRattrapage(e);
   }
@@ -88,8 +92,14 @@ export class InterfaceIntervention {
     metronome.append(bouton('Démarrer', 'bouton', () => this.intervention.basculerMetronome(), { id: 'pause-metronome' }));
     metronome.hidden = true; metronome.id = 'bloc-metronome';
     entete.append(metronome);
-    // places RÉSERVÉES : la puce profession et le bandeau des rôles apparaissent au lot L5b
-    entete.append(creer('span', 'place-profession', '', { 'data-place': 'profession', hidden: '' }));
+    // puce profession (4.13) : UN toucher ouvre la liste des groupes, UN second choisit ; « Profession non réglée » bien visible
+    const place = creer('span', 'place-profession', '', { 'data-place': 'profession' });
+    place.append(bouton('', 'bouton puce', () => this.ouvrirPanneau('profession'), { id: 'puce-profession' }));
+    entete.append(place);
+    // bandeau des rôles (4.4) : une ligne, touchable ; replié en pictogramme court quand la place manque (paysage, texte agrandi)
+    const roles = bouton('', 'bouton bandeau-roles', () => this.ouvrirPanneau('roles'), { id: 'bandeau-roles' });
+    roles.append(creer('span', 'roles-long', ''), creer('span', 'roles-court', ''));
+    entete.append(roles);
     entete.append(creer('span', 'avertissement-son', '', { id: 'avertissement-son' }));
   }
 
@@ -131,9 +141,29 @@ export class InterfaceIntervention {
         document.getElementById('pause-metronome').textContent = e.actif ? 'Pause' : (e.frequence === null ? 'Démarrer' : 'Reprise');
       }
     }
+    this.majPuceEtRoles();
     const av = document.getElementById('avertissement-son');
     if (av) av.textContent = this.son.etat().avertissement;
     this.majZoneCycle();
+  }
+
+  /** Puce profession (libellé du groupe, ou « Profession non réglée ») et bandeau des rôles. */
+  majPuceEtRoles() {
+    const i = this.intervention;
+    const puce = document.getElementById('puce-profession');
+    if (puce) {
+      const groupe = this.groupesFn().find((g) => g.id === i.profession);
+      const regle = i.profession !== null;
+      puce.textContent = regle ? `${groupe ? groupe.libelle : i.profession} ▾` : 'Profession non réglée ▾';
+      puce.dataset.regle = regle ? 'oui' : 'non';
+      puce.setAttribute('aria-label', regle ? `Profession : ${groupe ? groupe.libelle : i.profession}. Changer` : 'Profession non réglée. Choisir');
+    }
+    const bandeau = document.getElementById('bandeau-roles');
+    if (bandeau) {
+      bandeau.querySelector('.roles-long').textContent = texteBandeau(i.roles);
+      bandeau.querySelector('.roles-court').textContent = texteBandeauCourt(i.roles);
+      bandeau.setAttribute('aria-label', `Rôles : ${texteBandeau(i.roles)}`);
+    }
   }
 
   majBandeauxSon() {
@@ -236,6 +266,14 @@ export class InterfaceIntervention {
       afficherAlerte(contenu, { intervention: i, numeros: this.numerosFn(), structure: this.structure, auFermer: () => this.ouvrirPanneau(null), auLieu: () => this.ouvrirPanneau('lieu') });
     } else if (this.panneau === 'lieu') {
       afficherLieu(contenu, { intervention: i, structure: this.structure, auRetour: () => this.ouvrirPanneau('alerte') });
+    } else if (this.panneau === 'roles') {
+      afficherRoles(contenu, { intervention: i, auFermer: () => this.ouvrirPanneau(null) });
+    } else if (this.panneau === 'profession') {
+      afficherProfession(contenu, {
+        groupes: this.groupesFn(), courante: i.profession,
+        auChoix: (id) => { i.changerProfession(id); this.actions.professionChangee?.(); this.ouvrirPanneau(null); },
+        auFermer: () => this.ouvrirPanneau(null),
+      });
     } else if (this.panneau === 'menu') {
       this.afficherMenu();
     } else if (this.panneau === 'situation' || i.situation === null) {
@@ -308,6 +346,7 @@ export class InterfaceIntervention {
       const cochee = i.estCochee(e.id);
       const t = bouton('', 'bouton tuile', () => this.toucherTuile(e.id), { 'data-etape': e.id, 'aria-pressed': String(cochee) });
       t.append(creer('span', 'tuile-etat', cochee ? '✓' : '○', { 'aria-hidden': 'true' }), creer('span', 'tuile-texte', e.texte_court));
+      if (typeof e.provisoire === 'string') t.append(creer('span', 'marque', MARQUE_PROVISOIRE)); // choix provisoire : marque visible, jamais attribué au médecin référent (R15)
       if (cochee) t.append(creer('span', 'tuile-fait', ` fait à T+${formaterDuree((i.fiche.checklist[e.id].coche_le - i.fiche.journal[0].t))}`));
       tuiles.append(t);
     }
@@ -357,6 +396,7 @@ export class InterfaceIntervention {
     // « le plus utile d'abord » ; chaque lot n'ajoute que les écrans qu'il livre
     ligne('Nouvelle urgence', () => this.actions.nouvelleUrgence(), 'menu-nouvelle-urgence');
     ligne('Accueil', () => this.actions.accueil(), 'menu-accueil');
+    ligne('Rôles', () => this.ouvrirPanneau('roles'), 'menu-roles');
     ligne('Changer de situation', () => this.ouvrirPanneau('situation'), 'menu-situation');
     ligne('Tester le son et l\'écran', async () => {
       this.messageTest = 'Test en cours…'; this.rendre();

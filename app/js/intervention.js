@@ -3,6 +3,7 @@
 // aucune de ces méthodes n'attend le stockage ; la fiche vit en mémoire (stockage.js l'écrit en parallèle, ou la garde en mémoire en mode dégradé).
 // Aucune valeur médicale ici : étapes, ordre, durées, fréquence et libellés viennent du protocole ; aucun ordre n'est écrit en dur.
 import { Horloge, GestionChronos, lireChronometres, lireMetronome, formaterDuree } from './horloge.js';
+import { attribuerRole, appelant, ajouterPersonne } from './roles.js';
 
 export const ACR = 'acr';
 export const AUTRE = 'autre';
@@ -20,6 +21,7 @@ export class Intervention {
     this.definitions = []; this.metronome = null; this.gestion = null; this.horloge = null;
     this.auditeurs = new Set(); this.debranchements = []; this.prefetch = null; this.dernierGlobal = 0;
     this.repriseDe = null; this.detruite = false; this.tuileTouchee = false;
+    this.profession = null; this.personnes = [];   // réglages de l'appareil (L3), chargés au démarrage : profession courante, personnes connues
   }
 
   // ───────── Événements ─────────
@@ -50,11 +52,13 @@ export class Intervention {
     this.son.debloquer();
     this.ecran.demander(); // jamais attendu
     this.prefetch = this.chargerProtocoleFn(this.protocoleId);
+    this.chargerReglages();
     return this.fiche;
   }
 
   /** Reprise d'une fiche déjà en base (directe au lancement, ou depuis l'accueil). Le protocole est celui COPIÉ dans la fiche (2.4, parade 2). */
   async reprendre(fiche, { automatique = false } = {}) {
+    this.chargerReglages();
     this.fiche = fiche; this.mode = fiche.mode; this.repriseDe = { automatique, debut: fiche.journal[0]?.t ?? fiche.cree_le };
     this.stockage.definirAffichee(fiche.id);
     this.initialiserTemps();
@@ -276,6 +280,50 @@ export class Intervention {
   }
 
   get appelsFaits() { return this.fiche.journal.filter((e) => ['appel_lance', 'appel_simule', 'appel_fait'].includes(e.type)).length; }
+
+  // ───────── Rôles, profession (L5b) ─────────
+
+  /** Profession et personnes connues de l'appareil : lues sans jamais retarder l'écran (valeurs par défaut en attendant). */
+  async chargerReglages() {
+    const reglages = await this.stockage.lireReglages();
+    if (this.detruite) return;
+    this.profession = reglages.profession; this.personnes = reglages.personnes;
+    this.emettre('reglages');
+  }
+
+  get roles() { return this.fiche.roles; }
+  /** Identité et fonction de l'APPELANT de la transmission : tirée du rôle « appel » (4.8), aucun champ de plus. */
+  get appelant() { return appelant(this.fiche.roles); }
+
+  /** Attribue (ou libère, si la personne est vide) un rôle ; cumul permis ; journalisé avec l'ancienne valeur. Jamais bloquant. */
+  attribuerRole(role, personne) {
+    const { roles, changement } = attribuerRole(this.fiche.roles, role, personne, Date.now());
+    if (!changement) return false;
+    this.stockage.modifier(this.fiche, (f) => { f.roles = roles; });
+    this.journaliser('role', changement);
+    this.emettre('roles');
+    return true;
+  }
+
+  /** Une personne saisie une fois devient un choix en un toucher pour les autres rôles ; la liste reste sur l'appareil. */
+  ajouterPersonne(nom) {
+    this.personnes = ajouterPersonne(this.personnes, nom);
+    this.stockage.ecrireReglage('personnes', this.personnes);
+  }
+
+  /**
+   * Changement de profession (puce de l'en-tête) : vaut pour l'appareil, s'applique aussitôt, journalisé « profession » { de, vers }.
+   * L'écran se met à jour AVANT l'écriture (on affiche d'abord, on écrit ensuite).
+   */
+  changerProfession(vers) {
+    const de = this.profession;
+    if (de === (vers ?? null)) return false;
+    this.profession = vers ?? null;
+    this.journaliser('profession', { de, vers: this.profession });
+    this.stockage.ecrireReglage('profession', this.profession);
+    this.emettre('reglages');
+    return true;
+  }
 
   // ───────── Lieu ─────────
 
