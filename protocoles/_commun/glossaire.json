@@ -1,0 +1,522 @@
+{
+  "format": 1,
+  "id": "glossaire",
+  "titre": "Glossaire des acronymes et mots-clés",
+  "version": "0.1.0",
+  "statut_validation": "BROUILLON",
+  "date_redaction": "2026-11-14",
+  "fiches_source": ["docs/reco/acr-adulte-dae.md", "docs/reco/cadre-transversal.md"],
+  "rapport_controle": null,
+  "validateur": null,
+  "date_validation": null,
+  "transcription": {
+    "par": "agent recherche-reco (Opus 5.5 / high), lot L1 de la phase 3",
+    "le": "2026-11-14",
+    "regle": "Le champ statut porte sur la forme courte (le sigle) : CITE si une source autorisée l'emploie, A_VALIDER sinon. Quand les deux fiches diffèrent, le statut le plus faible est retenu et l'écart est noté. Aucun acronyme créé, aucune traduction de l'anglais ajoutée : les significations sont celles des fiches."
+  },
+  "decisions_appliquees": [
+    {"decision": "D-10", "etat": "PROVISOIRE", "objet": "Acronymes attendus mais introuvables dans les sources autorisées (PAS, XABCDE, SAMPLE(R), OPQRST, MCE, RACS) : écrits en toutes lettres dans les checklists"},
+    {"decision": "D-20", "question": "Q-16", "etat": "PROVISOIRE", "objet": "Sigles RCP, DAE, ACR, BAVU, PLS, SMUR (et autres sigles sans source française autorisée) : le glossaire décide sigle par sigle, avec le verificateur ; par défaut, toutes lettres"}
+  ],
+  "affichages": {
+    "sigle": "Peut s'afficher en sigle dans texte_court et consigne_guidee (source autorisée trouvée) ; un toucher déplie la signification et la source.",
+    "toutes_lettres": "S'écrit en toutes lettres dans texte_court et consigne_guidee (aucune source autorisée du sigle) ; le sigle peut rester dans le détail déplié, avec la mention « non trouvé dans les sources autorisées ».",
+    "glossaire_seulement": "Variante ou terme hors champ : figure au glossaire seulement, n'est pas employé dans les checklists."
+  },
+  "sources": {
+    "ERC-BLS": {"titre": "European Resuscitation Council Guidelines 2025 Adult Basic Life Support (Smyth MA et al.), Resuscitation 215 (Suppl 1):110771", "organisme": "ERC", "annee": 2025, "url": "https://doi.org/10.1016/j.resuscitation.2025.110771", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (PROVISOIRE)."},
+    "ERC-ALS": {"titre": "European Resuscitation Council Guidelines 2025 Adult Advanced Life Support (Soar J et al.), Resuscitation 215:110769", "organisme": "ERC", "annee": 2025, "url": "https://doi.org/10.1016/j.resuscitation.2025.110769", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (PROVISOIRE)."},
+    "ERC-ES": {"titre": "European Resuscitation Council Guidelines 2025 Executive Summary (Greif R et al.), Resuscitation 215:110770", "organisme": "ERC", "annee": 2025, "url": "https://doi.org/10.1016/j.resuscitation.2025.110770", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (PROVISOIRE)."},
+    "ERC-SC": {"titre": "European Resuscitation Council Guidelines 2025 Special Circumstances in Resuscitation (Lott C, Karageorgos V et al.), Resuscitation 215:110753", "organisme": "ERC", "annee": 2025, "url": "https://doi.org/10.1016/j.resuscitation.2025.110753", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (PROVISOIRE)."},
+    "ERC-FA": {"titre": "European Resuscitation Council Guidelines 2025 First Aid, Resuscitation 215:110752", "organisme": "ERC", "annee": 2025, "url": "https://doi.org/10.1016/j.resuscitation.2025.110752", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Fiche ACR : lu p. 1-6 sur une copie tierce (certifico.com) ; fiche cadre : chapitre NON LU par le site de la revue (403)."},
+    "ERC-BROCHURE": {"titre": "The ERC Guidelines 2025 on Resuscitation for Everyone (brochure grand public de l'ERC)", "organisme": "ERC", "annee": 2025, "url": "https://www.erc.edu/science-research/guidelines/guidelines-2025/guidelines-2025-english", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Lu p. 51-52 sur une copie tierce (certifico.com) : D-13 (PROVISOIRE)."},
+    "HAS-SAED-2014": {"titre": "Saed : un guide pour faciliter la communication entre professionnels de santé", "organisme": "HAS", "annee": 2014, "url": "https://www.has-sante.fr/jcms/c_1776178/fr/saed-ca-aide-a-communiquer", "consulte_le": "2026-11-14", "en_vigueur": "incertain", "remarque": "Validé par le Collège le 08/10/2014, mis en ligne le 24/11/2014 ; aucune abrogation constatée. Lu p. 1-15, annexes non lues."},
+    "HAS-REGULATION-2011": {"titre": "Modalités de prise en charge d'un appel de demande de soins non programmés dans le cadre de la régulation médicale", "organisme": "HAS", "annee": 2011, "url": "https://www.has-sante.fr/upload/docs/application/pdf/2011-12/recommandation_regulation_medicale.pdf", "consulte_le": "2026-11-14", "en_vigueur": "incertain", "remarque": "Lu p. 9-16 ; aucune abrogation constatée."},
+    "HAS-AVC-2009": {"titre": "AVC : prise en charge précoce — synthèse des recommandations", "organisme": "HAS", "annee": 2009, "url": "https://has-sante.fr/upload/docs/application/pdf/2009-07/avc_prise_en_charge_precoce_-_synthese_des_recommandations.pdf", "consulte_le": "2026-11-14", "en_vigueur": "incertain", "remarque": "Lu p. 1 ; en partie relayé par la synthèse HAS de 2025."},
+    "HAS-AVC-USAGERS-2025": {"titre": "AVC — Des signes d'alerte à votre retour à domicile (document usagers)", "organisme": "HAS", "annee": 2025, "url": "https://www.has-sante.fr/jcms/p_3701212/fr/accident-vasculaire-cerebral-des-signes-d-alerte-a-votre-retour-a-domicile", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Lu en entier."},
+    "SFMU-IOA-2020": {"titre": "Infirmier organisateur de l'accueil — Référentiel 2020", "organisme": "SFMU / CSU", "annee": 2020, "url": "https://www.sfmu.org/upload/referentielsSFMU/IOA_r%C3%A9f%C3%A9rentiel_SFMU2020.pdf", "consulte_le": "2026-11-14", "en_vigueur": "oui (présumé)", "remarque": "Lu p. 27-30 (chapitre pédiatrique pour AVPU et Glasgow)."},
+    "ARRETE-AFGSU-2014": {"titre": "Arrêté du 30 décembre 2014 relatif à l'attestation de formation aux gestes et soins d'urgence, version consolidée", "organisme": "Ministère chargé de la santé (Légifrance)", "annee": 2014, "url": "https://www.legifrance.gouv.fr/loda/id/JORFTEXT000030084493", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Modifié par les arrêtés du 1er juillet 2019 et du 16 mars 2021."},
+    "ARRETE-AFGSU-2019": {"titre": "Arrêté du 1er juillet 2019 modifiant l'arrêté du 30 décembre 2014 (annexes AFGSU), JORF n° 0155 du 06/07/2019, texte n° 24", "organisme": "Ministère chargé de la santé (Légifrance)", "annee": 2019, "url": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000038730202", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Annexe 2 lue visuellement par la fiche cadre ; NON LUE selon la fiche ACR (divergence C-14). L'annexe 2 ne contient aucun des acronymes attendus, sauf SAMU (fiche cadre § 4)."},
+    "CSP-R6311-15": {"titre": "Code de la santé publique, art. R6311-15 (utilisation du défibrillateur automatisé externe)", "organisme": "Légifrance", "annee": 2007, "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006919228", "consulte_le": "2026-11-14", "en_vigueur": "oui"},
+    "ARRETE-IDE-2026": {"titre": "Arrêté du 26 juin 2026 fixant la liste des actes et soins pouvant être réalisés par les infirmiers diplômés d'État (NOR SFHH2610764A)", "organisme": "Ministère chargé de la santé (Légifrance)", "annee": 2026, "url": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000054321952", "consulte_le": "2026-11-14", "en_vigueur": "oui"},
+    "ARCEP-2017-1251": {"titre": "Décision ARCEP n° 2017-1251 du 23 octobre 2017 (liste des numéros d'urgence), JORF du 10/11/2017", "organisme": "ARCEP", "annee": 2017, "url": "https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000035994599", "consulte_le": "2026-11-14", "en_vigueur": "incertain", "remarque": "Une décision ultérieure a pu compléter la liste."},
+    "SERVICE-PUBLIC-F33954": {"titre": "Quels sont les numéros en cas d'urgence… (fiche F33954)", "organisme": "service-public.gouv.fr (DILA)", "annee": 2026, "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F33954", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Fiche vérifiée le 25/08/2026 par la DILA."}
+  },
+  "entrees": [
+    {
+      "id": "acr",
+      "forme_courte": "ACR",
+      "signification": "arrêt cardio-respiratoire / arrêt cardiaque",
+      "statut": "A_VALIDER",
+      "affichage": "toutes_lettres",
+      "provisoire": "D-20",
+      "question": "Q-16",
+      "a_valider": "Forme française et forme AFGSU non vérifiées : source française autorisée non lue (fiche ACR § 4 ; § 9, V6).",
+      "present_dans": "ERC : « cardiac arrest », « OHCA » (out-of-hospital cardiac arrest) ; source française non lue ; SPEC.md emploie « ACR »",
+      "variantes": "AC (arrêt cardiaque) ; EN : cardiac arrest, OHCA",
+      "ref_fiche": "fiche ACR § 4"
+    },
+    {
+      "id": "rcp",
+      "forme_courte": "RCP",
+      "signification": "réanimation cardio-pulmonaire",
+      "statut": "A_VALIDER",
+      "affichage": "toutes_lettres",
+      "provisoire": "D-20",
+      "question": "Q-16",
+      "terme_source": {
+        "texte": "réanimation cardiopulmonaire",
+        "statut": "CITE",
+        "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B6)", "citation": "réanimation cardiopulmonaire"}]
+      },
+      "a_valider": "Terme écrit en toutes lettres par l'AFGSU ; sigle non trouvé dans une source française autorisée (fiche cadre § 4 ; fiche ACR § 4 et V6 ; fiche cadre V5).",
+      "present_dans": "AFGSU : en toutes lettres seulement ; ERC : CPR",
+      "variantes": "EN : CPR",
+      "ref_fiche": "fiche ACR § 4 ; fiche cadre § 4"
+    },
+    {
+      "id": "mce",
+      "forme_courte": "MCE",
+      "signification": "massage cardiaque externe",
+      "statut": "A_VALIDER",
+      "affichage": "toutes_lettres",
+      "provisoire": "D-10",
+      "a_valider": "Non trouvé dans les sources lues (l'arrêté infirmier de 2026 ne mentionne ni RCP ni massage cardiaque) : fiche cadre § 4 et V5 ; fiche ACR § 4 et V6. Signification elle-même non sourcée.",
+      "present_dans": "ERC : « chest compressions » ; source française non lue",
+      "variantes": "EN : chest compressions",
+      "ref_fiche": "fiche ACR § 4 ; fiche cadre § 4"
+    },
+    {
+      "id": "dae",
+      "forme_courte": "DAE",
+      "signification": "défibrillateur automatisé externe",
+      "statut": "A_VALIDER",
+      "affichage": "toutes_lettres",
+      "provisoire": "D-20",
+      "question": "Q-16",
+      "terme_source": {
+        "texte": "défibrillateur automatisé externe",
+        "statut": "CITE",
+        "sources": [
+          {"ref": "CSP-R6311-15", "localisation": "art. R6311-15", "citation": "Toute personne, même non médecin, est habilitée à utiliser un défibrillateur automatisé externe"},
+          {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B6)"}
+        ]
+      },
+      "sources": [{"ref": "ERC-BLS", "localisation": "p. 1 et p. 5 (AED ; appareils entièrement automatiques et semi-automatiques)"}],
+      "a_valider": "Divergence C-16 : la fiche ACR (§ 4) rattache le sigle au CSP (R6311-15) ; la fiche cadre (§ 4) relève que le CSP et l'AFGSU écrivent le terme en toutes lettres et marque le sigle A_VALIDER. Statut le plus faible retenu.",
+      "present_dans": "CSP (R6311-15) et AFGSU : terme en toutes lettres ; ERC : « AED »",
+      "variantes": "EN : AED (automated external defibrillator) ; DSA (arrêté infirmier 2026) ; l'ERC distingue appareils entièrement automatiques et semi-automatiques",
+      "ref_fiche": "fiche ACR § 4 ; fiche cadre § 4 ; C-16"
+    },
+    {
+      "id": "dsa",
+      "forme_courte": "DSA",
+      "signification": "défibrillateur semi-automatique",
+      "statut": "A_VALIDER",
+      "affichage": "glossaire_seulement",
+      "terme_source": {
+        "texte": "défibrillateur semi-automatique",
+        "statut": "CITE",
+        "sources": [{"ref": "ARRETE-IDE-2026", "localisation": "art. 2, B, II", "citation": "utilisation d'un défibrillateur semi-automatique"}]
+      },
+      "a_valider": "La fiche ACR (§ 4) rattache DSA à l'arrêté infirmier du 26/06/2026 (art. 2) ; la fiche cadre (§ 4, ligne DAE) relève que cet arrêté écrit le terme en toutes lettres : présence du sigle non établie. La fiche ACR (§ 7) recommande un seul terme dans l'appli, celui du CSP.",
+      "present_dans": "Arrêté infirmier du 26/06/2026 (art. 2 B) ; AFGSU : non vérifié",
+      "variantes": "Variante réglementaire de DAE ; l'un des deux types de DAE dans la terminologie ERC",
+      "ref_fiche": "fiche ACR § 4 et § 7 ; fiche cadre § 4"
+    },
+    {
+      "id": "samu",
+      "forme_courte": "SAMU",
+      "signification": "service d'aide médicale urgente",
+      "statut": "CITE",
+      "affichage": "sigle",
+      "sources": [
+        {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B2)", "citation": "service d'aide médicale urgente (SAMU)"},
+        {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence", "citation": "sauvegarde des vies humaines - SAMU"}
+      ],
+      "remarque": "La fiche ACR (§ 4) n'avait pas trouvé le développement ; la fiche cadre (§ 4) le cite dans l'AFGSU, en toutes lettres et en sigle.",
+      "present_dans": "AFGSU (en toutes lettres et en sigle) ; ARCEP (libellé du numéro 15)",
+      "variantes": "—",
+      "ref_fiche": "fiche cadre § 4 ; fiche ACR § 4"
+    },
+    {
+      "id": "smur",
+      "forme_courte": "SMUR",
+      "signification": null,
+      "statut": "A_VALIDER",
+      "affichage": "toutes_lettres",
+      "provisoire": "D-20",
+      "question": "Q-16",
+      "a_valider": "Développement non trouvé dans les sources lues (fiche ACR § 4 ; § 9, V6) : le sigle ne peut pas être remplacé par une forme développée sourcée. Les textes courts du protocole l'évitent.",
+      "present_dans": "SPEC.md",
+      "variantes": "—",
+      "ref_fiche": "fiche ACR § 4"
+    },
+    {
+      "id": "racs",
+      "forme_courte": "RACS",
+      "signification": "retour (ou reprise) d'une activité circulatoire (ou cardiaque) spontanée",
+      "statut": "A_VALIDER",
+      "affichage": "toutes_lettres",
+      "provisoire": "D-10",
+      "sources": [{"ref": "ERC-ALS", "localisation": "liste des abréviations, p. 1 (ROSC)"}],
+      "a_valider": "Plusieurs développements français circulent ; aucun n'a été vérifié dans une source autorisée (fiche ACR § 4 ; fiche cadre § 4 et V5). L'ERC écrit ROSC (return of spontaneous circulation).",
+      "present_dans": "ERC : « ROSC » ; source française non lue",
+      "variantes": "EN : ROSC (return of spontaneous circulation)",
+      "ref_fiche": "fiche ACR § 4 ; fiche cadre § 4"
+    },
+    {
+      "id": "bavu",
+      "forme_courte": "BAVU",
+      "signification": "ballon autoremplisseur à valve unidirectionnelle",
+      "statut": "A_VALIDER",
+      "affichage": "toutes_lettres",
+      "provisoire": "D-20",
+      "question": "Q-16",
+      "terme_source": {
+        "texte": "ventilation manuelle instrumentale par masque",
+        "statut": "CITE",
+        "sources": [{"ref": "ARRETE-IDE-2026", "localisation": "art. 2, B, II", "citation": "ventilation manuelle instrumentale par masque"}],
+        "remarque": "Désigne le geste, sans acronyme."
+      },
+      "sources": [{"ref": "ERC-ALS", "localisation": "p. 8 et p. 26 (bag-valve-mask)"}],
+      "a_valider": "Développement non vérifié (fiche ACR § 4 ; § 9, V6).",
+      "present_dans": "ERC : « bag-valve-mask », « self-inflating bag » ; arrêté infirmier 2026 : « ventilation manuelle instrumentale par masque » (sans acronyme)",
+      "variantes": "EN : bag-valve-mask, self-inflating bag",
+      "ref_fiche": "fiche ACR § 4"
+    },
+    {
+      "id": "4h4t",
+      "forme_courte": "4Hs and 4Ts",
+      "signification": "Causes réversibles de l'arrêt cardiaque : « hypoxia, hypovolaemia, electrolyte disorders, hypothermia, cardiac tamponade, tension pneumothorax, thrombosis, and toxic agents » (hypoxie, hypovolémie, troubles électrolytiques, hypothermie ; tamponnade, pneumothorax suffocant, thrombose, toxiques)",
+      "statut": "CITE",
+      "affichage": "sigle",
+      "sources": [
+        {"ref": "ERC-SC", "localisation": "Introduction, p. 1", "citation": "reversible causes, often summarised in the mnemonic '4Hs and 4Ts'"},
+        {"ref": "ERC-SC", "localisation": "p. 4"},
+        {"ref": "ERC-ES", "localisation": "p. 22"}
+      ],
+      "remarque": "Forme anglaise de l'ERC, sourcée. La forme française « 4H-4T » et la forme AFGSU ne sont pas vérifiées (A_VALIDER, fiche ACR § 4 et V6 ; fiche cadre V6).",
+      "present_dans": "ERC 2025 ; pas l'AFGSU",
+      "variantes": "4H-4T (forme française, A_VALIDER) ; 4P (causes propres à la grossesse, ERC)",
+      "ref_fiche": "fiche ACR § 4 ; fiche cadre § 4"
+    },
+    {
+      "id": "4p",
+      "forme_courte": "4P",
+      "signification": "Causes propres à la grossesse : pré-éclampsie/éclampsie, sepsis puerpéral, causes placentaires ou utérines, cardiomyopathie du péripartum",
+      "statut": "CITE",
+      "affichage": "sigle",
+      "sources": [{"ref": "ERC-SC", "localisation": "tableau 1 (suite), p. 4, et p. 15"}],
+      "remarque": "Fiche ACR, étape 10b : « 4P » (CITÉ, reformulé) ; la fiche cadre écrit « 4Ps (obstétrique) ». Forme française non vérifiée séparément.",
+      "present_dans": "ERC 2025 (circonstances particulières)",
+      "variantes": "4Ps (forme écrite par la fiche cadre)",
+      "ref_fiche": "fiche ACR § 2, étape 10b ; fiche cadre § 4, ligne 4H-4T"
+    },
+    {
+      "id": "fv-tvsp",
+      "forme_courte": "FV / TVSP",
+      "signification": "fibrillation ventriculaire / tachycardie ventriculaire sans pouls (rythmes choquables)",
+      "statut": "A_VALIDER",
+      "affichage": "toutes_lettres",
+      "provisoire": "D-20",
+      "question": "Q-16",
+      "sources": [{"ref": "ERC-BLS", "localisation": "p. 18 (VF/pVT)"}],
+      "a_valider": "Forme française non vérifiée (fiche ACR § 4 ; § 9, V6).",
+      "present_dans": "ERC : « VF/pVT »",
+      "variantes": "EN : VF/pVT",
+      "ref_fiche": "fiche ACR § 4"
+    },
+    {
+      "id": "aesp",
+      "forme_courte": "AESP / asystolie",
+      "signification": "rythmes non choquables (développement d'AESP non donné par la fiche)",
+      "statut": "A_VALIDER",
+      "affichage": "toutes_lettres",
+      "provisoire": "D-20",
+      "question": "Q-16",
+      "sources": [{"ref": "ERC-ALS", "localisation": "p. 18 (PEA, asystole)"}],
+      "a_valider": "Forme française non vérifiée (fiche ACR § 4 ; § 9, V6) ; la fiche ne donne pas le développement d'AESP.",
+      "present_dans": "ERC : « PEA » (pulseless electrical activity), « asystole »",
+      "variantes": "EN : PEA, asystole",
+      "ref_fiche": "fiche ACR § 4"
+    },
+    {
+      "id": "etco2",
+      "forme_courte": "ETCO₂",
+      "signification": "CO₂ télé-expiratoire",
+      "statut": "CITE",
+      "affichage": "sigle",
+      "sources": [{"ref": "ERC-ES", "localisation": "p. 20"}],
+      "remarque": "Hors matériel libéral.",
+      "present_dans": "ERC",
+      "variantes": "—",
+      "ref_fiche": "fiche ACR § 4"
+    },
+    {
+      "id": "spo2",
+      "forme_courte": "SpO₂",
+      "signification": "saturation pulsée en oxygène",
+      "statut": "CITE",
+      "affichage": "sigle",
+      "sources": [{"ref": "ERC-ES", "localisation": "p. 33"}],
+      "present_dans": "ERC",
+      "variantes": "—",
+      "ref_fiche": "fiche ACR § 4"
+    },
+    {
+      "id": "iv-io",
+      "forme_courte": "IV / IO",
+      "signification": "intraveineux / intra-osseux",
+      "statut": "CITE",
+      "affichage": "sigle",
+      "sources": [{"ref": "ERC-ES", "localisation": "p. 19"}, {"ref": "ARRETE-IDE-2026", "localisation": "art. 4", "citation": "cathéter court, périphérique veineux ou intra-osseux"}],
+      "remarque": "Lié aux médicaments, non intégrés à l'appli.",
+      "present_dans": "ERC ; arrêté infirmier 2026 (en toutes lettres)",
+      "variantes": "—",
+      "ref_fiche": "fiche ACR § 4"
+    },
+    {
+      "id": "pls",
+      "forme_courte": "PLS",
+      "signification": "position latérale de sécurité",
+      "statut": "A_VALIDER",
+      "affichage": "toutes_lettres",
+      "provisoire": "D-20",
+      "question": "Q-16",
+      "sources": [
+        {"ref": "ERC-FA", "localisation": "p. 5 (recovery position)"},
+        {"ref": "ERC-ES", "localisation": "p. 73 (lateral (side-lying) recovery position)"},
+        {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B3, sans sigle)"}
+      ],
+      "a_valider": "Terme et sigle non trouvés dans une source autorisée ; probablement dans le PSC1, non lu (fiche cadre § 4 et V5 ; fiche ACR § 4).",
+      "present_dans": "AFGSU : « assurer la liberté et la protection des voies aériennes d'une personne inconsciente en ventilation spontanée » (pas de sigle) ; ERC : « recovery position »",
+      "variantes": "EN : recovery position",
+      "ref_fiche": "fiche ACR § 4 ; fiche cadre § 4"
+    },
+    {
+      "id": "afgsu",
+      "forme_courte": "AFGSU",
+      "signification": "attestation de formation aux gestes et soins d'urgence",
+      "statut": "CITE",
+      "affichage": "sigle",
+      "sources": [{"ref": "ARRETE-AFGSU-2014", "localisation": "titre de l'arrêté"}],
+      "present_dans": "Arrêté du 30/12/2014 modifié (titre)",
+      "variantes": "—",
+      "ref_fiche": "fiche ACR § 4"
+    },
+    {
+      "id": "pas",
+      "forme_courte": "PAS",
+      "signification": null,
+      "signification_selon_spec": "Protéger, Alerter, Secourir",
+      "statut": "A_VALIDER",
+      "affichage": "toutes_lettres",
+      "provisoire": "D-10",
+      "a_valider": "Introuvable dans les sources lues : AFGSU (annexe 2), ERC 2025, HAS, SFMU ; peut figurer dans le PSC1, non lu. L'AFGSU écrit « protection » puis « alerter » en toutes lettres (fiche cadre § 4 ; § 9, V2).",
+      "present_dans": "Non trouvé",
+      "variantes": "—",
+      "ref_fiche": "fiche cadre § 4"
+    },
+    {
+      "id": "abcde",
+      "forme_courte": "ABCDE",
+      "signification": "« A- Airway, B- Breathing, C- Circulation, D- Disability, E- Exposure »",
+      "statut": "CITE",
+      "affichage": "sigle",
+      "sources": [
+        {"ref": "ERC-ES", "localisation": "p. 73 (First aid)", "citation": "A- Airway, B- Breathing, C- Circulation, D- Disability, E- Exposure"},
+        {"ref": "ERC-BROCHURE", "localisation": "p. 51"},
+        {"ref": "ERC-ALS", "localisation": "p. 10"}
+      ],
+      "remarque": "Développement en français : A_VALIDER (aucune traduction française officielle trouvée, fiche cadre § 9, V7).",
+      "present_dans": "ERC 2025 (First Aid, ALS, circonstances particulières, pédiatrie) ; pas l'AFGSU ; pas trouvé dans un texte HAS ou SFMU",
+      "variantes": "—",
+      "ref_fiche": "fiche cadre § 4"
+    },
+    {
+      "id": "xabcde",
+      "forme_courte": "XABCDE",
+      "signification": null,
+      "statut": "A_VALIDER",
+      "affichage": "toutes_lettres",
+      "provisoire": "D-10",
+      "a_valider": "Non trouvé dans l'ERC 2025 (chapitres lus) ni dans l'annexe AFGSU ; l'ERC First Aid met en tête « catastrophic bleeding » sans le noter X ; <C>ABCDE non trouvé non plus (fiche cadre § 4 ; § 9, V3).",
+      "present_dans": "Non trouvé",
+      "variantes": "<C>ABCDE : non trouvé",
+      "ref_fiche": "fiche cadre § 4"
+    },
+    {
+      "id": "avpu",
+      "forme_courte": "AVPU",
+      "signification": "ERC : « A: Alert or confusion - new or deteriorating? V: Verbal - responds to your voice. P: Pain - responds to pain on squeezing their shoulder. U: Unresponsive » ; SFMU : « A Alert / V Voice (réagit à la Voix) / P Pain (réagit à la Douleur) / U Unresponive [sic] (ne réagit pas) »",
+      "statut": "CITE",
+      "affichage": "sigle",
+      "sources": [
+        {"ref": "ERC-BROCHURE", "localisation": "p. 52"},
+        {"ref": "ERC-ES", "localisation": "p. 48"},
+        {"ref": "SFMU-IOA-2020", "localisation": "p. 29 (chapitre pédiatrique)"}
+      ],
+      "remarque": "Anglais seulement, avec glose française de la SFMU. Choix AVPU et/ou Glasgow pour la fiche bilan : décision médicale à prendre (Q-8 ; fiche cadre § 7, D6).",
+      "present_dans": "ERC 2025 (brochure ; pédiatrie ; circonstances particulières) ; SFMU IOA 2020 ; pas l'AFGSU",
+      "variantes": "—",
+      "ref_fiche": "fiche cadre § 4"
+    },
+    {
+      "id": "glasgow",
+      "forme_courte": "Glasgow (GCS)",
+      "signification": "Score de Glasgow : E (1-4) + V (1-5) + M (1-6)",
+      "statut": "CITE",
+      "affichage": "sigle",
+      "sources": [
+        {"ref": "SFMU-IOA-2020", "localisation": "p. 29 (tableau en français)"},
+        {"ref": "ERC-ES", "localisation": "p. 48 (Glasgow Coma Scale (GCS))"}
+      ],
+      "detail": "Libellés de la colonne « > 5 ans » du tableau SFMU : E 4 spontanée, 3 aux stimuli verbaux, 2 aux stimuli douloureux, 1 aucune réponse ; V 5 « Est orienté et parle », 4 « Est désorienté et parle », 3 « Paroles inappropriées », 2 « Sons incompréhensibles », 1 aucune ; M 6 « Répond aux demandes », 5 « Localise la douleur », 4 « Se retire à la douleur », 3 « Flexion anormale », 2 « Extension anormale », 1 aucune.",
+      "detail_statut": {"statut": "A_VALIDER", "a_valider": "Définition adulte tirée d'un tableau pédiatrique (fiche cadre § 4) ; total de 3 à 15 DÉDUIT (somme des minima et maxima)."},
+      "present_dans": "ERC 2025 ; SFMU IOA 2020 (tableau en français) ; pas l'AFGSU",
+      "variantes": "EN : GCS",
+      "ref_fiche": "fiche cadre § 4"
+    },
+    {
+      "id": "sample-r",
+      "forme_courte": "SAMPLE(R)",
+      "signification": null,
+      "objet_selon_spec": "antécédents et contexte",
+      "statut": "A_VALIDER",
+      "affichage": "toutes_lettres",
+      "provisoire": "D-10",
+      "a_valider": "Non trouvé dans les sources lues : AFGSU, ERC 2025, HAS (Saed), SFMU (IOA) (fiche cadre § 4 ; § 9, V4).",
+      "present_dans": "Non trouvé",
+      "variantes": "—",
+      "ref_fiche": "fiche cadre § 4"
+    },
+    {
+      "id": "opqrst",
+      "forme_courte": "OPQRST / PQRST",
+      "signification": null,
+      "objet_selon_spec": "analyse de la douleur",
+      "statut": "A_VALIDER",
+      "affichage": "toutes_lettres",
+      "provisoire": "D-10",
+      "a_valider": "Non trouvé dans les sources lues (fiche cadre § 4 ; § 9, V4).",
+      "present_dans": "Non trouvé",
+      "variantes": "—",
+      "ref_fiche": "fiche cadre § 4"
+    },
+    {
+      "id": "fast",
+      "forme_courte": "FAST",
+      "signification": "HAS 2009 : « FAST : Face Arm Speech Time (message dérivé de l'échelle préhospitalière de Cincinnati) » ; HAS 2025 (document usagers) : « F : face (visage) », « A : arm (bras) », « S : speech (parole) », T : appeler le 15 immédiatement si un signe apparaît brutalement",
+      "statut": "CITE",
+      "affichage": "sigle",
+      "sources": [
+        {"ref": "HAS-AVC-2009", "localisation": "synthèse, p. 1", "citation": "FAST : Face Arm Speech Time (message dérivé de l'échelle préhospitalière de Cincinnati)"},
+        {"ref": "HAS-AVC-USAGERS-2025", "localisation": "document usagers, sept. 2025"},
+        {"ref": "ERC-ES", "localisation": "p. 74 (« a stroke assessment scale », sans la nommer)"}
+      ],
+      "present_dans": "HAS (2009, 2025) ; ERC 2025 First Aid recommande seulement une échelle d'évaluation de l'AVC, sans la nommer",
+      "variantes": "VITE (Visage, Inertie, Trouble de la parole, En urgence le 15) : campagne associative, non trouvée dans une source officielle (A_VALIDER, fiche cadre § 7, D7)",
+      "ref_fiche": "fiche cadre § 4"
+    },
+    {
+      "id": "saed",
+      "forme_courte": "Saed",
+      "signification": "situation, antécédents, évaluation, demande",
+      "statut": "CITE",
+      "affichage": "sigle",
+      "sources": [
+        {"ref": "HAS-SAED-2014", "localisation": "§ 1.1, p. 8", "citation": "Saed est l'acronyme pour situation, antécédents, évaluation, demande."},
+        {"ref": "HAS-SAED-2014", "localisation": "Introduction, p. 7 (adaptation française de S.B.A.R.)"}
+      ],
+      "remarque": "Graphie de la HAS : Saed (capitale initiale seulement) ; SPEC.md écrit SAED. Répartition S / E du mode transmission : HAS, PROVISOIRE (D-9).",
+      "present_dans": "HAS 2014",
+      "variantes": "SAED (SPEC.md) ; SBAR (EN, cité par l'ERC 2025 ALS) ; RSVP (ERC 2025 ALS)",
+      "ref_fiche": "fiche cadre § 4 et § 2.D"
+    },
+    {
+      "id": "sbar",
+      "forme_courte": "SBAR",
+      "signification": "« Situation, Background, Assessment, Recommendation »",
+      "statut": "CITE",
+      "affichage": "glossaire_seulement",
+      "sources": [{"ref": "ERC-ALS", "localisation": "p. 11 et p. 15"}, {"ref": "HAS-SAED-2014", "localisation": "p. 2 (origine de Saed)"}],
+      "remarque": "Seulement comme variante signalée de Saed.",
+      "present_dans": "ERC 2025 ALS ; HAS 2014 (comme origine de Saed)",
+      "variantes": "—",
+      "ref_fiche": "fiche cadre § 4"
+    },
+    {
+      "id": "rsvp",
+      "forme_courte": "RSVP",
+      "signification": "« Reason, Story, Vital Signs, Plan »",
+      "statut": "CITE",
+      "affichage": "glossaire_seulement",
+      "sources": [{"ref": "ERC-ALS", "localisation": "p. 15"}],
+      "remarque": "Variante signalée, sans source française.",
+      "present_dans": "ERC 2025 ALS",
+      "variantes": "—",
+      "ref_fiche": "fiche cadre § 4"
+    },
+    {
+      "id": "arm",
+      "forme_courte": "ARM",
+      "signification": "assistant de régulation médicale",
+      "statut": "CITE",
+      "affichage": "sigle",
+      "sources": [{"ref": "HAS-REGULATION-2011", "localisation": "§ 1.4"}, {"ref": "ARRETE-AFGSU-2014", "localisation": "art. 1er"}],
+      "present_dans": "HAS 2011 ; arrêté AFGSU",
+      "variantes": "—",
+      "ref_fiche": "fiche cadre § 4"
+    },
+    {
+      "id": "sas",
+      "forme_courte": "SAS",
+      "signification": "service d'accès aux soins (joignable par le 15)",
+      "statut": "CITE",
+      "affichage": "sigle",
+      "sources": [{"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954"}],
+      "remarque": "Information.",
+      "present_dans": "service-public.gouv.fr",
+      "variantes": "—",
+      "ref_fiche": "fiche cadre § 4"
+    },
+    {
+      "id": "sse-orsan-nrbce",
+      "forme_courte": "SSE / ORSAN / NRBC-E",
+      "signification": "situation sanitaire exceptionnelle ; dispositif ORSAN ; risques NRBC-E",
+      "statut": "CITE",
+      "affichage": "glossaire_seulement",
+      "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 3, p. 8"}],
+      "remarque": "Imposé par l'AFGSU, mais hors du champ des protocoles d'urgence individuelle.",
+      "present_dans": "AFGSU (module 3)",
+      "variantes": "—",
+      "ref_fiche": "fiche cadre § 4"
+    },
+    {
+      "id": "ews-news",
+      "forme_courte": "EWS / NEWS",
+      "signification": "Early warning score / National Early Warning Score",
+      "statut": "CITE",
+      "affichage": "glossaire_seulement",
+      "sources": [{"ref": "ERC-ALS", "localisation": "p. 10-11"}],
+      "remarque": "Variante étrangère et hospitalière ; pas de forme française.",
+      "present_dans": "ERC 2025 ALS",
+      "variantes": "—",
+      "ref_fiche": "fiche cadre § 4"
+    },
+    {
+      "id": "ioa",
+      "forme_courte": "IOA",
+      "signification": "infirmier organisateur de l'accueil",
+      "statut": "CITE",
+      "affichage": "glossaire_seulement",
+      "sources": [{"ref": "SFMU-IOA-2020", "localisation": "titre du référentiel"}],
+      "remarque": "Hors champ (hôpital).",
+      "present_dans": "SFMU / CSU",
+      "variantes": "—",
+      "ref_fiche": "fiche cadre § 4"
+    }
+  ],
+  "lacunes": "Sigles employés par l'appli ou par les fiches mais absents des tableaux d'acronymes des deux fiches (§ 4), donc non transcrits ici : PA, FC, FR, T°, EVA/EN (rangée d'ajout rapide de la fiche bilan, cahier des charges 4.6), PAM, EPI, BLS, ALS, CCC, HCPs, IDE, MK, SF, PS. Faute d'entrée, ils doivent être écrits en toutes lettres dans texte_court et consigne_guidee (règle R11) ; à sourcer par recherche-reco."
+}

@@ -1,0 +1,592 @@
+{
+  "format": 1,
+  "id": "professions",
+  "titre": "Groupes de professions et habilitations par geste",
+  "version": "0.1.0",
+  "statut_validation": "BROUILLON",
+  "date_redaction": "2026-11-14",
+  "fiches_source": ["docs/reco/cadre-transversal.md", "docs/reco/acr-adulte-dae.md"],
+  "rapport_controle": null,
+  "validateur": null,
+  "date_validation": null,
+  "transcription": {
+    "par": "agent recherche-reco (Opus 5.5 / high), lot L1 de la phase 3",
+    "le": "2026-11-14",
+    "regle": "Valeurs tirées de la fiche ACR § 6 et de la fiche cadre transversal § 6, puis de la décision D-4 pour les groupes 5 à 7 (une décision datée prime sur les fiches). Quand les deux fiches diffèrent sur le statut d'une même habilitation, le statut le plus faible est retenu et l'écart est noté. Le regroupement des étapes du protocole sous un geste (champ etapes_protocole) est fait par la transcription : à vérifier."
+  },
+  "decisions_appliquees": [
+    {"decision": "D-4", "etat": "REPONDUE", "objet": "Sept groupes ; gestes à sourcer profession par profession ; en attendant, groupes 5 à 7 limités aux gestes ouverts à toute personne (alerte, massage cardiaque, défibrillateur) et à ceux de l'AFGSU, marqués A_VALIDER ; liste à confirmer"},
+    {"decision": "D-20", "question": "Q-6", "etat": "PROVISOIRE", "objet": "Geste A_VALIDER pour la profession réglée : affiché comme information non cochable, marqué « habilitation non établie pour votre profession »"},
+    {"decision": "D-20", "question": "Q-22", "etat": "PROVISOIRE", "objet": "Profession non réglée : comportement du groupe 7"},
+    {"decision": "D-20", "question": "Q-25", "etat": "PROVISOIRE", "objet": "Groupe 7 : les gestes de l'AFGSU sont ceux du niveau 1, A_VALIDER (contenu non lu)"},
+    {"decision": "D-20", "question": "Q-30", "etat": "PROVISOIRE", "objet": "Profession affichée dans l'en-tête et modifiable en 2 touchers ; non réglée = groupe 7"},
+    {"decision": "D-20", "question": "Q-31", "etat": "PROVISOIRE", "objet": "Un geste non cochable peut être noté « fait à hh:mm » sans être présenté comme autorisé"}
+  ],
+  "valeurs": {
+    "oui": "Geste proposé comme action (cochable) pour ce groupe.",
+    "non": "Geste non proposé comme action pour ce groupe.",
+    "A_VALIDER": "Habilitation non établie : affiché comme information non cochable, marqué « habilitation non établie pour votre profession » (Q-6)."
+  },
+  "sources": {
+    "CSP-R4127-9": {
+      "titre": "Code de la santé publique, art. R4127-9 (devoir d'assistance du médecin)",
+      "organisme": "Légifrance",
+      "annee": 2004,
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006912870",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Oui",
+      "remarque": "En vigueur depuis le 08/08/2004. Code de déontologie médicale modifié par le décret n° 2026-691 du 27/07/2026 : numérotation à revérifier (fiche cadre § 9, V17)."
+    },
+    "CSP-R4127-70": {
+      "titre": "Code de la santé publique, art. R4127-70 (compétence du médecin)",
+      "organisme": "Légifrance",
+      "annee": 2004,
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006912939",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Fiche cadre : oui (première phrase citée) ; fiche ACR : partiellement (extrait de recherche, non rouvert)",
+      "remarque": "En vigueur depuis le 08/08/2004. Numérotation à revérifier après le décret n° 2026-691 du 27/07/2026 (fiche cadre § 9, V17)."
+    },
+    "CSP-R4311": {
+      "titre": "Code de la santé publique, art. R4311-1 à R4311-7 (activités et compétences infirmières), rédaction du décret n° 2025-1306 du 24/12/2025",
+      "organisme": "Légifrance",
+      "annee": 2026,
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006913894",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "R4311-7 : oui ; R4311-3 à R4311-7 : oui (citations courtes)",
+      "remarque": "R4311-7 (urgence) en vigueur depuis le 30/06/2026. L'ancien R4311-14 est abrogé (version valable du 08/08/2004 au 30/06/2026) et ne doit plus être cité."
+    },
+    "ARRETE-IDE-2026": {
+      "titre": "Arrêté du 26 juin 2026 fixant la liste des actes et soins pouvant être réalisés par les infirmiers diplômés d'État (NOR SFHH2610764A), JORF n° 0149 du 27/06/2026, texte n° 25",
+      "organisme": "Ministère chargé de la santé (Légifrance)",
+      "annee": 2026,
+      "url": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000054321952",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Partiellement (art. 1, 2 B, 4, 5, 6, 7 : extraits et recherche par mots-clés)",
+      "remarque": "Version initiale ; entrée en vigueur au plus tard le 30/06/2026 (art. 7)."
+    },
+    "CSP-R4321-9": {
+      "titre": "Code de la santé publique, art. R4321-9 (actes du masseur-kinésithérapeute)",
+      "organisme": "Légifrance",
+      "annee": 2004,
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006913991",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Oui"
+    },
+    "CSP-R4321-10": {
+      "titre": "Code de la santé publique, art. R4321-10 (masseur-kinésithérapeute, urgence)",
+      "organisme": "Légifrance",
+      "annee": 2004,
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006913992",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Oui",
+      "remarque": "En vigueur depuis le 08/08/2004."
+    },
+    "CSP-L4321-1": {
+      "titre": "Code de la santé publique, art. L4321-1 (masseur-kinésithérapeute)",
+      "organisme": "Légifrance",
+      "annee": 2026,
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047568490",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Partiellement (passage sur l'urgence)",
+      "remarque": "En vigueur depuis le 29/07/2026 (loi n° 2026-668 du 27/07/2026, selon la page)."
+    },
+    "CSP-DEONTO-SF": {
+      "titre": "Code de la santé publique, code de déontologie des sages-femmes (art. R4127-308 et R4127-317), rédaction du décret n° 2025-1426 du 30/12/2025",
+      "organisme": "Légifrance",
+      "annee": 2026,
+      "url": "https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000006072665/LEGISCTA000006190549/",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "R4127-308 et R4127-317 : oui ; reste de la section : non",
+      "remarque": "Versions en vigueur depuis le 01/01/2026. R4127-334 (soins à un mineur ou à un majeur protégé) n'est plus cité. Champ de compétence (L4151-1 et textes d'application) non lu."
+    },
+    "CSP-R6311-15": {
+      "titre": "Code de la santé publique, art. R6311-15 (utilisation du défibrillateur automatisé externe)",
+      "organisme": "Légifrance",
+      "annee": 2007,
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006919228",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Oui",
+      "remarque": "En vigueur depuis le 05/05/2007."
+    },
+    "ARRETE-AFGSU-2014": {
+      "titre": "Arrêté du 30 décembre 2014 relatif à l'attestation de formation aux gestes et soins d'urgence, version consolidée (modifié par les arrêtés du 1er juillet 2019 et du 16 mars 2021)",
+      "organisme": "Ministère chargé de la santé (Légifrance)",
+      "annee": 2014,
+      "url": "https://www.legifrance.gouv.fr/loda/id/JORFTEXT000030084493",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Articles 1 à 8 : oui ; annexes : voir ARRETE-AFGSU-2019"
+    },
+    "ARRETE-AFGSU-2019": {
+      "titre": "Arrêté du 1er juillet 2019 modifiant l'arrêté du 30 décembre 2014 (articles et annexes AFGSU), JORF n° 0155 du 06/07/2019, texte n° 24",
+      "organisme": "Ministère chargé de la santé (Légifrance)",
+      "annee": 2019,
+      "url": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000038730202",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Fiche cadre : articles (p. 1-3) et annexe 2 (p. 7-8, lue visuellement sur les images du JO) ; fiche ACR : NON LU",
+      "remarque": "Divergence C-14 entre les deux fiches sur la lecture des annexes : citations à recontrôler sur la source."
+    },
+    "ERC-BLS": {
+      "titre": "European Resuscitation Council Guidelines 2025 Adult Basic Life Support (Smyth MA et al.), Resuscitation 215 (Suppl 1):110771",
+      "organisme": "ERC",
+      "annee": 2025,
+      "url": "https://doi.org/10.1016/j.resuscitation.2025.110771",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Texte : oui (extraction automatique) ; figures : non",
+      "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (PROVISOIRE)."
+    },
+    "ERC-BROCHURE": {
+      "titre": "The ERC Guidelines 2025 on Resuscitation for Everyone (brochure grand public de l'ERC)",
+      "organisme": "ERC",
+      "annee": 2025,
+      "url": "https://www.erc.edu/science-research/guidelines/guidelines-2025/guidelines-2025-english",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Non : p. 51-52",
+      "remarque": "Lu sur une copie tierce (certifico.com, pièce jointe 45835) : D-13 (PROVISOIRE)."
+    }
+  },
+  "regles_generales": [
+    {
+      "id": "afgsu2-ouverte-aux-ps",
+      "texte": "L'AFGSU de niveau 2 est ouverte aux professionnels exerçant une des professions de santé mentionnées dans la quatrième partie du Code de la santé publique.",
+      "statut": "CITE",
+      "sources": [{"ref": "ARRETE-AFGSU-2014", "localisation": "art. 1er (rédaction de l'arrêté du 01/07/2019, art. 1er, 1°, b)"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, « Public cible », p. 7"}],
+      "ref_fiche": "cadre § 6, règle 1 ; § 2.A, A11"
+    },
+    {
+      "id": "afgsu-sans-competence-nouvelle",
+      "texte": "L'AFGSU 2 enseigne des gestes non invasifs et intègre le PSC1, mais les soins d'urgence s'initient « selon ses compétences acquises par ailleurs » : elle ne donne aucune compétence légale nouvelle.",
+      "statut": "DEDUIT",
+      "statut_fiche": "CITÉ (A7, A10) + DÉDUIT (conséquence)",
+      "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7", "citation": "selon ses compétences acquises par ailleurs"}],
+      "raisonnement": "Plusieurs objectifs de l'annexe 2 précisent « d'initier les soins d'urgence selon ses compétences acquises par ailleurs » : l'AFGSU n'étend pas les compétences légales de chaque profession.",
+      "ref_fiche": "cadre § 6, règle 2 ; § 2.A, A7 et A10"
+    },
+    {
+      "id": "dae-toute-personne",
+      "texte": "« Toute personne, même non médecin, est habilitée à utiliser un défibrillateur automatisé externe ».",
+      "statut": "CITE",
+      "sources": [{"ref": "CSP-R6311-15", "localisation": "art. R6311-15", "citation": "Toute personne, même non médecin, est habilitée à utiliser un défibrillateur automatisé externe"}],
+      "ref_fiche": "cadre § 6, règle 3 ; fiche ACR § 6, ligne Utiliser un DAE"
+    },
+    {
+      "id": "gestes-psc1-citoyens",
+      "texte": "Les gestes de secours non invasifs enseignés au PSC1 sont accessibles à tout citoyen.",
+      "statut": "A_VALIDER",
+      "statut_fiche": "DÉDUIT de A8 ; référentiel PSC1 NON LU → A_VALIDER",
+      "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, p. 7 (intégration du PSC1)"}],
+      "a_valider": "Référentiel PSC1 non lu (page du ministère de l'Intérieur inaccessible, HTTP 403) : fiche cadre § 9, V1.",
+      "ref_fiche": "cadre § 6, règle 4"
+    },
+    {
+      "id": "actes-selon-texte-de-competence",
+      "texte": "Les actes invasifs, le matériel médical et les médicaments relèvent du texte de compétence de chaque profession ; pour chaque autre profession de la MSP, il faut lire son décret d'actes.",
+      "statut": "DEDUIT",
+      "statut_fiche": "DÉDUIT",
+      "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7", "citation": "selon ses compétences acquises par ailleurs"}],
+      "raisonnement": "Conséquence de la règle précédente : l'AFGSU ne donnant aucune compétence nouvelle, seul le texte propre à chaque profession fonde les actes techniques.",
+      "ref_fiche": "cadre § 6, règle 5"
+    },
+    {
+      "id": "refonte-actes-infirmiers",
+      "texte": "Les actes infirmiers ont été refondus : décret n° 2025-1306 du 24/12/2025 (R4311-1 et suivants) et arrêté du 26/06/2026, en vigueur au plus tard le 30/06/2026. L'ancien R4311-14 (urgence) est abrogé ; l'urgence infirmière relève de R4311-7.",
+      "statut": "CITE",
+      "sources": [{"ref": "CSP-R4311", "localisation": "art. R4311-7 et mention d'abrogation de R4311-14 (LEGIARTI000006913902)"}, {"ref": "ARRETE-IDE-2026", "localisation": "art. 7"}],
+      "ref_fiche": "cadre § 6, changement réglementaire majeur ; fiche ACR § 6, note"
+    }
+  ],
+  "groupes": [
+    {
+      "id": "medecin",
+      "rang": 1,
+      "libelle": "Médecin, généraliste ou spécialiste",
+      "libelle_court": "Médecin",
+      "composition_d4": "Généraliste ou spécialiste : cardiologue, pédiatre, endocrinologue, biologiste médecin",
+      "colonne_fiches": "Médecin",
+      "formation_reference": "AFGSU niveau 2",
+      "textes_de_base": [
+        {"texte": "« Tout médecin est, en principe habilité à pratiquer tous les actes de diagnostic, de prévention et de traitement. »", "statut": "CITE", "sources": [{"ref": "CSP-R4127-70", "localisation": "art. R4127-70, 1re phrase", "citation": "Tout médecin est, en principe habilité à pratiquer tous les actes de diagnostic, de prévention et de traitement."}], "ref_fiche": "cadre § 6, textes de base"},
+        {"texte": "Devoir d'assistance : « Tout médecin qui se trouve en présence d'un malade ou d'un blessé en péril » doit l'assister.", "statut": "CITE", "sources": [{"ref": "CSP-R4127-9", "localisation": "art. R4127-9", "citation": "Tout médecin qui se trouve en présence d'un malade ou d'un blessé en péril"}], "ref_fiche": "cadre § 6, textes de base ; fiche ACR § 6, ligne 1"}
+      ]
+    },
+    {
+      "id": "ide",
+      "rang": 2,
+      "libelle": "Infirmier·e, libéral·e ou ASALEE",
+      "libelle_court": "Infirmier·e",
+      "composition_d4": "Infirmier·e libéral·e, infirmier·e ASALEE",
+      "colonne_fiches": "IDE",
+      "formation_reference": "AFGSU niveau 2",
+      "textes_de_base": [
+        {"texte": "En l'absence d'un médecin, l'infirmier est habilité, après avoir reconnu une situation comme relevant de l'urgence, à mettre en œuvre des protocoles de soins d'urgence préalablement écrits, datés et signés par le médecin responsable ; hors protocole, il décide des gestes et mesures conservatoires à pratiquer dans l'attente de l'intervention d'un médecin.", "statut": "CITE", "statut_fiche": "CITÉ (citations partielles, reliées ici)", "sources": [{"ref": "CSP-R4311", "localisation": "art. R4311-7 (décret n° 2025-1306, art. 1er)", "citation": "l'infirmier décide des gestes et mesures conservatoires à pratiquer dans l'attente de l'intervention d'un médecin"}], "ref_fiche": "cadre § 6, textes de base"},
+        {"texte": "Arrêté du 26/06/2026 : art. 1er (rôle propre), art. 2 (rôle propre que l'infirmier peut confier à un aide-soignant), art. 4 (sur prescription), art. 5 (sur prescription écrite, « à condition qu'un médecin puisse intervenir à tout moment »).", "statut": "CITE", "sources": [{"ref": "ARRETE-IDE-2026", "localisation": "art. 1, 2, 4, 5", "citation": "à condition qu'un médecin puisse intervenir à tout moment"}], "ref_fiche": "cadre § 6, textes de base"}
+      ]
+    },
+    {
+      "id": "mk",
+      "rang": 3,
+      "libelle": "Masseur-kinésithérapeute",
+      "libelle_court": "Masseur-kinésithérapeute",
+      "composition_d4": "Masseur-kinésithérapeute",
+      "colonne_fiches": "MK",
+      "formation_reference": "AFGSU niveau 2",
+      "textes_de_base": [
+        {"texte": "En cas d'urgence et en l'absence de médecin, le masseur-kinésithérapeute est habilité à accomplir les premiers actes de soins nécessaires en masso-kinésithérapie.", "statut": "CITE", "sources": [{"ref": "CSP-L4321-1", "localisation": "art. L4321-1 (passage sur l'urgence)", "citation": "premiers actes de soins nécessaires en masso-kinésithérapie"}], "ref_fiche": "cadre § 6, textes de base"},
+        {"texte": "Le masseur-kinésithérapeute est habilité à accomplir les gestes de secours nécessaires jusqu'à l'intervention d'un médecin, avec un compte rendu des actes accomplis remis au médecin.", "statut": "CITE", "sources": [{"ref": "CSP-R4321-10", "localisation": "art. R4321-10", "citation": "les gestes de secours nécessaires jusqu'à l'intervention d'un médecin"}], "ref_fiche": "cadre § 6, textes de base ; fiche ACR § 6, ligne 1"},
+        {"texte": "Actes autorisés dans le cadre des traitements prescrits par le médecin et de la rééducation.", "statut": "CITE", "sources": [{"ref": "CSP-R4321-9", "localisation": "art. R4321-9"}], "ref_fiche": "cadre § 6, textes de base"},
+        {"texte": "Divergence D8 de la fiche cadre : le texte réglementaire (« gestes de secours nécessaires ») est plus large que le texte législatif (« premiers actes de soins nécessaires en masso-kinésithérapie ») ; portée exacte pour la ventilation manuelle au masque et l'oxygène : A_VALIDER.", "statut": "A_VALIDER", "a_valider": "Avis juridique ou ordinal (fiche cadre § 7, D8 ; § 9, V14).", "ref_fiche": "cadre § 7, D8"}
+      ]
+    },
+    {
+      "id": "sf",
+      "rang": 4,
+      "libelle": "Sage-femme",
+      "libelle_court": "Sage-femme",
+      "composition_d4": "Sage-femme",
+      "colonne_fiches": "Sage-femme",
+      "formation_reference": "AFGSU niveau 2",
+      "textes_de_base": [
+        {"texte": "« La sage-femme qui se trouve en présence d'une personne en péril lui porte assistance ou s'assure qu'elle reçoit les soins nécessaires. »", "statut": "CITE", "sources": [{"ref": "CSP-DEONTO-SF", "localisation": "art. R4127-317", "citation": "La sage-femme qui se trouve en présence d'une personne en péril lui porte assistance ou s'assure qu'elle reçoit les soins nécessaires."}], "ref_fiche": "cadre § 6, textes de base ; fiche ACR § 6, ligne 1"},
+        {"texte": "Elle ne peut, « sauf en cas de force majeure », effectuer des actes ou donner des soins qui excèdent ses connaissances ou ses compétences.", "statut": "CITE", "sources": [{"ref": "CSP-DEONTO-SF", "localisation": "art. R4127-308", "citation": "sauf en cas de force majeure"}], "ref_fiche": "cadre § 6, textes de base"},
+        {"texte": "Champ de compétence de la sage-femme (L4151-1 et textes d'application) et médicaments qu'elle peut prescrire ou administrer : non lus.", "statut": "A_VALIDER", "a_valider": "Fiche cadre § 9, V15.", "ref_fiche": "cadre § 6, textes de base"}
+      ]
+    },
+    {
+      "id": "pharmacien",
+      "rang": 5,
+      "libelle": "Pharmacien·ne, dont biologiste pharmacien",
+      "libelle_court": "Pharmacien·ne",
+      "composition_d4": "Pharmacien·ne (dont d'officine), biologiste pharmacien",
+      "colonne_fiches": "Autres PS",
+      "formation_reference": "AFGSU niveau 2",
+      "textes_de_base": [
+        {"texte": "Décret d'actes de la profession non lu.", "statut": "A_VALIDER", "a_valider": "Fiche cadre § 9, V16 ; fiche ACR § 9, V12 ; D-4 : gestes à sourcer profession par profession.", "ref_fiche": "cadre § 6, règle générale"}
+      ]
+    },
+    {
+      "id": "paramedical_autre",
+      "rang": 6,
+      "libelle": "Autres professions paramédicales",
+      "libelle_court": "Autre paramédical",
+      "composition_d4": "Diététicien·ne, ergothérapeute, orthophoniste, orthoptiste, psychomotricien·ne, pédicure-podologue",
+      "colonne_fiches": "Autres PS",
+      "formation_reference": "AFGSU niveau 2",
+      "textes_de_base": [
+        {"texte": "Décret d'actes de chaque profession non lu.", "statut": "A_VALIDER", "a_valider": "Fiche cadre § 9, V16 ; fiche ACR § 9, V12 ; D-4 : gestes à sourcer profession par profession.", "ref_fiche": "cadre § 6, règle générale"}
+      ]
+    },
+    {
+      "id": "non_soignant",
+      "rang": 7,
+      "libelle": "Non-soignant : coordination, secrétariat",
+      "libelle_court": "Non-soignant",
+      "composition_d4": "Coordinatrice (non soignante), secrétaires",
+      "colonne_fiches": "aucune (hors du public des fiches, C-18)",
+      "formation_reference": "AFGSU niveau 1",
+      "formation_reference_statut": {
+        "statut": "CITE",
+        "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "art. 1er, 1°, a (JO p. 1)", "citation": "auprès d'un professionnel de santé dans un cabinet libéral, une maison de santé ou un centre de santé"}],
+        "ref_fiche": "cadre § 2.A, A12",
+        "provisoire": "D-20",
+        "question": "Q-25",
+        "remarque": "Le niveau 1 vise notamment les personnels non professionnels de santé exerçant auprès d'un professionnel de santé en maison de santé ; contenu du niveau 1 non lu."
+      },
+      "textes_de_base": [
+        {"texte": "Aucun texte d'actes ; contenu de l'AFGSU niveau 1 non lu.", "statut": "A_VALIDER", "a_valider": "Q-25 ; fiche cadre A12 ; C-18 (le public de SPEC.md vise les professionnels de santé).", "ref_fiche": "cadre § 2.A, A12"}
+      ]
+    }
+  ],
+  "profession_non_reglee": {
+    "comportement": "non_soignant",
+    "libelle_puce": "Profession non réglée",
+    "provisoire": "D-20",
+    "question": "Q-22 et Q-30",
+    "remarque": "Choix prudent : ne jamais proposer comme action un geste dont l'habilitation n'est pas établie. Option soumise : afficher tous les gestes avec la liste des professions habilitées (cahier des charges 4.13)."
+  },
+  "gestes": [
+    {
+      "id": "securite",
+      "libelle": "Sécurité et protection individuelle",
+      "etapes_protocole": {"acr-adulte-dae": ["securite", "protection-individuelle"]},
+      "ref_fiche": "fiche ACR § 2, étapes 1 et 1b (« Tous ») ; aucune ligne propre en § 6 (fiche ACR) ni en § 6 (fiche cadre)",
+      "habilitations": {
+        "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B1)", "citation": "d'identifier un danger immédiat dans l'environnement et de mettre en œuvre une protection adaptée"}, {"ref": "ERC-BLS", "localisation": "p. 2 et p. 5"}], "raisonnement": "La fiche ACR attribue ces étapes à « Tous » (intervenants de la fiche : médecin, IDE, MK, sage-femme, autres PS formés à l'AFGSU 2) ; objectif AFGSU 2 B1. Valeur transcrite du « Tous » de la fiche, sans ligne propre dans les tableaux de restrictions.", "ref_fiche": "fiche ACR § 2, étapes 1 et 1b ; fiche cadre § 2.B, B1"},
+        "ide": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B1)"}, {"ref": "ERC-BLS", "localisation": "p. 2 et p. 5"}], "raisonnement": "Même raisonnement que pour le médecin : « Tous » de la fiche ACR ; objectif AFGSU 2 B1.", "ref_fiche": "fiche ACR § 2, étapes 1 et 1b ; fiche cadre § 2.B, B1"},
+        "mk": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B1)"}, {"ref": "ERC-BLS", "localisation": "p. 2 et p. 5"}], "raisonnement": "Même raisonnement que pour le médecin : « Tous » de la fiche ACR ; objectif AFGSU 2 B1.", "ref_fiche": "fiche ACR § 2, étapes 1 et 1b ; fiche cadre § 2.B, B1"},
+        "sf": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B1)"}, {"ref": "ERC-BLS", "localisation": "p. 2 et p. 5"}], "raisonnement": "Même raisonnement que pour le médecin : « Tous » de la fiche ACR ; objectif AFGSU 2 B1.", "ref_fiche": "fiche ACR § 2, étapes 1 et 1b ; fiche cadre § 2.B, B1"},
+        "pharmacien": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : en attendant le sourçage profession par profession (Code de la santé publique), les groupes 5 à 7 n'ont que les gestes ouverts à toute personne (alerte, massage cardiaque, défibrillateur) ; les autres gestes, dont ceux de l'AFGSU, sont marqués A_VALIDER. La fiche ACR attribue l'étape à « Tous » ; objectif AFGSU 2 B1. Décret d'actes non lu (fiche cadre § 9, V16).", "ref_fiche": "D-4 ; fiche ACR § 2, étapes 1 et 1b"},
+        "paramedical_autre": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : en attendant le sourçage profession par profession (Code de la santé publique), les groupes 5 à 7 n'ont que les gestes ouverts à toute personne (alerte, massage cardiaque, défibrillateur) ; les autres gestes, dont ceux de l'AFGSU, sont marqués A_VALIDER. La fiche ACR attribue l'étape à « Tous » ; objectif AFGSU 2 B1. Décret d'actes non lu (fiche cadre § 9, V16).", "ref_fiche": "D-4 ; fiche ACR § 2, étapes 1 et 1b"},
+        "non_soignant": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : groupe 7 limité aux gestes ouverts à toute personne (alerte, massage cardiaque, défibrillateur) ; les autres gestes sont marqués A_VALIDER. AFGSU niveau 1 (fiche cadre A12), contenu non lu (Q-25) ; hors du public des fiches (C-18).", "ref_fiche": "D-4 ; Q-25"}
+      }
+    },
+    {
+      "id": "reconnaitre",
+      "libelle": "Reconnaître l'arrêt cardio-respiratoire (dont libération des voies aériennes pour évaluer la respiration)",
+      "etapes_protocole": {"acr-adulte-dae": ["reconnaitre-arret", "liberer-voies-aeriennes", "criteres-arret", "respiration-anormale", "convulsions", "doute-reanimer"]},
+      "ref_fiche": "fiche ACR § 6, ligne 1 (« Reconnaître l'ACR, alerter, MCE, insufflations sans matériel ») ; fiche cadre § 6, ligne RCP",
+      "habilitations": {
+        "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4127-9", "localisation": "art. R4127-9", "citation": "Tout médecin qui se trouve en présence d'un malade ou d'un blessé en péril"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B6)", "citation": "d'identifier un arrêt cardiaque"}], "raisonnement": "Fiche ACR § 6 : « Oui (obligation d'assistance) » ; fiche cadre § 6 : « Oui — DÉDUIT (R. 4127-70, R. 4127-9 ; AFGSU B6) ».", "ref_fiche": "fiche ACR § 6, ligne 1 ; fiche cadre § 6, ligne RCP"},
+        "ide": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-IDE-2026", "localisation": "art. 1, III (rôle propre)", "citation": "maintien des fonctions vitales par des moyens non-invasifs et n'impliquant pas le recours à des médicaments"}, {"ref": "CSP-R4311", "localisation": "art. R4311-7 (actes conservatoires)"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B6)"}], "raisonnement": "Fiche ACR § 6 : rôle propre, application au massage DÉDUITE ; fiche cadre § 6 : « Oui — DÉDUIT (R. 4311-7 : actes conservatoires ; AFGSU B6) ».", "ref_fiche": "fiche ACR § 6, ligne 1 ; fiche cadre § 6, ligne RCP"},
+        "mk": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4321-10", "localisation": "art. R4321-10", "citation": "les gestes de secours nécessaires jusqu'à l'intervention d'un médecin"}, {"ref": "CSP-L4321-1", "localisation": "art. L4321-1", "citation": "premiers actes de soins nécessaires en masso-kinésithérapie"}], "raisonnement": "Fiche ACR § 6 : gestes de secours nécessaires en urgence et en l'absence de médecin ; fiche cadre § 6 : « Oui — DÉDUIT (R. 4321-10, gestes de secours ; AFGSU B6) ».", "ref_fiche": "fiche ACR § 6, ligne 1 ; fiche cadre § 6, ligne RCP"},
+        "sf": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-DEONTO-SF", "localisation": "art. R4127-317", "citation": "La sage-femme qui se trouve en présence d'une personne en péril lui porte assistance"}], "raisonnement": "Fiche ACR § 6 : R4127-317 CITÉ, application au massage DÉDUITE ; fiche cadre § 6 : « Oui — DÉDUIT (R. 4127-317 ; AFGSU B6) ».", "ref_fiche": "fiche ACR § 6, ligne 1 ; fiche cadre § 6, ligne RCP"},
+        "pharmacien": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiche ACR § 6, ligne 1, colonne Autres PS : « Oui (DÉDUIT : obligation générale d'assistance, non vérifiée pour chaque profession) » et « Autres PS : A_VALIDER (liste des professions = question D-4) ». D-4 ne range parmi les gestes ouverts à toute personne que l'alerte, le massage cardiaque et le défibrillateur : la reconnaissance n'y figure pas en propre. Décret d'actes non lu (fiche cadre § 9, V16).", "ref_fiche": "fiche ACR § 6, ligne 1 ; D-4"},
+        "paramedical_autre": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiche ACR § 6, ligne 1, colonne Autres PS : « Oui (DÉDUIT : obligation générale d'assistance, non vérifiée pour chaque profession) » et « Autres PS : A_VALIDER (liste des professions = question D-4) ». D-4 ne range parmi les gestes ouverts à toute personne que l'alerte, le massage cardiaque et le défibrillateur : la reconnaissance n'y figure pas en propre. Décret d'actes non lu (fiche cadre § 9, V16).", "ref_fiche": "fiche ACR § 6, ligne 1 ; D-4"},
+        "non_soignant": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : groupe 7 limité à l'alerte, au massage cardiaque et au défibrillateur ; la reconnaissance n'y figure pas en propre. AFGSU niveau 1 (fiche cadre A12), contenu non lu (Q-25) ; hors du public des fiches (C-18).", "ref_fiche": "D-4 ; Q-25"}
+      }
+    },
+    {
+      "id": "alerter_transmettre",
+      "libelle": "Alerter le 15 et transmettre",
+      "etapes_protocole": {"acr-adulte-dae": ["alerter", "haut-parleur", "numeros-urgence", "plan-a-plan-b", "aide-regulateur", "seul-sans-telephone", "appeler-collegues", "constantes-transmission"]},
+      "ref_fiche": "fiche cadre § 6, ligne « Alerter le 15 et transmettre » ; fiche ACR § 6, ligne 1",
+      "habilitations": {
+        "medecin": {"valeur": "oui", "statut": "CITE", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectifs B2 et B7)", "citation": "d'alerter le service d'aide médicale urgente (SAMU) numéro d'urgence : 15"}], "ref_fiche": "fiche cadre § 6, ligne Alerter"},
+        "ide": {"valeur": "oui", "statut": "CITE", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectifs B2 et B7)", "citation": "d'alerter le service d'aide médicale urgente (SAMU) numéro d'urgence : 15"}], "ref_fiche": "fiche cadre § 6, ligne Alerter"},
+        "mk": {"valeur": "oui", "statut": "CITE", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectifs B2 et B7)", "citation": "d'alerter le service d'aide médicale urgente (SAMU) numéro d'urgence : 15"}], "ref_fiche": "fiche cadre § 6, ligne Alerter"},
+        "sf": {"valeur": "oui", "statut": "CITE", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectifs B2 et B7)", "citation": "d'alerter le service d'aide médicale urgente (SAMU) numéro d'urgence : 15"}], "ref_fiche": "fiche cadre § 6, ligne Alerter"},
+        "pharmacien": {"valeur": "oui", "statut": "CITE", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectifs B2 et B7)", "citation": "d'alerter le service d'aide médicale urgente (SAMU) numéro d'urgence : 15"}], "remarque": "Fiche cadre § 6, colonne « Autres PS (AFGSU 2) » ; D-4 range l'alerte parmi les gestes ouverts à toute personne.", "ref_fiche": "fiche cadre § 6, ligne Alerter ; D-4"},
+        "paramedical_autre": {"valeur": "oui", "statut": "CITE", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectifs B2 et B7)", "citation": "d'alerter le service d'aide médicale urgente (SAMU) numéro d'urgence : 15"}], "remarque": "Fiche cadre § 6, colonne « Autres PS (AFGSU 2) » ; D-4 range l'alerte parmi les gestes ouverts à toute personne.", "ref_fiche": "fiche cadre § 6, ligne Alerter ; D-4"},
+        "non_soignant": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "art. 1er, 1°, a (JO p. 1)", "citation": "auprès d'un professionnel de santé dans un cabinet libéral, une maison de santé ou un centre de santé"}], "raisonnement": "D-4 range l'alerte parmi les gestes ouverts à toute personne. Ce caractère est DÉDUIT : R6311-15 ne vise que le défibrillateur (C-19) ; la fiche ACR invoque une obligation générale d'assistance sans la sourcer. Le groupe 7 relève de l'AFGSU niveau 1 (A12), dont le contenu n'a pas été lu (Q-25).", "ref_fiche": "D-4 ; C-19 ; fiche cadre A12"}
+      }
+    },
+    {
+      "id": "mce",
+      "libelle": "Compressions thoraciques (massage cardiaque externe)",
+      "etapes_protocole": {"acr-adulte-dae": ["compressions", "position-mains", "bras-tendus", "profondeur", "frequence", "relachement", "plan-de-compression", "patient-obese", "compressions-continues", "cycles", "limiter-interruptions", "releve-masseur"]},
+      "ref_fiche": "fiche ACR § 6, ligne 1 ; fiche cadre § 6, ligne « RCP / compressions thoraciques (MCE) »",
+      "habilitations": {
+        "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4127-70", "localisation": "art. R4127-70, 1re phrase"}, {"ref": "CSP-R4127-9", "localisation": "art. R4127-9"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B6)", "citation": "d'identifier un arrêt cardiaque, de réaliser ou faire réaliser une réanimation cardiopulmonaire avec le matériel d'urgence prévu"}], "raisonnement": "Fiche ACR § 6 : « Oui (obligation d'assistance) » ; fiche cadre § 6 : « Oui — DÉDUIT (R. 4127-70, R. 4127-9 ; AFGSU B6) ».", "ref_fiche": "fiche ACR § 6, ligne 1 ; fiche cadre § 6, ligne RCP"},
+        "ide": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-IDE-2026", "localisation": "art. 1, III (rôle propre)", "citation": "maintien des fonctions vitales par des moyens non-invasifs et n'impliquant pas le recours à des médicaments"}, {"ref": "CSP-R4311", "localisation": "art. R4311-7 (actes conservatoires)"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B6)"}], "raisonnement": "Fiche ACR § 6 : rôle propre, application au massage DÉDUITE ; fiche cadre § 6 : « Oui — DÉDUIT (R. 4311-7 : actes conservatoires ; AFGSU B6). L'arrêté de 2026 ne nomme pas la RCP. »", "ref_fiche": "fiche ACR § 6, ligne 1 ; fiche cadre § 6, ligne RCP"},
+        "mk": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4321-10", "localisation": "art. R4321-10", "citation": "les gestes de secours nécessaires jusqu'à l'intervention d'un médecin"}, {"ref": "CSP-L4321-1", "localisation": "art. L4321-1"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B6)"}], "raisonnement": "Fiche cadre § 6 : « Oui — DÉDUIT (R. 4321-10, gestes de secours ; AFGSU B6) » ; fiche ACR § 6, ligne 1 : Oui.", "ref_fiche": "fiche ACR § 6, ligne 1 ; fiche cadre § 6, ligne RCP"},
+        "sf": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-DEONTO-SF", "localisation": "art. R4127-317", "citation": "La sage-femme qui se trouve en présence d'une personne en péril lui porte assistance"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B6)"}], "raisonnement": "Fiche ACR § 6 : R4127-317 CITÉ, application au massage DÉDUITE ; fiche cadre § 6 : « Oui — DÉDUIT (R. 4127-317 ; AFGSU B6) ».", "ref_fiche": "fiche ACR § 6, ligne 1 ; fiche cadre § 6, ligne RCP"},
+        "pharmacien": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B6)"}], "raisonnement": "Fiche ACR § 6, colonne Autres PS : « Oui (DÉDUIT : obligation générale d'assistance, non vérifiée pour chaque profession) » ; fiche cadre § 6 : « Oui — DÉDUIT (AFGSU B6 ; geste de secours citoyen, PSC1 NON LU) » ; D-4 range le massage cardiaque parmi les gestes ouverts à toute personne, caractère DÉDUIT (C-19).", "ref_fiche": "fiche ACR § 6, ligne 1 ; fiche cadre § 6, ligne RCP ; D-4 ; C-19"},
+        "paramedical_autre": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B6)"}], "raisonnement": "Fiche ACR § 6, colonne Autres PS : « Oui (DÉDUIT : obligation générale d'assistance, non vérifiée pour chaque profession) » ; fiche cadre § 6 : « Oui — DÉDUIT (AFGSU B6 ; geste de secours citoyen, PSC1 NON LU) » ; D-4 range le massage cardiaque parmi les gestes ouverts à toute personne, caractère DÉDUIT (C-19).", "ref_fiche": "fiche ACR § 6, ligne 1 ; fiche cadre § 6, ligne RCP ; D-4 ; C-19"},
+        "non_soignant": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "art. 1er, 1°, a (JO p. 1) ; annexe 2, p. 7 (intégration du PSC1)"}], "raisonnement": "D-4 range le massage cardiaque parmi les gestes ouverts à toute personne. Ce caractère est DÉDUIT (C-19 ; fiche cadre § 6, règle 4 : gestes de secours du PSC1 accessibles à tout citoyen, PSC1 non lu). Le groupe 7 relève de l'AFGSU niveau 1 (A12), contenu non lu (Q-25).", "ref_fiche": "D-4 ; C-19 ; fiche cadre § 6, règle 4 ; A12"}
+      }
+    },
+    {
+      "id": "insufflations_sans_materiel",
+      "libelle": "Insufflations sans matériel (bouche-à-bouche ; masque de poche)",
+      "etapes_protocole": {"acr-adulte-dae": ["insufflations", "technique-insufflation", "pause-insufflations", "echec-insufflations"]},
+      "ref_fiche": "fiche ACR § 6, ligne 1 ; fiche ACR § 2, étape 7 (« Tous les formés (AFGSU 2) »)",
+      "habilitations": {
+        "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4127-9", "localisation": "art. R4127-9"}, {"ref": "CSP-R4127-70", "localisation": "art. R4127-70, 1re phrase"}], "raisonnement": "Fiche ACR § 6, ligne 1 (insufflations sans matériel) : Oui (obligation d'assistance).", "ref_fiche": "fiche ACR § 6, ligne 1"},
+        "ide": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-IDE-2026", "localisation": "art. 1, III (rôle propre)", "citation": "maintien des fonctions vitales par des moyens non-invasifs et n'impliquant pas le recours à des médicaments"}], "raisonnement": "Fiche ACR § 6, ligne 1 : rôle propre, maintien non invasif des fonctions vitales ; application DÉDUITE.", "ref_fiche": "fiche ACR § 6, ligne 1"},
+        "mk": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4321-10", "localisation": "art. R4321-10", "citation": "les gestes de secours nécessaires jusqu'à l'intervention d'un médecin"}], "raisonnement": "Fiche ACR § 6, ligne 1 : gestes de secours nécessaires en urgence, en l'absence de médecin.", "ref_fiche": "fiche ACR § 6, ligne 1"},
+        "sf": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-DEONTO-SF", "localisation": "art. R4127-317"}], "raisonnement": "Fiche ACR § 6, ligne 1 : assistance à une personne en péril ; application DÉDUITE.", "ref_fiche": "fiche ACR § 6, ligne 1"},
+        "pharmacien": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiche ACR § 6, colonne Autres PS : « Oui (DÉDUIT : obligation générale d'assistance, non vérifiée pour chaque profession) », avec « Autres PS : A_VALIDER (question D-4) ». D-4 ne range pas les insufflations parmi les gestes ouverts à toute personne (alerte, massage cardiaque, défibrillateur) : geste de l'AFGSU marqué A_VALIDER pour les groupes 5 à 7.", "ref_fiche": "fiche ACR § 6, ligne 1 ; D-4"},
+        "paramedical_autre": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiche ACR § 6, colonne Autres PS : « Oui (DÉDUIT : obligation générale d'assistance, non vérifiée pour chaque profession) », avec « Autres PS : A_VALIDER (question D-4) ». D-4 ne range pas les insufflations parmi les gestes ouverts à toute personne (alerte, massage cardiaque, défibrillateur) : geste de l'AFGSU marqué A_VALIDER pour les groupes 5 à 7.", "ref_fiche": "fiche ACR § 6, ligne 1 ; D-4"},
+        "non_soignant": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : groupe 7 limité à l'alerte, au massage cardiaque et au défibrillateur. Fiche ACR § 2, étape 7 : « Tous les formés (AFGSU 2) », alors que le groupe 7 relève de l'AFGSU niveau 1 (A12, Q-25).", "ref_fiche": "D-4 ; fiche ACR § 2, étape 7 ; Q-25"}
+      }
+    },
+    {
+      "id": "ventilation_manuelle_masque",
+      "libelle": "Ventilation manuelle instrumentale par masque (BAVU)",
+      "etapes_protocole": {"acr-adulte-dae": ["option-professionnels", "ventilation-manuelle-masque"]},
+      "ref_fiche": "fiche ACR § 6, ligne « Ventilation au BAVU (masque) » ; fiche cadre § 6, ligne « Insufflations au BAVU »",
+      "habilitations": {
+        "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4127-70", "localisation": "art. R4127-70, 1re phrase", "citation": "Tout médecin est, en principe habilité à pratiquer tous les actes de diagnostic, de prévention et de traitement."}], "raisonnement": "Fiche ACR § 6 : habilité « en principe » à tous les actes, dans la limite de ses connaissances, de son expérience et de ses moyens ; fiche cadre § 6 : « Oui — DÉDUIT (R. 4127-70) ».", "ref_fiche": "fiche ACR § 6, ligne BAVU ; fiche cadre § 6, ligne BAVU"},
+        "ide": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-IDE-2026", "localisation": "art. 1, III (rôle propre)"}, {"ref": "ARRETE-IDE-2026", "localisation": "art. 2, B, II", "citation": "ventilation manuelle instrumentale par masque"}], "raisonnement": "Fiche ACR § 6 : « Oui, rôle propre (DÉDUIT : maintien non invasif des fonctions vitales, art. 1 ; la ventilation manuelle instrumentale par masque figure parmi les actes délégables par l'IDE, art. 2 B) ». Écart de statut : la fiche cadre § 6 marque la même habilitation CITÉ (« rôle propre, confiable à un aide-soignant ») ; le statut le plus faible est retenu.", "ref_fiche": "fiche ACR § 6, ligne BAVU ; fiche cadre § 6, ligne BAVU"},
+        "mk": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "sources": [{"ref": "CSP-R4321-9", "localisation": "art. R4321-9, 2°, c", "citation": "mettre en place une ventilation par masque"}, {"ref": "CSP-R4321-10", "localisation": "art. R4321-10"}], "a_valider": "Fiche ACR § 6 : « gestes de secours nécessaires » (R4321-10) couvre-t-il le BAVU ? non tranché (V11). Fiche cadre § 6 : R4321-9 n'autorise la ventilation par masque que pendant une rééducation respiratoire prescrite ; en urgence, R4321-10 (V14 ; divergence D8).", "ref_fiche": "fiche ACR § 6, ligne BAVU ; fiche cadre § 6, ligne BAVU"},
+        "sf": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "sources": [{"ref": "CSP-DEONTO-SF", "localisation": "art. R4127-308", "citation": "sauf en cas de force majeure"}], "a_valider": "Fiche ACR § 6 : pas d'actes au-delà de ses connaissances, compétences et moyens, sauf en cas de force majeure (R4127-308) ; V11. Champ de compétence non lu (fiche cadre V15).", "ref_fiche": "fiche ACR § 6, ligne BAVU ; fiche cadre § 6, ligne BAVU"},
+        "pharmacien": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiches ACR et cadre § 6 : A_VALIDER (l'AFGSU vise une réanimation « avec le matériel d'urgence prévu » sans nommer le BAVU). D-4 : geste non ouvert à toute personne. Décret d'actes non lu (V16).", "ref_fiche": "fiche ACR § 6, ligne BAVU ; fiche cadre § 6, ligne BAVU ; D-4"},
+        "paramedical_autre": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiches ACR et cadre § 6 : A_VALIDER (l'AFGSU vise une réanimation « avec le matériel d'urgence prévu » sans nommer le BAVU). D-4 : geste non ouvert à toute personne. Décret d'actes non lu (V16).", "ref_fiche": "fiche ACR § 6, ligne BAVU ; fiche cadre § 6, ligne BAVU ; D-4"},
+        "non_soignant": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : groupe 7 limité à l'alerte, au massage cardiaque et au défibrillateur ; AFGSU niveau 1, contenu non lu (Q-25).", "ref_fiche": "D-4 ; Q-25"}
+      }
+    },
+    {
+      "id": "oxygene",
+      "libelle": "Oxygène pendant l'arrêt et après la reprise",
+      "etapes_protocole": {"acr-adulte-dae": ["oxygene-pendant-reanimation", "oxygene-et-choc", "oxygene-apres-reprise"]},
+      "ref_fiche": "fiche ACR § 6, ligne « Oxygène pendant l'ACR » ; fiche cadre § 6, ligne « Oxygène »",
+      "habilitations": {
+        "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4127-70", "localisation": "art. R4127-70, 1re phrase"}], "raisonnement": "Fiche ACR § 6 : « Oui (R4127-70) » ; fiche cadre § 6 : « Oui — DÉDUIT ».", "ref_fiche": "fiche ACR § 6, ligne Oxygène ; fiche cadre § 6, ligne Oxygène"},
+        "ide": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "sources": [{"ref": "ARRETE-IDE-2026", "localisation": "art. 4, IV (sur prescription)", "citation": "installation et surveillance des personnes placées sous oxygénothérapie normobare"}, {"ref": "ARRETE-IDE-2026", "localisation": "art. 1 (rôle propre : changement et retrait des sondes et dispositifs non invasifs d'oxygène)"}, {"ref": "CSP-R4311", "localisation": "art. R4311-7", "citation": "à mettre en œuvre des protocoles de soins d'urgence, préalablement écrits, datés et signés par le médecin responsable"}], "detail": "Sur prescription : installation et surveillance sous oxygénothérapie normobare, pose de sondes à oxygène (art. 4, CITÉ). Rôle propre : seulement changement et retrait des sondes et dispositifs non invasifs d'oxygène (art. 1). Sans prescription, en urgence : protocole de soins d'urgence écrit, daté et signé par le médecin responsable (R4311-7), ou, hors protocole, gestes et mesures conservatoires décidés par l'infirmier (R4311-7).", "a_valider": "L'oxygène au BAVU est-il un geste conservatoire au sens de R4311-7 ? Fiche ACR § 6 et § 9, V9 (formulation exacte de la suite de R4311-7 à relire). Habilitation établie seulement avec une prescription ou un protocole de soins d'urgence écrit.", "ref_fiche": "fiche ACR § 6, ligne Oxygène ; fiche cadre § 6, ligne Oxygène"},
+        "mk": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiche ACR § 6 : A_VALIDER (V11) ; fiche cadre § 6 : non trouvé dans R4321-9 (V14).", "ref_fiche": "fiche ACR § 6, ligne Oxygène ; fiche cadre § 6, ligne Oxygène"},
+        "sf": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiches ACR et cadre § 6 : A_VALIDER (V11 ; champ de compétence non lu, V15).", "ref_fiche": "fiche ACR § 6, ligne Oxygène ; fiche cadre § 6, ligne Oxygène"},
+        "pharmacien": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "sources": [{"ref": "ERC-BROCHURE", "localisation": "p. 51", "citation": "only if you are trained in its use"}], "a_valider": "Fiche cadre § 6 : l'AFGSU enseigne l'oxygénothérapie « si besoin » (B4, B9), mais « selon ses compétences » ; l'ERC : « only if you are trained in its use » et « if legally allowed ». D-4 : geste non ouvert à toute personne. Décret d'actes non lu (V16).", "ref_fiche": "fiche cadre § 6, ligne Oxygène ; D-4"},
+        "paramedical_autre": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "sources": [{"ref": "ERC-BROCHURE", "localisation": "p. 51", "citation": "only if you are trained in its use"}], "a_valider": "Fiche cadre § 6 : l'AFGSU enseigne l'oxygénothérapie « si besoin » (B4, B9), mais « selon ses compétences » ; l'ERC : « only if you are trained in its use » et « if legally allowed ». D-4 : geste non ouvert à toute personne. Décret d'actes non lu (V16).", "ref_fiche": "fiche cadre § 6, ligne Oxygène ; D-4"},
+        "non_soignant": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : groupe 7 limité à l'alerte, au massage cardiaque et au défibrillateur ; AFGSU niveau 1, contenu non lu (Q-25).", "ref_fiche": "D-4 ; Q-25"}
+      }
+    },
+    {
+      "id": "canule_oropharyngee",
+      "libelle": "Canule oropharyngée",
+      "etapes_protocole": {"acr-adulte-dae": ["canule-oropharyngee"]},
+      "ref_fiche": "fiche ACR § 6, ligne « Canule oropharyngée » ; fiche cadre § 6, même ligne",
+      "habilitations": {
+        "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4127-70", "localisation": "art. R4127-70, 1re phrase"}], "raisonnement": "Fiche ACR § 6 : « Oui (R4127-70) » ; fiche cadre § 6 : « Oui — DÉDUIT ».", "ref_fiche": "fiche ACR § 6, ligne Canule ; fiche cadre § 6, ligne Canule"},
+        "ide": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "sources": [{"ref": "ARRETE-IDE-2026", "localisation": "art. 4 (seul le « changement de canule de trachéotomie » y figure)"}], "a_valider": "Non trouvée dans l'arrêté du 26/06/2026 ; seulement dans un protocole de soins d'urgence (R4311-7). Fiche ACR § 9, V10 ; fiche cadre § 9, V13.", "ref_fiche": "fiche ACR § 6, ligne Canule ; fiche cadre § 6, ligne Canule"},
+        "mk": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiches ACR et cadre § 6 : A_VALIDER (V10).", "ref_fiche": "fiche ACR § 6, ligne Canule"},
+        "sf": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiches ACR et cadre § 6 : A_VALIDER (V10).", "ref_fiche": "fiche ACR § 6, ligne Canule"},
+        "pharmacien": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiches ACR et cadre § 6 : A_VALIDER (V10) ; D-4 : geste non ouvert à toute personne.", "ref_fiche": "fiche ACR § 6, ligne Canule ; D-4"},
+        "paramedical_autre": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiches ACR et cadre § 6 : A_VALIDER (V10) ; D-4 : geste non ouvert à toute personne.", "ref_fiche": "fiche ACR § 6, ligne Canule ; D-4"},
+        "non_soignant": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : groupe 7 limité à l'alerte, au massage cardiaque et au défibrillateur ; AFGSU niveau 1, contenu non lu (Q-25).", "ref_fiche": "D-4 ; Q-25"}
+      }
+    },
+    {
+      "id": "dae",
+      "libelle": "Utiliser un défibrillateur automatisé externe",
+      "etapes_protocole": {"acr-adulte-dae": ["faire-chercher-defibrillateur", "mettre-en-oeuvre-defibrillateur", "electrodes", "position-antero-laterale", "position-antero-posterieure", "soutien-gorge", "boitier-implante", "analyse-rythme", "choc-indique", "apres-choc", "choc-non-indique", "suivre-defibrillateur", "cycles-avec-defibrillateur", "laisser-defibrillateur"]},
+      "ref_fiche": "fiche ACR § 6, ligne « Utiliser un DAE » ; fiche cadre § 6, ligne « DAE »",
+      "habilitations": {
+        "medecin": {"valeur": "oui", "statut": "CITE", "sources": [{"ref": "CSP-R6311-15", "localisation": "art. R6311-15", "citation": "Toute personne, même non médecin, est habilitée à utiliser un défibrillateur automatisé externe"}], "ref_fiche": "fiche ACR § 6, ligne DAE ; fiche cadre § 6, ligne DAE"},
+        "ide": {"valeur": "oui", "statut": "CITE", "sources": [{"ref": "CSP-R6311-15", "localisation": "art. R6311-15", "citation": "Toute personne, même non médecin, est habilitée à utiliser un défibrillateur automatisé externe"}, {"ref": "ARRETE-IDE-2026", "localisation": "art. 2, B, II", "citation": "utilisation d'un défibrillateur semi-automatique"}], "remarque": "L'utilisation d'un défibrillateur semi-automatique relève du rôle propre et peut être confiée à un aide-soignant.", "ref_fiche": "fiche ACR § 6, ligne DAE ; fiche cadre § 6, ligne DAE"},
+        "mk": {"valeur": "oui", "statut": "CITE", "sources": [{"ref": "CSP-R6311-15", "localisation": "art. R6311-15", "citation": "Toute personne, même non médecin, est habilitée à utiliser un défibrillateur automatisé externe"}], "ref_fiche": "fiche ACR § 6, ligne DAE ; fiche cadre § 6, ligne DAE"},
+        "sf": {"valeur": "oui", "statut": "CITE", "sources": [{"ref": "CSP-R6311-15", "localisation": "art. R6311-15", "citation": "Toute personne, même non médecin, est habilitée à utiliser un défibrillateur automatisé externe"}], "ref_fiche": "fiche ACR § 6, ligne DAE ; fiche cadre § 6, ligne DAE"},
+        "pharmacien": {"valeur": "oui", "statut": "CITE", "sources": [{"ref": "CSP-R6311-15", "localisation": "art. R6311-15", "citation": "Toute personne, même non médecin, est habilitée à utiliser un défibrillateur automatisé externe"}], "ref_fiche": "fiche ACR § 6, ligne DAE ; fiche cadre § 6, ligne DAE ; D-4 ; C-19"},
+        "paramedical_autre": {"valeur": "oui", "statut": "CITE", "sources": [{"ref": "CSP-R6311-15", "localisation": "art. R6311-15", "citation": "Toute personne, même non médecin, est habilitée à utiliser un défibrillateur automatisé externe"}], "ref_fiche": "fiche ACR § 6, ligne DAE ; fiche cadre § 6, ligne DAE ; D-4 ; C-19"},
+        "non_soignant": {"valeur": "oui", "statut": "CITE", "sources": [{"ref": "CSP-R6311-15", "localisation": "art. R6311-15", "citation": "Toute personne, même non médecin, est habilitée à utiliser un défibrillateur automatisé externe"}], "ref_fiche": "fiche cadre § 6, règle 3 ; D-4 ; C-19"}
+      }
+    },
+    {
+      "id": "evoquer_causes_reversibles",
+      "libelle": "Rechercher et évoquer les causes réversibles, les transmettre au régulateur (le traitement relève du médecin et de l'équipe médicale)",
+      "etapes_protocole": {"acr-adulte-dae": ["causes-reversibles", "causes-reversibles-cabinet"]},
+      "ref_fiche": "fiche ACR § 2, étapes 10 (« Tous (recherche) ; traitement : médecin, SMUR ») et 10a (« Tous ») ; aucune ligne propre en § 6",
+      "habilitations": {
+        "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4127-70", "localisation": "art. R4127-70, 1re phrase"}], "raisonnement": "Fiche ACR § 2, étape 10 : recherche par « Tous », traitement par le médecin et le SMUR.", "ref_fiche": "fiche ACR § 2, étapes 10 et 10a"},
+        "ide": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4311", "localisation": "art. R4311-7"}], "raisonnement": "Fiche ACR § 2, étapes 10 et 10a : recherche et évocation de la cause par « Tous » ; transcription du « Tous » de la fiche.", "ref_fiche": "fiche ACR § 2, étapes 10 et 10a"},
+        "mk": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4321-10", "localisation": "art. R4321-10"}], "raisonnement": "Fiche ACR § 2, étapes 10 et 10a : recherche et évocation de la cause par « Tous » ; transcription du « Tous » de la fiche.", "ref_fiche": "fiche ACR § 2, étapes 10 et 10a"},
+        "sf": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-DEONTO-SF", "localisation": "art. R4127-317"}], "raisonnement": "Fiche ACR § 2, étapes 10 et 10a : recherche et évocation de la cause par « Tous » ; transcription du « Tous » de la fiche.", "ref_fiche": "fiche ACR § 2, étapes 10 et 10a"},
+        "pharmacien": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : en attendant le sourçage profession par profession, les groupes 5 à 7 n'ont que l'alerte, le massage cardiaque et le défibrillateur ; les autres gestes sont marqués A_VALIDER (fiche ACR : « Tous »). Décret d'actes non lu (V16).", "ref_fiche": "D-4 ; fiche ACR § 2, étapes 10 et 10a"},
+        "paramedical_autre": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : en attendant le sourçage profession par profession, les groupes 5 à 7 n'ont que l'alerte, le massage cardiaque et le défibrillateur ; les autres gestes sont marqués A_VALIDER (fiche ACR : « Tous »). Décret d'actes non lu (V16).", "ref_fiche": "D-4 ; fiche ACR § 2, étapes 10 et 10a"},
+        "non_soignant": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : groupe 7 limité à l'alerte, au massage cardiaque et au défibrillateur ; AFGSU niveau 1, contenu non lu (Q-25).", "ref_fiche": "D-4 ; Q-25"}
+      }
+    },
+    {
+      "id": "deplacement_uterin",
+      "libelle": "Femme enceinte : déplacement manuel de l'utérus vers la gauche",
+      "etapes_protocole": {"acr-adulte-dae": ["femme-enceinte", "femme-enceinte-terme"]},
+      "ref_fiche": "fiche ACR § 2, étape 10b (« Tous ; SF particulièrement concernée ») ; aucune ligne propre en § 6",
+      "habilitations": {
+        "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4127-70", "localisation": "art. R4127-70, 1re phrase"}], "raisonnement": "Fiche ACR § 2, étape 10b : « Tous » ; transcription du « Tous » de la fiche.", "ref_fiche": "fiche ACR § 2, étape 10b"},
+        "ide": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-IDE-2026", "localisation": "art. 1, III (rôle propre)"}], "raisonnement": "Fiche ACR § 2, étape 10b : « Tous » ; transcription du « Tous » de la fiche.", "ref_fiche": "fiche ACR § 2, étape 10b"},
+        "mk": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4321-10", "localisation": "art. R4321-10"}], "raisonnement": "Fiche ACR § 2, étape 10b : « Tous » ; transcription du « Tous » de la fiche.", "ref_fiche": "fiche ACR § 2, étape 10b"},
+        "sf": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-DEONTO-SF", "localisation": "art. R4127-317"}], "raisonnement": "Fiche ACR § 2, étape 10b : « Tous ; SF particulièrement concernée ».", "ref_fiche": "fiche ACR § 2, étape 10b"},
+        "pharmacien": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : en attendant le sourçage profession par profession, les groupes 5 à 7 n'ont que l'alerte, le massage cardiaque et le défibrillateur ; les autres gestes sont marqués A_VALIDER (fiche ACR : « Tous »). Décret d'actes non lu (V16).", "ref_fiche": "D-4 ; fiche ACR § 2, étape 10b"},
+        "paramedical_autre": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : en attendant le sourçage profession par profession, les groupes 5 à 7 n'ont que l'alerte, le massage cardiaque et le défibrillateur ; les autres gestes sont marqués A_VALIDER (fiche ACR : « Tous »). Décret d'actes non lu (V16).", "ref_fiche": "D-4 ; fiche ACR § 2, étape 10b"},
+        "non_soignant": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : groupe 7 limité à l'alerte, au massage cardiaque et au défibrillateur ; AFGSU niveau 1, contenu non lu (Q-25).", "ref_fiche": "D-4 ; Q-25"}
+      }
+    },
+    {
+      "id": "surveillance_reevaluation",
+      "libelle": "Signes de reprise, soins après la reprise et surveillance jusqu'à l'arrivée de l'équipe médicale",
+      "etapes_protocole": {"acr-adulte-dae": ["signes-reprise", "signes-reprise-cabinet", "apres-reprise", "surveillance"]},
+      "ref_fiche": "fiche ACR § 2, étapes 11, 11a, 12 et 13 (« Tous ») ; aucune ligne propre en § 6",
+      "habilitations": {
+        "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4127-70", "localisation": "art. R4127-70, 1re phrase"}], "raisonnement": "Fiche ACR § 2, étapes 11, 11a, 12, 13 : « Tous » ; transcription du « Tous » de la fiche.", "ref_fiche": "fiche ACR § 2, étapes 11 à 13"},
+        "ide": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-IDE-2026", "localisation": "art. 2, B, III", "citation": "surveillance des fonctions vitales par des moyens non-invasifs"}], "raisonnement": "Fiche ACR § 2, étapes 11 à 13 : « Tous » ; la fiche cadre § 6 cite, pour l'infirmier, la surveillance non invasive des fonctions vitales (rôle propre).", "ref_fiche": "fiche ACR § 2, étapes 11 à 13 ; fiche cadre § 6, ligne surveillance non invasive"},
+        "mk": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4321-10", "localisation": "art. R4321-10"}], "raisonnement": "Fiche ACR § 2, étapes 11 à 13 : « Tous » ; transcription du « Tous » de la fiche.", "ref_fiche": "fiche ACR § 2, étapes 11 à 13"},
+        "sf": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-DEONTO-SF", "localisation": "art. R4127-317"}], "raisonnement": "Fiche ACR § 2, étapes 11 à 13 : « Tous » ; transcription du « Tous » de la fiche.", "ref_fiche": "fiche ACR § 2, étapes 11 à 13"},
+        "pharmacien": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : en attendant le sourçage profession par profession, les groupes 5 à 7 n'ont que l'alerte, le massage cardiaque et le défibrillateur ; les autres gestes sont marqués A_VALIDER (fiche ACR : « Tous »). Décret d'actes non lu (V16).", "ref_fiche": "D-4 ; fiche ACR § 2, étapes 11 à 13"},
+        "paramedical_autre": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : en attendant le sourçage profession par profession, les groupes 5 à 7 n'ont que l'alerte, le massage cardiaque et le défibrillateur ; les autres gestes sont marqués A_VALIDER (fiche ACR : « Tous »). Décret d'actes non lu (V16).", "ref_fiche": "D-4 ; fiche ACR § 2, étapes 11 à 13"},
+        "non_soignant": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : groupe 7 limité à l'alerte, au massage cardiaque et au défibrillateur ; AFGSU niveau 1, contenu non lu (Q-25).", "ref_fiche": "D-4 ; Q-25"}
+      }
+    },
+    {
+      "id": "position_laterale",
+      "libelle": "Position latérale, libération des voies aériennes d'une personne inconsciente qui respire",
+      "etapes_protocole": {"acr-adulte-dae": ["position-laterale"]},
+      "ref_fiche": "fiche cadre § 6, ligne « PLS / libération des voies aériennes chez une personne inconsciente qui respire » ; fiche ACR § 2, étape 12b (« Tous »)",
+      "habilitations": {
+        "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B3)", "citation": "d'identifier l'inconscience et d'assurer la liberté et la protection des voies aériennes d'une personne inconsciente en ventilation spontanée"}], "raisonnement": "Fiche cadre § 6 : « Oui — DÉDUIT », objectif commun aux titulaires de l'AFGSU 2 (B3).", "ref_fiche": "fiche cadre § 6, ligne PLS"},
+        "ide": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B3)"}], "raisonnement": "Fiche cadre § 6 : « Oui — DÉDUIT », objectif commun aux titulaires de l'AFGSU 2 (B3).", "ref_fiche": "fiche cadre § 6, ligne PLS"},
+        "mk": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B3)"}], "raisonnement": "Fiche cadre § 6 : « Oui — DÉDUIT », objectif commun aux titulaires de l'AFGSU 2 (B3).", "ref_fiche": "fiche cadre § 6, ligne PLS"},
+        "sf": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B3)"}], "raisonnement": "Fiche cadre § 6 : « Oui — DÉDUIT », objectif commun aux titulaires de l'AFGSU 2 (B3).", "ref_fiche": "fiche cadre § 6, ligne PLS"},
+        "pharmacien": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B3)"}], "a_valider": "La fiche cadre § 6 indique « Oui — DÉDUIT » pour les autres PS titulaires de l'AFGSU 2 (B3) ; D-4, postérieure, marque A_VALIDER les gestes de l'AFGSU des groupes 5 à 7 jusqu'au sourçage profession par profession.", "ref_fiche": "fiche cadre § 6, ligne PLS ; D-4"},
+        "paramedical_autre": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B3)"}], "a_valider": "La fiche cadre § 6 indique « Oui — DÉDUIT » pour les autres PS titulaires de l'AFGSU 2 (B3) ; D-4, postérieure, marque A_VALIDER les gestes de l'AFGSU des groupes 5 à 7 jusqu'au sourçage profession par profession.", "ref_fiche": "fiche cadre § 6, ligne PLS ; D-4"},
+        "non_soignant": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : groupe 7 limité à l'alerte, au massage cardiaque et au défibrillateur ; AFGSU niveau 1, contenu non lu (Q-25).", "ref_fiche": "D-4 ; Q-25"}
+      }
+    },
+    {
+      "id": "aspiration",
+      "libelle": "Aspiration oropharyngée (voies aériennes supérieures)",
+      "etapes_protocole": {"acr-adulte-dae": []},
+      "remarque": "Aucune étape du protocole ACR : l'aspiration n'est pas mentionnée par les textes ERC adultes lus (fiche ACR § 5 et V16). Ligne reprise des tableaux de restrictions des deux fiches.",
+      "ref_fiche": "fiche ACR § 6, ligne « Aspiration oropharyngée » ; fiche cadre § 6, ligne « Aspiration »",
+      "habilitations": {
+        "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4127-70", "localisation": "art. R4127-70, 1re phrase"}], "raisonnement": "Fiche ACR § 6 : « Oui (R4127-70) » ; fiche cadre § 6 : « Oui — DÉDUIT ».", "ref_fiche": "fiche ACR § 6, ligne Aspiration"},
+        "ide": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "sources": [{"ref": "ARRETE-IDE-2026", "localisation": "art. 1, III (rôle propre)", "citation": "aspirations des sécrétions"}], "a_valider": "Le rôle propre couvre les aspirations des sécrétions d'une personne intubée ou trachéotomisée ; l'aspiration oropharyngée en urgence n'est pas nommée (protocole R4311-7). Fiche ACR V10 ; fiche cadre V13.", "ref_fiche": "fiche ACR § 6, ligne Aspiration ; fiche cadre § 6, ligne Aspiration"},
+        "mk": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "sources": [{"ref": "CSP-R4321-9", "localisation": "art. R4321-9"}], "a_valider": "Aspirations rhinopharyngées et trachéales seulement chez un patient trachéotomisé ou intubé, en rééducation respiratoire prescrite (R4321-9) : hors de ce cadre, A_VALIDER (fiche cadre V14 ; fiche ACR V10).", "ref_fiche": "fiche ACR § 6, ligne Aspiration ; fiche cadre § 6, ligne Aspiration"},
+        "sf": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiches ACR et cadre § 6 : A_VALIDER (V10).", "ref_fiche": "fiche ACR § 6, ligne Aspiration"},
+        "pharmacien": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiches ACR et cadre § 6 : A_VALIDER ; D-4 : geste non ouvert à toute personne.", "ref_fiche": "fiche ACR § 6, ligne Aspiration ; D-4"},
+        "paramedical_autre": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiches ACR et cadre § 6 : A_VALIDER ; D-4 : geste non ouvert à toute personne.", "ref_fiche": "fiche ACR § 6, ligne Aspiration ; D-4"},
+        "non_soignant": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : groupe 7 limité à l'alerte, au massage cardiaque et au défibrillateur ; AFGSU niveau 1, contenu non lu (Q-25).", "ref_fiche": "D-4 ; Q-25"}
+      }
+    },
+    {
+      "id": "voie_veineuse",
+      "libelle": "Voie veineuse périphérique ou intra-osseuse",
+      "etapes_protocole": {"acr-adulte-dae": []},
+      "remarque": "Aucune étape du protocole ACR : hors protocole libéral sans prescription (fiche ACR § 5, dernière ligne). Ligne reprise des tableaux de restrictions des deux fiches.",
+      "ref_fiche": "fiche ACR § 6, ligne « Voie veineuse périphérique ou intra-osseuse » ; fiche cadre § 6, ligne « Voie veineuse périphérique »",
+      "habilitations": {
+        "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4127-70", "localisation": "art. R4127-70, 1re phrase"}], "raisonnement": "Fiche ACR § 6 : « Oui (R4127-70) » ; fiche cadre § 6 : « Oui — DÉDUIT ».", "ref_fiche": "fiche ACR § 6, ligne Voie veineuse"},
+        "ide": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "sources": [{"ref": "ARRETE-IDE-2026", "localisation": "art. 4, II", "citation": "pose et retrait d'un cathéter court, périphérique veineux ou intra-osseux"}, {"ref": "CSP-R4311", "localisation": "art. R4311-6 et R4311-7"}], "detail": "Sur prescription ou protocole écrit, daté, signé par un médecin (art. 4 ; R4311-6) ; en urgence, protocole de soins d'urgence (R4311-7). CITÉ.", "a_valider": "Habilitation conditionnelle : établie seulement avec une prescription ou un protocole écrit ; sans ces conditions, non établie. La liste de valeurs du format (oui, non, A_VALIDER) n'a pas de valeur « sous condition ».", "ref_fiche": "fiche ACR § 6, ligne Voie veineuse ; fiche cadre § 6, ligne Voie veineuse"},
+        "mk": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiche ACR § 6 : « Non (DÉDUIT : absent de leurs textes lus) → A_VALIDER » ; fiche cadre § 6 : « Non — DÉDUIT (aucun texte) ».", "ref_fiche": "fiche ACR § 6, ligne Voie veineuse ; fiche cadre § 6, ligne Voie veineuse"},
+        "sf": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiches ACR et cadre § 6 : A_VALIDER (compétences non lues, V15).", "ref_fiche": "fiche ACR § 6, ligne Voie veineuse"},
+        "pharmacien": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiche ACR § 6 : A_VALIDER ; fiche cadre § 6 : « Non, sauf texte propre à la profession — DÉDUIT » ; D-4.", "ref_fiche": "fiche ACR § 6, ligne Voie veineuse ; fiche cadre § 6 ; D-4"},
+        "paramedical_autre": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiche ACR § 6 : A_VALIDER ; fiche cadre § 6 : « Non, sauf texte propre à la profession — DÉDUIT » ; D-4.", "ref_fiche": "fiche ACR § 6, ligne Voie veineuse ; fiche cadre § 6 ; D-4"},
+        "non_soignant": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : groupe 7 limité à l'alerte, au massage cardiaque et au défibrillateur.", "ref_fiche": "D-4"}
+      }
+    },
+    {
+      "id": "medicaments_arret_cardiaque",
+      "libelle": "Injection des médicaments de l'arrêt cardiaque (non intégrés à l'appli)",
+      "etapes_protocole": {"acr-adulte-dae": []},
+      "remarque": "Aucune étape : les médicaments ne sont pas intégrés (SPEC.md, règle absolue 4 ; cahier des charges 3.1). Ligne reprise des tableaux de restrictions, pour information, sans aucune dose.",
+      "ref_fiche": "fiche ACR § 6, ligne « Injection de médicaments de l'ACR » ; fiche cadre § 6, ligne « Médicaments d'urgence »",
+      "habilitations": {
+        "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4127-70", "localisation": "art. R4127-70, 1re phrase"}], "raisonnement": "Fiche ACR § 6 : « Oui (R4127-70) » ; fiche cadre § 6 : « Oui — DÉDUIT (R. 4127-70) ».", "ref_fiche": "fiche ACR § 6, ligne Médicaments"},
+        "ide": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "sources": [{"ref": "ARRETE-IDE-2026", "localisation": "art. 4, II (injections, perfusions)"}, {"ref": "CSP-R4311", "localisation": "art. R4311-6 et R4311-7"}], "detail": "Seulement sur prescription ou dans un protocole de soins d'urgence écrit, daté et signé par le médecin responsable (R4311-7). Aucune mention des médicaments d'urgence dans l'arrêté.", "a_valider": "Habilitation conditionnelle (prescription ou protocole écrit) ; la liste de valeurs du format n'a pas de valeur « sous condition ».", "ref_fiche": "fiche ACR § 6, ligne Médicaments ; fiche cadre § 6, ligne Médicaments"},
+        "mk": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiche ACR § 6 : « Non (DÉDUIT) → A_VALIDER » ; fiche cadre § 6 : « Non — DÉDUIT ».", "ref_fiche": "fiche ACR § 6, ligne Médicaments"},
+        "sf": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Le droit de prescription des sages-femmes et la liste des médicaments qu'elles peuvent administrer n'ont pas été vérifiés (fiche ACR § 6 ; fiche cadre V15).", "ref_fiche": "fiche ACR § 6, ligne Médicaments"},
+        "pharmacien": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiche ACR § 6 : A_VALIDER ; fiche cadre § 6 : « Non, sauf texte propre — DÉDUIT ».", "ref_fiche": "fiche ACR § 6, ligne Médicaments"},
+        "paramedical_autre": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiche ACR § 6 : A_VALIDER ; fiche cadre § 6 : « Non, sauf texte propre — DÉDUIT ».", "ref_fiche": "fiche ACR § 6, ligne Médicaments"},
+        "non_soignant": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : groupe 7 limité à l'alerte, au massage cardiaque et au défibrillateur.", "ref_fiche": "D-4"}
+      }
+    }
+  ],
+  "obligations": [
+    {
+      "id": "compte-rendu-ecrit",
+      "libelle": "Compte rendu écrit obligatoire après les actes faits en urgence",
+      "ref_fiche": "fiche ACR § 6, ligne « Compte rendu écrit obligatoire »",
+      "par_groupe": {
+        "medecin": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "La fiche ACR indique « — » pour le médecin, sans préciser s'il s'agit d'un « sans objet » ou d'un point non recherché."},
+        "ide": {"valeur": "oui", "statut": "CITE", "sources": [{"ref": "CSP-R4311", "localisation": "art. R4311-7"}], "detail": "Si actes sur protocole d'urgence : compte rendu écrit, daté, signé, remis au médecin."},
+        "mk": {"valeur": "oui", "statut": "CITE", "sources": [{"ref": "CSP-R4321-10", "localisation": "art. R4321-10"}], "detail": "Compte rendu des actes accomplis remis au médecin."},
+        "sf": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiche ACR § 6 : A_VALIDER."},
+        "pharmacien": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiche ACR § 6 : A_VALIDER."},
+        "paramedical_autre": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Fiche ACR § 6 : A_VALIDER."},
+        "non_soignant": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "Hors du public des fiches (C-18)."}
+      }
+    }
+  ],
+  "situations_particulieres": [
+    {
+      "id": "ide-participation-urgence-vitale",
+      "libelle": "Infirmier : participation aux actions d'urgence vitale mises en œuvre par un médecin présent",
+      "groupes_concernes": ["ide"],
+      "texte": "L'infirmier participe à la mise en œuvre par le médecin, dans des contextes organisationnels pluriprofessionnels spécifiques, des actions mises en œuvre en vue de faire face à des situations d'urgence vitale.",
+      "statut": "CITE",
+      "sources": [{"ref": "ARRETE-IDE-2026", "localisation": "art. 6 (item de la liste : 4ᵉ tiret d'après la page lue, rang à reconfirmer)", "citation": "actions mises en œuvre en vue de faire face à des situations d'urgence vitale"}],
+      "a_valider": "Ce que cette participation autorise concrètement au-delà du rôle propre (oxygène, voie veineuse…) n'est pas détaillé ; qu'une MSP soit un « contexte organisationnel pluriprofessionnel spécifique » n'est pas précisé (fiche ACR § 9, V17). Le médecin, lui, met en œuvre (R4127-9 ; R4127-70). Masseur-kinésithérapeute, sage-femme, autres : non concernés par ce texte.",
+      "ref_fiche": "fiche ACR § 6, ligne « Participer aux actions d'urgence vitale mises en œuvre par un médecin »"
+    }
+  ],
+  "gestes_non_transcrits": "La fiche cadre transversal § 6 contient aussi : défibrillateur manuel, glycémie capillaire, pression artérielle et surveillance non invasive, compression, pansement hémostatique et garrot. Ces gestes ne figurent pas dans le protocole ACR adulte avec défibrillateur : ils seront transcrits avec les protocoles qui les utilisent (phase 4)."
+}

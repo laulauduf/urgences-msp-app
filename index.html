@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Aucune ressource externe, aucune connexion vers une autre origine (cahier des charges 2.12) : les en-têtes HTTP ne sont
+       peut-être pas réglables chez l'hébergeur, d'où cette politique en balise meta. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Urgences MSP APSIS</title>
+  <meta name="theme-color" content="#b00020">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Urgences">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="app/icones/icone-192.png">
+  <link rel="apple-touch-icon" href="app/icones/icone-180.png">
+  <link rel="stylesheet" href="app/css/app.css">
+  <!-- version.js est un script CLASSIQUE (pas un module) : lu par la page et, par importScripts, par sw.js (cahier des charges 2.3). -->
+  <script src="app/js/version.js"></script>
+  <!-- liste-cache.js (générée) : la page s'en sert pour vérifier que tous les fichiers sont bien en cache (2.3). -->
+  <script src="app/js/liste-cache.js"></script>
+  <script type="module" src="app/js/main.js"></script>
+</head>
+<body>
+  <div id="appli">
+    <div id="bandeaux" class="zone-bandeaux"></div>
+    <main id="contenu" class="contenu" tabindex="-1">
+      <noscript><p class="page">Cette appli a besoin de JavaScript. En cas d'urgence : composez le 15 (SAMU) ou le 112.</p></noscript>
+    </main>
+    <footer id="etat-preparation"></footer>
+  </div>
+</body>
+</html>

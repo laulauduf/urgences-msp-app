@@ -1,0 +1,226 @@
+/* Urgences MSP APSIS — feuille de style transversale (lot L2).
+   Pose dès le socle : jetons de couleur des thèmes clair et sombre, tailles en rem, cibles tactiles d'au moins 48 px,
+   grilles portrait et paysage, retour visuel immédiat au toucher (cahier des charges 5.1 à 5.3).
+   Les couleurs ne s'écrivent QU'ICI, dans les jetons : tests/unitaires/contraste.test.mjs vérifie leur contraste (WCAG AA). */
+
+/* ───────── Jetons : thème clair (par défaut) ───────── */
+:root {
+  color-scheme: light dark;
+  --fond: #ffffff;
+  --surface: #eef1f5;
+  --texte: #14181d;
+  --texte-attenue: #475060;
+  --bordure: #66707f;           /* composants d'interface : 3:1 au moins contre le fond */
+  --accent: #0b5cad;
+  --sur-accent: #ffffff;
+  --urgence: #b00020;
+  --sur-urgence: #ffffff;
+  --avertissement: #ffd54f;
+  --sur-avertissement: #14181d;
+  --danger-bandeau: #8a0019;
+  --sur-danger-bandeau: #ffffff;
+  --focus: #0b5cad;
+
+  --cible: 3rem;                /* 48 px au corps de texte par défaut : jamais plus petit */
+  --espace: 0.75rem;
+  --rayon: 0.75rem;
+}
+
+/* Thème sombre : suit le réglage du téléphone, sauf bascule manuelle (data-theme). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fond: #0e1217;
+    --surface: #1b222b;
+    --texte: #eef1f5;
+    --texte-attenue: #aeb7c4;
+    --bordure: #8a95a5;
+    --accent: #66b2ff;
+    --sur-accent: #06182b;
+    --urgence: #ff6b7d;
+    --sur-urgence: #1a0006;
+    --avertissement: #ffd54f;
+    --sur-avertissement: #14181d;
+    --danger-bandeau: #ffb3bd;
+    --sur-danger-bandeau: #260008;
+    --focus: #66b2ff;
+  }
+}
+:root[data-theme="dark"] {
+  --fond: #0e1217;
+  --surface: #1b222b;
+  --texte: #eef1f5;
+  --texte-attenue: #aeb7c4;
+  --bordure: #8a95a5;
+  --accent: #66b2ff;
+  --sur-accent: #06182b;
+  --urgence: #ff6b7d;
+  --sur-urgence: #1a0006;
+  --avertissement: #ffd54f;
+  --sur-avertissement: #14181d;
+  --danger-bandeau: #ffb3bd;
+  --sur-danger-bandeau: #260008;
+  --focus: #66b2ff;
+}
+
+/* ───────── Base ───────── */
+*, *::before, *::after { box-sizing: border-box; }
+html { font-size: 100%; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--texte);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 1rem;
+  line-height: 1.4;
+  /* évite le zoom au double toucher et les délais de toucher (5.1) */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+button, a, input, select, textarea { font: inherit; touch-action: manipulation; }
+:focus-visible { outline: 0.1875rem solid var(--focus); outline-offset: 0.125rem; }
+[hidden] { display: none !important; }
+
+/* ───────── Boutons : grandes cibles, retour immédiat ───────── */
+.bouton {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: max(var(--cible), 48px);
+  min-width: max(var(--cible), 48px);
+  padding: 0.5rem 1rem;
+  border: 0.125rem solid var(--bordure);
+  border-radius: var(--rayon);
+  background: var(--surface);
+  color: var(--texte);
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none; -webkit-user-select: none;
+}
+/* Tout toucher change visiblement l'aspect (critique 3 du benchmark) ; sur iPhone, :active exige un gestionnaire tactile (voir main.js). */
+.bouton:active { transform: scale(0.97); filter: brightness(0.85); }
+.bouton[disabled], .bouton[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; }
+.bouton-accent { background: var(--accent); color: var(--sur-accent); border-color: var(--accent); }
+.bouton-urgence { background: var(--urgence); color: var(--sur-urgence); border-color: var(--urgence); }
+.bouton-plein { width: 100%; }
+.bouton-tres-grand { min-height: 6rem; font-size: 1.75rem; }
+
+/* ───────── Bandeaux : jamais de voile sur l'essentiel (5.1) ───────── */
+#bandeaux { display: flex; flex-direction: column; }
+.bandeau {
+  padding: 0.5rem var(--espace);
+  font-weight: 700;
+  border-bottom: 0.125rem solid var(--bordure);
+  background: var(--surface);
+  color: var(--texte);
+}
+.bandeau-danger { background: var(--danger-bandeau); color: var(--sur-danger-bandeau); border-color: var(--danger-bandeau); }
+.bandeau-avertissement { background: var(--avertissement); color: var(--sur-avertissement); border-color: var(--avertissement); }
+.bandeau-brouillon { text-align: center; font-size: 0.875rem; }
+/* l'information ne passe jamais par la couleur seule : chaque bandeau commence par un pictogramme texte */
+.bandeau-danger::before, .bandeau-avertissement::before { content: "⚠ "; }
+
+/* Pendant une intervention (body[data-mode="intervention"], posé par navigation.js) : le bandeau BROUILLON tient sur une ligne
+   (texte tronqué, jamais retiré) et la ligne d'état de préparation, propre à l'accueil, disparaît : la place sert aux écrans vitaux. */
+body[data-mode="intervention"] .bandeau-brouillon { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-block: 0.125rem; }
+body[data-mode="intervention"] #etat-preparation { display: none; }
+
+/* ───────── Gabarit commun : en-tête · contenu · barre du bas ─────────
+   Portrait : l'en-tête en haut, la barre en bas.
+   Paysage (écran bas) : la barre passe en colonne sur le bord droit, l'en-tête tient sur une ligne (4.3 bis, 5.3). */
+#appli { display: grid; min-height: 100vh; min-height: 100dvh; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr auto; }
+.gabarit {
+  display: grid;
+  height: 100vh; height: 100dvh;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-areas: "bandeaux" "entete" "contenu" "barre";
+}
+.gabarit > .zone-bandeaux { grid-area: bandeaux; }
+.gabarit > .entete { grid-area: entete; }
+.gabarit > .contenu { grid-area: contenu; overflow-y: auto; min-height: 0; }
+.gabarit > .barre { grid-area: barre; }
+
+.entete {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem var(--espace);
+  padding: 0.5rem var(--espace);
+  background: var(--surface);
+  border-bottom: 0.125rem solid var(--bordure);
+}
+/* Barre du bas : cinq boutons en un rang à 375 px ; si le texte agrandi ou un écran étroit l'exige, le rang passe sur deux lignes
+   (jamais un bouton hors écran). Libellés courts : le pictogramme et le détail sont réglés au lot L5a. */
+.barre { display: flex; flex-direction: row; flex-wrap: wrap; gap: 0.5rem; padding: 0.5rem; background: var(--surface); border-top: 0.125rem solid var(--bordure); }
+.barre .bouton { flex: 1 1 3.5rem; min-width: 48px; min-height: 48px; padding: 0.25rem 0.25rem; font-size: 0.8125rem; line-height: 1.2; }
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .gabarit {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas: "bandeaux barre" "entete barre" "contenu barre";
+  }
+  /* l'en-tête reste compact mais JAMAIS tronqué : un bouton caché serait pire qu'une seconde ligne (le lot L5a règle le détail) */
+  .entete { padding: 0.25rem var(--espace); gap: 0.25rem var(--espace); }
+  .barre { flex-direction: column; flex-wrap: nowrap; border-top: 0; border-left: 0.125rem solid var(--bordure); padding: 0.375rem; overflow-y: auto; }
+  /* hauteur minimale en pixels : à 200 % de texte, cinq boutons de 3 rem (96 px) ne tiendraient pas dans 360 px */
+  .barre .bouton { flex: 1 1 auto; min-height: 48px; padding: 0.25rem 0.5rem; }
+}
+
+/* ───────── Contenu courant ───────── */
+.page { padding: var(--espace); max-width: 40rem; margin: 0 auto; }
+.page h1 { font-size: 1.5rem; margin: 0 0 var(--espace); }
+.grille-tuiles { display: grid; gap: var(--espace); grid-template-columns: 1fr; }
+@media (orientation: landscape) and (max-height: 600px) {
+  .grille-tuiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ───────── Réglages (hors intervention) ───────── */
+.reglage { margin: 0 0 var(--espace); padding: var(--espace); border: 0.125rem solid var(--bordure); border-radius: var(--rayon); }
+.reglage legend { font-weight: 700; padding: 0 0.25rem; }
+.reglage-aide { margin: 0.25rem 0 0.5rem; color: var(--texte-attenue); font-size: 0.875rem; }
+.reglage { min-width: 0; }
+.reglage-choix, .reglage-champ { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; min-height: max(var(--cible), 48px); }
+.reglage input[type="text"] { flex: 1 1 8rem; min-width: 0; max-width: 100%; }
+.reglage-choix input[type="radio"] { width: 1.5rem; height: 1.5rem; flex: none; }
+.reglage select, .reglage input[type="text"] { min-height: max(var(--cible), 48px); font-size: 1rem; padding: 0 0.5rem; background: var(--fond); color: var(--texte); border: 0.125rem solid var(--bordure); border-radius: 0.5rem; }
+.reglage-etat { min-height: 1.5rem; font-weight: 700; }
+
+/* ───────── Ligne d'état de préparation (4.1) ───────── */
+#etat-preparation { border-top: 0.125rem solid var(--bordure); background: var(--surface); }
+#etat-preparation > button {
+  display: flex; align-items: center; gap: 0.5rem; width: 100%;
+  min-height: max(var(--cible), 48px);
+  padding: 0.25rem var(--espace);
+  border: 0; background: transparent; color: var(--texte); font-weight: 700; text-align: left; cursor: pointer;
+}
+#etat-preparation ul { margin: 0; padding: 0 var(--espace) var(--espace) 2.25rem; }
+#etat-preparation li { margin: 0.25rem 0; }
+
+/* ───────── Écran de secours (protocole illisible) ─────────
+   Ordre : mention, chronomètre, boutons d'appel (15 puis 112), puis les trois mots de la règle absolue 5. Les boutons d'appel passent
+   avant les mots : à 200 % de texte sur un petit écran, ils restent entièrement visibles sans défilement. */
+.secours { padding: var(--espace); max-width: 40rem; margin: 0 auto; display: flex; flex-direction: column; gap: 0.5rem var(--espace); }
+.secours-mention { margin: 0; font-weight: 700; font-size: 0.875rem; }
+.secours-chrono { margin: 0; font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.secours-appels { display: grid; gap: 0.5rem var(--espace); grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); }
+/* hauteur minimale en pixels (pas en rem) : un texte agrandi à 200 % ne doit pas pousser le bouton 112 hors de l'écran */
+.secours-appels .bouton { min-height: 72px; font-size: min(1.25rem, 6vw); }
+.secours-actions { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--espace); }
+/* Les trois mots sont de l'information, pas des boutons : ni cadre ni fond, pour qu'on ne les touche pas en croyant agir. */
+.secours-actions li {
+  min-height: 3rem; display: flex; align-items: center; justify-content: center;
+  font-size: 1.75rem; font-weight: 800; letter-spacing: 0.02em;
+}
+@media (orientation: landscape) and (max-height: 600px) {
+  .secours { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 0.5rem var(--espace); }
+  .secours-mention { grid-column: 1 / -1; font-size: 0.8125rem; }
+  .secours-chrono { grid-column: 1 / -1; font-size: 1.25rem; }
+  .secours-appels { grid-column: 1; grid-template-columns: 1fr; }
+  .secours-appels .bouton { min-height: 48px; font-size: 1rem; padding: 0.25rem 0.5rem; }
+  .secours-actions { grid-column: 2; gap: 0.5rem; }
+  .secours-actions li { min-height: 0; padding: 0.125rem 0.5rem; font-size: 1.25rem; }
+  .secours details { grid-column: 1 / -1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

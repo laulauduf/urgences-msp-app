@@ -1,0 +1,230 @@
+{
+  "format": 1,
+  "id": "numeros",
+  "titre": "Numéros d'urgence par défaut et rappels d'appel",
+  "version": "0.1.0",
+  "statut_validation": "BROUILLON",
+  "date_redaction": "2026-11-14",
+  "fiches_source": ["docs/reco/cadre-transversal.md", "docs/reco/acr-adulte-dae.md"],
+  "rapport_controle": null,
+  "validateur": null,
+  "date_validation": null,
+  "transcription": {
+    "par": "agent recherche-reco (Opus 5.5 / high), lot L1 de la phase 3",
+    "le": "2026-11-14",
+    "regle": "Valeurs par défaut ; config/structure.json peut les surcharger (cahier des charges 3.2). Le rôle de chaque numéro est sourcé ; la bascule « plan B » et le rappel « Ne raccrochez pas en premier » viennent de SPEC.md, sans source trouvée : A_VALIDER (Q-10)."
+  },
+  "decisions_appliquees": [
+    {"decision": "D-20", "question": "Q-10", "etat": "PROVISOIRE", "objet": "Consignes non sourcées de SPEC.md (bascule vers le 112, « Ne raccrochez pas en premier ») affichées avec la marque A_VALIDER tant que le protocole est BROUILLON"}
+  ],
+  "sources": {
+    "SERVICE-PUBLIC-F33954": {
+      "titre": "Quels sont les numéros en cas d'urgence… (fiche F33954)",
+      "organisme": "service-public.gouv.fr (DILA)",
+      "annee": 2026,
+      "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F33954",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Oui",
+      "remarque": "Fiche vérifiée le 25/08/2026 par la DILA."
+    },
+    "ARCEP-2017-1251": {
+      "titre": "Décision ARCEP n° 2017-1251 du 23 octobre 2017 (liste des numéros d'urgence), JORF du 10/11/2017",
+      "organisme": "ARCEP",
+      "annee": 2017,
+      "url": "https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000035994599",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "incertain",
+      "lu_en_entier": "Oui (liste)",
+      "remarque": "Une décision ultérieure a pu compléter la liste."
+    },
+    "ARRETE-AFGSU-2019": {
+      "titre": "Arrêté du 1er juillet 2019 modifiant l'arrêté du 30 décembre 2014 (annexes AFGSU), JORF n° 0155 du 06/07/2019, texte n° 24",
+      "organisme": "Ministère chargé de la santé (Légifrance)",
+      "annee": 2019,
+      "url": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000038730202",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Annexe 2 lue visuellement par la fiche cadre ; NON LUE selon la fiche ACR",
+      "remarque": "Divergence C-14 entre les deux fiches sur la lecture des annexes."
+    },
+    "ERC-BLS": {
+      "titre": "European Resuscitation Council Guidelines 2025 Adult Basic Life Support (Smyth MA et al.), Resuscitation 215 (Suppl 1):110771",
+      "organisme": "ERC",
+      "annee": 2025,
+      "url": "https://doi.org/10.1016/j.resuscitation.2025.110771",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Texte : oui (extraction automatique) ; figures : non",
+      "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (PROVISOIRE)."
+    },
+    "ERC-ES": {
+      "titre": "European Resuscitation Council Guidelines 2025 Executive Summary (Greif R et al.), Resuscitation 215:110770",
+      "organisme": "ERC",
+      "annee": 2025,
+      "url": "https://doi.org/10.1016/j.resuscitation.2025.110770",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Non : recherche ciblée",
+      "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (PROVISOIRE)."
+    },
+    "HAS-AVC-2025": {
+      "titre": "AVC de l'adulte : les points critiques du parcours",
+      "organisme": "HAS",
+      "annee": 2025,
+      "url": "https://www.has-sante.fr/upload/docs/application/pdf/2025-10/dir2/avc_-_points_critiques.pdf",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Non : p. 2-3"
+    },
+    "SPEC": {
+      "titre": "SPEC.md, cahier des charges de l'appli (partie 1 : Module d'alerte)",
+      "organisme": "Projet Urgences MSP APSIS (document interne)",
+      "annee": 2026,
+      "url": "SPEC.md",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Oui",
+      "remarque": "Document du projet, pas une source médicale."
+    }
+  },
+  "numeros": [
+    {
+      "id": "samu",
+      "numero": "15",
+      "libelle": "SAMU",
+      "libelle_long": "Service d'aide médicale urgente (SAMU)",
+      "moyens": ["tel"],
+      "plan": {
+        "valeur": "A",
+        "statut": "DEDUIT",
+        "sources": [
+          {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B2)", "citation": "d'alerter le service d'aide médicale urgente (SAMU) numéro d'urgence : 15"},
+          {"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954"}
+        ],
+        "raisonnement": "Fiche cadre § 7, D5 : plan A = 15 (numéro à alerter selon l'AFGSU ; urgence médicale selon service-public) ; le 112 est une alternative.",
+        "ref_fiche": "cadre § 7, D5 ; ACR § 2, étape 3c"
+      },
+      "role": {
+        "texte": "Urgence médicale (exemple donné : malaise cardiaque) ; c'est aussi le numéro du Service d'accès aux soins (SAS).",
+        "statut": "CITE",
+        "statut_fiche": "CITÉ (reformulation fidèle)",
+        "sources": [
+          {"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954"},
+          {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence", "citation": "sauvegarde des vies humaines - SAMU"},
+          {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B2)", "citation": "service d'aide médicale urgente (SAMU) numéro d'urgence : 15"}
+        ],
+        "ref_fiche": "cadre § 2.E, E1 et E2 ; ACR § 2, étape 3b"
+      }
+    },
+    {
+      "id": "urgence-europeenne",
+      "numero": "112",
+      "libelle": "Numéro d'urgence européen",
+      "moyens": ["tel"],
+      "plan": {
+        "valeur": "B",
+        "statut": "A_VALIDER",
+        "provisoire": "D-20",
+        "question": "Q-10",
+        "sources": [{"ref": "SPEC", "localisation": "Module d'alerte"}],
+        "a_valider": "L'ordre « 15 d'abord, 112 si échec » vient de SPEC.md : aucune source médicale ni officielle trouvée (fiche ACR étape 3c et V5 ; fiche cadre E9 et V10). Le service qui répond au 112 dans l'Hérault (centre 15 ou pompiers) n'a pas été vérifié.",
+        "ref_fiche": "ACR § 2, étape 3c ; cadre § 2.E, E9 ; cadre § 7, D5"
+      },
+      "bascule": {
+        "texte": "Si le 15 ne répond pas ou si le réseau est mauvais",
+        "statut": "A_VALIDER",
+        "provisoire": "D-20",
+        "question": "Q-10",
+        "sources": [{"ref": "SPEC", "localisation": "Module d'alerte"}],
+        "a_valider": "Aucune source officielle trouvée qui prévoie cette bascule (fiche cadre E9 ; § 9, V10). Affichée avec la marque A_VALIDER.",
+        "ref_fiche": "cadre § 2.E, E9"
+      },
+      "role": {
+        "texte": "Numéro d'urgence européen, utilisable dans tous les pays de l'Union européenne, qui oriente vers le bon service.",
+        "statut": "CITE",
+        "statut_fiche": "CITÉ (reformulation fidèle)",
+        "sources": [
+          {"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954"},
+          {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence", "citation": "numéro d'urgence européen"},
+          {"ref": "ERC-ES", "localisation": "First aid, p. 73", "citation": "call the emergency number (112)"}
+        ],
+        "ref_fiche": "cadre § 2.E, E3 et E8 ; ACR § 2, étape 3b"
+      }
+    },
+    {
+      "id": "personnes-sourdes-malentendantes",
+      "numero": "114",
+      "libelle": "Personnes sourdes, malentendantes, sourdaveugles ou aphasiques",
+      "moyens": ["sms"],
+      "autres_moyens": {
+        "texte": "Accessible aussi par application, site internet, visio, tchat, images et langue des signes ; donner son nom, son adresse précise et le motif.",
+        "statut": "CITE",
+        "statut_fiche": "CITÉ",
+        "sources": [{"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954"}],
+        "ref_fiche": "cadre § 2.E, E4"
+      },
+      "plan": null,
+      "role": {
+        "texte": "Pour les personnes sourdes, malentendantes, sourdaveugles ou aphasiques ; la HAS indique de contacter le 114 pour ces personnes « si elles sont seules lors de l'évènement ».",
+        "statut": "CITE",
+        "statut_fiche": "CITÉ",
+        "sources": [
+          {"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954"},
+          {"ref": "HAS-AVC-2025", "localisation": "p. 2-3", "citation": "si elles sont seules lors de l'évènement"},
+          {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence (fiche ACR, étape 3b : personnes déficientes auditives)"}
+        ],
+        "ref_fiche": "cadre § 2.E, E4 ; ACR § 2, étape 3b"
+      }
+    },
+    {
+      "id": "pompiers",
+      "numero": "18",
+      "libelle": "Pompiers",
+      "moyens": ["tel"],
+      "plan": null,
+      "role": {
+        "texte": "Incendie, accident, péril, explosion, noyade, inondation.",
+        "statut": "CITE",
+        "statut_fiche": "CITÉ (reformulation fidèle)",
+        "sources": [
+          {"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954"},
+          {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence (fiche ACR, étape 3b : pompiers)"}
+        ],
+        "ref_fiche": "cadre § 2.E, E5 ; ACR § 2, étape 3b"
+      }
+    }
+  ],
+  "rappels": [
+    {
+      "id": "haut-parleur",
+      "texte": "Mettez le haut-parleur",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ",
+      "sources": [{"ref": "ERC-BLS", "localisation": "« Alerting the emergency services », p. 3", "citation": "activate speaker mode, call the local emergency number without delay"}],
+      "ref_fiche": "cadre § 2.E, E11 ; ACR § 2, étape 3a"
+    },
+    {
+      "id": "ne-raccrochez-pas",
+      "texte": "Ne raccrochez pas en premier",
+      "statut": "A_VALIDER",
+      "statut_fiche": "A_VALIDER",
+      "provisoire": "D-20",
+      "question": "Q-10",
+      "sources": [{"ref": "SPEC", "localisation": "Module d'alerte"}],
+      "a_valider": "Consigne de SPEC.md non trouvée dans les sources lues (fiche cadre E10 ; § 9, V11). Affichée avec la marque A_VALIDER.",
+      "ref_fiche": "cadre § 2.E, E10"
+    }
+  ],
+  "informations": [
+    {
+      "id": "gratuite-geolocalisation",
+      "texte": "Les appels aux numéros d'urgence sont gratuits, géolocalisés et disponibles 24 h/24.",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ (reformulation fidèle)",
+      "sources": [{"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954"}],
+      "ref_fiche": "cadre § 2.E, E7"
+    }
+  ],
+  "numeros_non_transcrits": "Le 17 (police secours, fiche cadre E6) est sourcé mais n'est pas demandé par SPEC.md pour le module d'alerte : non transcrit."
+}

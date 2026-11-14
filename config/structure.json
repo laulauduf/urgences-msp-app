@@ -1,0 +1,38 @@
+{
+  "format": 1,
+  "structure": {
+    "id": "a-remplir",
+    "nom": "À REMPLIR — nom de la structure",
+    "type": "À REMPLIR"
+  },
+  "adresse": {
+    "ligne1": "À REMPLIR",
+    "complement": "",
+    "code_postal": "À REMPLIR",
+    "commune": "À REMPLIR",
+    "repere": ""
+  },
+  "acces": {
+    "description": "À REMPLIR",
+    "stationnement_secours": "À REMPLIR",
+    "point_accueil": "À REMPLIR"
+  },
+  "champs_sensibles_locaux": [],
+  "numero_rappel": "À REMPLIR",
+  "numeros_urgence": [],
+  "plan_interne": [],
+  "dae": {
+    "emplacement": "À REMPLIR",
+    "type": "inconnu"
+  },
+  "materiel": {
+    "contenants": [],
+    "articles": []
+  },
+  "professions_presentes": [],
+  "parametres": {
+    "delai_effacement_h": 24,
+    "delai_effacement_plancher_h": 8,
+    "reprise_directe_max_h": 2
+  }
+}
