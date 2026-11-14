@@ -2,9 +2,9 @@
   "format": 1,
   "id": "glossaire",
   "titre": "Glossaire des acronymes et mots-clés",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "statut_validation": "BROUILLON",
-  "date_redaction": "2026-11-14",
+  "date_redaction": "2026-11-15",
   "fiches_source": ["docs/reco/acr-adulte-dae.md", "docs/reco/cadre-transversal.md"],
   "rapport_controle": null,
   "validateur": null,
@@ -12,10 +12,17 @@
   "transcription": {
     "par": "agent recherche-reco (Opus 5.5 / high), lot L1 de la phase 3",
     "le": "2026-11-14",
-    "regle": "Le champ statut porte sur la forme courte (le sigle) : CITE si une source autorisée l'emploie, A_VALIDER sinon. Quand les deux fiches diffèrent, le statut le plus faible est retenu et l'écart est noté. Aucun acronyme créé, aucune traduction de l'anglais ajoutée : les significations sont celles des fiches."
+    "regle": "Le champ statut porte sur la forme courte (le sigle) : CITE si une source autorisée l'emploie, A_VALIDER sinon. Quand les deux fiches diffèrent, le statut le plus faible est retenu et l'écart est noté. Aucun acronyme créé, aucune traduction de l'anglais ajoutée : les significations sont celles des fiches, sauf l'entrée ERC (nom de l'organisme, relevé sur sa page officielle le 15/11/2026). Quand la signification française est une traduction sans source française, un champ signification_statut le signale (A_VALIDER).",
+    "corrections": [
+      {
+        "par": "agent recherche-reco (Opus 5.5 / high)",
+        "le": "2026-11-15",
+        "objet": "Corrections d'après docs/controle/protocole-acr-json-controle-2026-11-14.md : 4P passé en A_VALIDER (G12) ; développements français d'ETCO₂ et de SpO₂ signalés sans source française (G15) ; RACS (G9) ; D-10 répondue (marques provisoires retirées) ; entrée ERC ajoutée (contrôle automatique, R11)."
+      }
+    ]
   },
   "decisions_appliquees": [
-    {"decision": "D-10", "etat": "PROVISOIRE", "objet": "Acronymes attendus mais introuvables dans les sources autorisées (PAS, XABCDE, SAMPLE(R), OPQRST, MCE, RACS) : écrits en toutes lettres dans les checklists"},
+    {"decision": "D-10", "etat": "REPONDUE", "objet": "Acronymes attendus mais introuvables dans les sources autorisées (PAS, XABCDE, SAMPLE(R), OPQRST, MCE, RACS) : écrits en toutes lettres dans les checklists tant qu'aucune source autorisée ne les donne (réponse du 14/11/2026)"},
     {"decision": "D-20", "question": "Q-16", "etat": "PROVISOIRE", "objet": "Sigles RCP, DAE, ACR, BAVU, PLS, SMUR (et autres sigles sans source française autorisée) : le glossaire décide sigle par sigle, avec le verificateur ; par défaut, toutes lettres"}
   ],
   "affichages": {
@@ -24,12 +31,12 @@
     "glossaire_seulement": "Variante ou terme hors champ : figure au glossaire seulement, n'est pas employé dans les checklists."
   },
   "sources": {
-    "ERC-BLS": {"titre": "European Resuscitation Council Guidelines 2025 Adult Basic Life Support (Smyth MA et al.), Resuscitation 215 (Suppl 1):110771", "organisme": "ERC", "annee": 2025, "url": "https://doi.org/10.1016/j.resuscitation.2025.110771", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (PROVISOIRE)."},
-    "ERC-ALS": {"titre": "European Resuscitation Council Guidelines 2025 Adult Advanced Life Support (Soar J et al.), Resuscitation 215:110769", "organisme": "ERC", "annee": 2025, "url": "https://doi.org/10.1016/j.resuscitation.2025.110769", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (PROVISOIRE)."},
-    "ERC-ES": {"titre": "European Resuscitation Council Guidelines 2025 Executive Summary (Greif R et al.), Resuscitation 215:110770", "organisme": "ERC", "annee": 2025, "url": "https://doi.org/10.1016/j.resuscitation.2025.110770", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (PROVISOIRE)."},
-    "ERC-SC": {"titre": "European Resuscitation Council Guidelines 2025 Special Circumstances in Resuscitation (Lott C, Karageorgos V et al.), Resuscitation 215:110753", "organisme": "ERC", "annee": 2025, "url": "https://doi.org/10.1016/j.resuscitation.2025.110753", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (PROVISOIRE)."},
+    "ERC-BLS": {"titre": "European Resuscitation Council Guidelines 2025 Adult Basic Life Support (Smyth MA et al.), Resuscitation 215 (Suppl 1):110771", "organisme": "ERC", "annee": 2025, "url": "https://doi.org/10.1016/j.resuscitation.2025.110771", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (répondue : lectures acceptées pour la phase 1, à revérifier avant validation)."},
+    "ERC-ALS": {"titre": "European Resuscitation Council Guidelines 2025 Adult Advanced Life Support (Soar J et al.), Resuscitation 215:110769", "organisme": "ERC", "annee": 2025, "url": "https://doi.org/10.1016/j.resuscitation.2025.110769", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (répondue : lectures acceptées pour la phase 1, à revérifier avant validation)."},
+    "ERC-ES": {"titre": "European Resuscitation Council Guidelines 2025 Executive Summary (Greif R et al.), Resuscitation 215:110770", "organisme": "ERC", "annee": 2025, "url": "https://doi.org/10.1016/j.resuscitation.2025.110770", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (répondue : lectures acceptées pour la phase 1, à revérifier avant validation)."},
+    "ERC-SC": {"titre": "European Resuscitation Council Guidelines 2025 Special Circumstances in Resuscitation (Lott C, Karageorgos V et al.), Resuscitation 215:110753", "organisme": "ERC", "annee": 2025, "url": "https://doi.org/10.1016/j.resuscitation.2025.110753", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (répondue : lectures acceptées pour la phase 1, à revérifier avant validation)."},
     "ERC-FA": {"titre": "European Resuscitation Council Guidelines 2025 First Aid, Resuscitation 215:110752", "organisme": "ERC", "annee": 2025, "url": "https://doi.org/10.1016/j.resuscitation.2025.110752", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Fiche ACR : lu p. 1-6 sur une copie tierce (certifico.com) ; fiche cadre : chapitre NON LU par le site de la revue (403)."},
-    "ERC-BROCHURE": {"titre": "The ERC Guidelines 2025 on Resuscitation for Everyone (brochure grand public de l'ERC)", "organisme": "ERC", "annee": 2025, "url": "https://www.erc.edu/science-research/guidelines/guidelines-2025/guidelines-2025-english", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Lu p. 51-52 sur une copie tierce (certifico.com) : D-13 (PROVISOIRE)."},
+    "ERC-BROCHURE": {"titre": "The ERC Guidelines 2025 on Resuscitation for Everyone (brochure grand public de l'ERC)", "organisme": "ERC", "annee": 2025, "url": "https://www.erc.edu/science-research/guidelines/guidelines-2025/guidelines-2025-english", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Lu p. 51-52 sur une copie tierce (certifico.com) : D-13 (répondue : lectures acceptées pour la phase 1, à revérifier avant validation)."},
     "HAS-SAED-2014": {"titre": "Saed : un guide pour faciliter la communication entre professionnels de santé", "organisme": "HAS", "annee": 2014, "url": "https://www.has-sante.fr/jcms/c_1776178/fr/saed-ca-aide-a-communiquer", "consulte_le": "2026-11-14", "en_vigueur": "incertain", "remarque": "Validé par le Collège le 08/10/2014, mis en ligne le 24/11/2014 ; aucune abrogation constatée. Lu p. 1-15, annexes non lues."},
     "HAS-REGULATION-2011": {"titre": "Modalités de prise en charge d'un appel de demande de soins non programmés dans le cadre de la régulation médicale", "organisme": "HAS", "annee": 2011, "url": "https://www.has-sante.fr/upload/docs/application/pdf/2011-12/recommandation_regulation_medicale.pdf", "consulte_le": "2026-11-14", "en_vigueur": "incertain", "remarque": "Lu p. 9-16 ; aucune abrogation constatée."},
     "HAS-AVC-2009": {"titre": "AVC : prise en charge précoce — synthèse des recommandations", "organisme": "HAS", "annee": 2009, "url": "https://has-sante.fr/upload/docs/application/pdf/2009-07/avc_prise_en_charge_precoce_-_synthese_des_recommandations.pdf", "consulte_le": "2026-11-14", "en_vigueur": "incertain", "remarque": "Lu p. 1 ; en partie relayé par la synthèse HAS de 2025."},
@@ -40,7 +47,8 @@
     "CSP-R6311-15": {"titre": "Code de la santé publique, art. R6311-15 (utilisation du défibrillateur automatisé externe)", "organisme": "Légifrance", "annee": 2007, "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006919228", "consulte_le": "2026-11-14", "en_vigueur": "oui"},
     "ARRETE-IDE-2026": {"titre": "Arrêté du 26 juin 2026 fixant la liste des actes et soins pouvant être réalisés par les infirmiers diplômés d'État (NOR SFHH2610764A)", "organisme": "Ministère chargé de la santé (Légifrance)", "annee": 2026, "url": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000054321952", "consulte_le": "2026-11-14", "en_vigueur": "oui"},
     "ARCEP-2017-1251": {"titre": "Décision ARCEP n° 2017-1251 du 23 octobre 2017 (liste des numéros d'urgence), JORF du 10/11/2017", "organisme": "ARCEP", "annee": 2017, "url": "https://www.legifrance.gouv.fr/jorf/article_jo/JORFARTI000035994599", "consulte_le": "2026-11-14", "en_vigueur": "incertain", "remarque": "Une décision ultérieure a pu compléter la liste."},
-    "SERVICE-PUBLIC-F33954": {"titre": "Quels sont les numéros en cas d'urgence… (fiche F33954)", "organisme": "service-public.gouv.fr (DILA)", "annee": 2026, "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F33954", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Fiche vérifiée le 25/08/2026 par la DILA."}
+    "SERVICE-PUBLIC-F33954": {"titre": "Quels sont les numéros en cas d'urgence… (fiche F33954)", "organisme": "service-public.gouv.fr (DILA)", "annee": 2026, "url": "https://www.service-public.gouv.fr/particuliers/vosdroits/F33954", "consulte_le": "2026-11-14", "en_vigueur": "oui", "remarque": "Fiche vérifiée le 25/08/2026 par la DILA."},
+    "ERC-PAGE-GUIDELINES-2025": {"titre": "Guidelines 2025 - English (page officielle de l'ERC présentant les lignes directrices 2025)", "organisme": "ERC", "annee": 2025, "url": "https://www.erc.edu/science-research/guidelines/guidelines-2025/guidelines-2025-english", "consulte_le": "2026-11-15", "en_vigueur": "oui", "remarque": "Page web lue le 15/11/2026 (sans téléchargement). Même adresse que celle indiquée pour la source ERC-BROCHURE."}
   },
   "entrees": [
     {
@@ -80,7 +88,7 @@
       "signification": "massage cardiaque externe",
       "statut": "A_VALIDER",
       "affichage": "toutes_lettres",
-      "provisoire": "D-10",
+      "decision": "D-10",
       "a_valider": "Non trouvé dans les sources lues (l'arrêté infirmier de 2026 ne mentionne ni RCP ni massage cardiaque) : fiche cadre § 4 et V5 ; fiche ACR § 4 et V6. Signification elle-même non sourcée.",
       "present_dans": "ERC : « chest compressions » ; source française non lue",
       "variantes": "EN : chest compressions",
@@ -140,6 +148,22 @@
       "ref_fiche": "fiche cadre § 4 ; fiche ACR § 4"
     },
     {
+      "id": "erc",
+      "forme_courte": "ERC",
+      "signification": "European Resuscitation Council (organisme européen qui publie les lignes directrices de réanimation)",
+      "statut": "CITE",
+      "affichage": "sigle",
+      "sources": [
+        {"ref": "ERC-PAGE-GUIDELINES-2025", "localisation": "page « Guidelines 2025 - English », lue le 15/11/2026", "citation": "In some cases, the ERC made good practice statements when evidence was absent for certain topics."},
+        {"ref": "ERC-PAGE-GUIDELINES-2025", "localisation": "même page, présentation des lignes directrices 2025", "citation": "The European Resuscitation Council is excited to announce the launch of the Guidelines"},
+        {"ref": "ERC-BLS", "localisation": "titre de l'article (« European Resuscitation Council Guidelines 2025 »)"}
+      ],
+      "remarque": "Entrée ajoutée le 15/11/2026 : le sigle figure dans deux consignes du protocole ACR (relève du masseur ; terme de la grossesse) et dans la note du chronomètre de relève (contrôle automatique, R11). Nom anglais de l'organisme ; aucune traduction française n'a été cherchée ni ajoutée. La parenthèse de la signification est une description, pas une traduction.",
+      "present_dans": "ERC (page officielle des lignes directrices 2025 ; titres des chapitres)",
+      "variantes": "—",
+      "ref_fiche": "fiches ACR et cadre, références [ERC-…] (sigle employé dans tout le texte des fiches)"
+    },
+    {
       "id": "smur",
       "forme_courte": "SMUR",
       "signification": null,
@@ -158,9 +182,9 @@
       "signification": "retour (ou reprise) d'une activité circulatoire (ou cardiaque) spontanée",
       "statut": "A_VALIDER",
       "affichage": "toutes_lettres",
-      "provisoire": "D-10",
+      "decision": "D-10",
       "sources": [{"ref": "ERC-ALS", "localisation": "liste des abréviations, p. 1 (ROSC)"}],
-      "a_valider": "Plusieurs développements français circulent ; aucun n'a été vérifié dans une source autorisée (fiche ACR § 4 ; fiche cadre § 4 et V5). L'ERC écrit ROSC (return of spontaneous circulation).",
+      "a_valider": "Plusieurs développements français circulent ; aucun n'a été vérifié dans une source autorisée (fiche ACR § 4 ; fiche cadre § 4 et V5). L'ERC écrit ROSC (return of spontaneous circulation). Rapport de contrôle G9 : le protocole n'affiche plus un de ces développements ; il traduit littéralement l'expression de l'ERC (« retour d'une circulation spontanée »). Libellé à confirmer par le médecin référent (D-10 dit d'écrire en toutes lettres, sans fixer de libellé).",
       "present_dans": "ERC : « ROSC » ; source française non lue",
       "variantes": "EN : ROSC (return of spontaneous circulation)",
       "ref_fiche": "fiche ACR § 4 ; fiche cadre § 4"
@@ -205,10 +229,11 @@
       "id": "4p",
       "forme_courte": "4P",
       "signification": "Causes propres à la grossesse : pré-éclampsie/éclampsie, sepsis puerpéral, causes placentaires ou utérines, cardiomyopathie du péripartum",
-      "statut": "CITE",
-      "affichage": "sigle",
+      "statut": "A_VALIDER",
+      "affichage": "toutes_lettres",
       "sources": [{"ref": "ERC-SC", "localisation": "tableau 1 (suite), p. 4, et p. 15"}],
-      "remarque": "Fiche ACR, étape 10b : « 4P » (CITÉ, reformulé) ; la fiche cadre écrit « 4Ps (obstétrique) ». Forme française non vérifiée séparément.",
+      "a_valider": "Rapport de contrôle G12 : la fiche ACR (étape 10b) écrit « 4P », la fiche cadre « 4Ps (obstétrique) » ; forme exacte du sigle non vérifiée sur l'original (ERC-SC, lisible seulement après téléchargement) et aucune forme française trouvée. Statut le plus faible retenu ; le détail de l'étape femme-enceinte écrit les quatre causes en toutes lettres.",
+      "remarque": "Fiche ACR, étape 10b : « 4P » (CITÉ, reformulé) ; la fiche cadre écrit « 4Ps (obstétrique) ».",
       "present_dans": "ERC 2025 (circonstances particulières)",
       "variantes": "4Ps (forme écrite par la fiche cadre)",
       "ref_fiche": "fiche ACR § 2, étape 10b ; fiche cadre § 4, ligne 4H-4T"
@@ -248,7 +273,8 @@
       "statut": "CITE",
       "affichage": "sigle",
       "sources": [{"ref": "ERC-ES", "localisation": "p. 20"}],
-      "remarque": "Hors matériel libéral.",
+      "signification_statut": {"statut": "A_VALIDER", "a_valider": "Rapport de contrôle G15 : le statut CITE porte sur le sigle (employé par l'ERC, en anglais) ; le développement français est une traduction de la fiche, sans source française autorisée."},
+      "remarque": "Hors matériel libéral. Le sigle ne figure plus dans la consigne de l'étape signes-reprise (seulement dans son détail).",
       "present_dans": "ERC",
       "variantes": "—",
       "ref_fiche": "fiche ACR § 4"
@@ -260,6 +286,7 @@
       "statut": "CITE",
       "affichage": "sigle",
       "sources": [{"ref": "ERC-ES", "localisation": "p. 33"}],
+      "signification_statut": {"statut": "A_VALIDER", "a_valider": "Rapport de contrôle G15 : le statut CITE porte sur le sigle (employé par l'ERC, en anglais) ; le développement français est une traduction de la fiche, sans source française autorisée."},
       "present_dans": "ERC",
       "variantes": "—",
       "ref_fiche": "fiche ACR § 4"
@@ -312,7 +339,7 @@
       "signification_selon_spec": "Protéger, Alerter, Secourir",
       "statut": "A_VALIDER",
       "affichage": "toutes_lettres",
-      "provisoire": "D-10",
+      "decision": "D-10",
       "a_valider": "Introuvable dans les sources lues : AFGSU (annexe 2), ERC 2025, HAS, SFMU ; peut figurer dans le PSC1, non lu. L'AFGSU écrit « protection » puis « alerter » en toutes lettres (fiche cadre § 4 ; § 9, V2).",
       "present_dans": "Non trouvé",
       "variantes": "—",
@@ -340,7 +367,7 @@
       "signification": null,
       "statut": "A_VALIDER",
       "affichage": "toutes_lettres",
-      "provisoire": "D-10",
+      "decision": "D-10",
       "a_valider": "Non trouvé dans l'ERC 2025 (chapitres lus) ni dans l'annexe AFGSU ; l'ERC First Aid met en tête « catastrophic bleeding » sans le noter X ; <C>ABCDE non trouvé non plus (fiche cadre § 4 ; § 9, V3).",
       "present_dans": "Non trouvé",
       "variantes": "<C>ABCDE : non trouvé",
@@ -385,7 +412,7 @@
       "objet_selon_spec": "antécédents et contexte",
       "statut": "A_VALIDER",
       "affichage": "toutes_lettres",
-      "provisoire": "D-10",
+      "decision": "D-10",
       "a_valider": "Non trouvé dans les sources lues : AFGSU, ERC 2025, HAS (Saed), SFMU (IOA) (fiche cadre § 4 ; § 9, V4).",
       "present_dans": "Non trouvé",
       "variantes": "—",
@@ -398,7 +425,7 @@
       "objet_selon_spec": "analyse de la douleur",
       "statut": "A_VALIDER",
       "affichage": "toutes_lettres",
-      "provisoire": "D-10",
+      "decision": "D-10",
       "a_valider": "Non trouvé dans les sources lues (fiche cadre § 4 ; § 9, V4).",
       "present_dans": "Non trouvé",
       "variantes": "—",
@@ -518,5 +545,5 @@
       "ref_fiche": "fiche cadre § 4"
     }
   ],
-  "lacunes": "Sigles employés par l'appli ou par les fiches mais absents des tableaux d'acronymes des deux fiches (§ 4), donc non transcrits ici : PA, FC, FR, T°, EVA/EN (rangée d'ajout rapide de la fiche bilan, cahier des charges 4.6), PAM, EPI, BLS, ALS, CCC, HCPs, IDE, MK, SF, PS. Faute d'entrée, ils doivent être écrits en toutes lettres dans texte_court et consigne_guidee (règle R11) ; à sourcer par recherche-reco."
+  "lacunes": "Sigles employés par l'appli ou par les fiches mais absents des tableaux d'acronymes des deux fiches (§ 4), donc non transcrits ici : PA, FC, FR, T°, EVA/EN (rangée d'ajout rapide de la fiche bilan, cahier des charges 4.6), PAM, EPI, BLS, ALS, CCC, ECPR, HCPs, IDE, MK, SF, PS, MSP (ERC : entrée ajoutée le 15/11/2026). Faute d'entrée, ils doivent être écrits en toutes lettres dans texte_court et consigne_guidee (règle R11) ; à sourcer par recherche-reco."
 }

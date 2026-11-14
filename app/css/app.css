@@ -20,6 +20,9 @@
   --danger-bandeau: #8a0019;
   --sur-danger-bandeau: #ffffff;
   --focus: #0b5cad;
+  --simulation: #5b21b6;
+  --simulation-bis: #7c3aed;
+  --sur-simulation: #ffffff;
 
   --cible: 3rem;                /* 48 px au corps de texte par défaut : jamais plus petit */
   --espace: 0.75rem;
@@ -43,6 +46,9 @@
     --danger-bandeau: #ffb3bd;
     --sur-danger-bandeau: #260008;
     --focus: #66b2ff;
+    --simulation: #c4b5fd;
+    --simulation-bis: #a78bfa;
+    --sur-simulation: #1e0a3c;
   }
 }
 :root[data-theme="dark"] {
@@ -60,6 +66,9 @@
   --danger-bandeau: #ffb3bd;
   --sur-danger-bandeau: #260008;
   --focus: #66b2ff;
+  --simulation: #c4b5fd;
+  --simulation-bis: #a78bfa;
+  --sur-simulation: #1e0a3c;
 }
 
 /* ───────── Base ───────── */
@@ -219,6 +228,127 @@ body[data-mode="intervention"] #etat-preparation { display: none; }
   .secours-actions { grid-column: 2; gap: 0.5rem; }
   .secours-actions li { min-height: 0; padding: 0.125rem 0.5rem; font-size: 1.25rem; }
   .secours details { grid-column: 1 / -1; }
+}
+
+
+/* ───────── Intervention (lot L5a) ───────── */
+/* L'élément #appli devient le gabarit : bandeaux, en-tête fixe, écran courant, barre du bas (paysage : barre en colonne à droite). */
+#appli.gabarit {
+  height: 100vh; height: 100dvh; min-height: 0;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-areas: "bandeaux" "entete" "contenu" "barre";
+}
+@media (orientation: landscape) and (max-height: 600px) {
+  #appli.gabarit {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas: "bandeaux barre" "entete barre" "contenu barre";
+  }
+}
+
+/* Accueil : URGENCE occupe l'essentiel de l'écran ; les lignes « en attente » ne le réduisent jamais */
+.accueil { display: flex; flex-direction: column; gap: var(--espace); padding: var(--espace); min-height: 100%; max-width: 40rem; margin: 0 auto; }
+.accueil-titre { font-size: 1.25rem; margin: 0; }
+.accueil .presentation { margin: 0; color: var(--texte-attenue); font-size: 0.875rem; }
+.bouton-urgence-geant { flex: 1 1 14rem; min-height: 14rem; font-size: 3rem; letter-spacing: 0.05em; }
+.accueil-liens { display: flex; gap: var(--espace); flex-wrap: wrap; }
+.accueil-liens .bouton { flex: 1 1 8rem; }
+.ligne-attente { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0.25rem 0; border-top: 0.0625rem solid var(--bordure); }
+.ligne-attente-titre { flex: 1 1 10rem; font-weight: 700; }
+@media (orientation: landscape) and (max-height: 600px) {
+  .bouton-urgence-geant { min-height: 8rem; font-size: 2rem; }
+}
+
+/* En-tête d'intervention */
+.entete .chrono-global { font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.entete .chrono-cycle { font-weight: 700; font-variant-numeric: tabular-nums; }
+.entete .metronome { display: inline-flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; font-weight: 700; }
+.entete .metronome .bouton { min-height: 48px; min-width: 48px; padding: 0.25rem 0.75rem; }
+.repere { display: inline-block; width: 1.5rem; height: 1.5rem; border-radius: 50%; border: 0.1875rem solid var(--accent); background: transparent; transition: background 0.05s; }
+.repere-actif { background: var(--accent); transform: scale(1.25); }
+.avertissement-son { flex-basis: 100%; font-size: 0.75rem; color: var(--texte-attenue); }
+
+/* Choix de situation */
+.choix-situation { display: flex; flex-direction: column; gap: var(--espace); padding: var(--espace); }
+.choix-situation .bouton-tres-grand { min-height: 8rem; }
+
+/* Écran ACR : zone « cycle » au-dessus des tuiles (portrait) ; deux colonnes en paysage */
+.ecran-acr { display: flex; flex-direction: column; gap: var(--espace); padding: var(--espace); }
+.zone-cycle { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem; border: 0.125rem solid var(--bordure); border-radius: var(--rayon); }
+.cycle-decompte { margin: 0; font-size: 3rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.cycle-statut, .cycle-note { margin: 0; font-weight: 700; }
+.bouton-relance { min-height: 72px; font-size: 1.25rem; }
+.evenements { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.evenements .bouton { flex: 1 1 8rem; }
+.rappel { margin: 0; padding: 0.5rem; background: var(--avertissement); color: var(--sur-avertissement); font-weight: 700; border-radius: 0.5rem; }
+.tuiles { display: grid; gap: var(--espace); }
+.tuile { justify-content: flex-start; min-height: 5.5rem; font-size: 1.375rem; text-align: left; }
+.tuile[aria-pressed="true"] { border-color: var(--accent); }
+.tuile-etat { font-size: 1.75rem; width: 2rem; text-align: center; }
+.tuile-fait { font-size: 0.875rem; font-weight: 600; margin-left: auto; }
+@media (orientation: landscape) and (max-height: 600px) {
+  .ecran-acr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; padding: 0.5rem; gap: 0.5rem; }
+  .zone-cycle { grid-column: 1; grid-row: 1; padding: 0.25rem 0.5rem; }
+  .tuiles { grid-column: 2; grid-row: 1; gap: 0.5rem; }
+  .cycle-decompte { font-size: 2rem; }
+  .tuile { min-height: 3.5rem; font-size: 1.125rem; }
+  .bouton-relance { min-height: 48px; }
+}
+
+/* Panneau d'alerte : « Appeler le 15 » tout en haut, jamais sous un autre élément */
+.panneau-alerte, .ecran-lieu, .menu-intervention { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem var(--espace); }
+.panneau-titre { display: flex; justify-content: space-between; gap: 0.5rem; }
+.plan { display: flex; flex-direction: column; gap: 0.25rem; }
+.plan-aide { margin: 0; font-size: 0.875rem; color: var(--texte-attenue); }
+.bouton-appel { min-height: 72px; font-size: min(1.5rem, 7vw); }
+.autres-numeros { display: flex; flex-direction: column; gap: 0.5rem; }
+.plan-interne h2 { font-size: 1rem; margin: 0.25rem 0; }
+.plan-interne p { margin: 0.125rem 0; }
+.lieu-resume { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; justify-content: space-between; font-weight: 700; }
+.marque { font-weight: 600; font-size: 0.8125rem; }
+.confirmation { margin: 0; min-height: 1.25rem; font-weight: 700; }
+@media (orientation: landscape) and (max-height: 600px) {
+  .bouton-appel { min-height: 56px; }
+  .panneau-alerte { padding: 0.25rem 0.5rem; gap: 0.25rem; }
+}
+
+/* Bandeau SIMULATION : texte + couleur + motif rayé, différent de tout autre bandeau ; présent sur chaque écran de simulation */
+.bandeau-simulation {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0.375rem var(--espace);
+  background: repeating-linear-gradient(135deg, var(--simulation) 0 0.75rem, var(--simulation-bis) 0.75rem 1.5rem);
+  border-bottom: 0.1875rem solid var(--simulation);
+}
+.simulation-mot { padding: 0.25rem 0.75rem; border-radius: 0.5rem; background: var(--sur-simulation); color: var(--simulation); font-weight: 800; letter-spacing: 0.1em; }
+.bandeau-simulation .bouton { min-height: 48px; padding: 0.25rem 0.75rem; }
+
+
+/* ───────── Texte très agrandi (≥ 200 % : racine ≥ 22 px, posé par interface-intervention.js) ─────────
+   Le texte agrandi ne doit coûter aucune fonction : l'en-tête et les bandeaux se resserrent (une ligne chacun, détail à l'attribut title),
+   les boutons gardent leurs 48 px, et seule la zone centrale peut défiler ; ALERTER reste toujours visible dans la barre (4.3 bis, 5.3). */
+body[data-mode="intervention"][data-texte="grand"] .bandeau {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-block: 0.125rem; font-size: 0.6875rem;
+}
+body[data-mode="intervention"][data-texte="grand"] .bandeau-brouillon { font-size: 0.6875rem; }
+body[data-mode="intervention"][data-texte="grand"] .bandeau .bouton { min-height: 48px; padding-block: 0; font-size: 0.6875rem; }
+body[data-mode="intervention"][data-texte="grand"] .bandeau-simulation { flex-wrap: nowrap; padding-block: 0.125rem; gap: 0.25rem; }
+body[data-mode="intervention"][data-texte="grand"] .bandeau-simulation .bouton { font-size: 0.6875rem; padding-inline: 0.375rem; }
+body[data-mode="intervention"][data-texte="grand"] .simulation-mot { padding: 0.125rem 0.375rem; font-size: 0.6875rem; letter-spacing: 0.04em; }
+body[data-mode="intervention"][data-texte="grand"] .entete { flex-wrap: wrap; gap: 0.125rem 0.5rem; padding-block: 0.125rem; }
+body[data-mode="intervention"][data-texte="grand"] .entete .chrono-global { font-size: 1rem; }
+body[data-mode="intervention"][data-texte="grand"] .entete .chrono-cycle,
+body[data-mode="intervention"][data-texte="grand"] .entete .metronome { font-size: 0.6875rem; gap: 0.25rem; }
+body[data-mode="intervention"][data-texte="grand"] .entete .metronome .bouton { font-size: 0.6875rem; padding-inline: 0.5rem; }
+body[data-mode="intervention"][data-texte="grand"] .avertissement-son { display: none; }
+body[data-mode="intervention"][data-texte="grand"] .barre .bouton { font-size: 0.6875rem; }
+body[data-mode="intervention"][data-texte="grand"] .tuile { font-size: 1rem; min-height: 4rem; }
+body[data-mode="intervention"][data-texte="grand"] .cycle-decompte { font-size: 1.75rem; }
+
+/* Paysage (écran bas) : les bandeaux tiennent sur UNE ligne chacun (détail à l'attribut title), la ligne d'avertissement du son se replie. */
+@media (orientation: landscape) and (max-height: 600px) {
+  body[data-mode="intervention"] .bandeau { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-block: 0.125rem; font-size: 0.75rem; }
+  body[data-mode="intervention"] .bandeau .bouton { min-height: 48px; padding-block: 0; }
+  body[data-mode="intervention"] .avertissement-son { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -3,9 +3,9 @@
   "id": "acr-adulte-dae",
   "titre": "Arrêt cardio-respiratoire de l'adulte, avec défibrillateur automatisé externe",
   "titre_court": "Arrêt cardio-respiratoire adulte",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "statut_validation": "BROUILLON",
-  "date_redaction": "2026-11-14",
+  "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/acr-adulte-dae.md",
   "rapport_controle": null,
   "validateur": null,
@@ -15,19 +15,26 @@
     "le": "2026-11-14",
     "fiche_source_commit": "9cb1bf3",
     "cahier_des_charges_commit": "1f70771",
-    "regle": "Transcription de la fiche sans ajout de contenu médical. Quand la fiche donne plusieurs statuts pour un même élément, le champ statut retient le plus faible (CITE, puis DEDUIT, puis A_VALIDER) et le champ statut_fiche recopie la mention exacte de la fiche."
+    "regle": "Transcription de la fiche sans ajout de contenu médical. Quand la fiche donne plusieurs statuts pour un même élément, le champ statut retient le plus faible (CITE, puis DEDUIT, puis A_VALIDER) et le champ statut_fiche recopie la mention exacte de la fiche. Exception : quand la partie A_VALIDER d'une ligne de la fiche est transcrite dans un élément distinct qui la porte et l'affiche (femme-enceinte / femme-enceinte-terme), chaque élément garde son propre statut.",
+    "corrections": [
+      {
+        "par": "agent recherche-reco (Opus 5.5 / high)",
+        "le": "2026-11-15",
+        "objet": "Corrections d'après le rapport de contrôle docs/controle/protocole-acr-json-controle-2026-11-14.md (3 écarts majeurs, 18 mineurs) ; décisions D-10, D-11, D-12 et D-13 répondues (SPEC.md, partie 2) ; marques D-6 portées sur les étapes dont la position en dépend ; règles R1 et R11 du contrôle automatique."
+      }
+    ]
   },
   "decisions_appliquees": [
     {"decision": "D-4", "etat": "REPONDUE", "objet": "Réglage profession en 7 groupes (protocoles/_commun/professions.json) ; liste à confirmer"},
-    {"decision": "D-6", "etat": "PROVISOIRE", "objet": "Ordre ERC 2025 : alerter dès l'absence de réponse, avant l'évaluation de la respiration"},
-    {"decision": "D-10", "etat": "PROVISOIRE", "objet": "Acronymes sans source autorisée écrits en toutes lettres dans texte_court et consigne_guidee"},
-    {"decision": "D-11", "etat": "PROVISOIRE", "objet": "Métronome à 110 par minute"},
-    {"decision": "D-12", "etat": "PROVISOIRE", "objet": "Rappel de relève du masseur toutes les 2 minutes, à l'analyse du défibrillateur"},
-    {"decision": "D-13", "etat": "PROVISOIRE", "objet": "Lectures des chapitres ERC 2025 sur des copies tierces du PDF de l'éditeur, à revérifier avant validation"},
+    {"decision": "D-6", "etat": "PROVISOIRE", "objet": "Ordre ERC 2025 : alerter dès l'absence de réponse, avant l'évaluation de la respiration (non tranché : voir ordre_etapes.etapes_marquees)"},
+    {"decision": "D-10", "etat": "REPONDUE", "objet": "Acronymes sans source autorisée écrits en toutes lettres tant qu'aucune source autorisée ne les donne (réponse du 14/11/2026)"},
+    {"decision": "D-11", "etat": "REPONDUE", "objet": "Métronome à 110 par minute, dans la fourchette ERC 2025 de 100 à 120 (réponse du 14/11/2026)"},
+    {"decision": "D-12", "etat": "REPONDUE", "objet": "Rappel de relève du masseur toutes les 2 minutes, à l'analyse du défibrillateur, affiché comme choix du médecin et non comme recommandation ERC adulte (réponse du 14/11/2026)"},
+    {"decision": "D-13", "etat": "REPONDUE", "objet": "Lectures des chapitres ERC 2025 sur des copies tierces acceptées pour la phase 1 ; chiffres qui pilotent l'appli à revérifier sur une source officielle avant validation (voir reverification_avant_validation)"},
     {"decision": "D-20", "question": "Q-11", "etat": "PROVISOIRE", "objet": "Métronome continu avec pause manuelle (décision médicale à prendre avant le lot L4)"},
-    {"decision": "D-20", "question": "Q-12", "etat": "PROVISOIRE", "objet": "Rappel Sécurité en tête de checklist seulement, pas sur le premier écran"},
+    {"decision": "D-20", "question": "Q-12", "etat": "PROVISOIRE", "objet": "Rappel Sécurité en tête de checklist seulement, pas sur le premier écran (marque portée par l'étape securite)"},
     {"decision": "D-20", "question": "Q-16", "etat": "PROVISOIRE", "objet": "Sigles RCP, DAE, ACR, BAVU, PLS, SMUR : affichage décidé sigle par sigle dans glossaire.json ; par défaut en toutes lettres"},
-    {"decision": "D-20", "question": "Q-18", "etat": "PROVISOIRE", "objet": "Le toucher de l'étape des compressions démarre le métronome"},
+    {"decision": "D-20", "question": "Q-18", "etat": "PROVISOIRE", "objet": "Le toucher de l'étape des compressions démarre le métronome (marque portée par etapes[compressions].declenche)"},
     {"decision": "D-20", "question": "Q-27", "etat": "PROVISOIRE", "objet": "Alerte de fin de cycle discrète (bandeau et son bref, sans voile)"},
     {"decision": "D-20", "question": "Q-32", "etat": "PROVISOIRE", "objet": "Relance du chronomètre de cycle au toucher, sans redémarrage automatique"}
   ],
@@ -39,7 +46,18 @@
       {"ref": "ERC-BLS", "localisation": "fig. 1 et p. 2 ; tableau 1, p. 3 ; fig. 8c puis 8d, p. 10"}
     ],
     "a_valider": "Ordre visé : celui de l'ERC 2025 (Check, Call, CPR, puis défibrillateur dès qu'il est disponible). La source n'a pas pu être relue le 14/11/2026 et ses figures n'ont jamais été lues (D-13). L'ordre enseigné en AFGSU n'a pas pu être lu : divergence possible (fiche § 2, note ; § 7, Moment de l'alerte). Ancien ordre (évaluation de la respiration avant l'alerte) : historique git, commit 98049cb.",
-    "ref_fiche": "§ 2, note en tête ; § 7, Moment de l'alerte"
+    "ref_fiche": "§ 2, note en tête ; § 7, Moment de l'alerte",
+    "etapes_marquees": ["alerter", "haut-parleur", "numeros-urgence", "plan-a-plan-b", "aide-regulateur", "seul-sans-telephone", "appeler-collegues", "liberer-voies-aeriennes", "criteres-arret", "respiration-anormale", "convulsions", "doute-reanimer", "duree-evaluation-pouls"],
+    "remarque": "Chaque étape de ces deux blocs (alerter et ses sous-étapes ; libérer les voies aériennes et évaluer la respiration, et ses sous-étapes) porte provisoire « D-6 » : leur rang dans la checklist s'inverse si l'ordre « évaluer puis alerter » est retenu (rapport de contrôle du 14/11/2026, écart majeur E1). Le registre (ligne D-6) indique « réponse à préciser » : Laurent a répondu « suivre la recommandation AFGSU 2 », question de confirmation posée ; l'ordre ERC 2025 reste appliqué en attendant."
+  },
+  "reverification_avant_validation": {
+    "decision": "D-13",
+    "regle": "Les lectures des chapitres ERC 2025 faites sur des copies tierces sont acceptées pour la phase 1 ; les chiffres qui pilotent l'appli sont à revérifier sur une source officielle avant toute validation du protocole (SPEC.md, partie 2, D-13). Rapport de contrôle du 14/11/2026, écart E2.",
+    "chiffres_qui_pilotent_l_appli": [
+      "parametres.metronome : fourchette de 100 à 120 par minute ([ERC-BLS] p. 4 et p. 15), dans laquelle la valeur 110 a été choisie (D-11)",
+      "chronometres[cycle].duree_s : 120 s ([ERC-ALS] p. 7 et p. 21 ; [ERC-ES] p. 18)"
+    ],
+    "etapes_affichant_des_chiffres_lus_sur_copie_tierce": ["profondeur", "frequence", "patient-obese", "insufflations", "technique-insufflation", "pause-insufflations", "boitier-implante", "oxygene-et-choc", "cycles", "limiter-interruptions", "releve-masseur", "femme-enceinte-terme", "oxygene-apres-reprise", "pression-arterielle-cible"]
   },
   "medicaments": {
     "integres": false,
@@ -61,7 +79,7 @@
       "consulte_le": "2026-11-14",
       "en_vigueur": "oui",
       "lu_en_entier": "Texte : oui (extraction automatique) ; figures et algorithmes : non",
-      "remarque": "Édition 2025 lancée le 22/10/2025, remplace l'édition 2021. Lu sur une copie tierce du PDF de l'éditeur (certifico.com, pièce jointe 45832), le site de la revue refusant l'accès : D-13 (PROVISOIRE). Citations à recontrôler sur l'original (DOI)."
+      "remarque": "Édition 2025 lancée le 22/10/2025, remplace l'édition 2021. Lu sur une copie tierce du PDF de l'éditeur (certifico.com, pièce jointe 45832), le site de la revue refusant l'accès : D-13 (répondue : lectures acceptées pour la phase 1, chiffres qui pilotent l'appli à revérifier sur l'original avant validation). Citations à recontrôler sur l'original (DOI)."
     },
     "ERC-ALS": {
       "titre": "European Resuscitation Council Guidelines 2025 Adult Advanced Life Support (Soar J et al.), Resuscitation 215:110769",
@@ -71,7 +89,7 @@
       "consulte_le": "2026-11-14",
       "en_vigueur": "oui",
       "lu_en_entier": "Non : recherche ciblée par mots-clés et lecture des passages utiles (p. 1-9, 18-26) ; figures non lues",
-      "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com, pièce jointe 45831) : D-13 (PROVISOIRE)."
+      "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com, pièce jointe 45831) : D-13 (répondue : lectures acceptées pour la phase 1, chiffres qui pilotent l'appli à revérifier sur l'original avant validation)."
     },
     "ERC-ES": {
       "titre": "European Resuscitation Council Guidelines 2025 Executive Summary (Greif R et al.), Resuscitation 215:110770",
@@ -81,7 +99,7 @@
       "consulte_le": "2026-11-14",
       "en_vigueur": "oui",
       "lu_en_entier": "Non : passages ALS, circonstances particulières, post-réanimation et pédiatrie (p. 16-22, 33, 54-56)",
-      "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com, pièce jointe 45836) : D-13 (PROVISOIRE)."
+      "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com, pièce jointe 45836) : D-13 (répondue : lectures acceptées pour la phase 1, chiffres qui pilotent l'appli à revérifier sur l'original avant validation)."
     },
     "ERC-SC": {
       "titre": "European Resuscitation Council Guidelines 2025 Special Circumstances in Resuscitation (Lott C, Karageorgos V et al.), Resuscitation 215:110753",
@@ -91,7 +109,7 @@
       "consulte_le": "2026-11-14",
       "en_vigueur": "oui",
       "lu_en_entier": "Non : p. 1-4 et tableau 12 (p. 47)",
-      "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com, pièce jointe 45830) : D-13 (PROVISOIRE). Tableau 12 original (mise en page) non relu."
+      "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com, pièce jointe 45830) : D-13 (répondue : lectures acceptées pour la phase 1, chiffres qui pilotent l'appli à revérifier sur l'original avant validation). Tableau 12 original (mise en page) non relu."
     },
     "ERC-PRC": {
       "titre": "ERC-ESICM Guidelines 2025 Post-Resuscitation Care (Nolan JP, Sandroni C et al.), Resuscitation 215:110809",
@@ -101,7 +119,7 @@
       "consulte_le": "2026-11-14",
       "en_vigueur": "oui",
       "lu_en_entier": "Non : p. 1-6",
-      "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com, pièce jointe 45829) : D-13 (PROVISOIRE)."
+      "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com, pièce jointe 45829) : D-13 (répondue : lectures acceptées pour la phase 1, chiffres qui pilotent l'appli à revérifier sur l'original avant validation)."
     },
     "ERC-FA": {
       "titre": "European Resuscitation Council Guidelines 2025 First Aid, Resuscitation 215:110752",
@@ -111,7 +129,7 @@
       "consulte_le": "2026-11-14",
       "en_vigueur": "oui",
       "lu_en_entier": "Non : p. 1-6 (position latérale)",
-      "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com, pièce jointe 45824) : D-13 (PROVISOIRE). La fiche cadre transversal indique ce chapitre NON LU par une autre voie d'accès (site de la revue, 403)."
+      "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com, pièce jointe 45824) : D-13 (répondue : lectures acceptées pour la phase 1, chiffres qui pilotent l'appli à revérifier sur l'original avant validation). La fiche cadre transversal indique ce chapitre NON LU par une autre voie d'accès (site de la revue, 403)."
     },
     "ARRETE-AFGSU-2019": {
       "titre": "Arrêté du 1er juillet 2019 modifiant l'arrêté du 30 décembre 2014 relatif à l'attestation de formation aux gestes et soins d'urgence (annexes), JORF n° 0155 du 06/07/2019, texte n° 24",
@@ -183,14 +201,16 @@
       "ref_fiche": "§ 1, Victime"
     },
     "intervenants": {
-      "texte": "Professionnels de santé libéraux de la MSP (médecin, IDE, MK, sage-femme, autres PS), formés à l'AFGSU 2. L'ERC définit les « Healthcare Professionals (HCPs) » comme ceux qui travaillent dans tout secteur de soins, pré-hospitalier ou hospitalier.",
+      "texte": "Professionnels de santé libéraux de la maison de santé (médecin, infirmier, masseur-kinésithérapeute, sage-femme, autres professions de santé), formés à l'AFGSU de niveau 2. L'ERC définit les « Healthcare Professionals » comme ceux qui travaillent dans tout secteur de soins, pré-hospitalier ou hospitalier.",
+      "remarque": "Sigles MSP, IDE, MK, PS et HCPs de la fiche écrits en toutes lettres (D-10 ; rapport de contrôle I4).",
       "statut": "CITE",
       "statut_fiche": "CITÉ (reformulé)",
       "sources": [{"ref": "ERC-BLS", "localisation": "p. 2"}, {"ref": "SPEC", "localisation": "Contexte"}],
       "ref_fiche": "§ 1, Intervenants"
     },
     "niveau_de_reanimation": {
-      "texte": "Le niveau des recommandations utilisable est la réanimation de base (BLS) avec DAE, plus les éléments de la réanimation avancée (ALS) compatibles avec un cabinet libéral (BAVU, oxygène, canule) quand l'intervenant y est habilité. Le BLS est défini par l'ERC comme : déclencher la chaîne de survie, compressions thoraciques précoces de haute qualité, ventilation efficace, utilisation précoce d'un DAE.",
+      "texte": "Le niveau des recommandations utilisable est la réanimation de base avec défibrillateur automatisé externe, plus les éléments de la réanimation avancée compatibles avec un cabinet libéral (ventilation manuelle au masque, oxygène, canule) quand l'intervenant y est habilité. La réanimation de base est définie par l'ERC comme : déclencher la chaîne de survie, compressions thoraciques précoces de haute qualité, ventilation efficace, utilisation précoce d'un défibrillateur automatisé externe.",
+      "remarque": "Sigles BLS, ALS, DAE et BAVU de la fiche écrits en toutes lettres (D-10 ; rapport de contrôle I4).",
       "statut": "DEDUIT",
       "statut_fiche": "CITÉ (définition, reformulée) + DÉDUIT (périmètre)",
       "sources": [{"ref": "ERC-BLS", "localisation": "p. 2"}, {"ref": "SPEC", "localisation": "Contexte (matériel d'un cabinet, pas d'un SMUR)"}],
@@ -198,7 +218,8 @@
       "ref_fiche": "§ 1, Niveau de réanimation"
     },
     "lieu": {
-      "texte": "Cabinet de la MSP ou domicile du patient, jusqu'à l'arrivée du SMUR.",
+      "texte": "Cabinet de la maison de santé ou domicile du patient, jusqu'à l'arrivée de l'équipe médicale d'urgence.",
+      "remarque": "« SMUR » de la fiche remplacé par « équipe médicale d'urgence » : développement du sigle non trouvé (glossaire, smur) ; sigle MSP écrit en toutes lettres (D-10 ; rapport de contrôle I4).",
       "statut": "CITE",
       "statut_fiche": "CITÉ",
       "sources": [{"ref": "SPEC", "localisation": "Contexte"}],
@@ -206,7 +227,8 @@
     },
     "hors_champ": [
       {
-        "texte": "Défibrillation manuelle, intubation, dispositif supraglottique, capnographie, échographie, compressions mécaniques, ECPR : gestes ALS réservés à des équipes entraînées et équipées. Ils sont cités seulement pour expliquer ce que fera le SMUR.",
+        "texte": "Défibrillation manuelle, intubation, dispositif supraglottique, capnographie, échographie, compressions mécaniques, ECPR : gestes de réanimation avancée réservés à des équipes entraînées et équipées. Ils sont cités seulement pour expliquer ce que fera l'équipe médicale d'urgence.",
+        "remarque": "Sigles ALS et SMUR écrits en toutes lettres (rapport de contrôle I4). « ECPR » est conservé tel que la fiche l'écrit : la fiche ne le développe pas et aucune source française n'a été lue (A_VALIDER de forme, pas de contenu).",
         "statut": "DEDUIT",
         "statut_fiche": "DÉDUIT de [ERC-ALS] p. 6-8 (intubation réservée aux opérateurs à haut taux de succès ; défibrillation manuelle réservée à qui reconnaît un rythme en moins de 5 s)",
         "sources": [{"ref": "ERC-ALS", "localisation": "p. 6-8"}, {"ref": "ERC-ES", "localisation": "p. 16-20"}],
@@ -222,7 +244,7 @@
       }
     ],
     "cas_particulier_inclus": {
-      "texte": "Femme enceinte : la même reconnaissance, la même qualité de RCP et les mêmes réglages de défibrillation, plus le déplacement manuel de l'utérus vers la gauche (voir étape 10b).",
+      "texte": "Femme enceinte : la même reconnaissance, la même qualité de réanimation et les mêmes réglages de défibrillation, plus le déplacement manuel de l'utérus vers la gauche (voir l'étape « Femme enceinte »).",
       "statut": "CITE",
       "statut_fiche": "CITÉ",
       "sources": [{"ref": "ERC-SC", "localisation": "tableau 12, p. 47"}],
@@ -247,6 +269,9 @@
       "ref_fiche": "§ 2, étape 1",
       "qui_fiche": "Tous",
       "professions": {"geste": "securite"},
+      "provisoire": "D-20",
+      "question": "Q-12",
+      "remarque": "La marque provisoire porte sur la place de l'étape (en tête de checklist, hors du premier écran : Q-12, décision médicale à prendre), pas sur son contenu (rapport de contrôle E3).",
       "cochable": true,
       "acronymes": [],
       "materiel": []
@@ -260,7 +285,7 @@
       "critique": false,
       "titre_fiche": "Protection individuelle",
       "texte_court": "Protection individuelle",
-      "consigne_guidee": "Mettez un équipement de protection individuelle s'il est disponible, sans retarder les compressions.",
+      "consigne_guidee": "Mettez un équipement de protection individuelle s'il est disponible, surtout en cas de risque infectieux connu ou suspecté, sans retarder les compressions.",
       "detail": "Utiliser un équipement de protection individuelle s'il est disponible, surtout en cas de risque infectieux connu ou suspecté, sans retarder le début des compressions. Le risque infectieux pour le sauveteur est jugé faible.",
       "statut": "CITE",
       "statut_fiche": "CITÉ (reformulé)",
@@ -310,6 +335,7 @@
       "ref_fiche": "§ 2, étape 3",
       "qui_fiche": "Tous",
       "professions": {"geste": "alerter_transmettre"},
+      "provisoire": "D-6",
       "cochable": true,
       "cochage_auto": "appel",
       "acronymes": [],
@@ -340,6 +366,7 @@
       "ref_fiche": "§ 2, étape 3a",
       "qui_fiche": "Tous",
       "professions": {"geste": "alerter_transmettre"},
+      "provisoire": "D-6",
       "cochable": false,
       "acronymes": [],
       "materiel": []
@@ -361,6 +388,7 @@
       "ref_fiche": "§ 2, étape 3b",
       "qui_fiche": "Tous",
       "professions": {"geste": "alerter_transmettre"},
+      "provisoire": "D-6",
       "cochable": false,
       "acronymes": ["samu"],
       "materiel": []
@@ -383,6 +411,12 @@
       "ref_fiche": "§ 2, étape 3c",
       "qui_fiche": "Tous",
       "professions": {"geste": "alerter_transmettre"},
+      "provisoire": "D-6",
+      "provisoire_contenu": {
+        "provisoire": "D-20",
+        "question": "Q-10",
+        "porte_sur": "Consigne non sourcée de SPEC.md (15 d'abord, 112 en cas d'échec), affichée avec la marque A_VALIDER, comme dans numeros.json (rapport de contrôle E4). La marque provisoire de l'étape (D-6) porte sur sa position."
+      },
       "cochable": false,
       "acronymes": [],
       "materiel": []
@@ -404,6 +438,7 @@
       "ref_fiche": "§ 2, étape 3d",
       "qui_fiche": "Appelant",
       "professions": {"geste": "alerter_transmettre"},
+      "provisoire": "D-6",
       "roles": ["appel"],
       "cochable": false,
       "acronymes": ["rcp", "dae"],
@@ -426,6 +461,7 @@
       "ref_fiche": "§ 2, étape 3e",
       "qui_fiche": "Tous",
       "professions": {"geste": "alerter_transmettre"},
+      "provisoire": "D-6",
       "cochable": false,
       "acronymes": ["rcp"],
       "materiel": []
@@ -448,6 +484,7 @@
       "ref_fiche": "§ 2, étape 3f",
       "qui_fiche": "Tous",
       "professions": {"geste": "alerter_transmettre"},
+      "provisoire": "D-6",
       "cochable": false,
       "acronymes": ["dae"],
       "materiel": []
@@ -463,12 +500,14 @@
       "texte_court": "Libérer les voies aériennes, évaluer la respiration",
       "consigne_guidee": "Libérez les voies aériennes et évaluez la respiration.",
       "detail": "Figure ERC « Check for breathing – open the airway ». Manœuvres citées par l'ERC : bascule de la tête, élévation du menton, subluxation de la mâchoire.",
-      "statut": "CITE",
+      "statut": "A_VALIDER",
       "statut_fiche": "CITÉ (légende de figure ; manœuvres en contexte ALS)",
       "sources": [{"ref": "ERC-BLS", "localisation": "fig. 8d, p. 10", "citation": "Check for breathing – open the airway"}, {"ref": "ERC-ALS", "localisation": "p. 25"}],
+      "a_valider": "Rapport de contrôle du 14/11/2026, écart B11 : la fiche cite en CITÉ une légende de figure (fig. 8d) alors qu'elle déclare n'avoir lu aucune figure (avertissement ; ordre_etapes). Statut à revoir sur l'original de [ERC-BLS], lisible seulement après téléchargement (D-8, D-13). L'évaluation de la respiration elle-même est citée par d'autres étapes (critères, convulsions, haut-parleur).",
       "ref_fiche": "§ 2, étape 4",
       "qui_fiche": "Tous",
       "professions": {"geste": "reconnaitre"},
+      "provisoire": "D-6",
       "cochable": true,
       "acronymes": [],
       "materiel": []
@@ -482,7 +521,7 @@
       "critique": false,
       "titre_fiche": "Critères",
       "texte_court": "Ne répond pas et ne respire pas normalement",
-      "consigne_guidee": "Une personne qui ne répond pas et ne respire pas normalement est en arrêt cardiaque.",
+      "consigne_guidee": "Une personne qui ne répond pas et ne respire pas normalement doit être considérée en arrêt cardiaque.",
       "detail": "« If any person is unresponsive with abnormal breathing, cardiac arrest should be assumed. » La définition opérationnelle de l'ACR est : ne répond pas et ne respire pas normalement.",
       "statut": "CITE",
       "statut_fiche": "CITÉ",
@@ -490,6 +529,7 @@
       "ref_fiche": "§ 2, étape 4a",
       "qui_fiche": "Tous",
       "professions": {"geste": "reconnaitre"},
+      "provisoire": "D-6",
       "cochable": false,
       "acronymes": ["acr"],
       "materiel": []
@@ -511,6 +551,7 @@
       "ref_fiche": "§ 2, étape 4b",
       "qui_fiche": "Tous",
       "professions": {"geste": "reconnaitre"},
+      "provisoire": "D-6",
       "cochable": false,
       "acronymes": [],
       "materiel": []
@@ -532,6 +573,7 @@
       "ref_fiche": "§ 2, étape 4c",
       "qui_fiche": "Tous",
       "professions": {"geste": "reconnaitre"},
+      "provisoire": "D-6",
       "cochable": false,
       "acronymes": [],
       "materiel": []
@@ -553,6 +595,7 @@
       "ref_fiche": "§ 2, étape 4d",
       "qui_fiche": "Tous",
       "professions": {"geste": "reconnaitre"},
+      "provisoire": "D-6",
       "cochable": false,
       "acronymes": [],
       "materiel": []
@@ -574,6 +617,7 @@
       "ref_fiche": "§ 2, étape 4e ; § 3, Durée maximale de l'évaluation",
       "qui_fiche": "—",
       "professions": "tous",
+      "provisoire": "D-6",
       "cochable": false,
       "acronymes": [],
       "materiel": []
@@ -630,7 +674,7 @@
       "professions": {"geste": "mce"},
       "cochable": true,
       "cochage_auto": "toucher",
-      "declenche": {"metronome": "demarrer"},
+      "declenche": {"metronome": "demarrer", "provisoire": "D-20", "question": "Q-18", "remarque": "Démarrage du métronome au toucher de cette étape : choix provisoire Q-18 (rapport de contrôle E3)."},
       "acronymes": [],
       "materiel": [],
       "priorite": {
@@ -1060,13 +1104,14 @@
       "critique": false,
       "titre_fiche": "Position antéro-latérale (habituelle)",
       "texte_court": "Position antéro-latérale (habituelle)",
-      "consigne_guidee": "Suivez le schéma du fabricant : le plus souvent, une électrode sous la clavicule droite, l'autre sur la ligne axillaire moyenne gauche, sous l'aisselle.",
+      "consigne_guidee": "Suivez le schéma du fabricant : le plus souvent, une électrode sous la clavicule droite, l'autre sur la ligne axillaire moyenne gauche, sous l'aisselle, en évitant si possible le tissu mammaire.",
       "detail": "Suivre les consignes du fabricant ; le plus souvent : une électrode sous la clavicule droite, juste à droite du bord supérieur du sternum ; l'autre centrée sur la ligne axillaire moyenne gauche, sous l'aisselle ; éviter le tissu mammaire si possible.",
       "statut": "CITE",
       "statut_fiche": "CITÉ (reformulé)",
       "sources": [
         {"ref": "ERC-BLS", "localisation": "p. 21"},
-        {"ref": "ERC-ES", "localisation": "p. 18 (la fiche écrit « [ERC-ALS] / [ERC-ES] p. 18 » : antéro-latérale = position de choix ; électrode apicale bien sous l'aisselle)"}
+        {"ref": "ERC-ALS", "localisation": "page non précisée par la fiche, qui écrit « [ERC-ALS] / [ERC-ES] p. 18 » (antéro-latérale = position de choix ; électrode apicale bien sous l'aisselle)"},
+        {"ref": "ERC-ES", "localisation": "p. 18 (antéro-latérale = position de choix ; électrode apicale bien sous l'aisselle)"}
       ],
       "ref_fiche": "§ 2, étape 8b",
       "qui_fiche": "Tous",
@@ -1155,7 +1200,8 @@
       "raisonnement": "Consigne citée dans un texte ALS, appliquée par la fiche à tout choc délivré en présence d'oxygène.",
       "ref_fiche": "§ 2, étape 8f ; § 3, Distance de la source d'O₂ au moment du choc",
       "qui_fiche": "Qui utilise l'O₂",
-      "professions": {"geste": "oxygene"},
+      "professions": {"geste": "dae"},
+      "remarque": "Rattachée au geste « dae » (et non plus « oxygene ») d'après le rapport de contrôle (écart B42) : mesure de sécurité contre l'incendie au moment du choc, que doit connaître toute personne qui délivre le choc, alors que l'habilitation à l'oxygène n'est pas établie pour la plupart des groupes. La fiche indique « Qui : qui utilise l'O₂ ». Rattachement fait par la transcription : à vérifier.",
       "cochable": false,
       "acronymes": ["bavu"],
       "materiel": ["oxygene"]
@@ -1273,8 +1319,9 @@
       "premier_ecran": false,
       "critique": false,
       "titre_fiche": "Cycles",
-      "texte_court": "Cycle de 2 minutes de compressions",
-      "consigne_guidee": "Après le choc, reprenez un cycle de 2 minutes de compressions, sans réanalyser le rythme ni chercher de pouls, jusqu'à la réanalyse.",
+      "texte_court": "Cycles de compressions (2 minutes en réanimation avancée)",
+      "consigne_guidee": "Après le choc, reprenez les compressions sans réanalyser le rythme ni chercher de pouls ; la réanimation avancée compte des cycles de 2 minutes, mais avec un défibrillateur automatisé, c'est lui qui fixe le moment de la réanalyse.",
+      "remarque": "Contexte « texte ALS » de la fiche rétabli dans le texte affiché (rapport de contrôle B48) ; la priorité du défibrillateur vient de la fiche, étapes 8k et 9a.",
       "detail": "Choc unique, suivi d'un cycle de 2 minutes de compressions (texte ALS). Ne pas retarder la RCP pour réanalyser le rythme ou chercher un pouls juste après le choc ; continuer 2 minutes jusqu'à la réanalyse.",
       "statut": "CITE",
       "statut_fiche": "CITÉ (reformulé)",
@@ -1339,17 +1386,19 @@
       "critique": false,
       "titre_fiche": "Relève du masseur",
       "texte_court": "Relève du masseur",
-      "consigne_guidee": "Aucun intervalle de relève de l'adulte n'a été trouvé dans l'ERC 2025 ; le chapitre pédiatrique dit : au moins toutes les 2 minutes.",
-      "detail": "Intervalle non trouvé dans les textes adultes ERC 2025 lus. Le chapitre pédiatrique ERC 2025 dit : « Change the person doing chest compressions at least every 2 min. »",
+      "consigne_guidee": "Aucun intervalle de relève de l'adulte n'a été trouvé dans l'ERC 2025 (le chapitre pédiatrique dit « au moins toutes les 2 minutes », valeur non transposable telle quelle à l'adulte) ; le rappel de l'appli toutes les 2 minutes, à l'analyse du défibrillateur, est un choix du médecin référent.",
+      "detail": "Intervalle non trouvé dans les textes adultes ERC 2025 lus. Le chapitre pédiatrique ERC 2025 dit : « Change the person doing chest compressions at least every 2 min. » Ce n'est pas une recommandation pour l'adulte : le rappel de l'appli est un choix du médecin référent (décision du 14/11/2026).",
       "statut": "A_VALIDER",
       "statut_fiche": "A_VALIDER (la valeur pédiatrique n'est pas transposable sans décision)",
       "sources": [{"ref": "ERC-ES", "localisation": "p. 55-56 (pédiatrie)", "citation": "Change the person doing chest compressions at least every 2 min."}],
-      "a_valider": "Fiche § 9, V2 : recherche dans [ERC-BLS], [ERC-ALS] et [ERC-ES] (swap, switch, change, every 2, fatigue, compressor) : seule la pédiatrie donne « at least every 2 min ». Algorithmes en image non lus. Aide cognitive HAS 2026 (intra-hospitalière) non lue. Rappel de relève de l'appli : chronomètre « releve », valeur PROVISOIRE (D-12).",
+      "a_valider": "Fiche § 9, V2 : recherche dans [ERC-BLS], [ERC-ALS] et [ERC-ES] (swap, switch, change, every 2, fatigue, compressor) : seule la pédiatrie donne « at least every 2 min ». Algorithmes en image non lus. Aide cognitive HAS 2026 (intra-hospitalière) non lue. La décision D-12 (répondue le 14/11/2026) fixe le rappel de l'appli à 2 minutes comme choix du médecin référent, sans en faire une recommandation pour l'adulte : le statut reste A_VALIDER faute de source adulte (le format n'a pas de statut « choix du médecin »).",
+      "decision": "D-12",
+      "autorise_par": "D-12",
       "ref_fiche": "§ 2, étape 9c ; § 3, Relève du masseur (adulte)",
       "qui_fiche": "Équipe ≥ 2",
       "professions": {"geste": "mce"},
       "cochable": false,
-      "acronymes": [],
+      "acronymes": ["erc"],
       "materiel": []
     },
     {
@@ -1417,6 +1466,7 @@
         {"ref": "ERC-SC", "localisation": "« 4P » : tableau 1 (suite), p. 4, et p. 15"}
       ],
       "ref_fiche": "§ 2, étape 10b ; § 2 bis, Femme enceinte",
+      "remarque": "La ligne 10b de la fiche porte CITÉ (déplacement utérin) et A_VALIDER (seuil de terme) : la partie A_VALIDER est transcrite dans l'élément distinct femme-enceinte-terme, qui l'affiche ; exception écrite dans transcription.regle (rapport de contrôle B54). Étape placée sous les causes réversibles, comme dans la fiche.",
       "qui_fiche": "Tous ; SF particulièrement concernée",
       "professions": {"geste": "deplacement_uterin"},
       "cochable": false,
@@ -1445,7 +1495,7 @@
       "qui_fiche": "Tous ; SF particulièrement concernée",
       "professions": {"geste": "deplacement_uterin"},
       "cochable": false,
-      "acronymes": [],
+      "acronymes": ["erc"],
       "materiel": []
     },
     {
@@ -1456,12 +1506,13 @@
       "premier_ecran": false,
       "critique": false,
       "titre_fiche": "Signes de RACS",
-      "texte_court": "Retour de la conscience ou mouvements volontaires",
-      "consigne_guidee": "Si plusieurs signes apparaissent ensemble (retour de la conscience, mouvements volontaires, onde artérielle, hausse brutale de l'ETCO₂), envisagez d'arrêter les compressions pour une analyse du rythme et, si approprié, une prise du pouls.",
-      "detail": "Si des signes cliniques et physiologiques de RACS apparaissent ensemble (retour de la conscience, mouvements volontaires, onde artérielle, hausse brutale de l'ETCO₂), envisager d'arrêter les compressions pour une analyse du rythme et, si approprié, une prise du pouls (texte ALS).",
+      "texte_court": "Signes de reprise : plusieurs, apparaissant ensemble",
+      "consigne_guidee": "En réanimation avancée, l'arrêt des compressions s'envisage quand plusieurs signes de reprise apparaissent ensemble : retour de la conscience, mouvements volontaires, signes donnés par le monitorage invasif ou la capnographie.",
+      "detail": "Texte de réanimation avancée (ALS) : si des signes cliniques et physiologiques de RACS apparaissent ensemble (retour de la conscience, mouvements volontaires, onde artérielle, hausse brutale de l'ETCO₂), envisager d'arrêter les compressions pour une analyse du rythme et, si approprié, une prise du pouls. Hors réanimation avancée, la recherche du pouls n'est pas intégrée au protocole tant qu'aucune décision médicale n'est prise (fiche § 7, Recherche du pouls).",
       "statut": "CITE",
       "statut_fiche": "CITÉ (reformulé)",
       "sources": [{"ref": "ERC-ES", "localisation": "p. 18"}, {"ref": "ERC-ALS", "localisation": "p. 9"}],
+      "remarque": "Corrigé d'après le rapport de contrôle (écart majeur B56) : le mot « ensemble » de la fiche est rétabli dans le texte court ; l'analyse du rythme et la prise du pouls ne figurent plus dans la consigne et restent dans le détail, avec leur contexte de réanimation avancée (fiche § 7 : pas de recherche du pouls sans décision médicale). « Onde artérielle » et « hausse brutale de l'ETCO₂ » sont désignées dans la consigne par « signes donnés par le monitorage invasif ou la capnographie », d'après la fiche, étape 11a.",
       "ref_fiche": "§ 2, étape 11",
       "qui_fiche": "Tous",
       "professions": {"geste": "surveillance_reevaluation"},
@@ -1523,8 +1574,9 @@
       "premier_ecran": false,
       "critique": false,
       "titre_fiche": "Après RACS",
-      "texte_court": "Après le retour d'une activité circulatoire spontanée",
-      "consigne_guidee": "Après le retour durable d'une activité circulatoire spontanée, la réanimation post-arrêt commence, où que l'on soit : continuez à soutenir les voies aériennes et la ventilation.",
+      "texte_court": "Après le retour d'une circulation spontanée",
+      "consigne_guidee": "Après le retour durable d'une circulation spontanée, la réanimation post-arrêt commence, où que l'on soit : continuez à soutenir les voies aériennes et la ventilation.",
+      "remarque": "Rapport de contrôle G9 : « retour d'une activité circulatoire spontanée » était un des développements possibles du sigle RACS, choisi sans source française. Remplacé par la traduction littérale de l'expression citée de l'ERC (« sustained ROSC » : return of spontaneous circulation, fiche § 4), comme le reste des consignes traduites de l'ERC ; le développement du sigle RACS reste A_VALIDER au glossaire. Libellé à confirmer par le médecin référent.",
       "detail": "La réanimation post-arrêt commence « immediately after sustained ROSC, regardless of location ». Le soutien des voies aériennes et de la ventilation doit continuer après le RACS.",
       "statut": "CITE",
       "statut_fiche": "CITÉ",
@@ -1548,7 +1600,8 @@
       "critique": false,
       "titre_fiche": "Oxygène après RACS",
       "texte_court": "Oxygène après la reprise : SpO₂ de 94 à 98 %",
-      "consigne_guidee": "Oxygène à 100 % (ou au maximum disponible) jusqu'à une mesure fiable de la SpO₂, puis titrez pour une SpO₂ de 94 à 98 % ; après un arrêt bref avec réveil immédiat et respiration normale : oxygène au masque si SpO₂ inférieure à 94 %.",
+      "consigne_guidee": "Après un arrêt bref, avec retour immédiat d'une fonction cérébrale normale et respiration normale : oxygène au masque si la SpO₂ est inférieure à 94 %. Sinon : oxygène à 100 % (ou au maximum disponible) jusqu'à une mesure fiable de la SpO₂, puis titrez pour une SpO₂ de 94 à 98 %.",
+      "remarque": "Ordre de la fiche rétabli (cas de l'arrêt bref d'abord, puis « Sinon ») : rapport de contrôle B60.",
       "detail": "Brève période d'arrêt, retour immédiat d'une fonction cérébrale normale et respiration normale : O₂ au masque si SpO₂ < 94 %. Sinon : O₂ à 100 % (ou au maximum disponible) jusqu'à une mesure fiable de la SpO₂, puis titrer pour une SpO₂ de 94–98 %. Éviter l'hypoxémie et l'hyperoxémie. L'oxymètre peut surestimer la saturation sur peau foncée et en bas débit.",
       "statut": "CITE",
       "statut_fiche": "CITÉ (reformulé)",
@@ -1611,22 +1664,44 @@
       "critique": false,
       "titre_fiche": "Surveillance jusqu'au SMUR",
       "texte_court": "Surveiller jusqu'à l'arrivée de l'équipe médicale",
-      "consigne_guidee": "Réévaluez les voies aériennes, la respiration et la réponse ; en cas de récidive de l'arrêt, reprenez les compressions.",
-      "detail": "Réévaluer : obstruction des voies aériennes, respiration inefficace ou agonique, perte de réponse. En cas de récidive de l'arrêt, reprendre à l'étape 6 (le DAE en place analysera sur demande ou selon ses consignes).",
-      "statut": "DEDUIT",
+      "consigne_guidee": "Réévaluez les voies aériennes, la respiration et la réponse.",
+      "detail": "Réévaluer : obstruction des voies aériennes, respiration inefficace ou agonique, perte de réponse.",
+      "statut": "CITE",
       "statut_fiche": "CITÉ (réévaluation, [ERC-FA] p. 5) + DÉDUIT (reprise)",
-      "sources": [{"ref": "ERC-FA", "localisation": "p. 5"}, {"ref": "ERC-BLS", "localisation": "p. 3"}],
-      "raisonnement": "Réévaluation citée ([ERC-FA] p. 5) ; la reprise à l'étape des compressions en cas de récidive est déduite par la fiche, le DAE restant en place.",
+      "sources": [{"ref": "ERC-FA", "localisation": "p. 5"}],
+      "remarque": "La reprise des compressions en cas de récidive (partie DÉDUITE de la ligne 13 de la fiche) est transcrite dans la sous-étape recidive-arret, rattachée au geste des compressions, ouvert à tous les groupes (rapport de contrôle, point 9 de la synthèse) ; cette étape-ci ne porte plus que la réévaluation, CITÉE.",
       "ref_fiche": "§ 2, étape 13",
       "qui_fiche": "Tous",
       "professions": {"geste": "surveillance_reevaluation"},
       "cochable": true,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "recidive-arret",
+      "ordre": 64,
+      "parent": "surveillance",
+      "niveau": "detail",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Surveillance jusqu'au SMUR (reprise en cas de récidive)",
+      "texte_court": "Récidive de l'arrêt : reprendre les compressions",
+      "consigne_guidee": "En cas de récidive de l'arrêt, reprenez les compressions ; le défibrillateur resté en place analysera sur demande ou selon ses consignes.",
+      "detail": "En cas de récidive de l'arrêt, reprendre à l'étape des compressions (le DAE en place analysera sur demande ou selon ses consignes).",
+      "statut": "DEDUIT",
+      "statut_fiche": "DÉDUIT (reprise)",
+      "sources": [{"ref": "ERC-BLS", "localisation": "p. 3"}],
+      "raisonnement": "La reprise à l'étape des compressions en cas de récidive est déduite par la fiche, le défibrillateur restant en place (étape 11b).",
+      "ref_fiche": "§ 2, étape 13 (reprise en cas de récidive)",
+      "qui_fiche": "Tous",
+      "professions": {"geste": "mce"},
+      "cochable": false,
       "acronymes": ["dae"],
       "materiel": []
     },
     {
       "id": "constantes-transmission",
-      "ordre": 64,
+      "ordre": 65,
       "parent": "surveillance",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1635,19 +1710,20 @@
       "texte_court": "Constantes et transmission",
       "consigne_guidee": "Recueillez les constantes dans la fiche bilan et préparez la transmission.",
       "detail": "Recueil des constantes et transmission Saed : voir la fiche bilan et le mode transmission.",
-      "statut": "CITE",
-      "statut_fiche": "renvoi (fiche ACR, sans référence) ; contenu CITÉ dans la fiche cadre transversal, C5 (AFGSU, objectif B7) et § 2.D (Saed)",
+      "statut": "A_VALIDER",
+      "statut_fiche": "renvoi (fiche ACR, sans statut ni référence) ; contenu CITÉ dans la fiche cadre transversal, C5 (AFGSU, objectif B7) et § 2.D (Saed)",
       "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B7)", "citation": "de transmettre à l'équipe venant en renfort, un bilan synthétique (vital et circonstanciel) comprenant signes cliniques, paramètres vitaux et contexte"}],
+      "a_valider": "Rapport de contrôle du 14/11/2026, écart majeur B64. La fiche ACR (§ 2, étape 13a) ne donne qu'un renvoi, sans statut ni référence ; l'objectif AFGSU B7 n'est cité que par la fiche cadre transversal (annexe 2 lue visuellement), la fiche ACR déclarant cette annexe NON LUE (divergence C-14). Habilitation : geste « constantes_non_invasives » de professions.json (fiche cadre § 6, ligne « Pression artérielle, pouls, surveillance non invasive ») ; sage-femme et groupes 5 à 7 : habilitation non établie (A_VALIDER).",
       "ref_fiche": "§ 2, étape 13a (renvoi à docs/reco/cadre-transversal.md, C5 et § 2.D)",
       "qui_fiche": "Tous",
-      "professions": {"geste": "alerter_transmettre"},
+      "professions": {"geste": "constantes_non_invasives"},
       "cochable": false,
       "acronymes": ["saed"],
       "materiel": []
     },
     {
       "id": "apres-intervention",
-      "ordre": 65,
+      "ordre": 66,
       "parent": null,
       "niveau": "principal",
       "premier_ecran": false,
@@ -1698,9 +1774,9 @@
     "metronome": {
       "frequence_par_min": 110,
       "fourchette_citee_par_min": [100, 120],
-      "statut": "A_VALIDER",
-      "provisoire": "D-11",
-      "a_valider": "Valeur unique à choisir dans la fourchette citée de 100 à 120 par minute (fiche § 9, V1). 110 par minute (milieu de la fourchette) est un choix PROVISOIRE (D-11), non validé.",
+      "statut": "DEDUIT",
+      "decision": "D-11",
+      "raisonnement": "La fourchette de 100 à 120 par minute est citée ([ERC-BLS] p. 4 et p. 15) ; la valeur unique de 110 par minute, milieu de la fourchette, a été choisie par le médecin référent (D-11, répondue le 14/11/2026 ; fiche § 9, V1). Fourchette lue sur une copie tierce : à revérifier sur l'original avant validation (D-13, voir reverification_avant_validation).",
       "sources": [{"ref": "ERC-BLS", "localisation": "p. 4 ; p. 15", "citation": "Compress the chest at a rate of 100–120 min-1 with as few interruptions as possible."}],
       "ref_fiche": "§ 3, Fréquence des compressions ; § 2, étape 6d ; § 9, V1",
       "mode": {
@@ -1738,7 +1814,9 @@
           {"ref": "ERC-ES", "localisation": "p. 18"},
           {"ref": "ERC-BLS", "localisation": "p. 5 (avec un DAE, l'intervalle est fixé par l'appareil)", "citation": "after a set time interval"}
         ],
-        "ref_fiche": "§ 2, étape 9 ; § 3, Durée d'un cycle de RCP entre deux analyses"
+        "ref_fiche": "§ 2, étape 9 ; § 3, Durée d'un cycle de RCP entre deux analyses",
+        "decision": "D-13",
+        "remarque": "Chiffre qui pilote l'appli, lu sur une copie tierce du PDF de l'éditeur : à revérifier sur l'original avant validation (D-13 ; rapport de contrôle C7 et E2)."
       },
       "repetition": {
         "valeur": "attend_toucher",
@@ -1768,26 +1846,26 @@
       "duree_s": {
         "valeur": 120,
         "statut": "A_VALIDER",
-        "provisoire": "D-12",
+        "decision": "D-12",
         "sources": [{"ref": "ERC-ES", "localisation": "p. 55-56 (pédiatrie)", "citation": "Change the person doing chest compressions at least every 2 min."}],
-        "a_valider": "Fiche § 9, V2 : aucun intervalle de relève de l'adulte trouvé dans l'ERC 2025 lu ; la valeur pédiatrique n'est pas transposable sans décision. Rappel toutes les 2 minutes, au moment de l'analyse du défibrillateur : choix PROVISOIRE (D-12), non validé, qui n'est ni une recommandation ERC adulte ni une décision médicale prise.",
+        "a_valider": "Fiche § 9, V2 : aucun intervalle de relève de l'adulte trouvé dans l'ERC 2025 lu ; la valeur pédiatrique n'est pas transposable sans décision. Rappel toutes les 2 minutes, au moment de l'analyse du défibrillateur : choix du médecin référent (D-12, répondue le 14/11/2026), affiché comme tel et non comme une recommandation ERC adulte. Statut maintenu A_VALIDER faute de source adulte (le format n'a pas de statut « choix du médecin ») ; algorithme ERC ALS (fig. 2) et aide cognitive HAS 2026 non lus.",
         "ref_fiche": "§ 2, étape 9c ; § 3, Relève du masseur (adulte) ; § 9, V2"
       },
       "repetition": {
         "valeur": "attend_toucher",
-        "provisoire": "D-12",
+        "decision": "D-12",
         "raison": "Rappel affiché à l'échéance du cycle, au moment de l'analyse du défibrillateur (D-12) : il suit les relances du chronomètre de cycle (Q-32)."
       },
       "alerte": {
         "valeur": "discrete",
-        "provisoire": "D-12",
         "raison": "Échéance non sourcée : l'alerte forte est réservée aux échéances sourcées (cahier des charges 3.1, champ alerte)."
       },
       "note_affichee": {
-        "texte": "Rappel de relève à 2 min — valeur provisoire, non validée (aucun intervalle adulte trouvé dans l'ERC 2025)",
+        "texte": "Rappel de relève à 2 min — choix du médecin référent, pas une recommandation ERC pour l'adulte (aucun intervalle adulte trouvé dans l'ERC 2025)",
         "statut": "A_VALIDER",
-        "provisoire": "D-12",
-        "a_valider": "Fiche § 2, étape 9c ; § 9, V2.",
+        "decision": "D-12",
+        "autorise_par": "D-12",
+        "a_valider": "Fiche § 2, étape 9c ; § 9, V2. Texte conforme à la décision D-12 (répondue le 14/11/2026) : affiché comme choix du médecin référent, non comme recommandation ERC adulte.",
         "ref_fiche": "§ 2, étape 9c"
       }
     }
@@ -1876,7 +1954,7 @@
     },
     {
       "id": "bavu-adulte",
-      "libelle": "Matériel de ventilation manuelle instrumentale par masque (BAVU adulte), avec masques de tailles adaptées",
+      "libelle": "Matériel de ventilation manuelle instrumentale par masque, adulte, avec masques de tailles adaptées",
       "niveau": "recommande",
       "niveau_fiche": "Recommandé (DÉDUIT)",
       "qui_fiche": "Médecin, IDE ; autres : section 6",
@@ -1889,7 +1967,7 @@
     },
     {
       "id": "oxygene",
-      "libelle": "Oxygène (source, débitmètre, raccord au BAVU, masque)",
+      "libelle": "Oxygène (source, débitmètre, raccord au matériel de ventilation manuelle, masque)",
       "niveau": "recommande",
       "niveau_fiche": "Recommandé (DÉDUIT : « highest feasible inspired oxygen »)",
       "qui_fiche": "Selon habilitation (section 6)",
@@ -1981,7 +2059,7 @@
     {
       "id": "sauveteur-seul",
       "point": "Sauveteur seul",
-      "texte": "Appel en haut-parleur et RCP. Sans téléphone : appeler à l'aide, puis quitter la victime pour alerter si personne ne vient. Aller chercher le DAE seulement s'il est immédiatement à côté.",
+      "texte": "Appel en haut-parleur et réanimation. Sans téléphone : appeler à l'aide, puis quitter la victime pour alerter si personne ne vient. Aller chercher le défibrillateur seulement s'il est immédiatement à côté.",
       "statut": "CITE",
       "statut_fiche": "CITÉ",
       "sources": [{"ref": "ERC-BLS", "localisation": "p. 3, p. 11, p. 18"}],
@@ -1990,7 +2068,7 @@
     {
       "id": "deux-sauveteurs-ou-plus",
       "point": "Deux sauveteurs ou plus",
-      "texte": "« One should continue CPR whilst the other attaches the defibrillation pads. » S'il y a plus d'un témoin, le régulateur en envoie un chercher le DAE.",
+      "texte": "« One should continue CPR whilst the other attaches the defibrillation pads. » (l'un continue la réanimation pendant que l'autre pose les électrodes). S'il y a plus d'un témoin, le régulateur en envoie un chercher le défibrillateur.",
       "statut": "CITE",
       "statut_fiche": "CITÉ",
       "sources": [{"ref": "ERC-BLS", "localisation": "p. 4 et p. 19", "citation": "One should continue CPR whilst the other attaches the defibrillation pads."}],
@@ -1998,8 +2076,9 @@
     },
     {
       "id": "bavu-a-trois",
-      "point": "BAVU",
-      "texte": "CITÉ : technique à deux personnes recommandée pour qui n'utilise pas régulièrement un BAVU. Raisonnement (DÉDUIT, incomplet) pour 3 soignants, à partir des priorités citées : (1) alerter dès l'absence de réponse (étape 3 ; [ERC-BLS] p. 2-3) — l'appel en haut-parleur peut être tenu par un soignant qui fait autre chose ([ERC-BLS] p. 3) ; (2) compressions sans interruption dès que possible (étape 6 ; [ERC-BLS] p. 4) ; (3) DAE dès qu'il est disponible, posé par un second sauveteur pendant que le premier continue le MCE (étape 8a ; [ERC-BLS] p. 4 et p. 19) ; (4) BAVU à deux (ALS p. 26). Avant que l'alerte soit donnée et le DAE posé, les 3 soignants ne peuvent donc pas être « un masse, deux ventilent » : au moins un est pris par le DAE ou l'appel. Une fois le DAE posé et l'appel passé, « un masse, deux ventilent » devient possible, mais ne laisse personne pour relever le masseur (intervalle de relève adulte non trouvé, V2) ni pour suivre l'appel ; la relève supposerait une rotation entre masseur et ventilateurs, que les sources lues ne décrivent pas. L'alternative (ventilation par un seul soignant, au masque de poche ou au BAVU) s'écarte de la recommandation ALS p. 26 pour les utilisateurs non réguliers.",
+      "point": "Ventilation manuelle au masque à trois soignants",
+      "texte": "CITÉ : technique à deux personnes recommandée pour qui n'utilise pas régulièrement la ventilation manuelle au masque. Raisonnement (DÉDUIT, incomplet) pour 3 soignants, à partir des priorités citées : (1) alerter dès l'absence de réponse (étape 3 ; [ERC-BLS] p. 2-3) — l'appel en haut-parleur peut être tenu par un soignant qui fait autre chose ([ERC-BLS] p. 3) ; (2) compressions sans interruption dès que possible (étape 6 ; [ERC-BLS] p. 4) ; (3) défibrillateur dès qu'il est disponible, posé par un second sauveteur pendant que le premier continue les compressions (étape 8a ; [ERC-BLS] p. 4 et p. 19) ; (4) ventilation manuelle au masque à deux ([ERC-ALS] p. 26). Avant que l'alerte soit donnée et le défibrillateur posé, les 3 soignants ne peuvent donc pas être « un masse, deux ventilent » : au moins un est pris par le défibrillateur ou l'appel. Une fois le défibrillateur posé et l'appel passé, « un masse, deux ventilent » devient possible, mais ne laisse personne pour relever le masseur (intervalle de relève adulte non trouvé, V2) ni pour suivre l'appel ; la relève supposerait une rotation entre masseur et ventilateurs, que les sources lues ne décrivent pas. L'alternative (ventilation par un seul soignant, au masque de poche ou avec le matériel de ventilation manuelle instrumentale) s'écarte de la recommandation de réanimation avancée ([ERC-ALS] p. 26) pour les utilisateurs non réguliers.",
+      "remarque": "Sigles BAVU, DAE, MCE et ALS de la fiche écrits en toutes lettres (rapport de contrôle I4).",
       "statut": "A_VALIDER",
       "statut_fiche": "CITÉ (technique à deux) ; répartition à 3 : A_VALIDER (voir V7)",
       "sources": [{"ref": "ERC-ALS", "localisation": "p. 26"}, {"ref": "ERC-BLS", "localisation": "p. 2-4, p. 19"}],
@@ -2026,7 +2105,7 @@
     },
     {
       "id": "repartition-roles",
-      "point": "Répartition chef, compressions, DAE, appel, scribe (prévue par SPEC.md)",
+      "point": "Répartition chef, compressions, défibrillateur, appel, scribe (prévue par le cahier des charges)",
       "texte": "Aucune répartition nominative des rôles pour une équipe de 1 à 3 soignants hors hôpital n'a été trouvée dans les sources lues. L'appli ne propose aucune répartition.",
       "statut": "A_VALIDER",
       "statut_fiche": "A_VALIDER",
@@ -2042,36 +2121,36 @@
     {"parametre": "Durée d'une insufflation", "valeur": "environ 1 s", "statut": "CITE", "sources": [{"ref": "ERC-BLS", "localisation": "p. 17"}, {"ref": "ERC-ALS", "localisation": "p. 8"}], "ref_fiche": "§ 3"},
     {"parametre": "Pause maximale pour 2 insufflations", "valeur": "10 s au plus", "statut": "CITE", "sources": [{"ref": "ERC-BLS", "localisation": "p. 17"}], "ref_fiche": "§ 3"},
     {"parametre": "Fraction de compression thoracique", "valeur": "au moins 60 %, la plus élevée possible", "statut": "CITE", "sources": [{"ref": "ERC-BLS", "localisation": "p. 15"}], "ref_fiche": "§ 3"},
-    {"parametre": "Pause avant et après le choc (DAE)", "valeur": "« as short as possible » (pas de chiffre pour le DAE)", "statut": "CITE", "sources": [{"ref": "ERC-BLS", "localisation": "p. 15", "citation": "as short as possible"}], "ref_fiche": "§ 3"},
-    {"parametre": "Pause avant et après le choc (défibrillation manuelle, ALS)", "valeur": "moins de 5 s — pour information, hors champ libéral", "statut": "CITE", "sources": [{"ref": "ERC-ALS", "localisation": "p. 6-7"}, {"ref": "ERC-ES", "localisation": "p. 16"}], "ref_fiche": "§ 3"},
-    {"parametre": "Durée d'un cycle de RCP entre deux analyses", "valeur": "2 min (texte ALS) ; avec un DAE, l'intervalle est fixé par l'appareil (« a set time interval »)", "statut": "CITE", "sources": [{"ref": "ERC-ALS", "localisation": "p. 7 et p. 21"}, {"ref": "ERC-BLS", "localisation": "p. 5", "citation": "a set time interval"}], "ref_fiche": "§ 3"},
-    {"parametre": "Relève du masseur (adulte)", "valeur": "non trouvé ; pédiatrie ERC 2025 : « at least every 2 min »", "statut": "A_VALIDER", "sources": [{"ref": "ERC-ES", "localisation": "p. 55-56", "citation": "at least every 2 min"}], "a_valider": "Fiche § 9, V2.", "ref_fiche": "§ 3"},
+    {"parametre": "Pause avant et après le choc (défibrillateur automatisé externe)", "valeur": "« as short as possible » (pas de chiffre pour le défibrillateur automatisé externe)", "statut": "CITE", "sources": [{"ref": "ERC-BLS", "localisation": "p. 15", "citation": "as short as possible"}], "ref_fiche": "§ 3"},
+    {"parametre": "Pause avant et après le choc (défibrillation manuelle, réanimation avancée)", "valeur": "moins de 5 s — pour information, hors champ libéral", "statut": "CITE", "sources": [{"ref": "ERC-ALS", "localisation": "p. 6-7"}, {"ref": "ERC-ES", "localisation": "p. 16"}], "ref_fiche": "§ 3"},
+    {"parametre": "Durée d'un cycle de réanimation entre deux analyses", "valeur": "2 min (texte de réanimation avancée) ; avec un défibrillateur automatisé externe, l'intervalle est fixé par l'appareil (« a set time interval »)", "statut": "CITE", "sources": [{"ref": "ERC-ALS", "localisation": "p. 7 et p. 21"}, {"ref": "ERC-BLS", "localisation": "p. 5", "citation": "a set time interval"}], "ref_fiche": "§ 3"},
+    {"parametre": "Relève du masseur (adulte)", "valeur": "non trouvé ; pédiatrie ERC 2025 : « at least every 2 min » ; rappel de l'appli toutes les 2 min : choix du médecin référent", "statut": "A_VALIDER", "sources": [{"ref": "ERC-ES", "localisation": "p. 55-56", "citation": "at least every 2 min"}], "a_valider": "Fiche § 9, V2. Rappel de l'appli : décision D-12 (répondue le 14/11/2026).", "decision": "D-12", "autorise_par": "D-12", "ref_fiche": "§ 3"},
     {"parametre": "Durée maximale de l'évaluation conscience-respiration", "valeur": "non trouvé dans l'ERC 2025 lu", "statut": "A_VALIDER", "a_valider": "Fiche § 9, V3 ; divergence C-15 (brochure ERC grand public, fiche cadre § 3).", "ref_fiche": "§ 3"},
     {"parametre": "Écart électrode / boîtier implanté", "valeur": "plus de 8 cm", "statut": "CITE", "sources": [{"ref": "ERC-ES", "localisation": "p. 18"}], "ref_fiche": "§ 3"},
     {"parametre": "Distance de la source d'O₂ au moment du choc", "valeur": "au moins 1 m du thorax", "statut": "CITE", "sources": [{"ref": "ERC-ES", "localisation": "p. 18"}], "ref_fiche": "§ 3"},
-    {"parametre": "SpO₂ cible après RACS", "valeur": "94–98 % ; O₂ au masque si < 94 % (cas d'un réveil immédiat)", "statut": "CITE", "sources": [{"ref": "ERC-ES", "localisation": "p. 33"}], "ref_fiche": "§ 3"},
-    {"parametre": "PAM cible après RACS (hospitalier)", "valeur": "> 60–65 mmHg (info)", "statut": "CITE", "sources": [{"ref": "ERC-PRC", "localisation": "p. 6"}], "ref_fiche": "§ 3"},
-    {"parametre": "Délai de défibrillation (FV)", "valeur": "Chaque minute de retard : probabilité d'échec de la défibrillation augmentée de 6 %, survie diminuée de 3 à 6 % (justification de l'urgence du DAE)", "statut": "CITE", "statut_fiche": "CITÉ (reformulé)", "sources": [{"ref": "ERC-BLS", "localisation": "p. 18"}], "ref_fiche": "§ 3"}
+    {"parametre": "SpO₂ cible après le retour d'une circulation spontanée", "valeur": "94–98 % ; O₂ au masque si < 94 % (cas d'un réveil immédiat)", "statut": "CITE", "sources": [{"ref": "ERC-ES", "localisation": "p. 33"}], "ref_fiche": "§ 3"},
+    {"parametre": "Pression artérielle moyenne cible après le retour d'une circulation spontanée (hospitalier)", "valeur": "> 60–65 mmHg (info)", "statut": "CITE", "sources": [{"ref": "ERC-PRC", "localisation": "p. 6"}], "ref_fiche": "§ 3"},
+    {"parametre": "Délai de défibrillation (fibrillation ventriculaire)", "valeur": "Chaque minute de retard : probabilité d'échec de la défibrillation augmentée de 6 %, survie diminuée de 3 à 6 % (justification de l'urgence du DAE)", "statut": "CITE", "statut_fiche": "CITÉ (reformulé)", "sources": [{"ref": "ERC-BLS", "localisation": "p. 18"}], "ref_fiche": "§ 3"}
   ],
   "divergences_fiche": [
     {"point": "Ordre de priorité des sources", "consequence": "SPEC.md donne deux ordres (Agent 1 : AFGSU puis ERC ; règles absolues : ERC puis AFGSU). Non tranché (D-6). Toutes les étapes reposent sur l'ERC 2025, faute d'avoir pu lire le contenu AFGSU.", "ref_fiche": "§ 7, ligne 1"},
     {"point": "Contenu du référentiel AFGSU", "consequence": "Annexes de l'arrêté NON LUES selon la fiche ACR (images du JO) ; la fiche cadre transversal les a lues visuellement (divergence C-14).", "ref_fiche": "§ 7, ligne 2 ; § 9, V4"},
-    {"point": "Moment de l'alerte", "consequence": "ERC 2025 : alerter dès l'absence de réponse ; ERC 2021 : après le constat d'absence de respiration normale. L'équipe a pu apprendre « évaluer puis alerter » : signaler l'écart en formation. Ordre appliqué : ERC 2025, PROVISOIRE (D-6). A_VALIDER.", "ref_fiche": "§ 7, ligne 3"},
+    {"point": "Moment de l'alerte", "consequence": "ERC 2025 : alerter dès l'absence de réponse ; ERC 2021 : après le constat d'absence de respiration normale. L'équipe a pu apprendre « évaluer puis alerter » : signaler l'écart en formation. Ordre appliqué : ERC 2025, PROVISOIRE (D-6), marqué sur chaque étape concernée (ordre_etapes.etapes_marquees). Réponse de Laurent à préciser (registre D-6 : « suivre la recommandation AFGSU 2 », question de confirmation posée). A_VALIDER.", "ref_fiche": "§ 7, ligne 3"},
     {"point": "Ventilation par un professionnel", "consequence": "Proposer ou non le 30:2 par défaut : décision médicale à prendre (A_VALIDER). Sens corrigé d'après le rapport de contrôle, à revérifier sur l'original (D-13).", "ref_fiche": "§ 7, ligne 4"},
     {"point": "Terminologie du défibrillateur", "consequence": "CSP : défibrillateur automatisé externe ; arrêté IDE 2026 : défibrillateur semi-automatique. Un seul terme dans l'appli (celui du CSP) ; le type d'appareil de la structure (bouton de choc ou non) vient de config/structure.json.", "ref_fiche": "§ 7, ligne 5"},
     {"point": "Position des électrodes", "consequence": "Pas de contradiction réelle : suivre le schéma du défibrillateur ; l'antéro-postérieure reste exceptionnelle.", "ref_fiche": "§ 7, ligne 6"},
-    {"point": "Relève du masseur", "consequence": "Aucun intervalle adulte trouvé ; pédiatrie : au moins toutes les 2 min. Valeur adulte à décider (A_VALIDER) ; rappel de l'appli PROVISOIRE (D-12).", "ref_fiche": "§ 7, ligne 7"},
+    {"point": "Relève du masseur", "consequence": "Aucun intervalle adulte trouvé ; pédiatrie : au moins toutes les 2 min. Rappel de l'appli toutes les 2 min, à l'analyse du défibrillateur : décision D-12 (répondue le 14/11/2026), affiché comme choix du médecin et non comme recommandation ERC adulte ; intervalle adulte toujours non trouvé (A_VALIDER).", "ref_fiche": "§ 7, ligne 7"},
     {"point": "Recherche du pouls", "consequence": "Ne pas intégrer de recherche du pouls tant qu'aucune décision médicale n'est prise ; position AHA non lue (A_VALIDER).", "ref_fiche": "§ 7, ligne 8"},
     {"point": "Recommandations françaises SFAR/SRLF/SFMU sur l'arrêt cardiaque (2007)", "consequence": "Non lues ; vraisemblablement dépassées. Non utilisées.", "ref_fiche": "§ 7, ligne 9"},
     {"point": "Recommandation HAS 2026 sur l'urgence vitale intra-hospitalière", "consequence": "Champ intra-hospitalier ; contenu non lu (page dynamique) ; pourrait contenir une répartition des rôles et un intervalle de relève : à lire pour comparer.", "ref_fiche": "§ 7, ligne 10"}
   ],
   "points_a_valider_fiche": [
-    {"id": "V1", "point": "Valeur unique du métronome dans la fourchette 100–120 /min", "decision": "décision médicale (D-11 PROVISOIRE : 110/min)"},
-    {"id": "V2", "point": "Intervalle de relève du masseur (adulte)", "decision": "décision médicale, après lecture de l'algorithme ERC ALS, fig. 2 (D-12 PROVISOIRE : 2 min)"},
+    {"id": "V1", "point": "Valeur unique du métronome dans la fourchette 100–120 /min", "decision": "décidé : 110/min (D-11, répondue le 14/11/2026) ; fourchette à revérifier sur l'original avant validation (D-13)"},
+    {"id": "V2", "point": "Intervalle de relève du masseur (adulte)", "decision": "rappel de l'appli décidé : 2 min, à l'analyse du défibrillateur (D-12, répondue le 14/11/2026) ; intervalle adulte toujours non trouvé (algorithme ERC ALS, fig. 2, non lu)"},
     {"id": "V3", "point": "Durée maximale de l'évaluation conscience-respiration ; recherche du pouls par un professionnel", "decision": "décision médicale"},
     {"id": "V4", "point": "Contenu de l'annexe 2 de l'arrêté AFGSU (objectifs, ordre enseigné, acronymes)", "decision": "récupération du document (pilote) ; voir C-14"},
     {"id": "V5", "point": "Ordre plan A (15) puis plan B (112)", "decision": "décision médicale (Q-10)"},
-    {"id": "V6", "point": "Formes françaises des acronymes RCP, MCE, ACR, RACS, BAVU, 4H-4T, FV/TVSP, AESP, SMUR, PLS", "decision": "glossaire (Q-16) puis décision médicale"},
+    {"id": "V6", "point": "Formes françaises des acronymes RCP, MCE, ACR, RACS, BAVU, 4H-4T, FV/TVSP, AESP, SMUR, PLS", "decision": "D-10 (répondue le 14/11/2026) : en toutes lettres tant qu'aucune source autorisée ne les donne ; sigles RCP, DAE, ACR, BAVU, PLS, SMUR : glossaire (Q-16, provisoire)"},
     {"id": "V7", "point": "Répartition des rôles dans une équipe de 1 à 3 soignants hors hôpital", "decision": "décision médicale"},
     {"id": "V8", "point": "Critères d'arrêt du massage en BLS adulte ; maintien du défibrillateur en place jusqu'à l'arrivée de l'équipe médicale", "decision": "décision médicale"},
     {"id": "V9", "point": "Infirmier : oxygène sans prescription pendant l'arrêt (geste conservatoire au sens de R4311-7 ?)", "decision": "décision médicale ; au besoin, protocole de soins d'urgence écrit (R4311-7)"},

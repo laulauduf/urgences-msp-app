@@ -2,9 +2,9 @@
   "format": 1,
   "id": "numeros",
   "titre": "Numéros d'urgence par défaut et rappels d'appel",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "statut_validation": "BROUILLON",
-  "date_redaction": "2026-11-14",
+  "date_redaction": "2026-11-15",
   "fiches_source": ["docs/reco/cadre-transversal.md", "docs/reco/acr-adulte-dae.md"],
   "rapport_controle": null,
   "validateur": null,
@@ -12,7 +12,14 @@
   "transcription": {
     "par": "agent recherche-reco (Opus 5.5 / high), lot L1 de la phase 3",
     "le": "2026-11-14",
-    "regle": "Valeurs par défaut ; config/structure.json peut les surcharger (cahier des charges 3.2). Le rôle de chaque numéro est sourcé ; la bascule « plan B » et le rappel « Ne raccrochez pas en premier » viennent de SPEC.md, sans source trouvée : A_VALIDER (Q-10)."
+    "regle": "Valeurs par défaut ; config/structure.json peut les surcharger (cahier des charges 3.2). Le rôle de chaque numéro est sourcé ; la bascule « plan B » et le rappel « Ne raccrochez pas en premier » viennent de SPEC.md, sans source trouvée : A_VALIDER (Q-10). Chaque numéro porte un statut qui couvre le numéro et son libellé ; le plan, la bascule et le rôle gardent chacun leur propre statut.",
+    "corrections": [
+      {
+        "par": "agent recherche-reco (Opus 5.5 / high)",
+        "le": "2026-11-15",
+        "objet": "Corrections d'après docs/controle/protocole-acr-json-controle-2026-11-14.md : information « gratuité, géolocalisation » limitée à ce que dit la fiche F33954 (écart H10, page relue le 15/11/2026) ; statut et sources au niveau de chaque numéro (contrôle automatique, R1)."
+      }
+    ]
   },
   "decisions_appliquees": [
     {"decision": "D-20", "question": "Q-10", "etat": "PROVISOIRE", "objet": "Consignes non sourcées de SPEC.md (bascule vers le 112, « Ne raccrochez pas en premier ») affichées avec la marque A_VALIDER tant que le protocole est BROUILLON"}
@@ -56,7 +63,7 @@
       "consulte_le": "2026-11-14",
       "en_vigueur": "oui",
       "lu_en_entier": "Texte : oui (extraction automatique) ; figures : non",
-      "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (PROVISOIRE)."
+      "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (répondue : lectures acceptées pour la phase 1, à revérifier avant validation)."
     },
     "ERC-ES": {
       "titre": "European Resuscitation Council Guidelines 2025 Executive Summary (Greif R et al.), Resuscitation 215:110770",
@@ -66,7 +73,7 @@
       "consulte_le": "2026-11-14",
       "en_vigueur": "oui",
       "lu_en_entier": "Non : recherche ciblée",
-      "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (PROVISOIRE)."
+      "remarque": "Lu sur une copie tierce du PDF de l'éditeur (certifico.com) : D-13 (répondue : lectures acceptées pour la phase 1, à revérifier avant validation)."
     },
     "HAS-AVC-2025": {
       "titre": "AVC de l'adulte : les points critiques du parcours",
@@ -94,6 +101,14 @@
       "numero": "15",
       "libelle": "SAMU",
       "libelle_long": "Service d'aide médicale urgente (SAMU)",
+      "statut": "CITE",
+      "statut_porte_sur": "numéro et libellé",
+      "sources": [
+        {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence", "citation": "sauvegarde des vies humaines - SAMU"},
+        {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B2)", "citation": "service d'aide médicale urgente (SAMU) numéro d'urgence : 15"},
+        {"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954, rubrique du 15"}
+      ],
+      "ref_fiche": "cadre § 2.E, E1 et E2 ; ACR § 2, étape 3b",
       "moyens": ["tel"],
       "plan": {
         "valeur": "A",
@@ -121,6 +136,13 @@
       "id": "urgence-europeenne",
       "numero": "112",
       "libelle": "Numéro d'urgence européen",
+      "statut": "CITE",
+      "statut_porte_sur": "numéro et libellé",
+      "sources": [
+        {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence", "citation": "numéro d'urgence européen"},
+        {"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954, rubrique du 112"}
+      ],
+      "ref_fiche": "cadre § 2.E, E3 ; ACR § 2, étape 3b",
       "moyens": ["tel"],
       "plan": {
         "valeur": "B",
@@ -156,6 +178,13 @@
       "id": "personnes-sourdes-malentendantes",
       "numero": "114",
       "libelle": "Personnes sourdes, malentendantes, sourdaveugles ou aphasiques",
+      "statut": "CITE",
+      "statut_porte_sur": "numéro et libellé",
+      "sources": [
+        {"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954, rubrique du 114"},
+        {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence (fiche ACR, étape 3b : personnes déficientes auditives)"}
+      ],
+      "ref_fiche": "cadre § 2.E, E4 ; ACR § 2, étape 3b",
       "moyens": ["sms"],
       "autres_moyens": {
         "texte": "Accessible aussi par application, site internet, visio, tchat, images et langue des signes ; donner son nom, son adresse précise et le motif.",
@@ -181,6 +210,13 @@
       "id": "pompiers",
       "numero": "18",
       "libelle": "Pompiers",
+      "statut": "CITE",
+      "statut_porte_sur": "numéro et libellé",
+      "sources": [
+        {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence (fiche ACR, étape 3b : pompiers)"},
+        {"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954, rubrique du 18"}
+      ],
+      "ref_fiche": "cadre § 2.E, E5 ; ACR § 2, étape 3b",
       "moyens": ["tel"],
       "plan": null,
       "role": {
@@ -219,10 +255,12 @@
   "informations": [
     {
       "id": "gratuite-geolocalisation",
-      "texte": "Les appels aux numéros d'urgence sont gratuits, géolocalisés et disponibles 24 h/24.",
+      "texte": "La gratuité des appels d'urgence est la règle. Les appels au 15, au 18 et au 112 sont gratuits et géolocalisés, et ces services sont joignables 24 h/24 et 7 j/7 ; le 114 fonctionne aussi 24 h/24 et 7 j/7.",
       "statut": "CITE",
-      "statut_fiche": "CITÉ (reformulation fidèle)",
-      "sources": [{"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954"}],
+      "statut_fiche": "CITÉ (reformulation fidèle) ; texte de la fiche cadre (E7) restreint le 15/11/2026 à ce que dit la source, qui ne mentionne pas la géolocalisation du 114 (rapport de contrôle H10)",
+      "sources": [
+        {"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954 (vérifiée le 25/08/2026 par la DILA), rubriques des 15, 18, 112 et 114 ; relue le 15/11/2026", "citation": "Tous les appels vers ces numéros sont gratuits et géolocalisés."}
+      ],
       "ref_fiche": "cadre § 2.E, E7"
     }
   ],

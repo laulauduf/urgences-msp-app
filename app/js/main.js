@@ -10,11 +10,16 @@ import { stockage } from './stockage.js';
 import { appliquerTheme, themeLocal } from './theme.js';
 import { chargerGroupes } from './professions.js';
 import { afficherReglages } from './ecrans/reglages.js';
+import { afficherAccueil as afficherEcranAccueil } from './ecrans/accueil.js';
+import { InterfaceIntervention } from './ecrans/interface-intervention.js';
+import { Intervention } from './intervention.js';
+import { Son } from './son.js';
+import { EcranAllume } from './ecran-allume.js';
+import { lireNumeros, chargerNumeros } from './numeros.js';
 
 // Thème mémorisé localement : appliqué avant tout le reste, pour éviter un clignotement clair → sombre.
 appliquerTheme(themeLocal());
 
-const PRESENTATION = "Aide-mémoire interne à la MSP APSIS, qui affiche des recommandations publiées et aide à noter et transmettre les informations d'une intervention.";
 const TEXTE_BROUILLON = 'BROUILLON — protocoles non validés par le médecin référent';
 const PROTOCOLE_DU_PROTOTYPE = 'acr-adulte-dae';
 
@@ -25,25 +30,80 @@ function creer(balise, classe, texte) {
   return e;
 }
 
-/** Accueil du socle. Le bouton URGENCE et le choix de situation arrivent au lot L5a ; les numéros d'appel restent accessibles. */
-function afficherAccueil() {
-  const contenu = document.getElementById('contenu');
-  const page = creer('section', 'page');
-  page.append(creer('h1', null, 'Urgences MSP APSIS'));
-  page.append(creer('p', 'presentation', PRESENTATION));
-  const appels = creer('div', 'secours-appels');
-  for (const [numero, libelle] of [['15', 'Appeler le 15'], ['112', 'Appeler le 112']]) {
-    const lien = creer('a', 'bouton bouton-urgence', libelle);
-    lien.href = `tel:${numero}`;
-    appels.append(lien);
-  }
-  page.append(appels);
-  const reglages = creer('button', 'bouton', 'Réglages');
-  reglages.type = 'button';
-  reglages.id = 'ouvrir-reglages';
-  reglages.addEventListener('click', ouvrirReglages);
-  page.append(reglages);
-  contenu.replaceChildren(page);
+/** État de l'appli : une seule intervention à la fois, un seul son, un seul verrou d'écran. */
+const app = { son: new Son(), ecran: new EcranAllume(), intervention: null, interface: null, accueilTouche: false, accueilUI: null, numeros: lireNumeros(null) };
+
+/** Accueil : URGENCE immédiat ; les fiches en attente s'ajoutent quand le stockage a répondu (jamais attendues). */
+function montrerAccueil() {
+  app.accueilUI = afficherEcranAccueil(document.getElementById('contenu'), {
+    auUrgence: () => demarrerUrgence('reel'),
+    auSimulation: () => demarrerUrgence('simulation'),
+    auxReglages: ouvrirReglages,
+    auToucher: () => { app.accueilTouche = true; },
+  });
+  rafraichirEnAttente();
+}
+
+async function rafraichirEnAttente() {
+  const ui = app.accueilUI;
+  await stockage.vider(); // les écritures en attente (fiche terminée, mise en pause) doivent être en base avant qu'on liste
+  const { enAttente } = await stockage.trouverReprise({ accueilTouche: true });
+  if (ui !== app.accueilUI || app.intervention) return; // l'écran a changé entre-temps
+  ui.afficherEnAttente(enAttente, {
+    reprendre: (r) => reprendreFiche(r),
+    effacer: async (r) => { await stockage.effacerFiche(r.mode, r.id); if (ui === app.accueilUI) rafraichirEnAttente(); },
+  });
+}
+
+// ───────── Intervention ─────────
+
+/** Toucher URGENCE (ou « Simulation ») : SYNCHRONE — la fiche, le son et le verrou d'écran sont lancés dans le geste, l'écran suivant s'affiche à l'instant. */
+function demarrerUrgence(mode) {
+  app.accueilTouche = true;
+  const i = nouvelleIntervention();
+  i.demarrer(mode);
+  ouvrirInterface(i);
+}
+
+const nouvelleIntervention = () => new Intervention({ stockage, son: app.son, ecran: app.ecran, chargerProtocole, protocoleId: PROTOCOLE_DU_PROTOTYPE });
+
+function ouvrirInterface(i) {
+  app.intervention = i;
+  app.interface = new InterfaceIntervention({
+    intervention: i, son: app.son, ecran: app.ecran, numeros: () => app.numeros, structure: () => contexte.structure,
+    actions: {
+      accueil: () => quitterIntervention({ aller: true }),
+      nouvelleUrgence: () => { quitterIntervention({ aller: false }); demarrerUrgence('reel'); },
+      urgenceReelle: () => { quitterIntervention({ aller: false }); demarrerUrgence('reel'); }, // la simulation reste en pause, la VRAIE fiche s'ouvre
+      terminee: () => quitterIntervention({ aller: true, detruite: true }),
+    },
+  });
+  app.interface.monter();
+}
+
+/** Sort de l'intervention SANS la terminer (sa fiche reste en base, intacte) ; l'écriture en attente est forcée sans être attendue. */
+function quitterIntervention({ aller, detruite = false }) {
+  const i = app.intervention;
+  app.interface?.demonter();
+  app.interface = null; app.intervention = null;
+  if (i && !detruite) i.mettreEnPause(); // la partie qui compte (arrêt, détachement) est synchrone ; le vidage de l'écriture part en parallèle
+  if (aller) montrerAccueil();
+}
+
+async function reprendreFiche(resume, { automatique = false } = {}) {
+  const lu = await stockage.lireFiche(resume.mode, resume.id);
+  if (!lu.ok || app.intervention || (automatique && app.accueilTouche)) { if (!app.intervention) rafraichirEnAttente(); return; }
+  const i = nouvelleIntervention();
+  await i.reprendre(lu.fiche, { automatique });
+  if (app.intervention || (automatique && app.accueilTouche)) { i.detruire(); return; }
+  ouvrirInterface(i);
+}
+
+/** Au lancement, APRÈS l'affichage de l'accueil et la purge : reprise directe d'une fiche récente (règles de 2.8), sinon lignes « en attente ». */
+async function lancerReprise() {
+  const { reprise } = await stockage.trouverReprise({ accueilTouche: app.accueilTouche });
+  if (reprise && !app.accueilTouche && !app.intervention) await reprendreFiche(reprise, { automatique: true });
+  else if (!app.intervention) rafraichirEnAttente();
 }
 
 function poserBandeauBrouillon() {
@@ -59,7 +119,7 @@ async function ouvrirReglages() {
     stockage,
     structure: contexte.structure,
     groupes: contexte.groupes,
-    onRetour: () => { afficherAccueil(); },
+    onRetour: () => { montrerAccueil(); },
     onChangement: (cle) => { if (cle === 'profession') majPointProfession(); },
   });
   contenu.focus();
@@ -162,7 +222,7 @@ async function verifierProtocoles() {
 function demarrer() {
   // iPhone : l'état :active d'un bouton ne s'affiche que si la page a un gestionnaire tactile (retour visuel immédiat, 5.1).
   document.addEventListener('touchstart', () => {}, { passive: true });
-  afficherAccueil();
+  montrerAccueil();
   poserBandeauBrouillon();
   afficherBandeauInstallation();
   rendreEtat();
@@ -192,6 +252,8 @@ async function demarrerStockage(promesseStructure) {
     if (r === 'attente') definirPoint('purge', { texte: "Vérification d'effacement en attente", ok: false });
     stockage.purgeTerminee().then(() => retirerPoint('purge'));
   });
+  lancerReprise();
+  chargerNumeros().then((json) => { app.numeros = lireNumeros(json, contexte.structure); });
   contexte.groupes = await chargerGroupes({ structure: contexte.structure });
   await majPointProfession();
   const r = await stockage.lireReglages();
