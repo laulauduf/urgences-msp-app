@@ -666,3 +666,37 @@ body:not([data-texte="grand"]) .menu-intervention .bouton { font-size: 0.875rem;
 @media (max-width: 400px) and (orientation: portrait) {
   body[data-mode="intervention"]:not([data-texte="grand"]) .barre .bouton { padding-inline: 0.25rem; flex: 1 1 auto; min-width: 0; }   /* largeur selon le libellé (et non en parts égales) */
 }
+
+/* ───────── Lot L9 : écrans Matériel et À propos ───────── */
+.ecran-info { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem var(--espace); max-width: 40rem; margin: 0 auto; }
+.ecran-info .bouton { min-height: 48px; min-width: 48px; }
+.ecran-info .panneau-titre { flex-wrap: wrap; justify-content: space-between; }
+.info-titre { font-size: 1.25rem; margin: 0; flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.info-sous-titre { font-size: 1rem; margin: 0.5rem 0 0.25rem; }
+.info-sous-sous-titre { font-size: 0.9375rem; margin: 0.5rem 0 0.25rem; }
+.info-section { display: flex; flex-direction: column; gap: 0.25rem; }
+.info-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.info-ligne { display: flex; flex-direction: column; gap: 0.125rem; padding-top: 0.5rem; border-top: 0.0625rem solid var(--bordure); overflow-wrap: anywhere; }
+.info-detail, .info-emplacement { font-size: 0.875rem; }
+.ecran-info p { margin: 0.125rem 0; overflow-wrap: anywhere; }
+body[data-mode="intervention"][data-texte="grand"] .info-titre { font-size: 0.75rem; }
+body[data-mode="intervention"][data-texte="grand"] .ecran-info .bouton { font-size: 0.6875rem; padding-block: 0.125rem; }
+
+/* Vérifications transversales L9 — constats corrigés */
+/* couleur jamais seule : un choix rapide « appuyé » porte aussi une coche (sexe, AVPU) */
+.choix-rapides .bouton[aria-pressed="true"]::before { content: "✓ "; }
+/* accueil : URGENCE reste ENTIÈREMENT visible sans défilement en paysage bas et à 200 % — il passe AVANT le titre et prend une hauteur bornée par celle de la fenêtre */
+@media (orientation: landscape) and (max-height: 600px) {
+  .accueil .bouton-urgence-geant { order: -1; flex: 0 0 auto; min-height: min(8rem, 45vh); }
+}
+body[data-texte="grand"] .accueil .bouton-urgence-geant { order: -1; flex: 0 0 auto; min-height: min(14rem, 45vh); }
+/* écran ACR à 200 % : les boutons d'événement (analyse, choc, relève…) passent à la ligne au lieu de déborder */
+.evenements .bouton { min-width: 0; max-width: 100%; flex-wrap: wrap; text-align: center; overflow-wrap: anywhere; }
+body[data-mode="intervention"][data-texte="grand"] .evenements .bouton { flex: 1 1 100%; }
+/* bandeau SIMULATION à 200 % : une seule rangée compacte, sans déborder (portrait) ni manger l'écran (paysage) */
+body[data-mode="intervention"][data-texte="grand"] .bandeau-simulation .bouton, body[data-mode="intervention"][data-texte="grand"] .simulation-mot { font-size: 0.5625rem; letter-spacing: 0; }
+body[data-mode="intervention"][data-texte="grand"] .bandeau-simulation .bouton { padding-inline: 0.125rem; min-width: 0; }
+body[data-mode="intervention"][data-texte="grand"] .bandeau-simulation { flex-wrap: wrap; row-gap: 0; }
+/* URGENCE ne déborde jamais de son bouton (« URGENCE » à 96 px dépassait 375 px à 200 %) : corps borné par la largeur de la fenêtre */
+.accueil .bouton-urgence-geant { font-size: min(3rem, 14vw); }
+@media (orientation: landscape) and (max-height: 600px) { .accueil .bouton-urgence-geant { font-size: min(2rem, 14vw); } }

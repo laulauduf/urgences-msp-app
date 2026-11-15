@@ -19,6 +19,9 @@ import { Son } from './son.js';
 import { EcranAllume } from './ecran-allume.js';
 import { lireNumeros, chargerNumeros } from './numeros.js';
 import { afficherCloture } from './ecrans/cloture.js';
+import { afficherMateriel } from './ecrans/materiel.js';
+import { afficherAPropos } from './ecrans/a-propos.js';
+import { construireMateriel } from './materiel.js';
 import { messageEffacement, viderPressePapiers } from './export.js';
 import { appelant } from './roles.js';
 
@@ -45,6 +48,8 @@ function montrerAccueil() {
     auSimulation: () => demarrerUrgence('simulation'),
     auxReglages: ouvrirReglages,
     auGlossaire: ouvrirGlossaire,
+    auMateriel: ouvrirMateriel,
+    auAPropos: ouvrirAPropos,
     auToucher: () => { app.accueilTouche = true; },
   });
   afficherMiseAJour(app.etatMaj);   // revue m1 : le bandeau « Nouvelle version » appartient à l'accueil : il y revient après l'intervention
@@ -189,6 +194,20 @@ async function ouvrirGlossaire() {
   const contenu = document.getElementById('contenu');
   const glossaire = await chargerGlossaire();
   afficherGlossaire(contenu, { glossaire, auFermer: () => { montrerAccueil(); } });
+  contenu.focus();
+}
+
+/** « Matériel » depuis l'accueil (4.14) : les contenants et leurs emplacements, tirés de config/structure.json. */
+function ouvrirMateriel() {
+  const contenu = document.getElementById('contenu');
+  afficherMateriel(contenu, { modele: construireMateriel({ protocole: null, structure: contexte.structure }), avecArticles: false, auFermer: () => { montrerAccueil(); } });
+  contenu.focus();
+}
+
+/** « À propos » depuis l'accueil (4.15). */
+function ouvrirAPropos() {
+  const contenu = document.getElementById('contenu');
+  afficherAPropos(contenu, { chargerProtocole: () => chargerProtocole(PROTOCOLE_DU_PROTOTYPE), stockage, auFermer: () => { montrerAccueil(); } });
   contenu.focus();
 }
 

@@ -26,6 +26,9 @@ import { afficherFiche } from './fiche.js';
 import { afficherTransmission } from './transmission.js';
 import { afficherJournal } from './journal.js';
 import { afficherCloture } from './cloture.js';
+import { afficherMateriel } from './materiel.js';
+import { afficherAPropos } from './a-propos.js';
+import { construireMateriel } from '../materiel.js';
 import { construireTransmission } from '../bilan.js';
 import { texteBandeau, texteBandeauCourt } from '../roles.js';
 import { ACR, AUTRE } from '../intervention.js';
@@ -108,7 +111,7 @@ export class InterfaceIntervention {
 
   surEvenement(e) {
     // pendant la saisie du lieu, un changement ne doit PAS reconstruire le formulaire (on perdrait la saisie en cours)
-    if (e.type === 'changement' && !['lieu', 'roles', 'profession', 'fiche', 'transmission', 'journal', 'cloture'].includes(this.panneau)) this.rendre();
+    if (e.type === 'changement' && !['lieu', 'roles', 'profession', 'fiche', 'transmission', 'journal', 'cloture', 'apropos'].includes(this.panneau)) this.rendre();
     // retour d'un appel `tel:` (page revenue au premier plan) : le mode transmission s'ouvre seul (4.7, 2.10)
     // (L7c : seulement si l'appli a été masquée dans les secondes qui ont suivi l'appel — voir Intervention.surveillerDepart)
     if (e.type === 'retour' && this.intervention.appelEnAttente) {
@@ -358,6 +361,12 @@ export class InterfaceIntervention {
         apresEffacement: (res) => this.actions.effacee?.(res),
         auFermer: () => (i.detruite ? this.actions.terminee() : this.ouvrirPanneau(null)),   // L8c (revue L8 m2) : l'intervention est déjà terminée (effacement échoué) : retour à l'accueil, où la fiche attend (Exporter, Effacer)
       });
+    } else if (this.panneau === 'materiel') {
+      // le protocole de la fiche (copie), sinon celui en mémoire : « Autre situation » n'en a pas, la liste est alors dite vide
+      const protocole = i.protocole ?? i.fiche.protocoles_utilises?.[i.protocoleId] ?? null;
+      afficherMateriel(contenu, { modele: construireMateriel({ protocole, structure: this.structure }), avecArticles: true, auFermer: () => this.ouvrirPanneau(null) });
+    } else if (this.panneau === 'apropos') {
+      afficherAPropos(contenu, { chargerProtocole: () => (i.protocole ? Promise.resolve({ ok: true, protocole: i.protocole }) : i.chargerProtocoleFn(i.protocoleId)), stockage: i.stockage, auFermer: () => this.ouvrirPanneau(null) });
     } else if (this.panneau === 'fiche') {
       afficherFiche(contenu, { intervention: i, etat: this.fb });
     } else if (this.panneau === 'transmission') {
@@ -518,9 +527,9 @@ export class InterfaceIntervention {
     ligne('Mode transmission', () => this.ouvrirPanneau('transmission'), 'menu-transmission');
     ligne('Nouvelle urgence', () => this.actions.nouvelleUrgence(), 'menu-nouvelle-urgence');
     ligne('Accueil', () => this.actions.accueil(), 'menu-accueil');
-    ligne('Rôles', () => this.ouvrirPanneau('roles'), 'menu-roles');
     ligne('Changer de situation', () => this.ouvrirPanneau('situation'), 'menu-situation');
     ligne('Journal', () => this.ouvrirPanneau('journal'), 'menu-journal');
+    ligne('Matériel du protocole', () => this.ouvrirPanneau('materiel'), 'menu-materiel');
     ligne('Glossaire', () => this.ouvrirPanneau('glossaire'), 'menu-glossaire');
     ligne('Tester le son et l\'écran', async () => {
       this.messageTest = 'Test en cours…'; this.rendre();
@@ -534,6 +543,9 @@ export class InterfaceIntervention {
     }, { id: 'menu-terminer' });
     page.append(terminer);
     ligne('Clôture et export', () => this.ouvrirPanneau('cloture'), 'menu-cloture');   // fonction 25 de 4.0 : exporter, clôturer
+    // hors du tableau des deux touchers (le bandeau des rôles les ouvre en un toucher ; « À propos » est une exception assumée) : en dernier, ils peuvent défiler
+    ligne('Rôles', () => this.ouvrirPanneau('roles'), 'menu-roles');
+    ligne('À propos', () => this.ouvrirPanneau('apropos'), 'menu-apropos');
     this.zone.contenu.replaceChildren(page);
   }
 }

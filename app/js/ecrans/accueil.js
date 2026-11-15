@@ -9,7 +9,7 @@ export const PRESENTATION = "Aide-mémoire interne à la MSP APSIS, qui affiche 
  * @param {{auUrgence: () => void, auSimulation: () => void, auxReglages: () => void, auGlossaire?: () => void, auToucher?: () => void}} actions
  * @returns {{afficherEnAttente: (lignes: object[], actions: {reprendre: Function, effacer: Function}) => void}}
  */
-export function afficherAccueil(conteneur, { auUrgence, auSimulation, auxReglages, auGlossaire = null, auToucher = () => {} }) {
+export function afficherAccueil(conteneur, { auUrgence, auSimulation, auxReglages, auGlossaire = null, auMateriel = null, auAPropos = null, auToucher = () => {} }) {
   const page = creer('section', 'accueil');
   page.addEventListener('pointerdown', auToucher, { capture: true, passive: true }); // « l'utilisateur a touché l'accueil » : plus de reprise directe
   page.append(creer('h1', 'accueil-titre', 'Urgences MSP APSIS'));
@@ -25,10 +25,16 @@ export function afficherAccueil(conteneur, { auUrgence, auSimulation, auxReglage
   const liens = creer('div', 'accueil-liens');
   // chaque lien n'apparaît qu'à partir du lot qui livre son écran (4.1) : le glossaire est livré au lot L6
   liens.append(bouton('Simulation', 'bouton', auSimulation, { id: 'ouvrir-simulation' }));
+  if (auMateriel) liens.append(bouton('Matériel', 'bouton', auMateriel, { id: 'ouvrir-materiel' }));   // livré au lot L9
   if (auGlossaire) liens.append(bouton('Glossaire', 'bouton', auGlossaire, { id: 'ouvrir-glossaire' }));
   liens.append(bouton('Réglages', 'bouton', auxReglages, { id: 'ouvrir-reglages' }));
+  if (auAPropos) liens.append(bouton('À propos', 'bouton', auAPropos, { id: 'ouvrir-apropos' }));   // livré au lot L9
   page.append(liens);
   conteneur.replaceChildren(page);
+  // taille de texte (200 %) : l'accueil suit la même règle que les écrans d'intervention (body[data-texte]) pour que URGENCE reste entièrement visible
+  const majTaille = () => { document.body.dataset.texte = parseFloat(getComputedStyle(document.documentElement).fontSize) >= 22 ? 'grand' : 'normal'; };
+  majTaille();
+  const suivi = setInterval(() => { if (page.isConnected) majTaille(); else clearInterval(suivi); }, 400);
 
   return {
     afficherResultat(texte) { resultat.textContent = texte; },
