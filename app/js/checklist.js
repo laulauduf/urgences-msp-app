@@ -3,6 +3,15 @@
 // les critiques et les habilitations viennent du protocole et de professions.json.
 import { habilitationPour, OUI } from './habilitations.js';
 
+/*
+ * ══ NE PAS MODIFIER SANS DÉCISION DU MÉDECIN RÉFÉRENT (D-25) ══════════════════════════════════════════════════════════════════
+ * Règle absolue 5 de SPEC.md : l'appli ne bloque jamais un geste vital. Une étape VITALE (niveau « vital » OU étape du premier écran)
+ * est EXEMPTE du filtre par profession : elle reste cochable pour TOUTE profession, y compris « non réglée », même si les
+ * habilitations sont absentes ou illisibles. Ne pas « uniformiser » avec `etapesPremierEcran` (intervention.js, qui ne retient que
+ * `premier_ecran` : usage différent et voulu). Avant toute modification : relire la règle absolue 5 et la décision D-25, puis lancer
+ * `node --test tests/unitaires/checklist.test.mjs tests/unitaires/protections-surete.test.mjs` (le test « étape vitale cochable pour TOUTE profession »
+ * doit rester vert).
+ */
 /** Étape VITALE : niveau « vital » ou étape du premier écran. Une seule définition (revue L6 m10) : elle sert à l'exemption du filtre ET au chemin de la tuile. */
 export function estVitale(etape) { return etape?.niveau === 'vital' || etape?.premier_ecran === true; }
 
@@ -13,6 +22,7 @@ export function estVitale(etape) { return etape?.niveau === 'vital' || etape?.pr
  */
 export function construireVue({ etapes, checklist, journal, habilitations, profession }) {
   const items = [...(Array.isArray(etapes) ? etapes : [])].sort((a, b) => a.ordre - b.ordre).map((etape) => {
+    // ══ NE PAS MODIFIER SANS DÉCISION DU MÉDECIN RÉFÉRENT (D-25) ══ (voir le bloc au-dessus de estVitale)
     // une étape VITALE (premier écran) est « exempte » : elle reste cochable pour toute profession, comme sa tuile (règle absolue 5 : aucun geste vital bloqué)
     const exempte = estVitale(etape);
     const habilitation = habilitationPour(etape, profession, habilitations);

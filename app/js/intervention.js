@@ -167,7 +167,7 @@ export class Intervention {
     this.emettre('changement');
   }
 
-  /** « Autre situation » : alerte et chronomètre global, sans checklist (la fiche bilan arrive au lot L7). */
+  /** « Autre situation » : alerte et chronomètre global, sans checklist. */
   choisirAutre() {
     this.situation = AUTRE;
     this.stockage.modifier(this.fiche, (f) => { f.situations.push({ protocole: null, depuis: Date.now() }); }, { immediat: true });
@@ -297,8 +297,8 @@ export class Intervention {
     return { ouvrirAlerte: false };
   }
 
-  /** Action technique liée au toucher (`declenche`) : métronome, chronomètre. Seulement au premier toucher de l'étape. */
   /**
+   * Action technique liée au toucher (`declenche`) : métronome, chronomètre. Seulement au premier toucher de l'étape.
    * `prudent` (cochage depuis la CHECKLIST, revue L6 M1) : cocher une case pour noter n'est pas relancer. Un chronomètre déjà démarré n'est jamais
    * remis à zéro et un métronome déjà démarré (même en pause) n'est jamais redémarré ; la relance du cycle se fait par son bouton, journalisée.
    */

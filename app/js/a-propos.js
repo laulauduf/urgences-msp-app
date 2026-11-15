@@ -27,6 +27,10 @@ export const CHOIX_PROVISOIRES_APPLI = [
   { id: 'D-24', texte: "« Réinitialiser l'appli » est refusée hors ligne (l'appli ne pourrait plus se rouvrir)." },
   { id: 'D-25', texte: "Les étapes vitales du premier écran ne sont jamais filtrées par profession." },
   { id: 'Q-31', texte: "Un geste non cochable pour la profession réglée se note « fait à hh:mm » ; une profession non réglée applique le groupe le plus restreint." },
+  { id: 'D-27', texte: "Une fiche terminée (pas encore clôturée) ne retarde plus l'installation d'une nouvelle version ; seules les fiches en cours la retardent." },
+  { id: 'D-28', texte: "Corrigé : après le repli du bandeau « Fiche reprise », « Nouvelle urgence » reste à un seul toucher (« Accueil », lui, passe par le menu : 2 touchers)." },
+  { id: 'D-29', texte: "Pas d'alerte plein écran : l'échéance du cycle reste discrète (bandeau, son bref, vibration si le téléphone le permet). Sans effet tant qu'aucune échéance « forte » n'existe dans le protocole." },
+  { id: 'D-32', texte: "Panneau d'alerte : les autres numéros (114, 18) et le plan interne sont avant les lignes d'information, pour tenir sur un petit écran (cahier 4.7 : ordre inverse)." },
   { id: 'L8', texte: "Document d'export daté ; « Montrer au SMUR » en lecture seule, compté comme remise ; avertissement de sauvegarde affiché avec celui du partage." },
   { id: 'L7c', texte: "Libellé « TRANSM. » du bouton de transmission en situation « Autre » (libellé définitif à décider)." },
 ];

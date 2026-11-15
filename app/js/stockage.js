@@ -13,10 +13,10 @@ import { creerFiche, ajouterJournal, verifierFiche, resumer, migrerFiche, TYPES_
 import { decisionPurge, delaiEffectif, SurveillanceHorloge, PLANCHER_DEFAUT_H, DELAI_DEFAUT_H } from './purge.js';
 import { choisirReprise, fichesEnAttente } from './reprise.js';
 import { normaliserPersonnes } from './roles.js';
+import { BASE_REGLAGES, MAGASIN_REGLAGES, CLE_FICHE_OUVERTE } from './indicateur.js';   // contrat avec sw.js : UNE seule définition (revue aval H3)
 
-export const BASES = { reel: 'urgences-fiches', simulation: 'urgences-simulation', reglages: 'urgences-reglages' };
+export const BASES = { reel: 'urgences-fiches', simulation: 'urgences-simulation', reglages: BASE_REGLAGES };
 const MAGASIN_FICHES = 'fiches';
-const MAGASIN_REGLAGES = 'reglages';
 
 /** Valeurs par défaut des réglages de l'appareil (4.13, 2.8). `profession: null` = non réglée (comportement du groupe le plus restreint, Q-22/Q-30). */
 export const REGLAGES_PAR_DEFAUT = Object.freeze({
@@ -161,7 +161,7 @@ export function creerStockage({
 
   /** Indicateur « fiche_ouverte » lu par sw.js : vrai tant qu'une fiche `en_cours` existe (réelle ou simulation). */
   async function ecrireIndicateur(valeur) {
-    try { await executer(BASES.reglages, MAGASIN_REGLAGES, 'readwrite', (s) => s.put(valeur === true, 'fiche_ouverte')); return true; } catch { return false; }
+    try { await executer(BASES.reglages, MAGASIN_REGLAGES, 'readwrite', (s) => s.put(valeur === true, CLE_FICHE_OUVERTE)); return true; } catch { return false; }
   }
   async function recalculerIndicateur() {
     const suivieEnCours = () => [...suivi.values()].some((s) => s.fiche.etat === 'en_cours' && !s.efface);

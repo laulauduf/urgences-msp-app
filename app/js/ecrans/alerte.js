@@ -87,6 +87,13 @@ export function afficherAlerte(conteneur, { intervention, numeros, structure, au
     panneau.append(bloc);
   }
 
+  // Autres moyens d'un numéro (ex. 114 : application, visio, tchat), tels que le fichier les donne ; avec les lignes d'information, sous les numéros (m2, revue aval)
+  for (const n of reste.filter((x) => x.autresMoyens)) {
+    const p = creer('p', 'plan-aide autres-moyens', `${n.numero} : ${n.autresMoyens}`);
+    if (n.marqueAutresMoyens) p.append(marque(MARQUE_A_VALIDER));
+    panneau.append(p);
+  }
+
   // Information (une ligne, pas un choix préalable)
   panneau.append(creer('p', 'plan-aide', TEXTE_EQUIPIER));
   if (!simulation) panneau.append(creer('p', 'plan-aide', TEXTE_MASQUEE));

@@ -23,21 +23,16 @@ import { afficherCloture } from './ecrans/cloture.js';
 import { afficherMateriel } from './ecrans/materiel.js';
 import { afficherAPropos } from './ecrans/a-propos.js';
 import { construireMateriel } from './materiel.js';
-import { messageEffacement, viderPressePapiers } from './export.js';
+import { messageEffacement, viderPressePapiers, TEXTE_BROUILLON_DOCUMENT } from './export.js';
+import { creer } from './dom.js';
 import { appelant } from './roles.js';
 
 // Thème mémorisé localement : appliqué avant tout le reste, pour éviter un clignotement clair → sombre.
 appliquerTheme(themeLocal());
 
-const TEXTE_BROUILLON = 'BROUILLON — protocoles non validés par le médecin référent';
-const PROTOCOLE_DU_PROTOTYPE = 'acr-adulte-dae';
-
-function creer(balise, classe, texte) {
-  const e = document.createElement(balise);
-  if (classe) e.className = classe;
-  if (texte !== undefined) e.textContent = texte;
-  return e;
-}
+// POUR UN 2e PROTOCOLE, toucher ces endroits (revue aval M3) : cette constante et ses usages dans main.js (clôture depuis l'accueil, reprise, ouverture d'une urgence, À propos) ;
+// intervention.js (ACR / AUTRE, protocoleId unique à la construction) ; ecrans/interface-intervention.js (barre selon ACR, choix de situation) ; bilan.js (filtre par protocole) ; le texte BROUILLON est global.
+const PROTOCOLE_PAR_DEFAUT = 'acr-adulte-dae';
 
 /** État de l'appli : une seule intervention à la fois, un seul son, un seul verrou d'écran. */
 const app = { son: new Son(), ecran: new EcranAllume(), intervention: null, interface: null, accueilTouche: false, accueilUI: null, etatMaj: null, numeros: lireNumeros(null) };
@@ -98,7 +93,7 @@ async function ouvrirCloture(resume) {
   const contenu = document.getElementById('contenu');
   afficherCloture(contenu, {
     fiche, stockage,
-    structure: () => contexte.structure, champsSensibles: () => reglages.champs_sensibles ?? {}, appelant: () => appelant(fiche.roles), protocoleId: PROTOCOLE_DU_PROTOTYPE,
+    structure: () => contexte.structure, champsSensibles: () => reglages.champs_sensibles ?? {}, appelant: () => appelant(fiche.roles), protocoleId: PROTOCOLE_PAR_DEFAUT,
     effacer: () => stockage.effacerFiche(fiche.mode, fiche.id),
     apresEffacement: (res) => { stockage.definirAffichee(null); montrerAccueil(); app.accueilUI.afficherResultat(messageEffacement(res)); },
     auFermer: () => { stockage.definirAffichee(null); montrerAccueil(); },
@@ -106,7 +101,7 @@ async function ouvrirCloture(resume) {
     auUrgence: () => { stockage.definirAffichee(null); demarrerUrgence('reel'); },
     libelleFermer: "Retour à l'accueil",
   });
-  contenu.focus();
+  contenu.focus({ preventScroll: true }); window.scrollTo(0, 0);   // m1 (revue aval) : le nouvel écran s'ouvre en haut de page, sinon le bandeau BROUILLON sort de la vue
 }
 
 // ───────── Intervention ─────────
@@ -119,7 +114,7 @@ function demarrerUrgence(mode) {
   ouvrirInterface(i);
 }
 
-const nouvelleIntervention = () => new Intervention({ stockage, son: app.son, ecran: app.ecran, chargerProtocole, protocoleId: PROTOCOLE_DU_PROTOTYPE });
+const nouvelleIntervention = () => new Intervention({ stockage, son: app.son, ecran: app.ecran, chargerProtocole, protocoleId: PROTOCOLE_PAR_DEFAUT });
 
 function ouvrirInterface(i) {
   app.intervention = i;
@@ -174,7 +169,7 @@ async function lancerReprise() {
 }
 
 function poserBandeauBrouillon() {
-  document.getElementById('bandeaux').append(creer('div', 'bandeau bandeau-brouillon', TEXTE_BROUILLON));
+  document.getElementById('bandeaux').append(creer('div', 'bandeau bandeau-brouillon', TEXTE_BROUILLON_DOCUMENT));
 }
 
 /** Contexte partagé, rempli au fil des chargements (la page ne les attend jamais). */
@@ -189,7 +184,7 @@ async function ouvrirReglages() {
     onRetour: () => { montrerAccueil(); },
     onChangement: (cle) => { if (cle === 'profession' || cle === 'champs_sensibles') majPointProfession(); },
   });
-  contenu.focus();
+  contenu.focus({ preventScroll: true }); window.scrollTo(0, 0);   // m1 (revue aval) : le nouvel écran s'ouvre en haut de page, sinon le bandeau BROUILLON sort de la vue
 }
 
 /** Glossaire consulté depuis l'accueil (4.12) : lu à l'ouverture ; fichier illisible → message, jamais d'exception. */
@@ -197,21 +192,21 @@ async function ouvrirGlossaire() {
   const contenu = document.getElementById('contenu');
   const glossaire = await chargerGlossaire();
   afficherGlossaire(contenu, { glossaire, auFermer: () => { montrerAccueil(); } });
-  contenu.focus();
+  contenu.focus({ preventScroll: true }); window.scrollTo(0, 0);   // m1 (revue aval) : le nouvel écran s'ouvre en haut de page, sinon le bandeau BROUILLON sort de la vue
 }
 
 /** « Matériel » depuis l'accueil (4.14) : les contenants et leurs emplacements, tirés de config/structure.json. */
 function ouvrirMateriel() {
   const contenu = document.getElementById('contenu');
   afficherMateriel(contenu, { modele: construireMateriel({ protocole: null, structure: contexte.structure }), avecArticles: false, auFermer: () => { montrerAccueil(); } });
-  contenu.focus();
+  contenu.focus({ preventScroll: true }); window.scrollTo(0, 0);   // m1 (revue aval) : le nouvel écran s'ouvre en haut de page, sinon le bandeau BROUILLON sort de la vue
 }
 
 /** « À propos » depuis l'accueil (4.15). */
 function ouvrirAPropos() {
   const contenu = document.getElementById('contenu');
-  afficherAPropos(contenu, { chargerProtocole: () => chargerProtocole(PROTOCOLE_DU_PROTOTYPE), stockage, auFermer: () => { montrerAccueil(); } });
-  contenu.focus();
+  afficherAPropos(contenu, { chargerProtocole: () => chargerProtocole(PROTOCOLE_PAR_DEFAUT), stockage, auFermer: () => { montrerAccueil(); } });
+  contenu.focus({ preventScroll: true }); window.scrollTo(0, 0);   // m1 (revue aval) : le nouvel écran s'ouvre en haut de page, sinon le bandeau BROUILLON sort de la vue
 }
 
 const NOTE_NON_TESTE = "Son et écran : pas encore testés sur ce téléphone (bouton « Tester le son et l'écran » de l'accueil).";
@@ -310,7 +305,6 @@ function afficherMiseAJour(etat) {
     bouton.addEventListener('click', () => { activerNouvelleVersion(); });
     b.append(bouton);
     zone.append(b);
-    definirPoint('version', { texte: 'Nouvelle version disponible — Recharger', ok: false });
   } else if (etat === ETATS_MAJ.attenteFiche) {
     definirPoint('version', { texte: 'Mise à jour en attente : une fiche est encore ouverte', ok: false });
   }
@@ -341,7 +335,7 @@ async function verifierStructure() {
 async function verifierProtocoles() {
   // Contrôle de cohérence à l'exécution du protocole du prototype ; en cas d'échec, c'est l'ouverture de la situation (Intervention.choisirAcr)
   // qui basculera vers l'écran de secours. Ici, on prévient seulement dans la ligne d'état.
-  const resultat = await chargerProtocole(PROTOCOLE_DU_PROTOTYPE);
+  const resultat = await chargerProtocole(PROTOCOLE_PAR_DEFAUT);
   definirPoint('protocole', {
     texte: resultat.ok ? `Protocole « ${resultat.protocole.titre_court} » lisible` : `Protocole illisible : l'écran de secours sera utilisé (${resultat.raisons.join(' ; ')})`,
     ok: resultat.ok,

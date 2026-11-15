@@ -30,6 +30,8 @@ export function lireNumeros(fichier, structure = null) {
       plan: valeur(n.plan) ?? null,
       bascule: texte(n.bascule),
       marqueBascule: aMarque(n.bascule),
+      autresMoyens: texte(n.autres_moyens),            // m2 (revue aval) : application, visio, tchat… du 114, lus tels quels dans le fichier
+      marqueAutresMoyens: aMarque(n.autres_moyens),
     }));
   // la structure peut surcharger libellés et plans (numeros_urgence : {numero, libelle, plan, sms?})
   const surcharges = Array.isArray(structure?.donnees?.numeros_urgence) ? structure.donnees.numeros_urgence : [];

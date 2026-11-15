@@ -33,7 +33,15 @@ import { construireTransmission } from '../bilan.js';
 import { texteBandeau, texteBandeauCourt } from '../roles.js';
 import { ACR, AUTRE } from '../intervention.js';
 
-/** Boutons de la barre du bas. Chaque lot ajoute les siens : `disponible` passe à vrai quand son écran est livré (L6 : checklist, L7 : fiche). */
+/**
+ * ÉCRANS DE SAISIE : liste UNIQUE des panneaux où l'on tape. Ils ne sont JAMAIS reconstruits sur l'événement « changement » : sinon la
+ * frappe en cours serait effacée à chaque événement (bug silencieux, sans erreur). Tout nouvel écran avec un champ de saisie doit être
+ * ajouté ici ; un test (tests/unitaires/protections-surete.test.mjs) échoue s'il manque. Exception voulue : « checklist » se redessine
+ * mais garde sa saisie dans `this.cl`.
+ */
+export const ECRANS_DE_SAISIE = ['lieu', 'roles', 'profession', 'fiche', 'transmission', 'journal', 'cloture', 'apropos'];
+
+/** Boutons de la barre du bas. Tous les écrans sont livrés : `disponible` est vrai partout (le champ reste pour masquer un bouton si un écran était un jour retiré). */
 export const BARRE = [
   { id: 'acr', libelle: 'ACR', disponible: true },
   { id: 'alerter', libelle: 'ALERTER', disponible: true },
@@ -45,12 +53,12 @@ export const BARRE = [
 
 export class InterfaceIntervention {
   /**
-   * @param {{racine?: Document, intervention: object, son: object, ecran: object, numeros: object, structure: () => object|null,
+   * @param {{intervention: object, son: object, ecran: object, numeros: object, structure: () => object|null,
    *          actions: {accueil: () => void, nouvelleUrgence: () => void, urgenceReelle: () => void, terminee: () => void}}} options
    */
   constructor({ intervention, son, ecran, numeros, structure, groupes = () => [], actions }) {
     Object.assign(this, { intervention, son, ecran, numerosFn: numeros, structureFn: structure, groupesFn: groupes, actions });
-    this.panneau = null;            // null | 'alerte' | 'lieu' | 'menu' | 'situation' | 'roles' | 'profession' | 'checklist' | 'glossaire'
+    this.panneau = null;            // null | 'alerte' | 'lieu' | 'menu' | 'situation' | 'roles' | 'profession' | 'checklist' | 'glossaire' | 'fiche' | 'transmission' | 'journal' | 'cloture' | 'materiel' | 'apropos'
     this.repriseRepliee = false; this.versionVue = false;   // bandeaux « Fiche reprise » (replié au premier toucher) et « Appli mise à jour » (acquitté)
     this.retourA = null;            // écran d'où l'on vient (null = l'écran principal) : « Fermer » y revient — aujourd'hui seulement la checklist
     this.fb = { ajout: null };                 // fiche bilan : formulaire d'ajout ouvert
@@ -110,8 +118,8 @@ export class InterfaceIntervention {
   }
 
   surEvenement(e) {
-    // pendant la saisie du lieu, un changement ne doit PAS reconstruire le formulaire (on perdrait la saisie en cours)
-    if (e.type === 'changement' && !['lieu', 'roles', 'profession', 'fiche', 'transmission', 'journal', 'cloture', 'apropos'].includes(this.panneau)) this.rendre();
+    // pendant une saisie, un changement ne doit PAS reconstruire le formulaire (on perdrait la frappe en cours) : voir ECRANS_DE_SAISIE
+    if (e.type === 'changement' && !ECRANS_DE_SAISIE.includes(this.panneau)) this.rendre();
     // retour d'un appel `tel:` (page revenue au premier plan) : le mode transmission s'ouvre seul (4.7, 2.10)
     // (L7c : seulement si l'appli a été masquée dans les secondes qui ont suivi l'appel — voir Intervention.surveillerDepart)
     if (e.type === 'retour' && this.intervention.appelEnAttente) {
@@ -411,7 +419,7 @@ export class InterfaceIntervention {
     const i = this.intervention;
     const acr = document.getElementById('barre-acr');
     if (acr) acr.setAttribute('aria-current', this.panneau === null && i.situation === ACR ? 'page' : 'false');
-    // CHECKLIST : seulement dans une fiche ACR (ailleurs, cet emplacement deviendra TRANSMISSION au lot L7, 4.0)
+    // CHECKLIST : seulement dans une fiche ACR (ailleurs, cet emplacement est TRANSMISSION, 4.0)
     const transmission = document.getElementById('barre-transmission');
     if (transmission) {
       transmission.hidden = i.situation === ACR;   // dans une fiche ACR, la transmission est dans le panneau d'alerte et le menu (4.0)
