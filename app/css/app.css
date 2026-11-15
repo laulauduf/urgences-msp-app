@@ -516,3 +516,19 @@ body[data-mode="intervention"] .bandeau .bouton { min-height: 48px; padding-bloc
   .zone-cycle .bouton-relance, .zone-cycle .evenements, .zone-cycle .rappels { flex: 1 1 100%; }
   .bouton-relance { min-height: 56px; font-size: 1.125rem; }
 }
+
+/* Checklist : avertissement qui reste lisible en entier (revue L6 m2) — pas un bandeau d'en-tête, qui tronque son texte sur une ligne */
+.avertissement-checklist { margin: 0; padding: 0.375rem 0.5rem; border: 0.125rem solid var(--sur-avertissement); border-radius: 0.5rem; background: var(--avertissement); color: var(--sur-avertissement); font-weight: 700; font-size: 0.875rem; }
+.avertissement-checklist::before { content: "⚠ "; }
+.guide-sousetapes { list-style: none; margin: 0; padding: 0 0 0 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.guide-carte .etape-marques { margin-left: 0; font-size: 0.8125rem; }
+/* Mode guidé en paysage bas : marques puis consigne à gauche, « Fait » et « Passer » à droite — les marques A_VALIDER / « provisoire » restent dans la fenêtre (revue L6 M2) */
+@media (orientation: landscape) and (max-height: 600px) {
+  .guide-carte { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); grid-template-rows: auto auto 1fr; gap: 0.25rem 0.5rem; align-items: start; }
+  .guide-carte > * { grid-column: 1 / -1; }
+  .guide-carte > .guide-consigne { grid-column: 1; grid-row: 2; }
+  .guide-carte > .etape-marques { grid-column: 1; grid-row: 1; }   /* en paysage bas, les marques passent AVANT la consigne : elles ne descendent jamais sous la fenêtre */
+  .guide-carte > .guide-actions { grid-column: 2; grid-row: 1 / span 3; flex-direction: column; flex-wrap: nowrap; }
+  .guide-actions .bouton-grand { flex: 0 0 auto; }
+  .guide-carte > .guide-consigne { font-size: 1.0625rem; line-height: 1.2; }
+}

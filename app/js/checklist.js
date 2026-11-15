@@ -3,6 +3,9 @@
 // les critiques et les habilitations viennent du protocole et de professions.json.
 import { habilitationPour, OUI } from './habilitations.js';
 
+/** Étape VITALE : niveau « vital » ou étape du premier écran. Une seule définition (revue L6 m10) : elle sert à l'exemption du filtre ET au chemin de la tuile. */
+export function estVitale(etape) { return etape?.niveau === 'vital' || etape?.premier_ecran === true; }
+
 /**
  * @param {{etapes: object[], checklist: Record<string, {coche_le: number}>, journal: object[], habilitations: object|null, profession: string|null}} p
  * @returns {{racines: object[], plat: object[], critiques: object[], nonFaites: object[], sequenceGuidee: object[]}}
@@ -11,7 +14,7 @@ import { habilitationPour, OUI } from './habilitations.js';
 export function construireVue({ etapes, checklist, journal, habilitations, profession }) {
   const items = [...(Array.isArray(etapes) ? etapes : [])].sort((a, b) => a.ordre - b.ordre).map((etape) => {
     // une étape VITALE (premier écran) est « exempte » : elle reste cochable pour toute profession, comme sa tuile (règle absolue 5 : aucun geste vital bloqué)
-    const exempte = etape.niveau === 'vital' || etape.premier_ecran === true;
+    const exempte = estVitale(etape);
     const habilitation = habilitationPour(etape, profession, habilitations);
     const cochableProtocole = etape.cochable === true;
     const cochable = cochableProtocole && (exempte || habilitation === OUI);

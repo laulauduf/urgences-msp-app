@@ -4,7 +4,7 @@
 // Aucune valeur médicale ici : étapes, ordre, durées, fréquence et libellés viennent du protocole ; aucun ordre n'est écrit en dur.
 import { Horloge, GestionChronos, lireChronometres, lireMetronome, formaterDuree } from './horloge.js';
 import { attribuerRole, appelant, ajouterPersonne } from './roles.js';
-import { construireVue, heureVersTimestamp } from './checklist.js';
+import { construireVue, heureVersTimestamp, estVitale } from './checklist.js';
 import { chargerHabilitations } from './habilitations.js';
 import { chargerGlossaire, lireGlossaire } from './glossaire.js';
 
@@ -20,7 +20,7 @@ export class Intervention {
   constructor({ stockage, son, ecran, chargerProtocole, protocoleId, chargerHabilitations: chargerHab = chargerHabilitations, chargerGlossaire: chargerGlo = chargerGlossaire }) {
     Object.assign(this, { stockage, son, ecran, chargerProtocoleFn: chargerProtocole, protocoleId, chargerHabilitationsFn: chargerHab, chargerGlossaireFn: chargerGlo });
     // checklist (L6) : habilitations par profession (null tant que non lues ou illisibles : tout est alors restrictif), glossaire, mode et étapes passées
-    this.habilitations = null; this.glossaire = lireGlossaire(null);
+    this.habilitations = null; this.habilitationsEtat = 'chargement'; this.glossaire = lireGlossaire(null);
     this.modeChecklist = 'expert'; this.modeChoisi = false; this.passees = new Set();
     this.fiche = null; this.mode = 'reel';
     this.protocole = null; this.protocoleEtat = null; this.raisons = [];   // protocoleEtat : null | 'chargement' | 'ok' | 'secours'
@@ -193,7 +193,7 @@ export class Intervention {
   async chargerReferences() {
     const [habilitations, glossaire] = await Promise.all([this.chargerHabilitationsFn(), this.chargerGlossaireFn()]);
     if (this.detruite) return;
-    this.habilitations = habilitations ?? null; this.glossaire = glossaire ?? lireGlossaire(null);
+    this.habilitations = habilitations ?? null; this.habilitationsEtat = habilitations ? 'ok' : 'absent'; this.glossaire = glossaire ?? lireGlossaire(null);
     this.emettre('habilitations');
   }
 
@@ -217,13 +217,15 @@ export class Intervention {
    */
   cocherDepuisChecklist(id) {
     const item = this.vueChecklist.parId.get(id);
-    if (!item || !item.cochable) return { ouvrirAlerte: false, refuse: true };
+    if (!item) return { ouvrirAlerte: false, refuse: true };
+    // décocher est toujours permis, même si un changement de profession a rendu l'étape non cochable : décocher n'est pas autoriser (revue L6 m5)
     if (item.cochee) { this.decocher(id); return { ouvrirAlerte: false }; }
+    if (!item.cochable) return { ouvrirAlerte: false, refuse: true };
     const e = item.etape;
     this.passees.delete(id);
-    if (e.premier_ecran === true) return this.toucherTuile(id);
+    if (estVitale(e)) return this.toucherTuile(id, { prudent: true });   // une seule définition d'« étape vitale » (revue L6 m10)
     if (e.cochage_auto === 'appel') { this.emettre('changement'); return { ouvrirAlerte: true }; }
-    if (this.cocher(id)) this.declencher(e);
+    if (this.cocher(id)) this.declencher(e, { prudent: true });
     return { ouvrirAlerte: false };
   }
 
@@ -261,22 +263,38 @@ export class Intervention {
    * ouvre le panneau et se coche au premier appel lancé ou au premier « J'ai appelé ». Un second toucher ne décoche jamais (toucher maladroit).
    * @returns {{ouvrirAlerte: boolean}}
    */
-  toucherTuile(id) {
+  toucherTuile(id, { prudent = false } = {}) {
     const e = this.etape(id);
     if (!e) return { ouvrirAlerte: false };
     this.tuileTouchee = true; // la zone « cycle » apparaît dès le premier toucher d'une tuile vitale (4.3 bis)
     if (e.cochage_auto === 'appel') { this.emettre('changement'); return { ouvrirAlerte: true }; }
+    // le déclencheur du protocole (métronome, chronomètre) ne part qu'au PREMIER cochage de l'étape dans la fiche : décocher puis recocher ne relance
+    // pas un métronome mis en pause (revue L6 M1, second cas)
+    const premiere = !this.fiche.journal.some((x) => x.type === 'case' && x.donnees?.id === id);
     const neuve = this.cocher(id);
-    if (neuve) this.declencher(e);
+    if (neuve && premiere) this.declencher(e, { prudent });
     return { ouvrirAlerte: false };
   }
 
   /** Action technique liée au toucher (`declenche`) : métronome, chronomètre. Seulement au premier toucher de l'étape. */
-  declencher(etape) {
+  /**
+   * `prudent` (cochage depuis la CHECKLIST, revue L6 M1) : cocher une case pour noter n'est pas relancer. Un chronomètre déjà démarré n'est jamais
+   * remis à zéro et un métronome déjà démarré (même en pause) n'est jamais redémarré ; la relance du cycle se fait par son bouton, journalisée.
+   */
+  declencher(etape, { prudent = false } = {}) {
     const d = etape.declenche;
     if (!d || typeof d !== 'object') return;
-    if (d.metronome === 'demarrer') this.demarrerMetronome();
-    if (typeof d.chronometre === 'string') this.gestion?.demarrer(d.chronometre);
+    if (d.metronome === 'demarrer' && !(prudent && this.son.etat().metronome.frequence !== null)) this.demarrerMetronome();
+    if (typeof d.chronometre === 'string') {
+      const existant = this.gestion?.trouver(d.chronometre);
+      if (!(prudent && existant && existant.etat !== 'arrete')) this.gestion?.demarrer(d.chronometre);
+    }
+  }
+
+  /** Vrai si la profession réglée est un groupe connu des habilitations (faux : non réglée, ou groupe disparu — le groupe le plus restreint s'applique). */
+  get professionReconnue() {
+    if (this.profession === null) return false;
+    return !(this.habilitationsEtat === 'ok' && !this.habilitations.groupes.includes(this.profession));
   }
 
   demarrerMetronome() {

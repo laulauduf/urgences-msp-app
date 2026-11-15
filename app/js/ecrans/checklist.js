@@ -6,6 +6,7 @@
 import { creer, bouton, heureLocale } from '../dom.js';
 import { formaterDuree, MARQUE_PROVISOIRE } from '../horloge.js';
 import { etapeGuidee, texteSource } from '../checklist.js';
+import { detailHabilitation } from '../habilitations.js';
 import { construireDefinition } from './glossaire.js';
 
 /** État d'affichage de la checklist, conservé par l'interface entre deux dessins. */
@@ -49,20 +50,33 @@ export function afficherChecklist(conteneur, { intervention, etat, auAlerte, auR
     ? bouton('Mode guidé', 'bouton', () => basculer('guide'), { id: 'bascule-mode' })
     : bouton("Vue d'ensemble", 'bouton', () => basculer('expert'), { id: 'vue-ensemble' }));
   page.append(entete);
+  const illisibles = avertissementHabilitations();
+  if (illisibles) page.append(illisibles);
+
+  // habilitations illisibles : on le DIT (sinon « habilitation non établie » semble une décision), avec la conséquence (revue L6 m2)
+  function avertissementHabilitations() { return (intervention.habilitationsEtat === 'absent'
+    ? creer('p', 'avertissement-checklist', 'Habilitations par profession illisibles : seules les étapes vitales et les étapes ouvertes à tous sont cochables. Vérifiez l\'installation de l\'appli.', { id: 'habilitations-illisibles', role: 'status' })
+    : null); }
 
   // ───── pièces communes ─────
   const marques = (item) => {
     const e = item.etape;
     const m = creer('div', 'etape-marques');
     if (item.cochee) m.append(creer('span', 'etape-fait', `fait à ${tPlus(item.coche_le)}`));
-    if (item.notee) m.append(creer('span', 'etape-notee', `noté fait à ${heureLocale(item.notee.t)} (${tPlus(item.notee.t)})`));
+    if (item.notee) {
+      // un geste noté avant le début de l'intervention (cas courant : on agit avant de sortir le téléphone) le dit, au lieu d'afficher « T+00:00 » (revue L6 m6)
+      const avantDebut = item.notee.t < debut;
+      const rel = avantDebut ? `avant le début, T−${formaterDuree(debut - item.notee.t)}` : tPlus(item.notee.t);
+      m.append(creer('span', 'etape-notee', `noté fait à ${heureLocale(item.notee.t)} (${rel})`));
+    }
     if (item.nonFaite) m.append(creer('span', 'marque-non-faite', '⚠ non faite'));
     if (e.statut === 'A_VALIDER') m.append(creer('span', 'marque marque-a-valider', '⚠ A_VALIDER'));
     if (typeof e.provisoire === 'string') m.append(creer('span', 'marque marque-provisoire', MARQUE_PROVISOIRE));   // « provisoire » seulement si le protocole le porte (R15)
-    if (item.habilitation !== 'oui') {
-      const reglee = intervention.profession !== null;
+    // pas de mention sur une étape VITALE : elle reste cochable pour tous (règle absolue 5), la mention contredirait la case active (revue L6 m1)
+    if (item.habilitation !== 'oui' && !item.exempte) {
       const texte = item.habilitation === 'non' ? 'non proposé comme action pour votre profession' : 'habilitation non établie pour votre profession';
-      m.append(creer('span', 'marque marque-habilitation', `⚠ ${texte}${reglee ? '' : ' (profession non réglée)'}`));
+      const cause = intervention.profession === null ? ' (profession non réglée)' : intervention.professionReconnue ? '' : ' (profession non reconnue : groupe le plus restreint appliqué)';
+      m.append(creer('span', 'marque marque-habilitation', `⚠ ${texte}${cause}`));
     }
     return m;
   };
@@ -113,6 +127,15 @@ export function afficherChecklist(conteneur, { intervention, etat, auAlerte, auR
     d.append(creer('p', null, `Statut : ${STATUTS[e.statut] ?? String(e.statut ?? 'non indiqué')}`));
     if (e.statut === 'DEDUIT' && typeof e.raisonnement === 'string') d.append(creer('p', null, `Raisonnement : ${e.raisonnement}`));
     if (typeof e.a_valider === 'string' && e.a_valider !== '') d.append(creer('p', null, `À valider : ${e.a_valider}`));
+    // l'habilitation du profil d'après professions.json : valeur, statut, sources et texte de la restriction (4.13 : « chaque restriction renvoie à son texte », revue L6 m4)
+    const h = detailHabilitation(e, intervention.profession, intervention.habilitations);
+    if (h) {
+      const nom = intervention.habilitations?.libelles?.[h.groupe] ?? h.groupe;
+      d.append(creer('p', 'definition-etiquette', `Habilitation pour ${nom} : ${h.valeur}${h.statut ? ` (${STATUTS[h.statut] ?? h.statut})` : ''}`));
+      if (h.sources.length > 0) { const ul = creer('ul', 'definition-sources'); for (const s of h.sources) ul.append(creer('li', null, texteSource(s))); d.append(ul); }
+      if (h.raisonnement) d.append(creer('p', null, `Raisonnement : ${h.raisonnement}`));
+      if (h.a_valider) d.append(creer('p', null, `À valider : ${h.a_valider}`));
+    }
     const ac = acronymes(item);
     if (ac) d.append(ac);
     return d;
@@ -130,7 +153,7 @@ export function afficherChecklist(conteneur, { intervention, etat, auAlerte, auR
       const c = bouton(item.cochee ? '✓' : '○', 'bouton case', () => cocher(item.id), {
         'data-case': item.id, 'aria-pressed': String(item.cochee), 'aria-label': `${item.etape.texte_court} : ${item.cochee ? 'cochée' : 'non cochée'}`,
       });
-      if (!item.cochable) { c.disabled = true; }
+      if (!item.cochable && !item.cochee) c.disabled = true;   // une case cochée reste décochable même si la profession a changé (revue L6 m5)
       rang.append(c);
     } else rang.append(creer('span', 'etape-info', item.notee ? '✎' : 'ℹ', { 'aria-hidden': 'true' }));
     const titre = bouton('', 'bouton etape-titre', () => {
@@ -177,7 +200,7 @@ export function afficherChecklist(conteneur, { intervention, etat, auAlerte, auR
     if (vue.nonFaites.length > 0) {
       const b = creer('div', 'guide-nonfaites', '', { id: 'guide-nonfaites', role: 'status' });
       b.append(creer('span', null, `⚠ Étape critique non faite : `));
-      for (const i of vue.nonFaites) b.append(bouton(i.etape.texte_court, 'bouton', () => { intervention.passees.delete(i.id); etat.courante = i.id; rendre(); }, { 'data-aller': i.id }));
+      for (const i of vue.nonFaites) b.append(bouton(i.etape.texte_court, 'bouton', () => { intervention.passees.delete(i.id); etat.courante = i.id; rendre(); conteneur.scrollTop = 0; }, { 'data-aller': i.id }));
       page.append(b);
     }
     if (!courante) {
@@ -189,25 +212,33 @@ export function afficherChecklist(conteneur, { intervention, etat, auAlerte, auR
     const rang = vue.sequenceGuidee.indexOf(item) + 1;
     entete.prepend(creer('span', 'guide-progression', `Étape ${rang} sur ${vue.sequenceGuidee.length}`));
     carte.append(creer('p', 'guide-consigne', typeof item.etape.consigne_guidee === 'string' && item.etape.consigne_guidee !== '' ? item.etape.consigne_guidee : item.etape.texte_court, { id: 'guide-consigne' }));
-    // une étape non cochable pour ce profil : la mention qui l'explique passe AVANT les actions ; sinon les actions (Fait, Passer) passent en premier, toujours visibles
-    if (!item.cochable) carte.append(marques(item));
+    // les marques (A_VALIDER, « provisoire », habilitation) sont TOUJOURS sous la consigne, avant les boutons : le mode guidé est celui qu'on lit sans dérouler (revue L6 M2)
+    carte.append(marques(item));
     const actions = creer('div', 'guide-actions');
     if (item.cochable) {
-      actions.append(bouton('Fait', 'bouton bouton-accent bouton-grand', () => cocher(item.id), { id: 'guide-fait' }));
-      actions.append(bouton('Passer', 'bouton bouton-grand', () => { intervention.passerEtape(item.id); etat.courante = null; }, { id: 'guide-passer' }));
+      actions.append(bouton('Fait', 'bouton bouton-accent bouton-grand', () => { cocher(item.id); conteneur.scrollTop = 0; }, { id: 'guide-fait' }));
+      actions.append(bouton('Passer', 'bouton bouton-grand', () => { intervention.passerEtape(item.id); etat.courante = null; conteneur.scrollTop = 0; }, { id: 'guide-passer' }));
     } else {
       // action que ce profil ne peut pas cocher : information, « Noter », « Suivant » — jamais « Fait »
       if (etat.notation?.id === item.id) actions.append(formulaireNotation(item));
       else actions.append(bouton('Noter : fait à hh:mm', 'bouton bouton-grand', () => noter(item.id), { id: 'guide-noter' }));
-      actions.append(bouton('Suivant', 'bouton bouton-grand', () => { intervention.passerEtape(item.id); etat.courante = null; }, { id: 'guide-suivant' }));
+      actions.append(bouton('Suivant', 'bouton bouton-grand', () => { intervention.passerEtape(item.id); etat.courante = null; conteneur.scrollTop = 0; }, { id: 'guide-suivant' }));
     }
     carte.append(actions);
-    if (item.cochable) carte.append(marques(item));
     const ac = acronymes(item);
     if (ac) carte.append(ac);
     const ouverte = etat.deplies.has(item.id);
     carte.append(bouton(ouverte ? 'Masquer le détail' : 'Détail', 'bouton', () => { if (ouverte) etat.deplies.delete(item.id); else etat.deplies.add(item.id); rendre(); }, { id: 'guide-detail', 'aria-expanded': String(ouverte) }));
-    if (ouverte) carte.append(detail(item));
+    if (ouverte) {
+      carte.append(detail(item));
+      const epingle = new Set(vue.critiques.map((c) => c.id));
+      const sous = item.enfants.filter((c) => !epingle.has(c.id));
+      if (sous.length > 0) {
+        const ul = creer('ul', 'guide-sousetapes');
+        for (const c of sous) { const li = creer('li', 'etape', '', { 'data-etape': c.id }); li.append(creer('span', 'etape-texte', c.etape.texte_court), marques(c)); ul.append(li); }
+        carte.append(creer('p', 'definition-etiquette', 'Sous-étapes :'), ul);
+      }
+    }
     page.append(carte);
   };
 

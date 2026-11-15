@@ -17,12 +17,13 @@ export function lireHabilitations(json) {
   if (!estObjet(json)) return null;
   const brutes = Array.isArray(json.groupes) ? json.groupes : Array.isArray(json.professions) ? json.professions : [];
   const groupes = brutes.filter((g) => estObjet(g) && typeof g.id === 'string' && g.id !== '').map((g) => g.id);
+  const libelles = Object.fromEntries(brutes.filter((g) => estObjet(g) && typeof g.id === 'string' && typeof g.libelle === 'string').map((g) => [g.id, g.libelle]));
   const gestes = {};
   if (Array.isArray(json.gestes)) {
     for (const g of json.gestes) if (estObjet(g) && typeof g.id === 'string' && g.id !== '' && estObjet(g.habilitations) && !(g.id in gestes)) gestes[g.id] = g.habilitations;
   }
   const comportement = json.profession_non_reglee?.comportement;
-  return { groupes, gestes, comportementNonReglee: typeof comportement === 'string' && comportement !== '' ? comportement : null };
+  return { groupes, libelles, gestes, comportementNonReglee: typeof comportement === 'string' && comportement !== '' ? comportement : null };
 }
 
 /**
@@ -39,7 +40,26 @@ export function groupeEffectif(profession, donnees) {
 /** Valeur d'une restriction : « oui » / « non » exacts, simples ou enveloppés ({valeur}) ; tout le reste vaut « A_VALIDER ». */
 function lireValeur(brute) {
   const v = estObjet(brute) ? brute.valeur : brute;
+  if (v === OUI && estObjet(brute) && brute.statut === A_VALIDER) return A_VALIDER;   // donnée incohérente (« oui » dont le statut dit qu'il n'est pas établi) : jamais « oui » (revue L6 m3)
   return v === OUI || v === NON ? v : A_VALIDER;
+}
+
+/**
+ * Ce que dit professions.json de l'habilitation d'une étape pour la profession courante (revue L6 m4) : groupe appliqué, valeur, statut et texte
+ * de la restriction (sources, raisonnement, a_valider). null quand il n'y a rien à détailler (« tous », geste ou groupe inconnu).
+ */
+export function detailHabilitation(etape, profession, donnees) {
+  const p = etape?.professions;
+  if (!estObjet(p)) return null;
+  const groupe = groupeEffectif(profession, donnees);
+  if (groupe === null) return null;
+  const brute = 'geste' in p ? donnees?.gestes?.[p.geste]?.[groupe] : p[groupe];
+  if (!estObjet(brute)) return null;
+  return {
+    groupe, valeur: habilitationPour(etape, profession, donnees), statut: typeof brute.statut === 'string' ? brute.statut : null,
+    sources: Array.isArray(brute.sources) ? brute.sources : [], raisonnement: typeof brute.raisonnement === 'string' ? brute.raisonnement : null,
+    a_valider: typeof brute.a_valider === 'string' ? brute.a_valider : null,
+  };
 }
 
 /**

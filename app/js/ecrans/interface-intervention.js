@@ -179,10 +179,12 @@ export class InterfaceIntervention {
     const puce = document.getElementById('puce-profession');
     if (puce) {
       const groupe = this.groupesFn().find((g) => g.id === i.profession);
-      const regle = i.profession !== null;
-      puce.textContent = regle ? `${groupe ? groupe.libelle : i.profession} ▾` : 'Profession non réglée ▾';
+      // « non reconnue » : réglée sur un groupe qui n'existe plus dans les données → le groupe le plus restreint s'applique, et la puce le dit (revue L6 m7)
+      const regle = i.profession !== null && i.professionReconnue;
+      const nom = i.profession === null ? 'Profession non réglée' : i.professionReconnue ? (groupe ? groupe.libelle : i.profession) : 'Profession non reconnue';
+      puce.textContent = `${nom} ▾`;
       puce.dataset.regle = regle ? 'oui' : 'non';
-      puce.setAttribute('aria-label', regle ? `Profession : ${groupe ? groupe.libelle : i.profession}. Changer` : 'Profession non réglée. Choisir');
+      puce.setAttribute('aria-label', regle ? `Profession : ${nom}. Changer` : `${nom}. Choisir`);
     }
     const bandeau = document.getElementById('bandeau-roles');
     if (bandeau) {
