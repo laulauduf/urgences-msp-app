@@ -3,7 +3,7 @@
 // champs numériques ; constantes en valeurs BRUTES horodatées, sans aucun jugement (D-19 : ni couleur, ni icône, ni seuil) ; champs limités à ceux de SPEC.md.
 // L'écran de saisie n'est JAMAIS redessiné sur l'événement « changement » (on perdrait la frappe) : seuls le tableau des constantes et la liste des gestes sont refaits.
 import { creer, bouton, heureLocale } from '../dom.js';
-import { TYPES_CONSTANTE, tableauConstantes, texteAge, hhmm } from '../bilan.js';
+import { TYPES_CONSTANTE, tableauConstantes, texteAge, hhmm, correctionDeEntree, idJournalGeste } from '../bilan.js';
 
 const SANS_AUTO = { autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false' };
 const maintenantHHMM = () => heureLocale(Date.now());
@@ -12,29 +12,35 @@ const maintenantHHMM = () => heureLocale(Date.now());
 export function afficherFiche(conteneur, { intervention, etat }) {
   const fiche = intervention.fiche;
   const page = creer('section', 'ecran-fiche', '', { 'aria-label': 'Fiche bilan' });
-  page.append(creer('h1', null, 'Fiche bilan'), creer('p', 'plan-aide', "Rien n'est obligatoire : remplissez ce que vous savez, quand vous pouvez. Tout est enregistré à chaque frappe, sur cet appareil seulement."));
-
-  // ───── rangée d'ajout rapide, fixée en tête (4.0, fonctions 13 et 14) ─────
+  // ───── rangée d'ajout rapide, EN TÊTE de l'écran (avant le titre et l'aide : à 200 % elle était hors écran, revue L7 M4) et fixée quand la place le permet (4.0, fonctions 13 et 14) ─────
+  // Le formulaire d'ajout est DANS le bloc fixé, et il remplace la rangée tant qu'il est ouvert : la case de saisie n'est jamais cachée dessous (revue L7 M3).
+  const zoneAjout = creer('div', 'zone-ajout', '', { id: 'zone-ajout' });
   const rangee = creer('div', 'rangee-ajout', '', { id: 'rangee-ajout' });
   const formulaire = creer('div', 'ajout-formulaire', '', { id: 'ajout-formulaire' });
   formulaire.hidden = true;
   const ouvrirAjout = (genre, type) => {
-    etat.ajout = { genre, type };
+    etat.ajout = { genre, type, valeur: '', heure: null };
     montrerAjout();
   };
   for (const t of TYPES_CONSTANTE) rangee.append(bouton(`+ ${t.libelle}`, 'bouton', () => ouvrirAjout('constante', t.id), { 'data-ajout': t.id }));
   rangee.append(bouton('+ Geste', 'bouton', () => ouvrirAjout('geste', null), { 'data-ajout': 'geste' }));
-  page.append(rangee, formulaire);
+  zoneAjout.append(rangee, formulaire);
+  page.append(zoneAjout, creer('h1', null, 'Fiche bilan'), creer('p', 'plan-aide', "Rien n'est obligatoire : remplissez ce que vous savez, quand vous pouvez. Tout est enregistré à chaque frappe, sur cet appareil seulement."));
 
   function montrerAjout() {
     formulaire.replaceChildren();
+    rangee.hidden = Boolean(etat.ajout);
     if (!etat.ajout) { formulaire.hidden = true; return; }
     formulaire.hidden = false;
     const { genre, type } = etat.ajout;
     const def = TYPES_CONSTANTE.find((t) => t.id === type);
     formulaire.append(creer('p', 'ajout-titre', genre === 'geste' ? 'Geste ou produit (texte libre)' : def.libelle));
     const valeur = creer('input', null, '', { id: 'ajout-valeur', type: 'text', inputmode: genre === 'geste' ? 'text' : def.clavier, 'aria-label': genre === 'geste' ? 'Geste ou produit' : `Valeur : ${def.libelle}`, ...SANS_AUTO });
-    const heure = creer('input', null, '', { id: 'ajout-heure', type: 'time', value: maintenantHHMM(), 'aria-label': 'Heure' });
+    // brouillon gardé : la valeur et l'heure tapées survivent à un changement d'écran (revue L7, mineur 1)
+    valeur.value = etat.ajout.valeur ?? '';
+    valeur.addEventListener('input', () => { if (etat.ajout) etat.ajout.valeur = valeur.value; });
+    const heure = creer('input', null, '', { id: 'ajout-heure', type: 'time', value: etat.ajout.heure ?? maintenantHHMM(), 'aria-label': 'Heure' });
+    heure.addEventListener('input', () => { if (etat.ajout) etat.ajout.heure = heure.value; });
     const erreur = creer('p', 'noter-erreur', '', { id: 'ajout-erreur', role: 'alert' });
     erreur.hidden = true;
     const valider = () => {
@@ -53,18 +59,31 @@ export function afficherFiche(conteneur, { intervention, etat }) {
   const blocGestes = creer('section', 'bloc-gestes', '', { 'aria-label': 'Gestes et produits' });
   function majTableaux() {
     blocConstantes.replaceChildren(creer('h2', null, 'Constantes'));
-    const tableau = tableauConstantes(fiche.constantes);
+    const tableau = tableauConstantes(fiche.constantes, fiche);
     if (tableau.length === 0) blocConstantes.append(creer('p', 'plan-aide', 'Aucune constante notée. Touchez « + » ci-dessus.'));
     for (const l of tableau) {
       const p = creer('p', 'constante-ligne', '', { 'data-constante': l.type });
       p.append(creer('strong', null, `${l.libelle} : `));
-      p.append(document.createTextNode(l.valeurs.map((v) => `${hhmm(v.t)} ${v.valeur}`).join('  ·  ')));
+      l.valeurs.forEach((v, i) => {
+        if (i > 0) p.append(document.createTextNode('  ·  '));
+        p.append(document.createTextNode(`${hhmm(v.t)} `));
+        ajouterValeur(p, v.valeur, v.corrige);
+      });
       blocConstantes.append(p);
     }
     blocGestes.replaceChildren(creer('h2', null, 'Gestes et produits'));
     const gestes = [...(fiche.gestes_produits ?? [])].sort((a, b) => a.t - b.t);
     if (gestes.length === 0) blocGestes.append(creer('p', 'plan-aide', 'Aucun geste noté. Touchez « + Geste » ci-dessus.'));
-    for (const g of gestes) blocGestes.append(creer('p', 'geste-ligne', `${hhmm(g.t)} — ${g.texte}`));
+    for (const g of gestes) {
+      const p = creer('p', 'geste-ligne', `${hhmm(g.t)} — `);
+      ajouterValeur(p, g.texte, correctionDeEntree(fiche, idJournalGeste(fiche, g)));
+      blocGestes.append(p);
+    }
+  }
+  /** Une valeur corrigée au journal : l'original BARRÉ, puis « corrigé à hh:mm : … » (revue L7 C1) ; jamais la valeur d'origine seule. */
+  function ajouterValeur(parent, valeur, corrige) {
+    if (!corrige) { parent.append(document.createTextNode(valeur)); return; }
+    parent.append(creer('s', null, valeur), document.createTextNode(` corrigé à ${corrige.heure} : ${corrige.texte}`));
   }
   majTableaux();
   page.append(blocConstantes, blocGestes);
@@ -76,6 +95,7 @@ export function afficherFiche(conteneur, { intervention, etat }) {
     const e = creer(long ? 'textarea' : 'input', null, '', { ...(long ? { rows: 3 } : { type: 'text', inputmode: clavier }), ...SANS_AUTO, 'data-champ': `${bloc ?? 'fiche'}.${cle}` });
     e.value = valeur ?? '';
     e.addEventListener('input', () => intervention.definirChamp(bloc, cle, e.value));
+    e.addEventListener('change', () => intervention.ecrire());   // à la sortie du champ : écriture immédiate, sans attendre le regroupement d'une seconde (revue L7, mineur 10)
     l.append(e);
     if (aide) l.append(creer('span', 'plan-aide', aide));
     parent.append(l);
@@ -104,6 +124,7 @@ export function afficherFiche(conteneur, { intervention, etat }) {
     const e = creer('input', 'naissance-champ', '', { type: 'text', inputmode: 'numeric', maxlength: max, placeholder: libelle, 'aria-label': `Date de naissance : ${libelle.toLowerCase()}`, 'data-naissance': partie, ...SANS_AUTO });
     e.value = id.date_naissance?.[partie] ?? '';
     e.addEventListener('input', () => { e.value = e.value.replace(/[^0-9]/g, ''); intervention.definirNaissance(partie, e.value); majAge(); });
+    e.addEventListener('change', () => intervention.ecrire());
     naissance.append(e);
   }
   s1.append(creer('span', 'champ-libelle', 'Date de naissance (jour, mois, année)'), naissance, age);

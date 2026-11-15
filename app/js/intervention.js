@@ -12,6 +12,23 @@ import { TYPES_CONSTANTE } from './bilan.js';
 export const ACR = 'acr';
 export const AUTRE = 'autre';
 
+/** Entrées que l'appli écrit TOUTE SEULE (case « Alerter » cochée par l'appel, chronomètres, échéances, version, horloge) : elles ne comptent pas comme une action de l'équipe. */
+const ENTREES_AUTOMATIQUES = ['case', 'chronometre', 'echeance', 'rattrapage', 'version_differente', 'horloge_modifiee'];
+
+/**
+ * Le journal se termine-t-il par un appel lancé il y a moins de 30 minutes ? (retour d'un appel `tel:` avec rechargement de la page, 4.7, 2.10)
+ * L7c (revue L7, M1) : la case « Alerter » est écrite APRÈS l'appel au premier appel ; on saute donc les entrées automatiques et on regarde la dernière
+ * entrée « humaine ». Une action de l'équipe après l'appel, ou une reprise déjà faite, ferme la porte : on n'ouvre pas la transmission à chaque rechargement.
+ */
+export function retourDAppelAttendu(journal, maintenant = Date.now()) {
+  for (let i = (journal?.length ?? 0) - 1; i >= 0; i--) {
+    const e = journal[i];
+    if (ENTREES_AUTOMATIQUES.includes(e.type)) continue;
+    return e.type === 'appel_lance' && maintenant - e.t < 30 * 60 * 1000;
+  }
+  return false;
+}
+
 export class Intervention {
   /**
    * @param {{stockage: object, son: object, ecran: object, chargerProtocole: (id: string) => Promise<object>, protocoleId: string, numeros?: object,
@@ -28,7 +45,7 @@ export class Intervention {
     this.situation = null;                                                 // null (choix en cours) | ACR | AUTRE
     this.definitions = []; this.metronome = null; this.gestion = null; this.horloge = null;
     this.auditeurs = new Set(); this.debranchements = []; this.prefetch = null; this.dernierGlobal = 0;
-    this.repriseDe = null; this.versionDifferente = null; this.champsSensibles = {}; this.appelEnAttente = false; this.transmissionAuRetour = false; this.detruite = false; this.tuileTouchee = false;
+    this.repriseDe = null; this.versionDifferente = null; this.champsSensibles = {}; this.appelEnAttente = false; this.appelParti = false; this.transmissionAuRetour = false; this.detruite = false; this.tuileTouchee = false;
     this.profession = null; this.personnes = [];   // réglages de l'appareil (L3), chargés au démarrage : profession courante, personnes connues
   }
 
@@ -67,6 +84,8 @@ export class Intervention {
 
   /** Reprise d'une fiche déjà en base (directe au lancement, ou depuis l'accueil). Le protocole est celui COPIÉ dans la fiche (2.4, parade 2). */
   async reprendre(fiche, { automatique = false } = {}) {
+    // retour d'un appel `tel:` avec rechargement (iPhone) : calculé AVANT toute écriture de la reprise (L7c, revue L7 M1 : la version et la reprise s'écrivent au journal)
+    const retourAppel = retourDAppelAttendu(fiche.journal, Date.now());
     this.chargerReglages();
     this.chargerReferences();
     this.fiche = fiche; this.mode = fiche.mode; this.repriseDe = { automatique, debut: fiche.journal[0]?.t ?? fiche.cree_le };
@@ -97,9 +116,7 @@ export class Intervention {
       this.stockage.modifier(fiche, (f) => { f.version_appli = courante; }, { immediat: true });
       this.journaliser('version_differente', { de, vers: courante });
     }
-    // retour d'un appel `tel:` avec rechargement de la page (iPhone) : la dernière chose écrite est l'appel lancé → le mode transmission s'ouvre (4.7, 2.10)
-    const dernierJournal = fiche.journal.at(-1);
-    if (dernierJournal?.type === 'appel_lance' && Date.now() - dernierJournal.t < 30 * 60 * 1000) this.transmissionAuRetour = true;
+    if (retourAppel) this.transmissionAuRetour = true;   // le mode transmission s'ouvre (4.7, 2.10)
     this.journaliser('reprise', { automatique });
     this.gestion?.rattraper();
     this.emettre('changement');
@@ -375,10 +392,23 @@ export class Intervention {
   appelLance(numero, moyen = 'tel') {
     const t = Date.now();
     this.journaliser(this.simulation ? 'appel_simule' : 'appel_lance', { numero, moyen }, { maintenant: t });
-    if (!this.simulation) this.appelEnAttente = true;   // au retour au premier plan, le mode transmission s'ouvre seul (4.7)
+    if (!this.simulation) { this.appelEnAttente = true; this.appelParti = false; this.surveillerDepart(t); }   // au retour au premier plan, le mode transmission s'ouvre seul (4.7)
     const alerte = this.etapeAlerte();
     if (alerte) this.cocher(alerte.id, { t }); // « Alerter » se coche au premier appel, avec l'heure de l'appel (aucun doublon)
     this.emettre('changement');
+  }
+
+  /**
+   * L7c (revue L7, mineur 2) : la transmission ne s'ouvre au retour que si l'appli a été MASQUÉE dans les 10 secondes qui suivent l'appel (c'est ce que fait
+   * un lien `tel:`). Sans cela, une confirmation d'appel annulée sur iPhone, puis un verrouillage d'écran bien plus tard, ouvriraient la transmission par surprise.
+   */
+  surveillerDepart(t) {
+    let chrono = null;
+    const fin = () => { document.removeEventListener('visibilitychange', surCache); clearTimeout(chrono); };
+    const surCache = () => { if (document.visibilityState === 'hidden') { this.appelParti = Date.now() - t < 10000; fin(); } };
+    document.addEventListener('visibilitychange', surCache);
+    chrono = setTimeout(fin, 10000);
+    this.debranchements.push(fin);
   }
 
   /** « J'ai appelé » : appel passé par un équipier, ou confirmé. */
@@ -416,8 +446,9 @@ export class Intervention {
     const t = heureVersTimestamp(heure);
     if (t === null) return { ok: false, raison: 'heure invalide : écrire hh:mm' };
     const v = valeur.trim();
-    this.stockage.modifier(this.fiche, (f) => { f.constantes = [...(f.constantes ?? []), { t, type, valeur: v, unite: '' }]; }, { immediat: true });
-    this.journaliser('constante', { type, valeur: v }, { maintenant: t });
+    // journal d'abord : la constante garde l'identifiant de son entrée, pour que sa correction soit retrouvée (L7c, revue L7 C1)
+    const entree = this.journaliser('constante', { type, valeur: v }, { maintenant: t });
+    this.stockage.modifier(this.fiche, (f) => { f.constantes = [...(f.constantes ?? []), { t, type, valeur: v, unite: '', journal_id: entree.id }]; }, { immediat: true });
     this.emettre('fiche');
     return { ok: true };
   }
@@ -428,8 +459,8 @@ export class Intervention {
     const t = heureVersTimestamp(heure);
     if (t === null) return { ok: false, raison: 'heure invalide : écrire hh:mm' };
     const x = texte.trim();
-    this.stockage.modifier(this.fiche, (f) => { f.gestes_produits = [...(f.gestes_produits ?? []), { t, texte: x }]; }, { immediat: true });
-    this.journaliser('geste', { texte: x }, { maintenant: t });
+    const entree = this.journaliser('geste', { texte: x }, { maintenant: t });
+    this.stockage.modifier(this.fiche, (f) => { f.gestes_produits = [...(f.gestes_produits ?? []), { t, texte: x, journal_id: entree.id }]; }, { immediat: true });
     this.emettre('fiche');
     return { ok: true };
   }
@@ -508,6 +539,17 @@ export class Intervention {
     this.ecran.liberer?.().catch?.(() => {});   // revue m9 : le verrou d'écran est rendu (batterie, écran allumé dans une poche)
     this.stockage.terminer(this.fiche);
     this.detruire();
+  }
+
+  /**
+   * « Clôturer et effacer » depuis l'intervention (4.10) : la fiche est d'abord TERMINÉE (chronomètres et métronome arrêtés, verrou d'écran rendu),
+   * puis effacée — cette fiche seulement. Rappelable après un échec : la seconde fois, seul l'effacement est refait.
+   * @returns {Promise<object>} le résultat de `stockage.effacerFiche`
+   */
+  async cloturerEtEffacer() {
+    const { id } = this.fiche;
+    if (!this.detruite) this.terminer();
+    return this.stockage.effacerFiche(this.mode, id);
   }
 
   /** Quitte l'intervention SANS la terminer (simulation en pause, ou « Accueil ») : la fiche reste en base, intacte. */

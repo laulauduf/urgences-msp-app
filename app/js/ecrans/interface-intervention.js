@@ -25,6 +25,7 @@ import { afficherGlossaire } from './glossaire.js';
 import { afficherFiche } from './fiche.js';
 import { afficherTransmission } from './transmission.js';
 import { afficherJournal } from './journal.js';
+import { afficherCloture } from './cloture.js';
 import { construireTransmission } from '../bilan.js';
 import { texteBandeau, texteBandeauCourt } from '../roles.js';
 import { ACR, AUTRE } from '../intervention.js';
@@ -52,6 +53,7 @@ export class InterfaceIntervention {
     this.fb = { ajout: null };                 // fiche bilan : formulaire d'ajout ouvert
     this.tr = { page: 0, edition: false };     // mode transmission : page courante, saisie E / D ouverte
     this.jr = { corrige: null, texte: '', erreur: null };   // journal : entrée en cours de correction
+    this.cloture = null;                       // écran « Clôture et export » (L8) : il a son propre état et se redessine lui-même
     this.cl = etatChecklistInitial();   // étapes dépliées, saisie de l'heure : survit au redessin de la checklist
     this.secours = null; this.minuteur = null; this.debranchements = []; this.messageTest = null; this.echeances = new Map();
     this.zone = { entete: document.getElementById('entete'), barre: document.getElementById('barre'), contenu: document.getElementById('contenu'), bandeaux: document.getElementById('bandeaux'), appli: document.getElementById('appli') };
@@ -93,6 +95,7 @@ export class InterfaceIntervention {
     clearInterval(this.minuteur);
     this.arreterBoucle?.();
     this.secours?.arreter(); this.secours = null;
+    this.cloture?.demonter(); this.cloture = null;
     for (const d of this.debranchements) { try { d(); } catch { /* déjà débranché */ } }
     this.debranchements = [];
     this.son.onBattement = () => {}; this.son.onEtat = () => {}; this.ecran.onEtat = () => {};
@@ -105,9 +108,14 @@ export class InterfaceIntervention {
 
   surEvenement(e) {
     // pendant la saisie du lieu, un changement ne doit PAS reconstruire le formulaire (on perdrait la saisie en cours)
-    if (e.type === 'changement' && !['lieu', 'roles', 'profession', 'fiche', 'transmission', 'journal'].includes(this.panneau)) this.rendre();
+    if (e.type === 'changement' && !['lieu', 'roles', 'profession', 'fiche', 'transmission', 'journal', 'cloture'].includes(this.panneau)) this.rendre();
     // retour d'un appel `tel:` (page revenue au premier plan) : le mode transmission s'ouvre seul (4.7, 2.10)
-    if (e.type === 'retour' && this.intervention.appelEnAttente) { this.intervention.appelEnAttente = false; this.ouvrirPanneau('transmission'); }
+    // (L7c : seulement si l'appli a été masquée dans les secondes qui ont suivi l'appel — voir Intervention.surveillerDepart)
+    if (e.type === 'retour' && this.intervention.appelEnAttente) {
+      const parti = this.intervention.appelParti;
+      this.intervention.appelEnAttente = false; this.intervention.appelParti = false;
+      if (parti) this.ouvrirPanneau('transmission');
+    }
     // la checklist dépend de la profession et des habilitations lues : elle se redessine quand l'une ou l'autre arrive ou change
     if ((e.type === 'reglages' || e.type === 'habilitations') && this.panneau === 'checklist') this.rendre();
     if (e.type === 'roles' || e.type === 'reglages') this.majPuceEtRoles();
@@ -340,7 +348,17 @@ export class InterfaceIntervention {
     this.majBandeauxSon();
     if (this.panneau === 'checklist' && i.situation !== ACR) this.versPrincipal();   // pas de checklist hors d'une fiche ACR
     this.majBarre();
-    if (this.panneau === 'fiche') {
+    if (this.panneau !== 'cloture' && this.cloture) { this.cloture.demonter(); this.cloture = null; }   // quitter l'écran retire aussi le document d'impression de la page
+    if (this.panneau === 'cloture') {
+      this.cloture?.demonter();
+      this.cloture = afficherCloture(contenu, {
+        fiche: i.fiche, stockage: i.stockage,
+        structure: () => this.structure, champsSensibles: () => i.champsSensibles, appelant: () => i.appelant, protocoleId: i.protocoleId,
+        effacer: () => i.cloturerEtEffacer(),
+        apresEffacement: (res) => this.actions.effacee?.(res),
+        auFermer: () => this.ouvrirPanneau(null),
+      });
+    } else if (this.panneau === 'fiche') {
       afficherFiche(contenu, { intervention: i, etat: this.fb });
     } else if (this.panneau === 'transmission') {
       const pages = construireTransmission({ fiche: i.fiche, structure: this.structure, champsSensibles: i.champsSensibles, appelant: i.appelant, protocoleId: i.protocoleId, maintenant: Date.now() });
@@ -515,6 +533,7 @@ export class InterfaceIntervention {
       terminer.replaceWith(bouton("Confirmer : terminer l'intervention", 'bouton bouton-urgence bouton-plein', () => { i.terminer(); this.actions.terminee(); }, { id: 'menu-terminer-confirme' }));
     }, { id: 'menu-terminer' });
     page.append(terminer);
+    ligne('Clôture et export', () => this.ouvrirPanneau('cloture'), 'menu-cloture');   // fonction 25 de 4.0 : exporter, clôturer
     this.zone.contenu.replaceChildren(page);
   }
 }

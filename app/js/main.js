@@ -7,7 +7,6 @@ import { chargerStructure, problemeStructure } from './structure.js';
 import { chargerProtocole } from './protocole.js';
 import { lireEnvironnement, bandeauInstallationNecessaire, TEXTE_BANDEAU_INSTALLATION } from './installation.js';
 import { stockage } from './stockage.js';
-import { heureLocale } from './dom.js';
 import { appliquerTheme, themeLocal } from './theme.js';
 import { chargerGroupes } from './professions.js';
 import { afficherReglages } from './ecrans/reglages.js';
@@ -19,6 +18,9 @@ import { Intervention } from './intervention.js';
 import { Son } from './son.js';
 import { EcranAllume } from './ecran-allume.js';
 import { lireNumeros, chargerNumeros } from './numeros.js';
+import { afficherCloture } from './ecrans/cloture.js';
+import { messageEffacement } from './export.js';
+import { appelant } from './roles.js';
 
 // Thème mémorisé localement : appliqué avant tout le reste, pour éviter un clignotement clair → sombre.
 appliquerTheme(themeLocal());
@@ -56,15 +58,44 @@ async function rafraichirEnAttente() {
   if (ui !== app.accueilUI || app.intervention) return; // l'écran a changé entre-temps
   ui.afficherEnAttente(enAttente, {
     reprendre: (r) => reprendreFiche(r),
+    exporter: (r) => ouvrirCloture(r),
     effacer: async (r) => {
       const res = await stockage.effacerFiche(r.mode, r.id);
       if (ui === app.accueilUI) {
-        // revue m10 (2.9) : le résultat est dit — heure d'effacement, ou cause de l'échec avec invitation à réessayer
-        ui.afficherResultat(res.ok ? `Fiche effacée à ${heureLocale(res.effaceeA ?? Date.now())}` : `Effacement non terminé : ${res.raison ?? 'cause inconnue'} — réessayez.`);
+        // revue m10 (2.9) : le résultat est dit — heure d'effacement, ou cause de l'échec avec invitation à réessayer (L8 : et le sort du presse-papiers)
+        ui.afficherResultat(messageEffacement(res));
         rafraichirEnAttente();
       }
     },
   });
+}
+
+/**
+ * « Exporter » sur la ligne d'une fiche en attente (4.1) : l'écran de clôture s'ouvre SANS intervention (ni en-tête, ni barre, ni son, ni chronomètre).
+ * La fiche est marquée « affichée » tant que l'écran est ouvert : la purge ne l'efface jamais en silence pendant qu'on la montre (2.9).
+ */
+async function ouvrirCloture(resume) {
+  const ui = app.accueilUI;
+  const lu = await stockage.lireFiche(resume.mode, resume.id);
+  if (app.intervention || ui !== app.accueilUI) return;
+  if (!lu.ok) {
+    ui?.afficherResultat?.(lu.raison === 'purge_en_attente' ? "Vérification d'effacement en cours : réessayez dans un instant." : "Cette fiche n'a pas pu être ouverte : elle reste sur l'appareil, vous pouvez l'effacer.");
+    return;
+  }
+  const fiche = lu.fiche;
+  stockage.definirAffichee(fiche.id);
+  const reglages = await stockage.lireReglages();
+  if (app.intervention || ui !== app.accueilUI) { stockage.definirAffichee(null); return; }
+  const contenu = document.getElementById('contenu');
+  afficherCloture(contenu, {
+    fiche, stockage,
+    structure: () => contexte.structure, champsSensibles: () => reglages.champs_sensibles ?? {}, appelant: () => appelant(fiche.roles), protocoleId: PROTOCOLE_DU_PROTOTYPE,
+    effacer: () => stockage.effacerFiche(fiche.mode, fiche.id),
+    apresEffacement: (res) => { stockage.definirAffichee(null); montrerAccueil(); app.accueilUI.afficherResultat(messageEffacement(res)); },
+    auFermer: () => { stockage.definirAffichee(null); montrerAccueil(); },
+    libelleFermer: "Retour à l'accueil",
+  });
+  contenu.focus();
 }
 
 // ───────── Intervention ─────────
@@ -90,6 +121,8 @@ function ouvrirInterface(i) {
       nouvelleUrgence: () => { quitterIntervention({ aller: false }); demarrerUrgence('reel'); },
       urgenceReelle: () => { quitterIntervention({ aller: false }); demarrerUrgence('reel'); }, // la simulation reste en pause, la VRAIE fiche s'ouvre
       terminee: () => quitterIntervention({ aller: true, detruite: true }),
+      // « Clôturer et effacer » réussi depuis l'intervention (L8) : retour à l'accueil, qui dit « Fiche effacée à hh:mm »
+      effacee: (res) => { quitterIntervention({ aller: true, detruite: true }); app.accueilUI?.afficherResultat(messageEffacement(res)); },
     },
   });
   app.interface.monter();

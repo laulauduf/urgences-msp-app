@@ -1,0 +1,164 @@
+// Écran « Clôture et export » (cahier des charges 2.9, 2.11, 4.10). Un seul écran, deux entrées : le menu d'une intervention (Menu → Clôture et export)
+// et la ligne « Exporter » d'une fiche en attente sur l'accueil (sans intervention : ni en-tête, ni barre, ni son).
+// ORDRE DES PROPOSITIONS (remise en main propre d'abord, 2.11) : « Montrer au SMUR » et « Imprimer » ; ensuite seulement le partage (précédé d'un avertissement,
+// jamais d'enregistrement par défaut) ; la copie dans le presse-papiers EN DERNIER, avec son avertissement ; puis « Le document a-t-il été remis ? » ;
+// enfin « Clôturer et effacer » (actif après une remise confirmée) ou « Effacer sans exporter » (seconde confirmation explicite).
+// Écran avec état propre : il se redessine lui-même et n'est jamais reconstruit sur un « changement » de l'intervention (l'interface le garde à l'écart).
+import { creer, bouton, heureLocale } from '../dom.js';
+import { construireTransmission } from '../bilan.js';
+import {
+  AVERTISSEMENT_PARTAGE, AVERTISSEMENT_SAUVEGARDE, AVERTISSEMENT_PRESSE_PAPIERS, QUESTION_REMISE, MOYENS, messageEffacement,
+  peutPartager, partagerFichier, telechargerFichier, copierTexte, imprimerDocument, retirerImpression,
+} from '../export.js';
+import { afficherTransmission } from './transmission.js';
+
+/**
+ * @param {HTMLElement} conteneur
+ * @param {{fiche: object, stockage: object, structure: () => object|null, champsSensibles: () => object, appelant: () => object|null, protocoleId: string|null,
+ *          effacer: () => Promise<object>, apresEffacement: (res: object) => void, auFermer: () => void, libelleFermer?: string}} ctx
+ *   `effacer` efface CETTE fiche (l'appelant la termine d'abord si elle est encore en cours) et renvoie le résultat du stockage ;
+ *   `apresEffacement` n'est appelé qu'en cas de succès (retour à l'accueil, message « Fiche effacée à hh:mm »).
+ * @returns {{demonter: () => void}}
+ */
+export function afficherCloture(conteneur, ctx) {
+  const { fiche, stockage } = ctx;
+  const etat = { vue: 'cloture', tr: { page: 0, edition: false }, partage: false, question: false, moyen: null, message: '', erreur: '', confirmeEffacer: false, confirmeSans: false, occupe: false };
+  let detruit = false;
+  const entree = () => ({ fiche, structure: ctx.structure(), champsSensibles: ctx.champsSensibles(), appelant: ctx.appelant(), protocoleId: ctx.protocoleId, maintenant: Date.now() });
+
+  function rendre() {
+    if (detruit) return;
+    if (etat.vue === 'smur') { rendreApercu(); return; }
+    const page = creer('section', 'ecran-cloture', '', { 'aria-label': 'Clôture et export' });
+    const titre = creer('div', 'panneau-titre');
+    titre.append(creer('h1', 'cloture-titre', 'Clôture et export'), bouton(ctx.libelleFermer ?? 'Fermer', 'bouton', () => { demonter(); ctx.auFermer(); }, { id: 'fermer-cloture' }));
+    page.append(titre);
+
+    // 1. remise en main propre : d'abord
+    const main = creer('div', 'cloture-groupe cloture-main');
+    main.append(
+      bouton('Montrer au SMUR', 'bouton bouton-accent', () => { etat.vue = 'smur'; etat.tr = { page: 0, edition: false }; etat.message = ''; rendre(); }, { id: 'cloture-montrer' }),
+      bouton('Imprimer', 'bouton', () => {
+        etat.message = ''; etat.erreur = '';
+        try { imprimerDocument(entree()); etat.moyen = 'impression'; etat.question = true; } catch { etat.erreur = "L'impression n'a pas pu être lancée sur cet appareil : montrez le document au SMUR."; }
+        rendre();
+      }, { id: 'cloture-imprimer' }),
+    );
+    page.append(main);
+
+    // 2. partage : l'avertissement d'abord, le geste ensuite
+    const partage = creer('div', 'cloture-groupe');
+    if (!etat.partage) {
+      partage.append(bouton('Partager ou enregistrer…', 'bouton bouton-plein', () => { etat.partage = true; etat.message = peutPartager(entree()) ? '' : "Le partage de fichier n'est pas disponible sur cet appareil : montrez ou imprimez le document, ou enregistrez-le dans un fichier."; rendre(); }, { id: 'cloture-partager' }));
+    } else {
+      const av = creer('div', 'cloture-avertissement', '', { id: 'cloture-avertissement-partage', role: 'note' });
+      av.append(creer('p', null, AVERTISSEMENT_PARTAGE), creer('p', null, AVERTISSEMENT_SAUVEGARDE));
+      partage.append(av);
+      if (peutPartager(entree())) {
+        partage.append(bouton('Partager le fichier', 'bouton bouton-plein', async () => {
+          etat.message = ''; etat.erreur = '';
+          const r = await partagerFichier(entree());
+          if (r.ok) { etat.moyen = 'partage'; etat.question = true; etat.partage = false; }
+          else if (r.raison === 'indisponible') etat.message = "Le partage de fichier n'est pas disponible sur cet appareil.";
+          else if (r.raison === 'echec') etat.erreur = "Le partage n'a pas abouti : réessayez, ou montrez ou imprimez le document.";
+          rendre();
+        }, { id: 'cloture-partager-fichier' }));
+      }
+      partage.append(
+        bouton('Enregistrer le fichier', 'bouton bouton-plein', () => {
+          telechargerFichier(entree()); etat.moyen = 'enregistrement'; etat.question = true; etat.partage = false; etat.message = ''; rendre();
+        }, { id: 'cloture-enregistrer' }),
+        bouton('Annuler', 'bouton bouton-plein', () => { etat.partage = false; etat.message = ''; rendre(); }, { id: 'cloture-partage-annuler' }),
+      );
+    }
+    page.append(partage);
+
+    // 3. copie : en dernier, avec son avertissement lisible AVANT le geste
+    const copie = creer('div', 'cloture-groupe');
+    copie.append(
+      creer('p', 'cloture-avertissement', AVERTISSEMENT_PRESSE_PAPIERS, { id: 'cloture-avertissement-copie' }),
+      bouton('Copier le texte', 'bouton bouton-plein', async () => {
+        etat.message = ''; etat.erreur = '';
+        // l'appli retient qu'elle a écrit dans le presse-papiers AVANT d'écrire : si l'écriture aboutit à moitié, il sera quand même vidé à l'effacement
+        stockage.modifier(fiche, (f) => { f.presse_papiers_utilise = true; }, { immediat: true });
+        const r = await copierTexte(entree());
+        if (r.ok) { etat.moyen = 'copie'; etat.question = true; } else etat.erreur = "La copie n'a pas pu être faite : l'appareil a refusé l'accès au presse-papiers.";
+        rendre();
+      }, { id: 'cloture-copier' }),
+    );
+    page.append(copie);
+
+    page.append(creer('p', 'confirmation', etat.message, { id: 'cloture-message', role: 'status' }));
+    if (etat.erreur) page.append(creer('p', 'noter-erreur', etat.erreur, { id: 'cloture-erreur', role: 'alert' }));
+
+    // 4. « Le document a-t-il été remis ? »
+    if (etat.question) {
+      const q = creer('div', 'cloture-question', '', { id: 'cloture-question' });
+      q.append(creer('p', null, QUESTION_REMISE),
+        bouton('Oui', 'bouton bouton-accent', () => confirmerRemise(), { id: 'cloture-remis-oui' }),
+        bouton('Non, réessayer', 'bouton', () => { etat.question = false; etat.moyen = null; rendre(); }, { id: 'cloture-remis-non' }));
+      page.append(q);
+    }
+    if (fiche.export) page.append(creer('p', 'cloture-statut', `Remise confirmée à ${heureLocale(fiche.export.fait_le)} (${MOYENS[fiche.export.moyen] ?? fiche.export.moyen})`, { id: 'cloture-statut', role: 'status' }));
+
+    // 5. clôture
+    const fin = creer('div', 'cloture-groupe cloture-fin');
+    const exportee = Boolean(fiche.export);
+    if (etat.confirmeEffacer) {
+      fin.append(creer('p', 'cloture-avertissement', 'Effacer définitivement cette fiche de cet appareil ?'),
+        bouton('Confirmer : clôturer et effacer', 'bouton bouton-urgence bouton-plein', () => effacer(), { id: 'cloture-effacer-confirme' }),
+        bouton('Annuler', 'bouton bouton-plein', () => { etat.confirmeEffacer = false; rendre(); }, { id: 'cloture-effacer-annuler' }));
+    } else {
+      const b = bouton('Clôturer et effacer', 'bouton bouton-plein', () => { etat.confirmeEffacer = true; etat.confirmeSans = false; rendre(); }, { id: 'cloture-effacer' });
+      b.disabled = !exportee || etat.occupe;
+      fin.append(b);
+    }
+    if (!exportee) {
+      if (etat.confirmeSans) {
+        fin.append(creer('p', 'cloture-avertissement', 'Effacer cette fiche SANS l\'avoir remise ni exportée ? Cela ne peut pas être annulé.'),
+          bouton('Oui, effacer sans export', 'bouton bouton-urgence bouton-plein', () => effacer(), { id: 'cloture-sans-export-confirme' }),
+          bouton('Annuler', 'bouton bouton-plein', () => { etat.confirmeSans = false; rendre(); }, { id: 'cloture-sans-export-annuler' }));
+      } else {
+        fin.append(bouton('Effacer sans exporter', 'bouton bouton-plein', () => { etat.confirmeSans = true; etat.confirmeEffacer = false; rendre(); }, { id: 'cloture-sans-export' }));
+      }
+    }
+    page.append(fin);
+    conteneur.replaceChildren(page);
+  }
+
+  /** Aperçu « Montrer au SMUR » : les pages du mode transmission, en gros caractères, SANS modification possible ici. */
+  function rendreApercu() {
+    const pages = construireTransmission(entree());
+    afficherTransmission(conteneur, {
+      pages, etat: etat.tr, intervention: null,
+      auFermer: () => { etat.vue = 'cloture'; etat.moyen = 'montre'; etat.question = true; rendre(); },   // au retour : « Le document a-t-il été remis ? »
+      auRendre: rendre,
+    });
+  }
+
+  /** « Oui » : la remise est enregistrée dans la fiche (moyen, heure) et au journal ; « Clôturer et effacer » devient actif. */
+  function confirmerRemise() {
+    const moyen = etat.moyen ?? 'montre';
+    stockage.journaliser(fiche, 'export', { moyen });
+    stockage.modifier(fiche, (f) => { f.export = { fait_le: Date.now(), moyen }; }, { immediat: true });
+    etat.question = false; etat.moyen = null; etat.message = '';
+    rendre();
+  }
+
+  async function effacer() {
+    if (etat.occupe) return;
+    etat.occupe = true; etat.confirmeEffacer = false; etat.confirmeSans = false; etat.message = 'Effacement en cours…'; etat.erreur = '';
+    rendre();
+    let res;
+    try { res = await ctx.effacer(); } catch (e) { res = { ok: false, raison: e?.message ?? 'effacement impossible' }; }
+    etat.occupe = false;
+    if (res?.ok) { demonter(); ctx.apresEffacement(res); return; }
+    etat.message = ''; etat.erreur = messageEffacement(res);
+    rendre();
+  }
+
+  function demonter() { detruit = true; retirerImpression(); }
+
+  rendre();
+  return { demonter };
+}

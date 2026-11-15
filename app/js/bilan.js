@@ -49,14 +49,55 @@ export function texteAge(identite, maintenant = Date.now()) {
   return plein(identite?.age_estime) ? `âge estimé : ${identite.age_estime.trim()}` : null;
 }
 
+// ───────── Corrections du journal (L7c, revue L7 C1) ─────────
+// Une correction est une NOUVELLE entrée du journal qui renvoie à l'entrée corrigée ; l'original n'est jamais réécrit (3.3). Mais ce que la fiche, la
+// transmission et l'export disent doit être la valeur CORRIGÉE : on retrouve donc, pour chaque constante, geste, case ou événement, sa dernière correction.
+
+const AVANT_URGENCE = 'avant URGENCE';
+/**
+ * Une heure saisie « hh:mm » n'a pas de secondes : une constante notée « maintenant » peut tomber jusqu'à 59 s AVANT l'entrée URGENCE. On compare donc à la MINUTE :
+ * seule une heure d'une minute antérieure à celle d'URGENCE est « avant URGENCE » ; dans la même minute, elle compte comme T+00:00.
+ */
+const estAvantUrgence = (t, debut) => Math.floor(t / 60000) < Math.floor(debut / 60000);
+/** Clé de tri de la frise : une entrée de la même minute qu'URGENCE mais « plus tôt » ne passe pas devant URGENCE. */
+const cleTri = (t, debut) => (estAvantUrgence(t, debut) ? t : Math.max(t, debut));
+/** « T+mm:ss » depuis URGENCE ; avant l'entrée URGENCE le « T+ » serait faux : on le dit. */
+const tPlusOuAvant = (t, debut) => (estAvantUrgence(t, debut) ? AVANT_URGENCE : formaterT(Math.max(0, t - debut)));
+
+/** Dernière correction d'une entrée du journal : `{heure, texte}`, ou null. */
+export function correctionDeEntree(fiche, idEntree) {
+  if (!idEntree) return null;
+  const c = (fiche?.journal ?? []).filter((e) => e.type === 'correction' && e.correction_de === idEntree).at(-1);
+  return c ? { heure: hhmm(c.t), texte: String(c.donnees?.texte ?? '') } : null;
+}
+
+/** Entrée de journal d'une constante (lien `journal_id`, ou — fiche écrite par L7 — même heure, même type, même valeur). */
+export function idJournalConstante(fiche, x) {
+  if (x?.journal_id) return x.journal_id;
+  return (fiche?.journal ?? []).find((e) => e.type === 'constante' && e.t === x?.t && e.donnees?.type === x?.type && String(e.donnees?.valeur) === String(x?.valeur))?.id ?? null;
+}
+
+/** Entrée de journal d'un geste saisi (même principe). */
+export function idJournalGeste(fiche, g) {
+  if (g?.journal_id) return g.journal_id;
+  return (fiche?.journal ?? []).find((e) => e.type === 'geste' && e.t === g?.t && e.donnees?.texte === g?.texte)?.id ?? null;
+}
+
+/** « <début> — CORRIGÉ à hh:mm : <correction> (<mot> d'origine barrée : <original>) » : la correction est lue AVANT l'original, qui n'est jamais dit « nu ». */
+const texteCorrige = (debut, original, c, mot) => `${debut} — CORRIGÉ à ${c.heure} : ${c.texte} (${mot} d'origine barrée : ${original})`;
+
 // ───────── Constantes : valeurs brutes, sans interprétation ─────────
 
-/** @returns {{type: string, libelle: string, valeurs: {t: number, valeur: string}[]}[]} un tableau par type, types dans l'ordre de SPEC.md, valeurs chronologiques */
-export function tableauConstantes(constantes) {
+/**
+ * @param {object[]} constantes
+ * @param {object|null} fiche  si elle est donnée, chaque valeur porte sa correction éventuelle (`corrige`)
+ * @returns {{type: string, libelle: string, valeurs: {t: number, valeur: string, corrige: {heure: string, texte: string}|null}[]}[]} un tableau par type, types dans l'ordre de SPEC.md, valeurs chronologiques
+ */
+export function tableauConstantes(constantes, fiche = null) {
   const liste = Array.isArray(constantes) ? constantes : [];
   return TYPES_CONSTANTE.map((ty) => ({
     type: ty.id, libelle: ty.libelle,
-    valeurs: liste.filter((c) => c?.type === ty.id).map((c) => ({ t: c.t, valeur: String(c.valeur) })).sort((a, b) => a.t - b.t),
+    valeurs: liste.filter((c) => c?.type === ty.id).map((c) => ({ t: c.t, valeur: String(c.valeur), corrige: fiche ? correctionDeEntree(fiche, idJournalConstante(fiche, c)) : null })).sort((a, b) => a.t - b.t),
   })).filter((l) => l.valeurs.length > 0);
 }
 
@@ -78,18 +119,25 @@ function pageLieu({ fiche, structure, champsSensibles }) {
   const t = (c) => structure?.texte?.(c) ?? 'non renseigné';
   const d = structure?.donnees ?? {};
   const manque = (c) => t(c) === 'non renseigné';
-  const adresse = [t('adresse.ligne1'), [t('adresse.code_postal'), t('adresse.commune')].filter((x) => x !== 'non renseigné').join(' ')].filter((x) => x !== '' && x !== 'non renseigné').join(', ');
+  // adresse exacte (L7c, revue L7 mineur 6) : ligne 1, complément (bâtiment, étage…), code postal et commune
+  const adresse = [t('adresse.ligne1'), t('adresse.complement'), [t('adresse.code_postal'), t('adresse.commune')].filter((x) => x !== 'non renseigné').join(' ')].filter((x) => x !== '' && x !== 'non renseigné').join(', ');
   const code = champsSensibles?.code_entree;
   const optionnel = (libelle, chemin) => (manque(chemin) ? null : ligne(`${libelle} : ${t(chemin)}`));
+  // donnée attendue au cabinet : dite « non renseigné », jamais masquée (4.8, 3.2)
+  const attendu = (libelle, chemin) => ligne(`${libelle} : ${t(chemin)}`);
+  // les autres codes que la structure déclare (portail, etc.) : sur ce téléphone seulement, et dits s'ils manquent
+  const autresCodes = (Array.isArray(d.champs_sensibles_locaux) ? d.champs_sensibles_locaux : []).filter((c) => plein(c?.id) && c.id !== 'code_entree' && plein(c?.libelle))
+    .map((c) => (plein(champsSensibles?.[c.id]) ? ligne(`${c.libelle} : ${champsSensibles[c.id].trim()}`) : ligne(`${c.libelle} : non renseigné sur ce téléphone`)));
   return {
     id: 'lieu', titre: 'Lieu', adresse: adresse || 'Adresse de la structure : non renseignée',
     lignes: lignes(
       // donnée de structure manquante sur ce téléphone : dite, jamais masquée (4.8)
       plein(code) ? ligne(`Code d'entrée : ${code.trim()}`) : ligne("Code d'entrée : non renseigné sur ce téléphone"),
+      ...autresCodes,
       ligne(`Structure : ${t('structure.nom')}`),
       ligne(`Adresse : ${adresse || 'non renseignée'}`),
-      optionnel('Repère', 'adresse.repere'), optionnel('Accès', 'acces.description'), optionnel('Stationnement des secours', 'acces.stationnement_secours'),
-      optionnel("Point d'accueil", 'acces.point_accueil'), optionnel('Défibrillateur (DAE)', 'dae.emplacement'),
+      optionnel('Repère', 'adresse.repere'), attendu('Accès', 'acces.description'), attendu('Stationnement des secours', 'acces.stationnement_secours'),
+      attendu("Point d'accueil", 'acces.point_accueil'), attendu('Défibrillateur (DAE)', 'dae.emplacement'),
       ...(Array.isArray(d.materiel?.contenants) ? d.materiel.contenants.filter((c) => plein(c?.libelle) && plein(c?.emplacement)).map((c) => ligne(`${c.libelle} : ${c.emplacement}`)) : []),
       ligne(`Numéro de rappel : ${t('numero_rappel')}`),
     ),
@@ -98,27 +146,55 @@ function pageLieu({ fiche, structure, champsSensibles }) {
 
 function pageS({ fiche, appelant, protocoleId, maintenant }) {
   const id = fiche.identite ?? {}; const c = fiche.circonstances ?? {}; const bv = fiche.bilan_vital ?? {};
-  const debut = fiche.journal?.[0]?.t ?? fiche.cree_le;
+  const journal = fiche.journal ?? [];
+  const debut = journal[0]?.t ?? fiche.cree_le;
   const acr = (fiche.situations ?? []).find((s) => s.protocole === protocoleId);
+  // événements répétables : on compte les touchers VALIDES ; un toucher corrigé au journal est compté à part (L7c, revue L7 C1)
   const events = {};
-  for (const e of fiche.journal ?? []) if (e.type === 'evenement') (events[e.donnees?.libelle ?? e.donnees?.id ?? '?'] ??= []).push(e.t);
-  const gestes = [
-    ...(fiche.gestes_produits ?? []).map((g) => ({ t: g.t, texte: g.texte })),
-    ...(fiche.journal ?? []).filter((e) => e.type === 'geste' && e.donnees?.id).map((e) => ({ t: e.t, texte: e.donnees.libelle ?? e.donnees.id })),
+  for (const e of journal) {
+    if (e.type !== 'evenement') continue;
+    const groupe = (events[e.donnees?.libelle ?? e.donnees?.id ?? '?'] ??= { valides: [], corriges: 0 });
+    if (correctionDeEntree(fiche, e.id)) groupe.corriges += 1; else groupe.valides.push(e.t);
+  }
+  // gestes saisis, gestes notés « fait à hh:mm » (checklist) et ÉTAPES COCHÉES (tuiles et checklist) : tous les gestes réalisés vont dans S (D-9, revue L7 M2)
+  const faits = [
+    ...(fiche.gestes_produits ?? []).map((g) => ({ mot: 'geste', t: g.t, texte: g.texte, entree: idJournalGeste(fiche, g) })),
+    ...journal.filter((e) => e.type === 'geste' && e.donnees?.id).map((e) => ({ mot: 'geste', t: e.t, texte: e.donnees.libelle ?? e.donnees.id, entree: e.id })),
+    ...Object.entries(fiche.checklist ?? {}).filter(([, v]) => Number.isFinite(v?.coche_le)).map(([cle, v]) => {
+      const entree = journal.filter((e) => e.type === 'case' && e.donnees?.id === cle && !e.donnees?.decochee).at(-1);
+      return { mot: 'fait', t: v.coche_le, texte: entree?.donnees?.libelle ?? cle, entree: entree?.id ?? null };
+    }),
   ].filter((g) => plein(g.texte)).sort((a, b) => a.t - b.t);
   const constantes = (fiche.constantes ?? []).filter((x) => x && plein(String(x.valeur))).sort((a, b) => a.t - b.t);
+  const ageTexte = texteAge(id, maintenant);
+  const ageLigne = ageTexte === null ? null : ageTexte.startsWith('âge estimé : ') ? ligne(`Âge estimé : ${ageTexte.slice('âge estimé : '.length)}`) : champ('Âge', ageTexte);
   return {
     id: 's', titre: 'S — Situation',
     lignes: lignes(
       appelant ? ligne(`Appelant : ${appelant.personne} (${appelant.fonction})`) : null,
-      champ('Patient', [id.prenom, id.nom].filter(plein).join(' ')), champ('Sexe', id.sexe), champ('Âge', texteAge(id, maintenant)),
-      champ('Circonstances : début', c.heure_debut), champ('Lieu dans la structure', c.lieu_dans_structure), champ('Témoin', c.temoin), champ('Gestes déjà faits', c.gestes_deja_faits),
+      champ('Patient', [id.prenom, id.nom].filter(plein).join(' ')), champ('Sexe', id.sexe), ageLigne,
+      champ('Début des signes', c.heure_debut), champ('Lieu dans la structure', c.lieu_dans_structure), champ('Témoin', c.temoin), champ('Gestes déjà faits', c.gestes_deja_faits),
       ligne(`Début de l'intervention : ${hhmm(debut)}`),
       acr ? ligne(`ACR constaté à ${hhmm(acr.depuis)}`) : null,
       champ('Conscience', [bv.avpu ? `AVPU ${bv.avpu}` : '', bv.conscience].filter(plein).join(' — ')), champ('Respiration', bv.respiration), champ('Circulation', bv.circulation),
-      ...constantes.map((x) => ligne(`${hhmm(x.t)} ${libelleType(x.type)} : ${x.valeur}`)),     // valeurs brutes datées, ordre chronologique, aucune tendance (Q-29)
-      ...gestes.map((g) => ligne(`${hhmm(g.t)} (${formaterT(g.t - debut)}) geste : ${g.texte.trim()}`)),
-      ...Object.entries(events).map(([libelle, ts]) => ligne(`${libelle} : ${ts.length} ${ts.length > 1 ? 'fois' : 'fois'} (${ts.map(hhmm).join(', ')})`)),   // simple comptage des touchers
+      // valeurs brutes datées, ordre chronologique, aucune tendance (Q-29) ; une valeur corrigée au journal est transmise CORRIGÉE, l'original dit « barré »
+      ...constantes.map((x) => {
+        const debutLigne = `${hhmm(x.t)} ${libelleType(x.type)}`;
+        const corr = correctionDeEntree(fiche, idJournalConstante(fiche, x));
+        return ligne(corr ? texteCorrige(debutLigne, x.valeur, corr, 'valeur') : `${debutLigne} : ${x.valeur}`);
+      }),
+      ...faits.map((g) => {
+        const debutLigne = `${hhmm(g.t)} (${tPlusOuAvant(g.t, debut)}) ${g.mot}`;
+        const corr = correctionDeEntree(fiche, g.entree);
+        return ligne(corr ? texteCorrige(debutLigne, g.texte.trim(), corr, 'entrée') : `${debutLigne} : ${g.texte.trim()}`);
+      }),
+      // simple comptage des touchers, chacun avec son heure ET son T+ (4.8)
+      ...Object.entries(events).map(([libelle, e]) => {
+        const n = e.valides.length;
+        const heures = e.valides.map((t) => `${hhmm(t)} (${tPlusOuAvant(t, debut)})`).join(', ');
+        const corriges = e.corriges > 0 ? `${n > 0 ? ', ' : ' ('}dont ${e.corriges} corrigé${e.corriges > 1 ? 's' : ''}, voir le journal${n > 0 ? '' : ')'}` : '';
+        return ligne(`${libelle} : ${n} fois${n > 0 ? ` — ${heures}` : ''}${corriges}`);
+      }),
     ),
   };
 }
@@ -167,7 +243,7 @@ export function libelleEntree(e) {
     case 'version_differente': return `Appli mise à jour : version ${d.de ?? '?'} → ${d.vers ?? '?'}`;
     case 'secours_protocole': return 'Protocole illisible : écran de secours';
     case 'purge_reportee': return "Délai d'effacement atteint (effacement reporté)";
-    case 'export': return 'Export';
+    case 'export': return d.moyen ? `Export confirmé : ${d.moyen}` : 'Export';   // moyen : montre | impression | partage | enregistrement | copie (L8)
     case 'note': return d.texte ?? 'Note';
     case 'correction': return `Correction : ${d.texte ?? ''}`.trim();
     default: return String(e?.type ?? 'entrée');
@@ -180,9 +256,11 @@ export function libelleEntree(e) {
  */
 export function frise(fiche) {
   const journal = Array.isArray(fiche?.journal) ? fiche.journal : [];
+  const debut = journal[0]?.t ?? fiche?.cree_le ?? 0;
+  // frise CHRONOLOGIQUE (4.10) : par heure, et à heure égale dans l'ordre d'écriture (tri stable) — une constante saisie « pour 14:00 » à 14:30 reste à sa place
   const lignesFrise = journal.filter((e) => e.type !== 'correction').map((e) => ({
-    id: e.id, type: e.type, heure: hhmm(e.t), tPlus: formaterT((e.t_ecoule ?? 0) * 1000), texte: libelleEntree(e), barree: false, corrigeable: true, corrections: [],
-  }));
+    id: e.id, type: e.type, t: e.t, heure: hhmm(e.t), tPlus: estAvantUrgence(e.t, debut) ? AVANT_URGENCE : formaterT((e.t_ecoule ?? 0) * 1000), texte: libelleEntree(e), barree: false, corrigeable: true, corrections: [],
+  })).sort((a, b) => cleTri(a.t, debut) - cleTri(b.t, debut));
   for (const c of journal.filter((e) => e.type === 'correction')) {
     const cible = lignesFrise.find((l) => l.id === c.correction_de);
     if (cible) { cible.corrections.push({ texte: c.donnees?.texte ?? '', heure: hhmm(c.t), tPlus: formaterT((c.t_ecoule ?? 0) * 1000) }); cible.barree = true; }

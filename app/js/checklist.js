@@ -76,6 +76,7 @@ export function heureVersTimestamp(texte, maintenant = Date.now()) {
   if (h > 23 || min > 59) return null;
   const d = new Date(maintenant);
   d.setHours(h, min, 0, 0);
-  if (d.getTime() > maintenant) d.setDate(d.getDate() - 1);
+  // L7c (revue L7, mineur 4) : quelques minutes d'avance (écart entre l'heure tapée et l'horloge) restent AUJOURD'HUI ; au-delà, c'est la veille
+  if (d.getTime() > maintenant + 5 * 60 * 1000) d.setDate(d.getDate() - 1);
   return d.getTime();
 }

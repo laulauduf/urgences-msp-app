@@ -22,7 +22,8 @@ export function afficherTransmission(conteneur, { pages, etat, intervention, auF
   ecran.append(liste);
 
   // E et D : champs libres de la fiche, modifiables ici (« Mon évaluation », « Ma demande »)
-  if (p.id === 'e' || p.id === 'd') {
+  // (sans `intervention` — aperçu « Montrer au SMUR » de la clôture — rien ne se modifie ici)
+  if (intervention && (p.id === 'e' || p.id === 'd')) {
     const cle = p.id === 'e' ? 'evaluation' : 'demande';
     if (etat.edition) {
       const t = creer('textarea', 'transmission-saisie', '', { id: 'transmission-saisie', rows: 4, autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', 'aria-label': p.id === 'e' ? 'Mon évaluation' : 'Ma demande' });

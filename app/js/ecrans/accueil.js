@@ -33,7 +33,7 @@ export function afficherAccueil(conteneur, { auUrgence, auSimulation, auxReglage
   return {
     afficherResultat(texte) { resultat.textContent = texte; },
     /** Lignes « fiche en attente » sous URGENCE : jamais plus grandes que le bouton, jamais devant lui. */
-    afficherEnAttente(lignes, { reprendre, effacer }) {
+    afficherEnAttente(lignes, { reprendre, effacer, exporter = null }) {
       attente.replaceChildren();
       for (const r of lignes) {
         const ligne = creer('div', 'ligne-attente');
@@ -41,13 +41,15 @@ export function afficherAccueil(conteneur, { auUrgence, auSimulation, auxReglage
         const titre = r.mode === 'simulation' ? 'Simulation en pause' : `Fiche du ${heureLocale(r.cree_le)}${r.etat === 'terminee' ? ' (terminée)' : ''}`;
         ligne.append(creer('span', 'ligne-attente-titre', titre));
         ligne.append(bouton('Reprendre', 'bouton', () => reprendre(r)));
+        // « Reprendre · Exporter ou effacer » pour une fiche réelle ; « Reprendre · Effacer » pour une simulation (4.1, 2.8)
+        const exporte = exporter && r.mode === 'reel' ? bouton('Exporter', 'bouton', () => exporter(r)) : null;
         const efface = bouton('Effacer', 'bouton', () => {
           // « Effacer sans exporter » : seconde confirmation explicite (4.10)
           ligne.replaceChildren(creer('span', 'ligne-attente-titre', `${titre} : effacer définitivement, sans export ?`),
             bouton('Oui, effacer', 'bouton bouton-urgence', () => effacer(r)),
             bouton('Annuler', 'bouton', () => afficherLigne()));
         });
-        const afficherLigne = () => { ligne.replaceChildren(creer('span', 'ligne-attente-titre', titre), bouton('Reprendre', 'bouton', () => reprendre(r)), efface); };
+        const afficherLigne = () => { ligne.replaceChildren(creer('span', 'ligne-attente-titre', titre), bouton('Reprendre', 'bouton', () => reprendre(r)), ...(exporte ? [exporte] : []), efface); };
         afficherLigne();
         attente.append(ligne);
       }
