@@ -3,7 +3,7 @@
 // le TITRE du document (ils apparaissent dans Fichiers, les fichiers récents et les sauvegardes). Aucun contenu médical ici : le document ne reprend
 // que ce que la fiche contient (mêmes pages que le mode transmission, D-9, puis la frise du journal) — constantes en valeurs brutes, sans jugement (D-19).
 // Première partie : fonctions PURES (testées sous Node). Seconde partie : ce qui touche le navigateur (File, partage, impression, presse-papiers).
-import { construireTransmission, frise, hhmm } from './bilan.js';
+import { construireTransmission, frise, hhmm, MOYENS } from './bilan.js';
 import { heureLocale } from './dom.js';
 
 // ───────── Textes : avertissements du cahier des charges 2.11 (repris par « À propos » et la notice, lot L9) ─────────
@@ -14,10 +14,10 @@ export const TEXTE_BROUILLON_DOCUMENT = 'BROUILLON — protocoles non validés p
 export const AVERTISSEMENT_PARTAGE = "Ce document contient des données de santé. Il sort de l'appli : ne l'enregistrez pas dans un dossier synchronisé (iCloud, Google Drive…) ; préférez la remise en main propre au SMUR ; supprimez-le après remise. La messagerie et le courriel sont déconseillés.";
 export const AVERTISSEMENT_SAUVEGARDE = "La sauvegarde automatique du téléphone (iCloud, Google) peut inclure le document enregistré ; si elle inclut aussi le stockage de l'appli, on ne l'a pas établi.";
 export const AVERTISSEMENT_PRESSE_PAPIERS = "Le texte copié reste dans le presse-papiers, et peut passer sur vos autres appareils (iPhone) ou dans l'historique du clavier (Android)";
+/** Les libellés des moyens de remise sont dans bilan.js (le journal les dit aussi) : réexportés ici pour l'écran de clôture. */
+export { MOYENS };
 const PIED_DOCUMENT = 'Ce document contient des données de santé : confidentiel, à remettre en main propre et à supprimer après remise.';
 
-/** Libellés des moyens de remise, tels qu'ils s'affichent (« Remise confirmée : imprimé »). */
-export const MOYENS = { montre: 'montré au SMUR', impression: 'imprimé', partage: 'partagé', enregistrement: 'enregistré dans un fichier', copie: 'copié dans le presse-papiers' };
 
 // ───────── Nom du fichier ─────────
 
@@ -109,6 +109,8 @@ export function documentHtml(m) {
     '<head>',
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
+    // politique de sécurité PROPRE au document (L8c, revue L8 m5) : ouvert hors de l'appli, rien ne doit s'y exécuter ni s'y charger, même si un oubli d'échappement survenait
+    `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">`,
     `<title>${echapper(m.titre)}</title>`,
     `<style>\n${CSS_DOCUMENT}\n</style>`,
     '</head>',
@@ -175,10 +177,41 @@ export async function partagerFichier(entree, nav = globalThis.navigator) {
   catch (e) { return { ok: false, raison: e?.name === 'AbortError' ? 'annule' : 'echec' }; }
 }
 
+const urlsEmises = new Set();
+/** Révoque les adresses « blob: » créées par « Enregistrer le fichier » : à l'effacement, le document complet ne reste pas adressable en mémoire (L8c, revue L8 m1). */
+export function revoquerExports() {
+  for (const url of urlsEmises) { try { URL.revokeObjectURL(url); } catch { /* déjà révoquée */ } }
+  urlsEmises.clear();
+}
+
+/**
+ * Vide le presse-papiers (texte vide). L'écriture part IMMÉDIATEMENT, avant toute attente : appelée dans le toucher de « Confirmer : clôturer et effacer », elle
+ * profite du geste de l'utilisateur, que Safari exige (L8c, revue L8 M3 ; refus sur iPhone SUPPOSÉ, à mesurer : T16).
+ * @returns {Promise<'vide'|'echec'>}
+ */
+export function viderPressePapiers(nav = globalThis.navigator) {
+  try { return Promise.resolve(nav.clipboard.writeText('')).then(() => 'vide', () => 'echec'); } catch { return Promise.resolve('echec'); }
+}
+
+/**
+ * Empreinte du CONTENU transmis (hors heure d'établissement et hors entrées sans contenu : reprise, export, version, horloge, chronomètres, échéances…).
+ * Elle ne dépend ni de la structure ni des codes sensibles de l'appareil (lus en différé au lancement : une reprise rapide ne doit pas périmer à tort la remise). Elle est gardée dans `fiche.export` à la remise : si elle change ensuite, le document remis est PÉRIMÉ (L8c, revue L8 M2). Ce n'est pas un secret : un hachage simple.
+ */
+const ENTREES_SANS_CONTENU = ['reprise', 'export', 'version_differente', 'horloge_modifiee', 'chronometre', 'echeance', 'rattrapage', 'purge_reportee', 'stockage_echec'];
+export function empreinteContenu(entree) {
+  const copie = structuredClone(entree.fiche);
+  copie.journal = copie.journal.filter((e) => !ENTREES_SANS_CONTENU.includes(e.type));
+  const texte = documentTexte(modeleDocument({ ...entree, structure: null, champsSensibles: {}, fiche: copie, maintenant: 0, version: '' }));
+  let h = 5381;
+  for (let i = 0; i < texte.length; i++) h = ((h * 33) ^ texte.charCodeAt(i)) >>> 0;
+  return h.toString(16);
+}
+
 /** Enregistrement par lien de téléchargement : seulement sur un geste explicite, après l'avertissement (jamais par défaut, 2.11). */
 export function telechargerFichier(entree, { doc = globalThis.document } = {}) {
   const fichier = fichierDocument(entree);
   const url = URL.createObjectURL(fichier);
+  urlsEmises.add(url);
   const a = doc.createElement('a');
   a.href = url; a.download = fichier.name; a.hidden = true;
   doc.body.append(a);

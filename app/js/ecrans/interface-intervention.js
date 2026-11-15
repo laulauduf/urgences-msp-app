@@ -356,7 +356,7 @@ export class InterfaceIntervention {
         structure: () => this.structure, champsSensibles: () => i.champsSensibles, appelant: () => i.appelant, protocoleId: i.protocoleId,
         effacer: () => i.cloturerEtEffacer(),
         apresEffacement: (res) => this.actions.effacee?.(res),
-        auFermer: () => this.ouvrirPanneau(null),
+        auFermer: () => (i.detruite ? this.actions.terminee() : this.ouvrirPanneau(null)),   // L8c (revue L8 m2) : l'intervention est déjà terminée (effacement échoué) : retour à l'accueil, où la fiche attend (Exporter, Effacer)
       });
     } else if (this.panneau === 'fiche') {
       afficherFiche(contenu, { intervention: i, etat: this.fb });

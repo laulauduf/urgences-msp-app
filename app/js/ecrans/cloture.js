@@ -5,10 +5,10 @@
 // enfin « Clôturer et effacer » (actif après une remise confirmée) ou « Effacer sans exporter » (seconde confirmation explicite).
 // Écran avec état propre : il se redessine lui-même et n'est jamais reconstruit sur un « changement » de l'intervention (l'interface le garde à l'écart).
 import { creer, bouton, heureLocale } from '../dom.js';
-import { construireTransmission } from '../bilan.js';
+import { construireTransmission, pageJournal } from '../bilan.js';
 import {
   AVERTISSEMENT_PARTAGE, AVERTISSEMENT_SAUVEGARDE, AVERTISSEMENT_PRESSE_PAPIERS, QUESTION_REMISE, MOYENS, messageEffacement,
-  peutPartager, partagerFichier, telechargerFichier, copierTexte, imprimerDocument, retirerImpression,
+  peutPartager, partagerFichier, telechargerFichier, copierTexte, imprimerDocument, retirerImpression, empreinteContenu, viderPressePapiers, revoquerExports,
 } from '../export.js';
 import { afficherTransmission } from './transmission.js';
 
@@ -31,7 +31,7 @@ export function afficherCloture(conteneur, ctx) {
     if (etat.vue === 'smur') { rendreApercu(); return; }
     const page = creer('section', 'ecran-cloture', '', { 'aria-label': 'Clôture et export' });
     const titre = creer('div', 'panneau-titre');
-    titre.append(creer('h1', 'cloture-titre', 'Clôture et export'), bouton(ctx.libelleFermer ?? 'Fermer', 'bouton', () => { demonter(); ctx.auFermer(); }, { id: 'fermer-cloture' }));
+    titre.append(creer('h1', 'cloture-titre', 'Clôture et export'), ...(ctx.auUrgence ? [bouton('URGENCE', 'bouton bouton-urgence', () => { demonter(); ctx.auUrgence(); }, { id: 'cloture-urgence' })] : []), bouton(ctx.libelleFermer ?? 'Fermer', 'bouton', () => { demonter(); ctx.auFermer(); }, { id: 'fermer-cloture' }));
     page.append(titre);
 
     // 1. remise en main propre : d'abord
@@ -66,7 +66,9 @@ export function afficherCloture(conteneur, ctx) {
       }
       partage.append(
         bouton('Enregistrer le fichier', 'bouton bouton-plein', () => {
-          telechargerFichier(entree()); etat.moyen = 'enregistrement'; etat.question = true; etat.partage = false; etat.message = ''; rendre();
+          try { telechargerFichier(entree()); etat.moyen = 'enregistrement'; etat.question = true; etat.partage = false; etat.message = ''; etat.erreur = ''; }
+          catch { etat.erreur = "Le fichier n'a pas pu être enregistré sur cet appareil : montrez ou imprimez le document."; }
+          rendre();
         }, { id: 'cloture-enregistrer' }),
         bouton('Annuler', 'bouton bouton-plein', () => { etat.partage = false; etat.message = ''; rendre(); }, { id: 'cloture-partage-annuler' }),
       );
@@ -76,6 +78,7 @@ export function afficherCloture(conteneur, ctx) {
     // 3. copie : en dernier, avec son avertissement lisible AVANT le geste
     const copie = creer('div', 'cloture-groupe');
     copie.append(
+      creer('p', 'cloture-avertissement', AVERTISSEMENT_PARTAGE, { id: 'cloture-avertissement-copie-sante' }),   // L8c (revue L8 M1) : données de santé, messagerie déconseillée — AVANT la copie (4.10.3)
       creer('p', 'cloture-avertissement', AVERTISSEMENT_PRESSE_PAPIERS, { id: 'cloture-avertissement-copie' }),
       bouton('Copier le texte', 'bouton bouton-plein', async () => {
         etat.message = ''; etat.erreur = '';
@@ -99,11 +102,14 @@ export function afficherCloture(conteneur, ctx) {
         bouton('Non, réessayer', 'bouton', () => { etat.question = false; etat.moyen = null; rendre(); }, { id: 'cloture-remis-non' }));
       page.append(q);
     }
-    if (fiche.export) page.append(creer('p', 'cloture-statut', `Remise confirmée à ${heureLocale(fiche.export.fait_le)} (${MOYENS[fiche.export.moyen] ?? fiche.export.moyen})`, { id: 'cloture-statut', role: 'status' }));
+    // L8c (revue L8 M2) : une donnée ajoutée APRÈS la remise la périme — le SMUR a un document incomplet ; on ne laisse pas effacer ce qui n'a pas été remis
+    const perime = Boolean(fiche.export?.empreinte) && fiche.export.empreinte !== empreinteContenu(entree());
+    if (perime) page.append(creer('p', 'cloture-avertissement', `Fiche modifiée depuis la remise de ${heureLocale(fiche.export.fait_le)} — exportez à nouveau (ou choisissez « Effacer sans exporter »).`, { id: 'cloture-perime', role: 'alert' }));
+    if (fiche.export && !perime) page.append(creer('p', 'cloture-statut', `Remise confirmée à ${heureLocale(fiche.export.fait_le)} (${MOYENS[fiche.export.moyen] ?? fiche.export.moyen})`, { id: 'cloture-statut', role: 'status' }));
 
     // 5. clôture
     const fin = creer('div', 'cloture-groupe cloture-fin');
-    const exportee = Boolean(fiche.export);
+    const exportee = Boolean(fiche.export) && !perime;
     if (etat.confirmeEffacer) {
       fin.append(creer('p', 'cloture-avertissement', 'Effacer définitivement cette fiche de cet appareil ?'),
         bouton('Confirmer : clôturer et effacer', 'bouton bouton-urgence bouton-plein', () => effacer(), { id: 'cloture-effacer-confirme' }),
@@ -128,7 +134,7 @@ export function afficherCloture(conteneur, ctx) {
 
   /** Aperçu « Montrer au SMUR » : les pages du mode transmission, en gros caractères, SANS modification possible ici. */
   function rendreApercu() {
-    const pages = construireTransmission(entree());
+    const pages = [...construireTransmission(entree()), pageJournal(fiche)];   // + la frise du journal (L8c, revue L8 m3)
     afficherTransmission(conteneur, {
       pages, etat: etat.tr, intervention: null,
       auFermer: () => { etat.vue = 'cloture'; etat.moyen = 'montre'; etat.question = true; rendre(); },   // au retour : « Le document a-t-il été remis ? »
@@ -140,19 +146,26 @@ export function afficherCloture(conteneur, ctx) {
   function confirmerRemise() {
     const moyen = etat.moyen ?? 'montre';
     stockage.journaliser(fiche, 'export', { moyen });
-    stockage.modifier(fiche, (f) => { f.export = { fait_le: Date.now(), moyen }; }, { immediat: true });
+    stockage.modifier(fiche, (f) => { f.export = { fait_le: Date.now(), moyen, empreinte: empreinteContenu(entree()) }; }, { immediat: true });
     etat.question = false; etat.moyen = null; etat.message = '';
     rendre();
   }
 
   async function effacer() {
     if (etat.occupe) return;
+    // M3 (revue L8) : le presse-papiers est vidé EN PREMIER, dans le toucher, avant toute attente — l'iPhone n'autorise l'écriture que dans le geste de l'utilisateur.
+    // Sans risque : si l'effacement échoue, la fiche est encore là et on peut recopier. m1 : les adresses « blob: » du fichier enregistré sont révoquées aussitôt.
+    const vidage = fiche.presse_papiers_utilise ? viderPressePapiers() : null;
+    revoquerExports();
     etat.occupe = true; etat.confirmeEffacer = false; etat.confirmeSans = false; etat.message = 'Effacement en cours…'; etat.erreur = '';
     rendre();
     let res;
     try { res = await ctx.effacer(); } catch (e) { res = { ok: false, raison: e?.message ?? 'effacement impossible' }; }
     etat.occupe = false;
-    if (res?.ok) { demonter(); ctx.apresEffacement(res); return; }
+    if (res?.ok) {
+      if (vidage && (await vidage) === 'vide') res = { ...res, pressePapiers: 'vide' };   // vidé dans le geste : c'est ce qui compte, même si le second essai du stockage est refusé
+      demonter(); ctx.apresEffacement(res); return;
+    }
     etat.message = ''; etat.erreur = messageEffacement(res);
     rendre();
   }

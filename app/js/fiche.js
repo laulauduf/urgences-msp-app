@@ -101,7 +101,7 @@ export function verifierFiche(fiche, modeAttendu) {
 export function resumer(fiche) {
   return {
     id: fiche.id, mode: fiche.mode, etat: fiche.etat, cree_le: fiche.cree_le, derniere_activite: fiche.derniere_activite,
-    expire_le: fiche.expire_le, terminee_le: fiche.terminee_le, export_fait: fiche.export !== null && fiche.export !== undefined,
+    expire_le: fiche.expire_le, terminee_le: fiche.terminee_le, presse_papiers_utilise: fiche.presse_papiers_utilise === true, export_fait: fiche.export !== null && fiche.export !== undefined,
   };
 }
 

@@ -15,6 +15,8 @@ export const TYPES_CONSTANTE = [
   { id: 'glycemie', libelle: 'Glycémie capillaire', clavier: 'decimal' },
   { id: 'douleur', libelle: 'Douleur', clavier: 'decimal' },
 ];
+/** Libellés des moyens de remise (écran de clôture, journal) : ici, pour que le journal ne dise jamais le code interne (L8c, revue L8 m4). */
+export const MOYENS = { montre: 'montré au SMUR', impression: 'imprimé', partage: 'partagé', enregistrement: 'enregistré dans un fichier', copie: 'copié dans le presse-papiers' };
 const libelleType = (id) => TYPES_CONSTANTE.find((t) => t.id === id)?.libelle ?? String(id);
 
 const deux = (n) => String(n).padStart(2, '0');
@@ -243,7 +245,7 @@ export function libelleEntree(e) {
     case 'version_differente': return `Appli mise à jour : version ${d.de ?? '?'} → ${d.vers ?? '?'}`;
     case 'secours_protocole': return 'Protocole illisible : écran de secours';
     case 'purge_reportee': return "Délai d'effacement atteint (effacement reporté)";
-    case 'export': return d.moyen ? `Export confirmé : ${d.moyen}` : 'Export';   // moyen : montre | impression | partage | enregistrement | copie (L8)
+    case 'export': return d.moyen ? `Export confirmé : ${MOYENS[d.moyen] ?? d.moyen}` : 'Export';
     case 'note': return d.texte ?? 'Note';
     case 'correction': return `Correction : ${d.texte ?? ''}`.trim();
     default: return String(e?.type ?? 'entrée');
@@ -266,4 +268,14 @@ export function frise(fiche) {
     if (cible) { cible.corrections.push({ texte: c.donnees?.texte ?? '', heure: hhmm(c.t), tPlus: formaterT((c.t_ecoule ?? 0) * 1000) }); cible.barree = true; }
   }
   return lignesFrise;
+}
+
+/** Page « Journal » de l'aperçu « Montrer au SMUR » (L8c, revue L8 m3) : la frise, avec heure ET T+, les entrées corrigées marquées et leur correction. */
+export function pageJournal(fiche) {
+  const l = [];
+  for (const e of frise(fiche)) {
+    l.push({ valeur: `${e.heure} · ${e.tPlus} ${e.texte}${e.barree ? ' (corrigé)' : ''}` });
+    for (const c of e.corrections) l.push({ valeur: `correction à ${c.heure} (${c.tPlus}) : ${c.texte}` });
+  }
+  return { id: 'journal', titre: 'Journal', lignes: l };
 }

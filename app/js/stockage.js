@@ -425,7 +425,11 @@ export function creerStockage({
         const decision = decisionPurge(r, { maintenant: maintenant(), delaiH, passage, afficheeId, horlogeSuspecte: suspecte, repriseMaxH: config.repriseMaxH });
         if (decision === 'effacer') {
           const res = await effacerFiche(mode, r.id);
-          if (res.ok) bilan.effacees.push(r.id); else bilan.erreurs += 1;
+          if (res.ok) {
+            bilan.effacees.push(r.id);
+            // L8c (revue L8 m7) : une fiche copiée a été effacée sans que le presse-papiers ait pu être vidé (hors geste, souvent refusé) : on le DIT
+            if (res.pressePapiers === 'echec') emettre('presse_papiers_non_vide', { id: r.id, mode });
+          } else bilan.erreurs += 1;
         } else if (decision === 'reporter' && !reportees.has(r.id)) {
           reportees.add(r.id);
           bilan.reportees.push(r.id);

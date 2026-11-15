@@ -19,7 +19,7 @@ import { Son } from './son.js';
 import { EcranAllume } from './ecran-allume.js';
 import { lireNumeros, chargerNumeros } from './numeros.js';
 import { afficherCloture } from './ecrans/cloture.js';
-import { messageEffacement } from './export.js';
+import { messageEffacement, viderPressePapiers } from './export.js';
 import { appelant } from './roles.js';
 
 // Thème mémorisé localement : appliqué avant tout le reste, pour éviter un clignotement clair → sombre.
@@ -60,7 +60,9 @@ async function rafraichirEnAttente() {
     reprendre: (r) => reprendreFiche(r),
     exporter: (r) => ouvrirCloture(r),
     effacer: async (r) => {
-      const res = await stockage.effacerFiche(r.mode, r.id);
+      const vidage = r.presse_papiers_utilise ? viderPressePapiers() : null;   // EN PREMIER, dans le toucher (L8c, revue L8 M3)
+      let res = await stockage.effacerFiche(r.mode, r.id);
+      if (res.ok && vidage && (await vidage) === 'vide') res = { ...res, pressePapiers: 'vide' };
       if (ui === app.accueilUI) {
         // revue m10 (2.9) : le résultat est dit — heure d'effacement, ou cause de l'échec avec invitation à réessayer (L8 : et le sort du presse-papiers)
         ui.afficherResultat(messageEffacement(res));
@@ -93,6 +95,8 @@ async function ouvrirCloture(resume) {
     effacer: () => stockage.effacerFiche(fiche.mode, fiche.id),
     apresEffacement: (res) => { stockage.definirAffichee(null); montrerAccueil(); app.accueilUI.afficherResultat(messageEffacement(res)); },
     auFermer: () => { stockage.definirAffichee(null); montrerAccueil(); },
+    // URGENCE reste à un toucher même sur cet écran (L8c, revue L8 m8) ; la fiche exportée reste en attente, intacte
+    auUrgence: () => { stockage.definirAffichee(null); demarrerUrgence('reel'); },
     libelleFermer: "Retour à l'accueil",
   });
   contenu.focus();
@@ -220,6 +224,7 @@ function brancherStockage() {
       poserBandeau('stockage', e.actif ? 'Fiche non enregistrée — ne fermez pas l\'appli' : null);
       definirPoint('stockage', { texte: e.actif ? 'Stockage de l\'appareil indisponible : les fiches ne sont pas enregistrées' : 'Stockage de l\'appareil opérationnel', ok: !e.actif });
     }
+    if (e.type === 'presse_papiers_non_vide') poserBandeau('presse', 'Une fiche effacée avait été copiée : videz le presse-papiers (la copie peut contenir des données de santé)');
     if (e.type === 'purge_reportee') poserBandeau('purge', 'Délai d\'effacement atteint — exportez maintenant ou effacez');
     if (e.type === 'horloge') poserBandeau('horloge', 'Horloge du téléphone modifiée — vérifier puis effacer', { bouton: { libelle: "J'ai vérifié l'heure", action: () => stockage.acquitterHorloge() } });
   });
