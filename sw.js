@@ -63,8 +63,11 @@ self.addEventListener('install', (evenement) => {
 
 self.addEventListener('activate', (evenement) => {
   evenement.waitUntil((async () => {
+    // Revue M2 : le navigateur active seul une version en attente quand plus aucune page n'est ouverte (fermeture forcée, retour d'un appel `tel:`),
+    // même si une fiche est restée ouverte : ce script ne peut pas l'empêcher. On ne supprime alors PAS l'ancien cache (il sera nettoyé à une
+    // activation sans fiche) ; la page, elle, signale le changement de version à la reprise (parade 3, bandeau + journal « version_differente »).
     const noms = await caches.keys();
-    await Promise.all(noms.filter((n) => n.startsWith(PREFIXE_CACHE) && n !== NOM_CACHE).map((n) => caches.delete(n)));
+    if (!(await ficheOuverte())) await Promise.all(noms.filter((n) => n.startsWith(PREFIXE_CACHE) && n !== NOM_CACHE).map((n) => caches.delete(n)));
     await self.clients.claim();
   })());
 });

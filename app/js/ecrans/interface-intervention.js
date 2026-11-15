@@ -3,7 +3,17 @@
 // RÈGLES : rien ne recouvre l'en-tête, la barre du bas ni les tuiles vitales ; aucun bouton n'attend le stockage ; la barre n'affiche que les
 // écrans DÉJÀ LIVRÉS (aucun lien vers un écran pas encore écrit) ; aucun ordre ni texte médical en dur — tout vient du protocole.
 import { creer, bouton, heureLocale } from '../dom.js';
-import { formaterDuree, texteDepassement, MARQUE_PROVISOIRE } from '../horloge.js';
+import { formaterDuree, texteDepassement, MARQUE_PROVISOIRE, MARQUE_A_VALIDER } from '../horloge.js';
+
+/**
+ * Marques à ajouter après le texte d'un chronomètre (zone du cycle, rappel, bandeau d'échéance) : « provisoire — non validé » si le protocole
+ * porte `provisoire` (sauf si la note le dit déjà) et A_VALIDER si le contenu n'est pas établi (revue m6). Jamais d'ajout sans l'une de ces causes.
+ */
+function suffixeMarques(c, { note = c.note } = {}) {
+  const dejaProvisoire = /provisoire/i.test(note ?? '');
+  const provisoire = (c.provisoire || c.noteProvisoire) && !dejaProvisoire ? ` — ${MARQUE_PROVISOIRE}` : '';
+  return `${provisoire}${c.aValider ? ` — ${MARQUE_A_VALIDER}` : ''}`;
+}
 import { afficherSecours } from './secours.js';
 import { afficherAlerte } from './alerte.js';
 import { afficherLieu } from './lieu.js';
@@ -32,6 +42,7 @@ export class InterfaceIntervention {
   constructor({ intervention, son, ecran, numeros, structure, groupes = () => [], actions }) {
     Object.assign(this, { intervention, son, ecran, numerosFn: numeros, structureFn: structure, groupesFn: groupes, actions });
     this.panneau = null;            // null | 'alerte' | 'lieu' | 'menu' | 'situation' | 'roles' | 'profession' | 'checklist' | 'glossaire'
+    this.repriseRepliee = false; this.versionVue = false;   // bandeaux « Fiche reprise » (replié au premier toucher) et « Appli mise à jour » (acquitté)
     this.retourA = null;            // écran d'où l'on vient (null = l'écran principal) : « Fermer » y revient — aujourd'hui seulement la checklist
     this.cl = etatChecklistInitial();   // étapes dépliées, saisie de l'heure : survit au redessin de la checklist
     this.secours = null; this.minuteur = null; this.debranchements = []; this.messageTest = null; this.echeances = new Map();
@@ -50,6 +61,15 @@ export class InterfaceIntervention {
     this.construireEntete();
     this.construireBarre();
     this.debranchements.push(this.intervention.ecouter((e) => this.surEvenement(e)));
+    // premier toucher dans la fiche reprise : le bandeau « Fiche reprise » se replie APRÈS l'action touchée (jamais entre le toucher et le clic :
+    // le contenu ne bouge pas sous le doigt)
+    const marquerToucher = () => { if (this.intervention.repriseDe) this.repriseRepliee = true; };
+    const replier = () => { if (this.intervention.repriseDe && this.repriseRepliee) this.majBandeauxFixes(); };
+    for (const zoneToucher of [this.zone.contenu, this.zone.barre]) {
+      zoneToucher.addEventListener('click', marquerToucher, true);   // capture : le drapeau est posé avant l'action, qui redessine l'écran
+      zoneToucher.addEventListener('click', replier);               // bulle : sans redessin, on replie quand même, après l'action
+      this.debranchements.push(() => { zoneToucher.removeEventListener('click', marquerToucher, true); zoneToucher.removeEventListener('click', replier); });
+    }
     this.son.onBattement = () => this.pulser();
     this.son.onEtat = () => this.majBandeauxSon();
     this.ecran.onEtat = () => this.majBandeauxSon();
@@ -70,7 +90,7 @@ export class InterfaceIntervention {
     const { appli, entete, barre, bandeaux } = this.zone;
     appli.classList.remove('gabarit');
     entete.hidden = true; barre.hidden = true; entete.replaceChildren(); barre.replaceChildren();
-    for (const b of bandeaux.querySelectorAll('[data-bandeau="simulation"],[data-bandeau="reprise"],[data-bandeau="son"],[data-bandeau="ecran"],[data-bandeau="echeance"],[data-bandeau="rattrapage"]')) b.remove();
+    for (const b of bandeaux.querySelectorAll('[data-bandeau="simulation"],[data-bandeau="reprise"],[data-bandeau="version"],[data-bandeau="son"],[data-bandeau="ecran"],[data-bandeau="echeance"],[data-bandeau="rattrapage"]')) b.remove();
     delete document.body.dataset.mode; delete document.body.dataset.texte;
   }
 
@@ -176,7 +196,7 @@ export class InterfaceIntervention {
     const poser = (cle, texte) => {
       const zone = this.zone.bandeaux;
       zone.querySelector(`[data-bandeau="${cle}"]`)?.remove();
-      if (texte) { const b = creer('div', 'bandeau bandeau-avertissement', texte, { 'data-bandeau': cle }); zone.append(b); }
+      if (texte) { const b = creer('div', 'bandeau bandeau-avertissement', texte, { 'data-bandeau': cle, title: texte }); zone.append(b); }
     };
     poser('son', this.son.etat().bandeau);
     poser('ecran', this.ecran.etat().avertissement);
@@ -186,7 +206,7 @@ export class InterfaceIntervention {
     if (alerte === 'aucune') return;
     const def = this.intervention.definitions.find((d) => d.id === id);
     const texte = [def?.libelle ?? id, def?.note].filter(Boolean).join(' — ');
-    this.poserBandeauTemporaire('echeance', `Échéance : ${texte}`, 15000);
+    this.poserBandeauTemporaire('echeance', `Échéance : ${texte}${def ? suffixeMarques(def) : ''}`, 15000);   // les mêmes marques que la zone du cycle (revue m6)
   }
 
   afficherRattrapage({ franchies }) {
@@ -197,7 +217,7 @@ export class InterfaceIntervention {
   poserBandeauTemporaire(cle, texte, dureeMs) {
     const zone = this.zone.bandeaux;
     zone.querySelector(`[data-bandeau="${cle}"]`)?.remove();
-    const b = creer('div', 'bandeau bandeau-avertissement', texte, { 'data-bandeau': cle, role: 'status' });
+    const b = creer('div', 'bandeau bandeau-avertissement', texte, { 'data-bandeau': cle, role: 'status', title: texte });
     b.append(' ', bouton('OK', 'bouton', () => b.remove()));
     zone.append(b);
     setTimeout(() => b.remove(), dureeMs);
@@ -248,6 +268,7 @@ export class InterfaceIntervention {
     const i = this.intervention;
     zone.querySelector('[data-bandeau="simulation"]')?.remove();
     zone.querySelector('[data-bandeau="reprise"]')?.remove();
+    zone.querySelector('[data-bandeau="version"]')?.remove();
     if (i.simulation) {
       // texte + couleur + motif rayé, différent de tout autre bandeau ; présent sur CHAQUE écran de simulation
       const b = creer('div', 'bandeau-simulation', '', { 'data-bandeau': 'simulation' });
@@ -257,9 +278,21 @@ export class InterfaceIntervention {
       zone.prepend(b);
     }
     if (i.repriseDe) {
-      const b = creer('div', 'bandeau', `Fiche reprise — intervention commencée à ${heureLocale(i.repriseDe.debut)}`, { 'data-bandeau': 'reprise' });
-      b.append(' ', bouton('NOUVELLE URGENCE', 'bouton bouton-urgence', () => this.actions.nouvelleUrgence(), { id: 'nouvelle-urgence-reprise' }),
-        bouton('Accueil', 'bouton', () => this.actions.accueil(), { id: 'accueil-reprise' }));
+      // UNE ligne (revue M3). Tant que personne n'a rien touché dans la fiche, les deux boutons y sont ; dès le premier toucher le bandeau se
+      // replie en texte seul (le menu garde « Nouvelle urgence » et « Accueil », à 2 touchers) : il ne mange plus l'écran pendant le massage.
+      const texte = `Fiche reprise — intervention commencée à ${heureLocale(i.repriseDe.debut)}`;
+      const b = creer('div', 'bandeau', texte, { 'data-bandeau': 'reprise', title: texte });
+      if (!this.repriseRepliee) {
+        b.append(' ', bouton('NOUVELLE URGENCE', 'bouton bouton-urgence', () => this.actions.nouvelleUrgence(), { id: 'nouvelle-urgence-reprise' }),
+          bouton('Accueil', 'bouton', () => this.actions.accueil(), { id: 'accueil-reprise' }));
+      }
+      zone.append(b);
+    }
+    if (i.versionDifferente && !this.versionVue) {
+      // parade 3 (2.4, revue M2) : l'appli a changé de version pendant l'intervention ; dit une fois, acquittable en un toucher
+      const texte = `Appli mise à jour pendant l'intervention (version ${i.versionDifferente.de} → ${i.versionDifferente.vers})`;
+      const b = creer('div', 'bandeau bandeau-avertissement', texte, { 'data-bandeau': 'version', title: texte, role: 'status' });
+      b.append(' ', bouton('OK', 'bouton', () => { this.versionVue = true; b.remove(); }, { id: 'version-ok' }));
       zone.append(b);
     }
   }
@@ -274,7 +307,18 @@ export class InterfaceIntervention {
 
   // ───────── Écran courant ─────────
 
+  /**
+   * Dessine l'écran courant. Quand on CHANGE d'écran, la zone centrale repart du haut : sinon un écran ouvert après avoir fait défiler le précédent
+   * (ACR défilé jusqu'aux tuiles, puis ALERTER) apparaissait déjà défilé, « Appeler le 15 » hors de vue (trouvé par les tests de L6c).
+   * Un redessin du MÊME écran (case cochée, tuile touchée) garde la position.
+   */
   rendre() {
+    this.dessiner();
+    const cle = this.panneau ?? 'principal';
+    if (cle !== this.cleEcran) { this.zone.contenu.scrollTop = 0; this.cleEcran = cle; }
+  }
+
+  dessiner() {
     const i = this.intervention;
     const { contenu } = this.zone;
     this.secours?.arreter(); this.secours = null;
@@ -358,13 +402,14 @@ export class InterfaceIntervention {
     cycle.append(creer('p', 'cycle-statut', '', { id: 'cycle-statut' }));
     if (i.chronoCycle) {
       const note = i.chronoCycle.note;
-      if (note) cycle.append(creer('p', 'cycle-note', `${note}${i.chronoCycle.noteProvisoire ? ` — ${MARQUE_PROVISOIRE}` : ''}`, { id: 'cycle-note' }));
+      if (note) cycle.append(creer('p', 'cycle-note', `${note}${suffixeMarques(i.chronoCycle, { note })}`, { id: 'cycle-note' }));
       cycle.append(bouton(i.libelleRelance, 'bouton bouton-accent bouton-plein bouton-relance', () => i.relancerCycle(), { id: 'relance-cycle' }));
     }
     const evenements = creer('div', 'evenements', '', { id: 'evenements' });
     for (const ev of i.evenements) {
       const b = bouton('', 'bouton', () => { i.noterEvenement(ev.id); }, { 'data-evenement': ev.id });
       b.append(creer('span', null, ev.libelle), creer('span', 'compte', ` (${i.compteEvenement(ev.id)})`));
+      if (ev.statut === 'A_VALIDER') b.append(creer('span', 'marque', MARQUE_A_VALIDER));   // revue m6 : le contenu non établi se voit partout où il s'affiche
       evenements.append(b);
     }
     cycle.append(evenements);
@@ -411,8 +456,7 @@ export class InterfaceIntervention {
       for (const r of i.rappels) {
         const l = i.gestion.trouver(r.id) ? i.gestion.lire(r.id) : null;
         if (l?.statut !== 'echeance') continue;
-        const marque = (r.provisoire || r.noteProvisoire) && !/provisoire/i.test(r.note ?? '') ? ` — ${MARQUE_PROVISOIRE}` : '';
-        rappels.append(creer('p', 'rappel', `⏰ ${[r.libelle, r.note].filter(Boolean).join(' — ')}${marque}`));
+        rappels.append(creer('p', 'rappel', `⏰ ${[r.libelle, r.note].filter(Boolean).join(' — ')}${suffixeMarques(r)}`));
       }
     }
   }

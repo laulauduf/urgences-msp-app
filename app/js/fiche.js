@@ -88,6 +88,12 @@ export function verifierFiche(fiche, modeAttendu) {
   if (!['en_cours', 'terminee'].includes(fiche.etat)) raisons.push(`état inconnu « ${fiche.etat} »`);
   if (!Number.isFinite(fiche.cree_le)) raisons.push('date de création absente');
   if (!Array.isArray(fiche.journal)) raisons.push('journal absent');
+  else if (fiche.journal.length === 0) raisons.push('journal vide');
+  // revue m11 : une fiche lisible mais incomplète ferait échouer la reprise (promesse rejetée, fiche « affichée » mais invisible)
+  for (const champ of ['situations', 'chronometres', 'roles']) if (!Array.isArray(fiche[champ])) raisons.push(`${champ} absent ou mal formé`);
+  for (const champ of ['checklist', 'protocoles_utilises', 'versions_protocoles', 'lieu']) {
+    if (fiche[champ] === null || typeof fiche[champ] !== 'object' || Array.isArray(fiche[champ])) raisons.push(`${champ} absent ou mal formé`);
+  }
   return raisons;
 }
 

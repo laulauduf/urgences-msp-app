@@ -34,6 +34,7 @@ export class EcranAllume {
     this.enCours = true;
     try {
       const sentinelle = await this.navigateur.wakeLock.request('screen');
+      if (!this.demande) { try { await sentinelle.release?.(); } catch { /* rien */ } return false; }   // liberer() est passé pendant la demande : on rend aussitôt le verrou obtenu
       this.sentinelle = sentinelle; this.actif = true; this.raison = null;
       // le verrou est relâché quand l'appli passe en arrière-plan, en économie de batterie, etc. : on l'écoute
       sentinelle.addEventListener?.('release', () => { if (this.sentinelle === sentinelle) { this.actif = false; this.sentinelle = null; this.raison = 'relache'; this.signaler(); } });

@@ -31,7 +31,6 @@ self.URGENCES_LISTE_CACHE = [
   "app/js/liste-cache.js",
   "app/js/main.js",
   "app/js/mise-a-jour.js",
-  "app/js/navigation.js",
   "app/js/numeros.js",
   "app/js/professions.js",
   "app/js/protocole.js",

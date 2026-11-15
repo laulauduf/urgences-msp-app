@@ -499,3 +499,20 @@ body[data-mode="intervention"][data-texte="grand"] .ecran-checklist .bouton-gran
 .menu-intervention .bouton-plein { width: auto; min-width: 0; }
 .menu-intervention > p, .menu-intervention > #menu-terminer-confirme { grid-column: 1 / -1; }
 body[data-mode="intervention"][data-texte="grand"] .menu-intervention { grid-template-columns: minmax(0, 1fr); }
+
+/* ───────── Lot L6c, constat M3 de la revue du 15/11/2026 : l'écran reste utilisable quand les bandeaux s'empilent ─────────
+   Après une reprise : BROUILLON + « Fiche reprise » + « Son arrêté » + « Écran » (+ « Installez l'appli » dans Safari). Chaque bandeau d'intervention
+   tient sur UNE ligne en portrait aussi (texte tronqué, détail à l'attribut title) et l'en-tête se resserre (la ligne des rôles reste complète en portrait, 4.4) : la zone centrale garde la place des tuiles, de la relance du cycle et de « Appeler le 15 ». */
+body[data-mode="intervention"] .bandeau { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-block: 0.125rem; font-size: 0.75rem; }
+body[data-mode="intervention"] .bandeau .bouton { min-height: 48px; padding-block: 0; font-size: 0.75rem; vertical-align: middle; }
+@media (max-width: 480px) {
+  body[data-mode="intervention"] .entete { gap: 0.25rem var(--espace); padding-block: 0.25rem; }
+}
+/* Écran de hauteur limitée (petit téléphone en portrait, 4.3 bis) : la zone « cycle » se compacte — décompte, statut et note sur les mêmes lignes,
+   relance et événements pleine largeur — pour que « Relancer le cycle » reste visible sans défilement. */
+@media (max-height: 700px) and (orientation: portrait) {
+  .zone-cycle { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 0.125rem 0.75rem; padding: 0.25rem 0.5rem; }
+  .cycle-decompte { font-size: 2rem; }
+  .zone-cycle .bouton-relance, .zone-cycle .evenements, .zone-cycle .rappels { flex: 1 1 100%; }
+  .bouton-relance { min-height: 56px; font-size: 1.125rem; }
+}

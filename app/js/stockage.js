@@ -141,18 +141,19 @@ export function creerStockage({
         const valeurs = await executer(BASES.reglages, MAGASIN_REGLAGES, 'readonly', (s) => s.getAll());
         reglagesCache ??= normaliser(Object.fromEntries(cles.map((c, i) => [c, valeurs[i]])));
       } catch {
-        reglagesCache ??= normaliser({});
+        // revue m7 : un ÉCHEC n'est pas gardé en cache (sinon le délai d'effacement et la profession réglés seraient ignorés toute la session) ;
+        // on renvoie les valeurs par défaut cette fois-ci, la lecture suivante réessaiera
       }
     })().finally(() => { lectureReglages = null; });
     await lectureReglages;
-    return structuredClone(reglagesCache);
+    return structuredClone(reglagesCache ?? normaliser({}));
   }
 
   /** Écrit un réglage. La valeur est prise en compte TOUT DE SUITE en mémoire ; renvoie true si l'écriture a aussi réussi. */
   async function ecrireReglage(cle, valeur) {
     if (!CLES_REGLAGES.includes(cle)) throw new Error(`réglage inconnu : ${cle}`);
     if (!reglagesCache) await lireReglages(); // cache présent : la valeur est prise en compte SYNCHRONEMENT (un lecteur qui suit ne voit jamais l'ancienne)
-    reglagesCache = normaliser({ ...reglagesCache, [cle]: valeur });
+    reglagesCache = normaliser({ ...(reglagesCache ?? {}), [cle]: valeur });
     try { await executer(BASES.reglages, MAGASIN_REGLAGES, 'readwrite', (s) => s.put(reglagesCache[cle], cle)); return true; } catch { return false; }
   }
 
@@ -163,11 +164,15 @@ export function creerStockage({
     try { await executer(BASES.reglages, MAGASIN_REGLAGES, 'readwrite', (s) => s.put(valeur === true, 'fiche_ouverte')); return true; } catch { return false; }
   }
   async function recalculerIndicateur() {
-    let enCours = [...suivi.values()].some((s) => s.fiche.etat === 'en_cours' && !s.efface);
+    const suivieEnCours = () => [...suivi.values()].some((s) => s.fiche.etat === 'en_cours' && !s.efface);
+    let enCours = suivieEnCours();
     if (!enCours) {
       for (const mode of ['reel', 'simulation']) {
         try { if ((await listerResumes(mode)).resumes.some((r) => r.etat === 'en_cours')) { enCours = true; break; } } catch { /* base illisible : on ne bloque pas les mises à jour sur un doute */ }
       }
+      // revue m4 : URGENCE a pu être touché PENDANT la lecture ci-dessus (fiche créée, indicateur déjà écrit à « vrai ») : on relit juste avant
+      // d'écrire, pour ne jamais effacer cet indicateur par un « faux » calculé sur un état périmé
+      enCours = enCours || suivieEnCours();
     }
     return ecrireIndicateur(enCours);
   }
@@ -316,7 +321,8 @@ export function creerStockage({
   async function nomsDesBases() {
     const f = idb();
     if (!f || typeof f.databases !== 'function') return null;
-    try { return (await f.databases()).map((b) => b.name); } catch { return null; }
+    // revue m7 : sans réponse en 3 s, on renvoie « inconnu » (null) — sinon la purge d'ouverture ne finirait jamais et la reprise serait impossible
+    try { return (await avecDelai(Promise.resolve(f.databases()), 3000, 'databases() sans réponse')).map((b) => b.name); } catch { return null; }
   }
 
   function nettoyerStockagesWeb({ tout = false } = {}) {
@@ -376,6 +382,9 @@ export function creerStockage({
 
   /** « Réinitialiser l'appli » (2.9) : les trois bases, localStorage, sessionStorage et les caches de l'appli ; vérifié ; puis le service worker est retiré (il se réinstalle au rechargement). */
   async function reinitialiser() {
+    // PROVISOIRE — pilote, 15/11, revue m5/m8 (m8) : sans réseau, supprimer les caches et le service worker rendrait l'appli impossible à rouvrir
+    // (URGENCE compris). On refuse AVANT de toucher à quoi que ce soit ; à reprendre avec Laurent.
+    if (globalThis.navigator?.onLine === false) return { ok: false, restes: ["hors ligne : réinitialisation refusée (l'appli ne pourrait plus se rouvrir) — recommencez avec du réseau"] };
     for (const s of suivi.values()) { s.efface = true; clearTimeout(s.minuteur); }
     suivi.clear(); nonEnregistrees.clear(); reportees.clear(); reglagesCache = null; afficheeId = null;
     const restes = [];
@@ -413,7 +422,7 @@ export function creerStockage({
         ...listes.incoherentes.filter((i) => i.cree_le !== null && typeof i.id === 'string').map((i) => ({ id: i.id, cree_le: i.cree_le, expire_le: undefined, etat: 'terminee' })),
       ];
       for (const r of aExaminer) {
-        const decision = decisionPurge(r, { maintenant: maintenant(), delaiH, passage, afficheeId, horlogeSuspecte: suspecte });
+        const decision = decisionPurge(r, { maintenant: maintenant(), delaiH, passage, afficheeId, horlogeSuspecte: suspecte, repriseMaxH: config.repriseMaxH });
         if (decision === 'effacer') {
           const res = await effacerFiche(mode, r.id);
           if (res.ok) bilan.effacees.push(r.id); else bilan.erreurs += 1;

@@ -19,6 +19,9 @@ export function afficherAccueil(conteneur, { auUrgence, auSimulation, auxReglage
   const attente = creer('div', 'en-attente');
   attente.id = 'en-attente';
   page.append(attente);
+  // résultat d'un effacement (2.9, revue m10) : « Fiche effacée à hh:mm » ou la cause de l'échec — jamais un échec silencieux
+  const resultat = creer('p', 'confirmation', '', { id: 'resultat-effacement', role: 'status' });
+  page.append(resultat);
   const liens = creer('div', 'accueil-liens');
   // chaque lien n'apparaît qu'à partir du lot qui livre son écran (4.1) : le glossaire est livré au lot L6
   liens.append(bouton('Simulation', 'bouton', auSimulation, { id: 'ouvrir-simulation' }));
@@ -28,6 +31,7 @@ export function afficherAccueil(conteneur, { auUrgence, auSimulation, auxReglage
   conteneur.replaceChildren(page);
 
   return {
+    afficherResultat(texte) { resultat.textContent = texte; },
     /** Lignes « fiche en attente » sous URGENCE : jamais plus grandes que le bouton, jamais devant lui. */
     afficherEnAttente(lignes, { reprendre, effacer }) {
       attente.replaceChildren();

@@ -27,7 +27,7 @@ export class Intervention {
     this.situation = null;                                                 // null (choix en cours) | ACR | AUTRE
     this.definitions = []; this.metronome = null; this.gestion = null; this.horloge = null;
     this.auditeurs = new Set(); this.debranchements = []; this.prefetch = null; this.dernierGlobal = 0;
-    this.repriseDe = null; this.detruite = false; this.tuileTouchee = false;
+    this.repriseDe = null; this.versionDifferente = null; this.detruite = false; this.tuileTouchee = false;
     this.profession = null; this.personnes = [];   // réglages de l'appareil (L3), chargés au démarrage : profession courante, personnes connues
   }
 
@@ -71,6 +71,7 @@ export class Intervention {
     this.fiche = fiche; this.mode = fiche.mode; this.repriseDe = { automatique, debut: fiche.journal[0]?.t ?? fiche.cree_le };
     this.stockage.definirAffichee(fiche.id);
     this.initialiserTemps();
+    this.son.preparer?.();   // M1 : contexte audio créé (suspendu) pour que le bandeau « Son arrêté » s'affiche ; le premier toucher le reprend
     this.ecran.demander().catch?.(() => {});
     const derniere = fiche.situations.at(-1);
     this.situation = derniere ? (derniere.protocole === this.protocoleId ? ACR : AUTRE) : null;
@@ -86,6 +87,15 @@ export class Intervention {
       }
     }
     this.tuileTouchee = this.etapesPremierEcran().some((e) => this.estCochee(e.id)) || fiche.chronometres.length > 0;
+    // Parade 3 (2.4, revue M2) : une version du code peut s'être activée entre-temps (un service worker en attente s'active seul quand plus aucune page
+    // n'est ouverte : le navigateur l'impose). On le DIT (bandeau + journal), une seule fois : la fiche prend alors la version courante.
+    const courante = globalThis.URGENCES_VERSION;
+    const de = fiche.version_appli;
+    if (typeof de === 'string' && typeof courante === 'string' && de !== courante && de !== '?' && courante !== '?') {
+      this.versionDifferente = { de, vers: courante };
+      this.stockage.modifier(fiche, (f) => { f.version_appli = courante; }, { immediat: true });
+      this.journaliser('version_differente', { de, vers: courante });
+    }
     this.journaliser('reprise', { automatique });
     this.gestion?.rattraper();
     this.emettre('changement');
@@ -417,6 +427,7 @@ export class Intervention {
   terminer() {
     this.gestion?.arreterTous();
     this.son.arreterMetronome();
+    this.ecran.liberer?.().catch?.(() => {});   // revue m9 : le verrou d'écran est rendu (batterie, écran allumé dans une poche)
     this.stockage.terminer(this.fiche);
     this.detruire();
   }
@@ -424,6 +435,7 @@ export class Intervention {
   /** Quitte l'intervention SANS la terminer (simulation en pause, ou « Accueil ») : la fiche reste en base, intacte. */
   async mettreEnPause() {
     this.son.arreterMetronome();
+    this.ecran.liberer?.().catch?.(() => {});   // revue m9 (sans attendre : la nouvelle intervention peut redemander le verrou aussitôt)
     this.detruire(); // d'abord : la fiche cesse d'être « affichée » avant qu'une autre ne le devienne
     await this.stockage.vider();
   }

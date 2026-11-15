@@ -28,6 +28,14 @@
     <header id="entete" class="entete" hidden></header>
     <main id="contenu" class="contenu" tabindex="-1">
       <noscript><p class="page">Cette appli a besoin de JavaScript. En cas d'urgence : composez le 15 (SAMU) ou le 112.</p></noscript>
+      <!-- Repli STATIQUE (revue m12) : si un fichier JavaScript est fautif (version publiée boguée), la page ne reste pas blanche. Remplacé par
+           l'accueil dès que l'appli démarre (le contenu de #contenu est alors entièrement remplacé). Mêmes numéros que l'écran de secours. -->
+      <section id="repli-statique" class="page">
+        <h1>Urgences MSP APSIS</h1>
+        <p>L'appli n'a pas démarré. En cas d'urgence vitale, appelez sans attendre :</p>
+        <p><a class="bouton bouton-urgence" href="tel:15">Appeler le 15 (SAMU)</a></p>
+        <p><a class="bouton" href="tel:112">Appeler le 112</a></p>
+      </section>
     </main>
     <nav id="barre" class="barre" hidden></nav>
     <footer id="etat-preparation"></footer>

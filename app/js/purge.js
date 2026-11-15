@@ -21,13 +21,17 @@ export function delaiEffectif(demandeH, { plancherH = PLANCHER_DEFAUT_H, maximum
  * @param {object} resume résumé de fiche (cree_le, expire_le, etat, id)
  * @param {{maintenant: number, delaiH: number, passage: 'ouverture'|'retour'|'periodique', afficheeId?: string|null, horlogeSuspecte?: boolean}} contexte
  */
-export function decisionPurge(resume, { maintenant, delaiH, passage, afficheeId = null, horlogeSuspecte = false }) {
+export function decisionPurge(resume, { maintenant, delaiH, passage, afficheeId = null, horlogeSuspecte = false, repriseMaxH = 2 }) {
   if (horlogeSuspecte || maintenant < resume.cree_le) return 'horloge';
   // le délai est compté depuis la CRÉATION (Q-13) ; si l'utilisateur l'a raccourci depuis, le plus court gagne
   const echeance = Math.min(resume.expire_le ?? Infinity, resume.cree_le + delaiH * 3600 * 1000);
   if (maintenant < echeance) return 'garder';
   if (resume.id === afficheeId) return 'reporter';
   if (passage !== 'ouverture' && resume.etat === 'en_cours') return 'reporter'; // appli ouverte : quelqu'un s'en sert peut-être
+  // PROVISOIRE — pilote, 15/11, revue m5/m8 (m5) : un rechargement n'est pas une nouvelle ouverture. Une fiche en cours dont on s'est servi il y a moins de
+  // `repriseMaxH` (fiche de plus de 8 h reprise puis appel `tel:` → rechargement iOS) n'est pas effacée à l'ouverture : bandeau « Délai atteint ».
+  // Règle de 2.9 (« à l'ouverture suivante ») changée jusqu'à décision de Laurent.
+  if (passage === 'ouverture' && resume.etat === 'en_cours' && Number.isFinite(resume.derniere_activite) && maintenant - resume.derniere_activite < repriseMaxH * 3600 * 1000) return 'reporter';
   return 'effacer';
 }
 
@@ -37,8 +41,8 @@ export function decisionPurge(resume, { maintenant, delaiH, passage, afficheeId 
  * Un saut pendant l'arrière-plan n'est pas détectable (limite connue) : `repartir()` à chaque retour au premier plan.
  */
 export class SurveillanceHorloge {
-  constructor({ date = () => Date.now(), perf = () => performance.now(), seuilMs = 500 } = {}) {
-    this.date = date; this.perf = perf; this.seuilMs = seuilMs;
+  constructor({ date = () => Date.now(), perf = () => performance.now(), seuilMs = 500, visible = () => globalThis.document?.visibilityState !== 'hidden' } = {}) {
+    this.date = date; this.perf = perf; this.seuilMs = seuilMs; this.visible = visible;
     this.suspecte = false;
     this.dernierSaut = 0;
     this.repartir();
@@ -49,6 +53,9 @@ export class SurveillanceHorloge {
 
   /** À appeler à chaque passage de purge ; renvoie true si l'horloge paraît modifiée. */
   echantillonner() {
+    // page masquée : on n'échantillonne pas (revue m3 ; 2.7 « tant que la page est visible ») — performance.now() peut ne pas compter la veille,
+    // et une minuterie réveillée en arrière-plan lèverait une fausse alerte qui suspend toute purge. Le retour au premier plan appelle repartir().
+    if (!this.visible()) return this.suspecte;
     const ecart = this.date() - this.perf();
     const variation = ecart - this.ecart;
     if (Math.abs(variation) > this.seuilMs) { this.suspecte = true; this.dernierSaut = variation; }

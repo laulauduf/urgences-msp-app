@@ -7,6 +7,7 @@ import { chargerStructure, problemeStructure } from './structure.js';
 import { chargerProtocole } from './protocole.js';
 import { lireEnvironnement, bandeauInstallationNecessaire, TEXTE_BANDEAU_INSTALLATION } from './installation.js';
 import { stockage } from './stockage.js';
+import { heureLocale } from './dom.js';
 import { appliquerTheme, themeLocal } from './theme.js';
 import { chargerGroupes } from './professions.js';
 import { afficherReglages } from './ecrans/reglages.js';
@@ -33,7 +34,7 @@ function creer(balise, classe, texte) {
 }
 
 /** État de l'appli : une seule intervention à la fois, un seul son, un seul verrou d'écran. */
-const app = { son: new Son(), ecran: new EcranAllume(), intervention: null, interface: null, accueilTouche: false, accueilUI: null, numeros: lireNumeros(null) };
+const app = { son: new Son(), ecran: new EcranAllume(), intervention: null, interface: null, accueilTouche: false, accueilUI: null, etatMaj: null, numeros: lireNumeros(null) };
 
 /** Accueil : URGENCE immédiat ; les fiches en attente s'ajoutent quand le stockage a répondu (jamais attendues). */
 function montrerAccueil() {
@@ -44,6 +45,7 @@ function montrerAccueil() {
     auGlossaire: ouvrirGlossaire,
     auToucher: () => { app.accueilTouche = true; },
   });
+  afficherMiseAJour(app.etatMaj);   // revue m1 : le bandeau « Nouvelle version » appartient à l'accueil : il y revient après l'intervention
   rafraichirEnAttente();
 }
 
@@ -54,7 +56,14 @@ async function rafraichirEnAttente() {
   if (ui !== app.accueilUI || app.intervention) return; // l'écran a changé entre-temps
   ui.afficherEnAttente(enAttente, {
     reprendre: (r) => reprendreFiche(r),
-    effacer: async (r) => { await stockage.effacerFiche(r.mode, r.id); if (ui === app.accueilUI) rafraichirEnAttente(); },
+    effacer: async (r) => {
+      const res = await stockage.effacerFiche(r.mode, r.id);
+      if (ui === app.accueilUI) {
+        // revue m10 (2.9) : le résultat est dit — heure d'effacement, ou cause de l'échec avec invitation à réessayer
+        ui.afficherResultat(res.ok ? `Fiche effacée à ${heureLocale(res.effaceeA ?? Date.now())}` : `Effacement non terminé : ${res.raison ?? 'cause inconnue'} — réessayez.`);
+        rafraichirEnAttente();
+      }
+    },
   });
 }
 
@@ -72,6 +81,7 @@ const nouvelleIntervention = () => new Intervention({ stockage, son: app.son, ec
 
 function ouvrirInterface(i) {
   app.intervention = i;
+  document.querySelector('#bandeaux [data-bandeau="maj"]')?.remove();   // revue m1
   app.interface = new InterfaceIntervention({
     intervention: i, son: app.son, ecran: app.ecran, numeros: () => app.numeros, structure: () => contexte.structure, groupes: () => contexte.groupes,
     actions: {
@@ -98,7 +108,15 @@ async function reprendreFiche(resume, { automatique = false } = {}) {
   const lu = await stockage.lireFiche(resume.mode, resume.id);
   if (!lu.ok || app.intervention || (automatique && app.accueilTouche)) { if (!app.intervention) rafraichirEnAttente(); return; }
   const i = nouvelleIntervention();
-  await i.reprendre(lu.fiche, { automatique });
+  try {
+    await i.reprendre(lu.fiche, { automatique });
+  } catch {
+    // revue m11 : une fiche qui fait échouer la reprise ne doit ni rester « affichée » (la purge la reporterait toute la session) ni laisser l'accueil muet
+    i.detruire();
+    app.accueilUI?.afficherResultat?.("Une fiche n'a pas pu être reprise (contenu incomplet) : elle reste sur l'appareil, vous pouvez l'effacer.");
+    if (!app.intervention) rafraichirEnAttente();
+    return;
+  }
   if (app.intervention || (automatique && app.accueilTouche)) { i.detruire(); return; }
   ouvrirInterface(i);
 }
@@ -183,10 +201,13 @@ function afficherBandeauInstallation() {
 
 /** Bouton « Nouvelle version disponible — Recharger » : seulement quand aucune fiche n'est ouverte (2.4). */
 function afficherMiseAJour(etat) {
+  app.etatMaj = etat;
   const zone = document.getElementById('bandeaux');
   zone.querySelector('[data-bandeau="maj"]')?.remove();
   definirPoint('version', { texte: `Version ${self.URGENCES_VERSION ?? '?'}`, ok: etat !== ETATS_MAJ.attenteFiche });
   if (etat === ETATS_MAJ.disponible) {
+    definirPoint('version', { texte: 'Nouvelle version disponible — Recharger', ok: false });
+    if (app.intervention) return;   // revue m1 : jamais de bouton « Recharger » pendant une intervention (il perdrait une fiche gardée en mémoire si le stockage est en panne)
     const b = creer('div', 'bandeau');
     b.dataset.bandeau = 'maj';
     const bouton = creer('button', 'bouton bouton-accent', 'Nouvelle version disponible — Recharger');
@@ -222,7 +243,7 @@ async function verifierStructure() {
 }
 
 async function verifierProtocoles() {
-  // Contrôle de cohérence à l'exécution du protocole du prototype ; en cas d'échec, c'est l'ouverture de la situation (navigation.js)
+  // Contrôle de cohérence à l'exécution du protocole du prototype ; en cas d'échec, c'est l'ouverture de la situation (Intervention.choisirAcr)
   // qui basculera vers l'écran de secours. Ici, on prévient seulement dans la ligne d'état.
   const resultat = await chargerProtocole(PROTOCOLE_DU_PROTOTYPE);
   definirPoint('protocole', {

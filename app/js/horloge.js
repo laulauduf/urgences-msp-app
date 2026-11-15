@@ -48,16 +48,17 @@ export class Horloge {
     this.ancre = { date: date(), perf: perf() };
     this.ecartSaut = date() - perf();
     this.dernierSaut = 0;
+    this.decalage = 0;   // somme des sauts d'horloge détectés page visible, retranchée à chaque recalage (revue m2) : un saut n'est jamais du temps écoulé
   }
 
   /** Temps courant en ms « epoch », stable face à un changement d'heure du téléphone tant que la page est visible. */
   maintenant() {
     if (this.estVisible()) return this.ancre.date + (this.perf() - this.ancre.perf);
-    return this.date(); // arrière-plan : seule Date.now() compte le temps de veille
+    return this.date() - this.decalage; // arrière-plan : seule Date.now() compte le temps de veille (moins les sauts déjà détectés)
   }
 
   /** Nouveau point de référence : lancement, retour au premier plan. */
-  recaler() { this.ancre = { date: this.date(), perf: this.perf() }; this.ecartSaut = this.date() - this.perf(); }
+  recaler() { this.ancre = { date: this.date() - this.decalage, perf: this.perf() }; this.ecartSaut = this.date() - this.perf(); }
 
   /**
    * À appeler régulièrement (environ 4 fois par seconde, avec l'affichage) tant que la page est visible : détecte un saut de
@@ -73,6 +74,7 @@ export class Horloge {
       // qui reste celui d'avant le saut : le saut n'est jamais compté comme du temps écoulé)
       this.ecartSaut = ecart;
       this.dernierSaut = saut;
+      this.decalage += saut;
       this.journaliser('horloge_modifiee', { saut_ms: Math.round(saut), moment: 'page_visible' });
       return saut;
     }
@@ -117,6 +119,9 @@ const texteDe = (v) => (typeof v === 'string' ? v : v !== null && typeof v === '
 
 /** Texte de la marque affichée à côté d'une valeur fixée par un choix provisoire (règle d'affichage, cahier des charges en tête). */
 export const MARQUE_PROVISOIRE = 'provisoire — non validé';
+/** Marque d'un élément dont le contenu n'est pas établi (statut A_VALIDER du protocole), affichée partout où son texte apparaît (revue m6). */
+export const MARQUE_A_VALIDER = '⚠ A_VALIDER';
+const estAValider = (v) => v !== null && typeof v === 'object' && v.statut === 'A_VALIDER';
 
 /**
  * Chronomètres du protocole, normalisés. Les valeurs peuvent être écrites seules ou enveloppées { valeur, provisoire, … }.
@@ -139,6 +144,7 @@ export function lireChronometres(protocole) {
       alerteProvisoire: marqueDe(c.alerte),
       note: texteDe(c.note_affichee),
       noteProvisoire: marqueDe(c.note_affichee),
+      aValider: c.statut === 'A_VALIDER' || estAValider(c.duree_s) || estAValider(c.note_affichee),
     };
   });
 }

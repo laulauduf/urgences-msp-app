@@ -155,9 +155,30 @@ export class Son {
     return this.etatContexte();
   }
 
-  /** N'importe quel toucher relance l'audio s'il n'est pas « running » (retour d'arrière-plan) ; le toucher fait aussi son action normale. */
+  /**
+   * Reprise d'une fiche après un rechargement (retour d'un appel `tel:` sur iPhone, fermeture forcée) : aucun geste n'a encore eu lieu, donc le
+   * contexte audio ne peut pas être repris — mais on le CRÉE (suspendu, sans aucun bruit) pour que le bandeau « Son arrêté : touchez l'écran »
+   * s'affiche tout de suite (2.6, 2.10, revue du 15/11/2026 M1). Le premier toucher le reprend (brancherReprise).
+   */
+  preparer() {
+    try {
+      if (!this.ctx) {
+        this.ctx = this.fabrique();
+        this.ctx.addEventListener?.('statechange', () => this.surChangementEtat());
+      }
+    } catch { /* pas de Web Audio : le repère visuel et les alertes visuelles restent */ }
+    this.signaler();
+  }
+
+  /**
+   * N'importe quel toucher relance l'audio s'il n'est pas « running » (retour d'arrière-plan) ; le toucher fait aussi son action normale.
+   * Sans contexte (reprise après rechargement, aucun URGENCE touché dans cette page) : le premier toucher le DÉBLOQUE (M1).
+   */
   brancherReprise(doc = document) {
-    const surToucher = () => { if (this.ctx && this.ctx.state !== 'running') this.ctx.resume?.()?.catch?.(() => {}); };
+    const surToucher = () => {
+      if (!this.ctx) { this.debloquer(); return; }
+      if (this.ctx.state !== 'running') this.ctx.resume?.()?.catch?.(() => {});
+    };
     // capture, sans stopPropagation ni preventDefault : jamais un toucher « perdu »
     doc.addEventListener('pointerdown', surToucher, { capture: true, passive: true });
     doc.addEventListener('keydown', surToucher, { capture: true, passive: true });

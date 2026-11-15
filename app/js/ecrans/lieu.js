@@ -40,7 +40,8 @@ export function afficherLieu(conteneur, { intervention, structure, auRetour }) {
     const label = creer('label', 'reglage-champ', `${libelle} : `);
     const entree = creer('input'); entree.type = 'text'; entree.name = cle; entree.value = lieu[cle] ?? '';
     entree.autocomplete = 'off'; entree.autocapitalize = 'off'; entree.spellcheck = false; entree.setAttribute('autocorrect', 'off');
-    entree.addEventListener('change', () => intervention.definirLieu({ [cle]: entree.value }));
+    // « input » ET « change » (revue m13) : la frappe est enregistrée sans attendre la perte du focus (l'écriture est déjà regroupée en moins d'1 s)
+    for (const evenement of ['input', 'change']) entree.addEventListener(evenement, () => intervention.definirLieu({ [cle]: entree.value }));
     label.append(entree); domicile.append(label);
   }
   page.append(domicile);
