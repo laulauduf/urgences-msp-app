@@ -7,6 +7,7 @@ import { attribuerRole, appelant, ajouterPersonne } from './roles.js';
 import { construireVue, heureVersTimestamp, estVitale } from './checklist.js';
 import { chargerHabilitations } from './habilitations.js';
 import { chargerGlossaire, lireGlossaire } from './glossaire.js';
+import { chargerUnites, lireUnites } from './unites.js';
 import { TYPES_CONSTANTE } from './bilan.js';
 
 export const ACR = 'acr';
@@ -32,13 +33,14 @@ export function retourDAppelAttendu(journal, maintenant = Date.now()) {
 export class Intervention {
   /**
    * @param {{stockage: object, son: object, ecran: object, chargerProtocole: (id: string) => Promise<object>, protocoleId: string, numeros?: object,
-   *          chargerHabilitations?: () => Promise<object|null>, chargerGlossaire?: () => Promise<object>}} options
+   *          chargerHabilitations?: () => Promise<object|null>, chargerGlossaire?: () => Promise<object>, chargerUnites?: () => Promise<object>}} options
    *   `chargerProtocole` renvoie { ok, protocole } ou { ok: false, raisons } (protocole.js).
    */
-  constructor({ stockage, son, ecran, chargerProtocole, protocoleId, chargerHabilitations: chargerHab = chargerHabilitations, chargerGlossaire: chargerGlo = chargerGlossaire }) {
-    Object.assign(this, { stockage, son, ecran, chargerProtocoleFn: chargerProtocole, protocoleId, chargerHabilitationsFn: chargerHab, chargerGlossaireFn: chargerGlo });
+  constructor({ stockage, son, ecran, chargerProtocole, protocoleId, chargerHabilitations: chargerHab = chargerHabilitations, chargerGlossaire: chargerGlo = chargerGlossaire, chargerUnites: chargerUni = chargerUnites }) {
+    Object.assign(this, { stockage, son, ecran, chargerProtocoleFn: chargerProtocole, protocoleId, chargerHabilitationsFn: chargerHab, chargerGlossaireFn: chargerGlo, chargerUnitesFn: chargerUni });
     // checklist (L6) : habilitations par profession (null tant que non lues ou illisibles : tout est alors restrictif), glossaire, mode et étapes passées
     this.habilitations = null; this.habilitationsEtat = 'chargement'; this.glossaire = lireGlossaire(null);
+    this.unites = lireUnites(null);   // unités des constantes (D-26), lues de protocoles/_commun/unites.json ; aucune tant que non lues
     this.modeChecklist = 'expert'; this.modeChoisi = false; this.passees = new Set();
     this.fiche = null; this.mode = 'reel';
     this.protocole = null; this.protocoleEtat = null; this.raisons = [];   // protocoleEtat : null | 'chargement' | 'ok' | 'secours'
@@ -212,9 +214,9 @@ export class Intervention {
 
   /** Habilitations par profession et glossaire : lus sans jamais retarder un écran ; tant que les habilitations manquent, tout est restrictif. */
   async chargerReferences() {
-    const [habilitations, glossaire] = await Promise.all([this.chargerHabilitationsFn(), this.chargerGlossaireFn()]);
+    const [habilitations, glossaire, unites] = await Promise.all([this.chargerHabilitationsFn(), this.chargerGlossaireFn(), this.chargerUnitesFn()]);
     if (this.detruite) return;
-    this.habilitations = habilitations ?? null; this.habilitationsEtat = habilitations ? 'ok' : 'absent'; this.glossaire = glossaire ?? lireGlossaire(null);
+    this.habilitations = habilitations ?? null; this.habilitationsEtat = habilitations ? 'ok' : 'absent'; this.glossaire = glossaire ?? lireGlossaire(null); this.unites = unites ?? lireUnites(null);
     this.emettre('habilitations');
   }
 
@@ -439,6 +441,9 @@ export class Intervention {
     });
   }
 
+  /** Unité usuelle d'un type de constante (D-26), '' si le fichier n'en donne pas. Jamais de conversion ni de seuil (D-19). */
+  uniteDe(type) { return this.unites?.parType?.get(type) ?? ''; }
+
   /** Constante : valeur BRUTE, horodatée (heure préremplie « maintenant », modifiable) ; aucune interprétation (D-19). @returns {{ok: boolean, raison?: string}} */
   ajouterConstante(type, valeur, heure) {
     if (!TYPES_CONSTANTE.some((t) => t.id === type)) return { ok: false, raison: 'type de mesure inconnu' };
@@ -447,8 +452,9 @@ export class Intervention {
     if (t === null) return { ok: false, raison: 'heure invalide : écrire hh:mm' };
     const v = valeur.trim();
     // journal d'abord : la constante garde l'identifiant de son entrée, pour que sa correction soit retrouvée (L7c, revue L7 C1)
-    const entree = this.journaliser('constante', { type, valeur: v }, { maintenant: t });
-    this.stockage.modifier(this.fiche, (f) => { f.constantes = [...(f.constantes ?? []), { t, type, valeur: v, unite: '', journal_id: entree.id }]; }, { immediat: true });
+    const unite = this.uniteDe(type);   // gardée AVEC la valeur : la fiche, le journal et le document disent la même unité, même sans l'intervention (clôture depuis l'accueil)
+    const entree = this.journaliser('constante', { type, valeur: v, unite }, { maintenant: t });
+    this.stockage.modifier(this.fiche, (f) => { f.constantes = [...(f.constantes ?? []), { t, type, valeur: v, unite, journal_id: entree.id }]; }, { immediat: true });
     this.emettre('fiche');
     return { ok: true };
   }

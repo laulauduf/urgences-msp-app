@@ -546,6 +546,7 @@ body[data-mode="intervention"] .bandeau .bouton { min-height: 48px; padding-bloc
 .rangee-ajout .bouton { flex: 1 1 7rem; font-size: 0.8125rem; padding: 0.25rem 0.5rem; }
 .ajout-formulaire { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 0.125rem solid var(--bordure); border-radius: var(--rayon); }
 .ajout-titre { flex-basis: 100%; margin: 0; font-weight: 800; }
+.ajout-unite { flex: 0 0 auto; font-weight: 700; }   /* unité usuelle (D-26) : couleur du texte, jamais un état */
 .ajout-formulaire input, .champ-fiche input, .champ-fiche textarea, .transmission-saisie, .journal-saisie, .naissance-champ { min-height: 48px; font-size: 1rem; padding: 0.25rem 0.5rem; background: var(--fond); color: var(--texte); border: 0.125rem solid var(--bordure); border-radius: 0.5rem; max-width: 100%; }
 .ajout-formulaire input[type="text"] { flex: 1 1 8rem; min-width: 0; }
 .section-fiche { margin: 0; padding: 0.5rem; border: 0.125rem solid var(--bordure); border-radius: var(--rayon); display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }

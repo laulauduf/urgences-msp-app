@@ -4,6 +4,7 @@
 // (les libellés de types de mesure viennent de SPEC.md, déroulé 4 ; les sigles sans source sont écrits en toutes lettres, D-10).
 import { formaterT } from './horloge.js';
 import { ROLES } from './roles.js';
+import { avecUnite } from './unites.js';
 
 /** Types de constantes de SPEC.md (déroulé 4), dans cet ordre. SpO₂ : sigle sourcé du glossaire ; les autres, en toutes lettres (D-10). */
 export const TYPES_CONSTANTE = [
@@ -93,13 +94,13 @@ const texteCorrige = (debut, original, c, mot) => `${debut} — CORRIGÉ à ${c.
 /**
  * @param {object[]} constantes
  * @param {object|null} fiche  si elle est donnée, chaque valeur porte sa correction éventuelle (`corrige`)
- * @returns {{type: string, libelle: string, valeurs: {t: number, valeur: string, corrige: {heure: string, texte: string}|null}[]}[]} un tableau par type, types dans l'ordre de SPEC.md, valeurs chronologiques
+ * @returns {{type: string, libelle: string, valeurs: {t: number, valeur: string, unite: string, corrige: {heure: string, texte: string}|null}[]}[]} un tableau par type, types dans l'ordre de SPEC.md, valeurs chronologiques
  */
 export function tableauConstantes(constantes, fiche = null) {
   const liste = Array.isArray(constantes) ? constantes : [];
   return TYPES_CONSTANTE.map((ty) => ({
     type: ty.id, libelle: ty.libelle,
-    valeurs: liste.filter((c) => c?.type === ty.id).map((c) => ({ t: c.t, valeur: String(c.valeur), corrige: fiche ? correctionDeEntree(fiche, idJournalConstante(fiche, c)) : null })).sort((a, b) => a.t - b.t),
+    valeurs: liste.filter((c) => c?.type === ty.id).map((c) => ({ t: c.t, valeur: String(c.valeur), unite: typeof c.unite === 'string' ? c.unite : '', corrige: fiche ? correctionDeEntree(fiche, idJournalConstante(fiche, c)) : null })).sort((a, b) => a.t - b.t),
   })).filter((l) => l.valeurs.length > 0);
 }
 
@@ -183,7 +184,7 @@ function pageS({ fiche, appelant, protocoleId, maintenant }) {
       ...constantes.map((x) => {
         const debutLigne = `${hhmm(x.t)} ${libelleType(x.type)}`;
         const corr = correctionDeEntree(fiche, idJournalConstante(fiche, x));
-        return ligne(corr ? texteCorrige(debutLigne, x.valeur, corr, 'valeur') : `${debutLigne} : ${x.valeur}`);
+        return ligne(corr ? texteCorrige(debutLigne, avecUnite(x.valeur, x.unite), corr, 'valeur') : `${debutLigne} : ${avecUnite(x.valeur, x.unite)}`);
       }),
       ...faits.map((g) => {
         const debutLigne = `${hhmm(g.t)} (${tPlusOuAvant(g.t, debut)}) ${g.mot}`;
@@ -230,7 +231,7 @@ export function libelleEntree(e) {
     case 'profession': return `Profession : ${d.vers ?? 'non réglée'}`;
     case 'case': return d.decochee ? `Case décochée : ${d.libelle ?? d.id}` : `Case cochée : ${d.libelle ?? d.id}`;
     case 'evenement': return d.libelle ?? String(d.id ?? 'événement');
-    case 'constante': return `${libelleType(d.type)} : ${d.valeur}`;
+    case 'constante': return `${libelleType(d.type)} : ${avecUnite(d.valeur, d.unite)}`;
     case 'geste': return `Geste : ${d.texte ?? d.libelle ?? d.id ?? ''}`.trim();
     case 'appel_lance': return `Appel lancé : ${d.numero ?? ''}`.trim();
     case 'appel_simule': return `Appel simulé : ${d.numero ?? ''}`.trim();

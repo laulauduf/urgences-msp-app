@@ -108,7 +108,7 @@
         {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B2)", "citation": "service d'aide médicale urgente (SAMU) numéro d'urgence : 15"},
         {"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954, rubrique du 15"}
       ],
-      "ref_fiche": "cadre § 2.E, E1 et E2 ; ACR § 2, étape 3b",
+      "ref_fiche": "cadre § 2.E, E1 et E2 ; ACR § 2, étape 4b",
       "moyens": ["tel"],
       "plan": {
         "valeur": "A",
@@ -118,7 +118,7 @@
           {"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954"}
         ],
         "raisonnement": "Fiche cadre § 7, D5 : plan A = 15 (numéro à alerter selon l'AFGSU ; urgence médicale selon service-public) ; le 112 est une alternative.",
-        "ref_fiche": "cadre § 7, D5 ; ACR § 2, étape 3c"
+        "ref_fiche": "cadre § 7, D5 ; ACR § 2, étape 4c"
       },
       "role": {
         "texte": "Urgence médicale (exemple donné : malaise cardiaque) ; c'est aussi le numéro du Service d'accès aux soins (SAS).",
@@ -129,7 +129,7 @@
           {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence", "citation": "sauvegarde des vies humaines - SAMU"},
           {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B2)", "citation": "service d'aide médicale urgente (SAMU) numéro d'urgence : 15"}
         ],
-        "ref_fiche": "cadre § 2.E, E1 et E2 ; ACR § 2, étape 3b"
+        "ref_fiche": "cadre § 2.E, E1 et E2 ; ACR § 2, étape 4b"
       }
     },
     {
@@ -142,7 +142,7 @@
         {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence", "citation": "numéro d'urgence européen"},
         {"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954, rubrique du 112"}
       ],
-      "ref_fiche": "cadre § 2.E, E3 ; ACR § 2, étape 3b",
+      "ref_fiche": "cadre § 2.E, E3 ; ACR § 2, étape 4b",
       "moyens": ["tel"],
       "plan": {
         "valeur": "B",
@@ -150,8 +150,8 @@
         "provisoire": "D-20",
         "question": "Q-10",
         "sources": [{"ref": "SPEC", "localisation": "Module d'alerte"}],
-        "a_valider": "L'ordre « 15 d'abord, 112 si échec » vient de SPEC.md : aucune source médicale ni officielle trouvée (fiche ACR étape 3c et V5 ; fiche cadre E9 et V10). Le service qui répond au 112 dans l'Hérault (centre 15 ou pompiers) n'a pas été vérifié.",
-        "ref_fiche": "ACR § 2, étape 3c ; cadre § 2.E, E9 ; cadre § 7, D5"
+        "a_valider": "L'ordre « 15 d'abord, 112 si échec » vient de SPEC.md : aucune source médicale ni officielle trouvée (fiche ACR étape 4c et V5 ; fiche cadre E9 et V10). Le service qui répond au 112 dans l'Hérault (centre 15 ou pompiers) n'a pas été vérifié.",
+        "ref_fiche": "ACR § 2, étape 4c ; cadre § 2.E, E9 ; cadre § 7, D5"
       },
       "bascule": {
         "texte": "Si le 15 ne répond pas ou si le réseau est mauvais",
@@ -171,7 +171,7 @@
           {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence", "citation": "numéro d'urgence européen"},
           {"ref": "ERC-ES", "localisation": "First aid, p. 73", "citation": "call the emergency number (112)"}
         ],
-        "ref_fiche": "cadre § 2.E, E3 et E8 ; ACR § 2, étape 3b"
+        "ref_fiche": "cadre § 2.E, E3 et E8 ; ACR § 2, étape 4b"
       }
     },
     {
@@ -182,9 +182,9 @@
       "statut_porte_sur": "numéro et libellé",
       "sources": [
         {"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954, rubrique du 114"},
-        {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence (fiche ACR, étape 3b : personnes déficientes auditives)"}
+        {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence (fiche ACR, étape 4b : personnes déficientes auditives)"}
       ],
-      "ref_fiche": "cadre § 2.E, E4 ; ACR § 2, étape 3b",
+      "ref_fiche": "cadre § 2.E, E4 ; ACR § 2, étape 4b",
       "moyens": ["sms"],
       "autres_moyens": {
         "texte": "Accessible aussi par application, site internet, visio, tchat, images et langue des signes ; donner son nom, son adresse précise et le motif.",
@@ -201,9 +201,9 @@
         "sources": [
           {"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954"},
           {"ref": "HAS-AVC-2025", "localisation": "p. 2-3", "citation": "si elles sont seules lors de l'évènement"},
-          {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence (fiche ACR, étape 3b : personnes déficientes auditives)"}
+          {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence (fiche ACR, étape 4b : personnes déficientes auditives)"}
         ],
-        "ref_fiche": "cadre § 2.E, E4 ; ACR § 2, étape 3b"
+        "ref_fiche": "cadre § 2.E, E4 ; ACR § 2, étape 4b"
       }
     },
     {
@@ -213,10 +213,10 @@
       "statut": "CITE",
       "statut_porte_sur": "numéro et libellé",
       "sources": [
-        {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence (fiche ACR, étape 3b : pompiers)"},
+        {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence (fiche ACR, étape 4b : pompiers)"},
         {"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954, rubrique du 18"}
       ],
-      "ref_fiche": "cadre § 2.E, E5 ; ACR § 2, étape 3b",
+      "ref_fiche": "cadre § 2.E, E5 ; ACR § 2, étape 4b",
       "moyens": ["tel"],
       "plan": null,
       "role": {
@@ -225,9 +225,9 @@
         "statut_fiche": "CITÉ (reformulation fidèle)",
         "sources": [
           {"ref": "SERVICE-PUBLIC-F33954", "localisation": "fiche F33954"},
-          {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence (fiche ACR, étape 3b : pompiers)"}
+          {"ref": "ARCEP-2017-1251", "localisation": "liste des numéros d'urgence (fiche ACR, étape 4b : pompiers)"}
         ],
-        "ref_fiche": "cadre § 2.E, E5 ; ACR § 2, étape 3b"
+        "ref_fiche": "cadre § 2.E, E5 ; ACR § 2, étape 4b"
       }
     }
   ],
@@ -238,7 +238,7 @@
       "statut": "CITE",
       "statut_fiche": "CITÉ",
       "sources": [{"ref": "ERC-BLS", "localisation": "« Alerting the emergency services », p. 3", "citation": "activate speaker mode, call the local emergency number without delay"}],
-      "ref_fiche": "cadre § 2.E, E11 ; ACR § 2, étape 3a"
+      "ref_fiche": "cadre § 2.E, E11 ; ACR § 2, étape 4a"
     },
     {
       "id": "ne-raccrochez-pas",

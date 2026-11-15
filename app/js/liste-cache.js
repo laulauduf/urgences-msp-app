@@ -52,6 +52,7 @@ self.URGENCES_LISTE_CACHE = [
   "app/js/structure.js",
   "app/js/test-appareil.js",
   "app/js/theme.js",
+  "app/js/unites.js",
   "app/js/version.js",
   "config/structure.json",
   "index.html",
@@ -59,5 +60,6 @@ self.URGENCES_LISTE_CACHE = [
   "protocoles/_commun/glossaire.json",
   "protocoles/_commun/numeros.json",
   "protocoles/_commun/professions.json",
+  "protocoles/_commun/unites.json",
   "protocoles/acr-adulte-dae.json"
 ];

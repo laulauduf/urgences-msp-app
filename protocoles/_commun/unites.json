@@ -1,0 +1,19 @@
+{
+  "format": 1,
+  "id": "unites",
+  "titre": "Unités usuelles des constantes de la fiche bilan",
+  "version": "0.1.0",
+  "source": "décision D-26 du médecin référent, 15/11/2026",
+  "regle": "Chaque unité est affichée à côté de la valeur saisie, telle quelle : aucune conversion, aucun seuil, aucune couleur, aucun jugement sur la valeur (D-19, R14). Une constante sans unité évidente reste sans unité.",
+  "unites": [
+    {"id": "pa", "unite": "mmHg", "source": "décision D-26 du médecin référent, 15/11/2026"},
+    {"id": "fc", "unite": "/min", "source": "décision D-26 du médecin référent, 15/11/2026"},
+    {"id": "fr", "unite": "/min", "source": "décision D-26 du médecin référent, 15/11/2026"},
+    {"id": "spo2", "unite": "%", "source": "décision D-26 du médecin référent, 15/11/2026"},
+    {"id": "temperature", "unite": "°C", "source": "décision D-26 du médecin référent, 15/11/2026"},
+    {"id": "glycemie", "unite": "g/L", "source": "décision D-26 du médecin référent, 15/11/2026"}
+  ],
+  "sans_unite": [
+    {"id": "douleur", "raison": "aucune unité évidente ; laissée sans unité, rien d'inventé"}
+  ]
+}

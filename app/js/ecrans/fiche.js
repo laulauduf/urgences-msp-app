@@ -4,6 +4,7 @@
 // L'écran de saisie n'est JAMAIS redessiné sur l'événement « changement » (on perdrait la frappe) : seuls le tableau des constantes et la liste des gestes sont refaits.
 import { creer, bouton, heureLocale } from '../dom.js';
 import { TYPES_CONSTANTE, tableauConstantes, texteAge, hhmm, correctionDeEntree, idJournalGeste } from '../bilan.js';
+import { avecUnite } from '../unites.js';
 
 const SANS_AUTO = { autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false' };
 const maintenantHHMM = () => heureLocale(Date.now());
@@ -49,7 +50,11 @@ export function afficherFiche(conteneur, { intervention, etat }) {
       etat.ajout = null; montrerAjout(); majTableaux();
     };
     valeur.addEventListener('keydown', (e) => { if (e.key === 'Enter') valider(); });
-    formulaire.append(valeur, creer('label', null, 'Heure : ', { for: 'ajout-heure' }), heure, erreur,
+    // unité usuelle (D-26) à côté de la case : texte simple, même couleur que le reste, aucun état (D-19) ; aucune unité pour un geste ni pour un type sans unité
+    const unite = genre === 'geste' ? '' : intervention.uniteDe(type);
+    formulaire.append(valeur);
+    if (unite !== '') formulaire.append(creer('span', 'ajout-unite', unite, { id: 'ajout-unite' }));
+    formulaire.append(creer('label', null, 'Heure : ', { for: 'ajout-heure' }), heure, erreur,
       bouton('Ajouter', 'bouton bouton-accent', valider, { id: 'ajout-valider' }), bouton('Annuler', 'bouton', () => { etat.ajout = null; montrerAjout(); }, { id: 'ajout-annuler' }));
     valeur.focus();
   }
@@ -67,7 +72,7 @@ export function afficherFiche(conteneur, { intervention, etat }) {
       l.valeurs.forEach((v, i) => {
         if (i > 0) p.append(document.createTextNode('  ·  '));
         p.append(document.createTextNode(`${hhmm(v.t)} `));
-        ajouterValeur(p, v.valeur, v.corrige);
+        ajouterValeur(p, avecUnite(v.valeur, v.unite), v.corrige);
       });
       blocConstantes.append(p);
     }
