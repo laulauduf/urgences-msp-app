@@ -66,15 +66,8 @@ export function afficherAlerte(conteneur, { intervention, numeros, structure, au
   const majConfirmation = () => { confirmation.textContent = `Appel noté (${intervention.appelsFaits}).`; };
   panneau.append(confirmation);
 
-  // Information (une ligne, pas un choix préalable)
-  panneau.append(creer('p', 'plan-aide', TEXTE_EQUIPIER));
-  if (!simulation) panneau.append(creer('p', 'plan-aide', TEXTE_MASQUEE));
-  for (const r of numeros.rappels.filter((x) => !/haut-parleur/i.test(x.texte))) {
-    const p = creer('p', 'plan-aide', r.texte);
-    if (r.marque) p.append(marque(MARQUE_A_VALIDER));
-    panneau.append(p);
-  }
-
+  // ORDRE (L9c étape 2, M4) : les autres numéros (114, 18) et le plan interne passent AVANT les lignes d'information, pour rester entièrement visibles sans défilement
+  // à 375×667 et 320×568 (tableau 4.0, fonctions 3 et 4) ; les lignes d'information restent dans le panneau, juste dessous. Écart d'ordre avec le tableau de 4.7 : à acter.
   // Autres numéros : une ligne compacte chacun, au moins 48 px
   if (reste.length > 0) {
     const liste = creer('div', 'autres-numeros');
@@ -92,6 +85,15 @@ export function afficherAlerte(conteneur, { intervention, numeros, structure, au
     bloc.append(creer('h2', null, 'Plan interne'));
     for (const l of plan) bloc.append(creer('p', null, typeof l.moyen === 'string' ? `${l.libelle} — ${l.moyen}` : l.libelle));
     panneau.append(bloc);
+  }
+
+  // Information (une ligne, pas un choix préalable)
+  panneau.append(creer('p', 'plan-aide', TEXTE_EQUIPIER));
+  if (!simulation) panneau.append(creer('p', 'plan-aide', TEXTE_MASQUEE));
+  for (const r of numeros.rappels.filter((x) => !/haut-parleur/i.test(x.texte))) {
+    const p = creer('p', 'plan-aide', r.texte);
+    if (r.marque) p.append(marque(MARQUE_A_VALIDER));
+    panneau.append(p);
   }
 
   // Lieu (résumé seulement) + lien vers l'unique écran de saisie

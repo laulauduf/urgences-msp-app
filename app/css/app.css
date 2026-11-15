@@ -276,6 +276,7 @@ body[data-mode="intervention"] #etat-preparation { display: none; }
 /* Écran ACR : zone « cycle » au-dessus des tuiles (portrait) ; deux colonnes en paysage */
 .ecran-acr { display: flex; flex-direction: column; gap: var(--espace); padding: var(--espace); }
 .zone-cycle { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem; border: 0.125rem solid var(--bordure); border-radius: var(--rayon); }
+.cycle-haut { display: contents; }
 .cycle-decompte { margin: 0; font-size: 3rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
 .cycle-statut, .cycle-note { margin: 0; font-weight: 700; }
 .bouton-relance { min-height: 72px; font-size: 1.25rem; }
@@ -762,3 +763,142 @@ body[data-mode="intervention"][data-texte="grand"] .bandeau-simulation { flex-wr
   body[data-mode="intervention"] .zone-cycle { order: 2; position: sticky; bottom: 0; z-index: 1; background: var(--fond); }
   body[data-mode="intervention"] .contenu:has(.ecran-acr) { scroll-padding-bottom: 12rem; }   /* seulement sur l'écran ACR : ailleurs il déplacerait les champs saisis */
 }
+
+/* ───────── Lot L9c, étape 2 (M1 paysage, M2, M3, M4) : en-tête compact en grille ─────────
+   Paysage bas, texte à 200 % et panneau d'alerte partagent UNE disposition : rangée 1 = chrono · repère · pause · puce profession · rôles (jamais l'un sur l'autre :
+   chaque élément a sa colonne), rangée 2 = chrono du cycle · fréquence du métronome avec sa marque « provisoire » (le texte passe à la ligne, il n'est jamais coupé).
+   `.metronome` devient transparent (display: contents) : repère, fréquence et pause deviennent des cases de la grille. */
+@media (orientation: landscape) and (max-height: 600px) {
+  body[data-mode="intervention"] .entete { display: grid; grid-template-columns: auto auto auto minmax(0, 1fr) auto; grid-template-areas: "g r p u o" "c c c f f"; align-items: center; gap: 0.125rem 0.5rem; padding: 0.25rem var(--espace); }
+  body[data-mode="intervention"] .entete .metronome { display: contents; }
+  body[data-mode="intervention"] .entete .metronome[hidden] { display: none; }
+  body[data-mode="intervention"] .entete .chrono-global { grid-area: g; font-size: 1.25rem; }
+  body[data-mode="intervention"] .entete .chrono-cycle { grid-area: c; font-size: 0.75rem; }
+  body[data-mode="intervention"] .entete .repere { grid-area: r; width: 1.25rem; height: 1.25rem; }
+  body[data-mode="intervention"] .entete #pause-metronome { grid-area: p; }
+  body[data-mode="intervention"] .entete #frequence { grid-area: f; display: block; min-width: 0; font-size: 0.6875rem; line-height: 1.15; overflow-wrap: anywhere; }
+  body[data-mode="intervention"] .entete .place-profession { grid-area: u; min-width: 0; display: flex; }
+  body[data-mode="intervention"] .entete .puce { flex: 1 1 0; min-width: 0; max-width: none; }
+  body[data-mode="intervention"] .entete .bandeau-roles { grid-area: o; min-width: 0; }
+}
+body[data-mode="intervention"][data-texte="grand"] .entete,
+body[data-mode="intervention"][data-panneau="alerte"] .entete { display: grid; grid-template-columns: auto auto auto minmax(0, 1fr) auto; grid-template-areas: "g r p u o" "c c c f f"; align-items: center; gap: 0.125rem 0.375rem; padding: 0.25rem 0.5rem; }
+body[data-mode="intervention"][data-texte="grand"] .entete .metronome,
+body[data-mode="intervention"][data-panneau="alerte"] .entete .metronome { display: contents; }
+body[data-mode="intervention"][data-texte="grand"] .entete .metronome[hidden],
+body[data-mode="intervention"][data-panneau="alerte"] .entete .metronome[hidden] { display: none; }
+body[data-mode="intervention"][data-texte="grand"] .entete .chrono-global { grid-area: g; font-size: 0.625rem; }
+body[data-mode="intervention"][data-texte="grand"] .entete .chrono-cycle { grid-area: c; font-size: 0.5rem; }
+body[data-mode="intervention"][data-texte="grand"] .entete .repere { grid-area: r; width: 0.625rem; height: 0.625rem; border-width: 0.125rem; }
+body[data-mode="intervention"][data-texte="grand"] .entete #pause-metronome { grid-area: p; font-size: 0.5rem; padding-inline: 0.375rem; }
+body[data-mode="intervention"][data-texte="grand"] .entete #frequence { grid-area: f; display: block; min-width: 0; font-size: 0.5rem; line-height: 1.1; overflow-wrap: anywhere; }
+body[data-mode="intervention"][data-texte="grand"] .entete .place-profession { grid-area: u; min-width: 0; display: flex; }
+body[data-mode="intervention"][data-texte="grand"] .entete .puce { flex: 1 1 0; min-width: 0; max-width: none; font-size: 0.5rem; padding-inline: 0.25rem; }
+body[data-mode="intervention"][data-texte="grand"] .entete .bandeau-roles { grid-area: o; min-width: 0; font-size: 0.5rem; padding-inline: 0.375rem; }
+/* portrait à 200 % : trois rangées (chrono et cycle · pause, puce et rôles · fréquence) ; la puce a de la place et son texte commence à gauche (ellipsis, jamais centré-coupé) */
+@media (orientation: portrait) {
+  body[data-mode="intervention"][data-texte="grand"] .entete { grid-template-areas: "g c c c c" "r p u u o" "f f f f f"; }
+}
+body[data-mode="intervention"] .entete .puce { text-align: left; }
+body[data-mode="intervention"][data-texte="grand"] .entete .puce,
+body[data-mode="intervention"][data-panneau="alerte"] .entete .puce { display: block; line-height: 44px; padding-block: 0; }
+@media (orientation: landscape) and (max-height: 600px) { body[data-mode="intervention"] .entete .puce { display: block; line-height: 44px; padding-block: 0; } }
+/* pendant l'appel : une seule rangée, quel que soit le corps du texte */
+body[data-mode="intervention"][data-panneau="alerte"] .entete { grid-template-areas: "g r p u o"; }
+body[data-mode="intervention"][data-panneau="alerte"] .entete .chrono-global { grid-area: g; }
+body[data-mode="intervention"][data-panneau="alerte"] .entete .repere { grid-area: r; }
+body[data-mode="intervention"][data-panneau="alerte"] .entete #pause-metronome { grid-area: p; }
+body[data-mode="intervention"][data-panneau="alerte"] .entete .place-profession { grid-area: u; min-width: 0; display: flex; }
+body[data-mode="intervention"][data-panneau="alerte"] .entete .puce { flex: 1 1 0; min-width: 0; max-width: none; }
+body[data-mode="intervention"][data-panneau="alerte"] .entete .bandeau-roles { grid-area: o; min-width: 0; }
+/* pendant l'appel, la fréquence, le cycle et l'avertissement du son laissent la place au panneau d'alerte (la rangée 1 reste : chrono, pause, profession, rôles) */
+body[data-mode="intervention"][data-panneau="alerte"] .entete #frequence,
+body[data-mode="intervention"][data-panneau="alerte"] .entete .chrono-cycle,
+body[data-mode="intervention"][data-panneau="alerte"] .entete .avertissement-son { display: none; }
+body[data-mode="intervention"][data-panneau="alerte"] .roles-long { display: none; }
+body[data-mode="intervention"][data-panneau="alerte"] .roles-court { display: inline; }
+body[data-mode="intervention"][data-texte="grand"] .entete .avertissement-son { display: none; }
+@media (orientation: landscape) and (max-height: 600px) {
+  body[data-mode="intervention"][data-texte="grand"] .entete .chrono-cycle { display: none; }
+  body[data-mode="intervention"][data-texte="grand"] .entete { grid-template-areas: "g r p u o" "f f f f f"; }
+}
+
+/* Paysage bas, écran ACR : la zone « cycle » (colonne de gauche) reste COLLÉE EN HAUT de la zone centrale — quand on fait défiler les tuiles (colonne de droite),
+   décompte et bouton de relance restent sous les yeux (4.3 bis, critère : relance visible sans défilement). Le bouton de relance précède les événements dans le code :
+   si la zone dépasse la fenêtre, ce sont les événements qui se joignent par défilement, jamais la relance. */
+@media (orientation: landscape) and (max-height: 600px) {
+  body[data-mode="intervention"] .ecran-acr { align-items: start; }
+  /* la zone s'étire sur toute la hauteur des tuiles (sans cadre propre : le cadre est celui de « haut ») : le bloc collant reste ainsi dans sa case pendant tout le défilement */
+  body[data-mode="intervention"] .zone-cycle { align-self: stretch; flex-direction: row; flex-wrap: wrap; align-content: flex-start; align-items: center; gap: 0.25rem 0.5rem; border: 0; padding: 0; }
+  body[data-mode="intervention"] .cycle-haut { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.5rem; flex: 1 1 100%; position: sticky; top: 0; z-index: 1; background: var(--fond); padding: 0.25rem 0.5rem; border: 0.125rem solid var(--bordure); border-radius: var(--rayon); }
+  body[data-mode="intervention"] .zone-cycle .evenements, body[data-mode="intervention"] .zone-cycle .rappels { padding-inline: 0.125rem; }
+  body[data-mode="intervention"] .cycle-decompte { font-size: 1.75rem; flex: none; }
+  body[data-mode="intervention"] .cycle-statut { flex: 1 1 0; min-width: 0; font-size: 0.8125rem; }
+  body[data-mode="intervention"] .cycle-note { flex: 1 1 100%; font-size: 0.6875rem; }
+  body[data-mode="intervention"] .zone-cycle .bouton-relance { flex: 1 1 100%; min-height: 48px; font-size: 0.8125rem; line-height: 1.15; padding-block: 0.125rem; }
+  body[data-mode="intervention"] .zone-cycle .evenements { flex: 1 1 100%; gap: 0.25rem; }
+  body[data-mode="intervention"]:not([data-texte="grand"]) .zone-cycle .evenements .bouton { flex: 1 1 30%; min-height: 48px; font-size: 0.6875rem; line-height: 1.1; padding: 0.125rem; }
+  body[data-mode="intervention"] .zone-cycle .rappels { flex: 1 1 100%; }
+  body[data-mode="intervention"][data-texte="grand"] .ecran-acr { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }   /* colonne des tuiles plus étroite : leur texte réduit y tient, le bouton de relance gagne en largeur (donc en hauteur utile) */
+  body[data-mode="intervention"][data-texte="grand"] .cycle-decompte { font-size: 1rem; }
+  body[data-mode="intervention"][data-texte="grand"] .cycle-statut { font-size: 0.5rem; }
+  body[data-mode="intervention"][data-texte="grand"] .cycle-note { font-size: 0.4375rem; }
+  body[data-mode="intervention"][data-texte="grand"] .zone-cycle .bouton-relance { font-size: 0.4375rem; padding-inline: 0.25rem; }
+  body[data-mode="intervention"][data-texte="grand"] .zone-cycle .evenements .bouton { font-size: 0.5rem; padding-block: 0.125rem; }
+}
+/* Paysage bas, texte à 200 % : les tuiles se réduisent à une taille qui tient dans la demi-largeur (sinon la zone centrale défilait en largeur et cachait la colonne de gauche) */
+@media (orientation: landscape) and (max-height: 600px) {
+  body[data-mode="intervention"] .ecran-acr, body[data-mode="intervention"] .tuiles, body[data-mode="intervention"] .zone-cycle { min-width: 0; }
+  body[data-mode="intervention"] .tuile { min-width: 0; overflow-wrap: anywhere; }
+  body[data-mode="intervention"][data-texte="grand"] .tuile { font-size: 0.5rem; min-height: 48px; padding: 0.125rem 0.375rem; gap: 0.25rem; }
+  body[data-mode="intervention"][data-texte="grand"] .tuile-etat { font-size: 0.625rem; width: 0.75rem; }
+  body[data-mode="intervention"][data-texte="grand"] .tuile-fait, body[data-mode="intervention"][data-texte="grand"] .tuile .marque { font-size: 0.4375rem; }
+}
+/* Paysage bas, texte à 200 % : les bandeaux d'avertissement (BROUILLON, Écran…) se resserrent d'un cran de plus ; le détail reste à l'attribut title */
+@media (orientation: landscape) and (max-height: 600px) {
+  body[data-mode="intervention"][data-texte="grand"] .bandeau { font-size: 0.5rem; padding-block: 0.0625rem; }
+  body[data-mode="intervention"][data-texte="grand"] .bandeau-brouillon { font-size: 0.5rem; }
+}
+
+/* ───────── Lot L9c, étape 2 (M4) : le panneau d'alerte tient dans un petit écran ─────────
+   « J'ai appelé », le 114, le 18 et le plan interne restent entièrement visibles sans défilement à 375×667 et 320×568 (tableau 4.0, fonctions 3 et 4) :
+   en-tête compact pendant l'appel (voir plus haut), 114 et 18 côte à côte, lignes d'information resserrées, boutons du 15 et du 112 à 56 px (cible ≥ 48 px). */
+.autres-numeros { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.5rem; }
+.autres-numeros .bouton { min-height: 48px; font-size: 0.875rem; line-height: 1.15; padding: 0.25rem 0.375rem; }
+body[data-mode="intervention"]:not([data-texte="grand"]) .panneau-alerte { gap: 0.25rem; padding-block: 0.25rem; }
+body[data-mode="intervention"]:not([data-texte="grand"]) .panneau-alerte .bouton-appel { min-height: 56px; }
+body[data-mode="intervention"]:not([data-texte="grand"]) .panneau-alerte .plan-aide { font-size: 0.75rem; line-height: 1.15; }
+body[data-mode="intervention"]:not([data-texte="grand"]) .panneau-alerte .confirmation { min-height: 1rem; font-size: 0.8125rem; line-height: 1.1; }
+body[data-mode="intervention"]:not([data-texte="grand"]) .panneau-alerte .plan-interne h2 { font-size: 0.875rem; margin: 0; }
+body[data-mode="intervention"]:not([data-texte="grand"]) .panneau-alerte .plan-interne p { margin: 0; font-size: 0.8125rem; line-height: 1.15; }
+
+/* Menu en paysage bas : trois colonnes (les dix fonctions du tableau 4.0 tiennent sans défilement à 640×360 ; Rôles et À propos, hors tableau, peuvent défiler) */
+@media (orientation: landscape) and (max-height: 600px) {
+  body[data-mode="intervention"]:not([data-texte="grand"]) .menu-intervention { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+/* petit écran (≤ 340 px de large) : la ligne unique de l'en-tête pendant l'appel se resserre encore, les libellés des autres numéros (114 : quatre lignes) prennent un corps plus petit */
+@media (max-width: 340px) {
+  body[data-mode="intervention"][data-panneau="alerte"]:not([data-texte="grand"]) .entete { gap: 0.125rem 0.25rem; padding-inline: 0.375rem; }
+  body[data-mode="intervention"][data-panneau="alerte"]:not([data-texte="grand"]) .entete .chrono-global { font-size: 1rem; }
+  body[data-mode="intervention"][data-panneau="alerte"]:not([data-texte="grand"]) .entete .repere { width: 1rem; height: 1rem; }
+  body[data-mode="intervention"][data-panneau="alerte"]:not([data-texte="grand"]) .entete .metronome .bouton { padding-inline: 0.5rem; }
+  body[data-mode="intervention"][data-panneau="alerte"]:not([data-texte="grand"]) .entete .bandeau-roles { padding-inline: 0.375rem; font-size: 0.8125rem; }
+  body[data-mode="intervention"]:not([data-texte="grand"]) .autres-numeros .bouton { font-size: 0.75rem; line-height: 1.1; padding: 0.125rem 0.25rem; }
+}
+@media (max-width: 340px) {
+  body[data-mode="intervention"]:not([data-texte="grand"]) .autres-numeros { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); }   /* le 114 a le libellé le plus long : il prend la plus grande part */
+  body[data-mode="intervention"]:not([data-texte="grand"]) .panneau-alerte { padding-block: 0.125rem; }
+}
+@media (max-width: 340px) and (max-height: 600px) {
+  body[data-mode="intervention"]:not([data-texte="grand"]) .panneau-alerte { gap: 0.125rem; }
+  body[data-mode="intervention"]:not([data-texte="grand"]) .panneau-alerte .bouton-appel { min-height: 52px; }
+}
+
+/* ───────── Lot L9c, étape 2 (D-28) : bandeau « Fiche reprise » = texte qui se tronque + boutons qui ne se coupent jamais ───────── */
+body[data-mode="intervention"] .bandeau-reprise { display: flex; align-items: center; gap: 0.5rem; }
+body[data-mode="intervention"] .bandeau-reprise .bandeau-texte { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body[data-mode="intervention"] .bandeau-reprise .bouton { flex: none; padding-inline: 0.5rem; }
+
+/* ───────── Lot L9c, étape 2 (M5) : préparation du téléphone depuis l'accueil ───────── */
+#resultat-test:empty { display: none; }
+#etat-preparation .etat-note { margin: 0; padding: 0 var(--espace) 0.5rem; font-size: 0.875rem; }

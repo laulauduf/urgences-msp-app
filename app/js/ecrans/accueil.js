@@ -9,7 +9,7 @@ export const PRESENTATION = "Aide-mémoire interne à la MSP APSIS, qui affiche 
  * @param {{auUrgence: () => void, auSimulation: () => void, auxReglages: () => void, auGlossaire?: () => void, auToucher?: () => void}} actions
  * @returns {{afficherEnAttente: (lignes: object[], actions: {reprendre: Function, effacer: Function}) => void}}
  */
-export function afficherAccueil(conteneur, { auUrgence, auSimulation, auxReglages, auGlossaire = null, auMateriel = null, auAPropos = null, auToucher = () => {} }) {
+export function afficherAccueil(conteneur, { auUrgence, auSimulation, auxReglages, auGlossaire = null, auMateriel = null, auAPropos = null, auTester = null, auToucher = () => {} }) {
   const page = creer('section', 'accueil');
   page.addEventListener('pointerdown', auToucher, { capture: true, passive: true }); // « l'utilisateur a touché l'accueil » : plus de reprise directe
   page.append(creer('h1', 'accueil-titre', 'Urgences MSP APSIS'));
@@ -22,12 +22,16 @@ export function afficherAccueil(conteneur, { auUrgence, auSimulation, auxReglage
   // résultat d'un effacement (2.9, revue m10) : « Fiche effacée à hh:mm » ou la cause de l'échec — jamais un échec silencieux
   const resultat = creer('p', 'confirmation', '', { id: 'resultat-effacement', role: 'status' });
   page.append(resultat);
+  const resultatTest = creer('p', 'confirmation', '', { id: 'resultat-test', role: 'status' });
+  page.append(resultatTest);
   const liens = creer('div', 'accueil-liens');
   // chaque lien n'apparaît qu'à partir du lot qui livre son écran (4.1) : le glossaire est livré au lot L6
   liens.append(bouton('Simulation', 'bouton', auSimulation, { id: 'ouvrir-simulation' }));
   if (auMateriel) liens.append(bouton('Matériel', 'bouton', auMateriel, { id: 'ouvrir-materiel' }));   // livré au lot L9
   if (auGlossaire) liens.append(bouton('Glossaire', 'bouton', auGlossaire, { id: 'ouvrir-glossaire' }));
   liens.append(bouton('Réglages', 'bouton', auxReglages, { id: 'ouvrir-reglages' }));
+  // M5 (L9c étape 2, cahier 2.5, 2.6, 2.8, 4.1) : préparer son téléphone la veille — le test du son et de l'écran, et la demande de stockage persistant, sans lancer d'intervention
+  if (auTester) liens.append(bouton("Tester le son et l'écran", 'bouton', auTester, { id: 'ouvrir-test' }));
   if (auAPropos) liens.append(bouton('À propos', 'bouton', auAPropos, { id: 'ouvrir-apropos' }));   // livré au lot L9
   page.append(liens);
   conteneur.replaceChildren(page);
@@ -38,6 +42,7 @@ export function afficherAccueil(conteneur, { auUrgence, auSimulation, auxReglage
 
   return {
     afficherResultat(texte) { resultat.textContent = texte; },
+    afficherTest(texte) { resultatTest.textContent = texte; },
     /** Lignes « fiche en attente » sous URGENCE : jamais plus grandes que le bouton, jamais devant lui. */
     afficherEnAttente(lignes, { reprendre, effacer, exporter = null }) {
       attente.replaceChildren();

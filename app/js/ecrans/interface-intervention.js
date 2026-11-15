@@ -17,7 +17,7 @@ function suffixeMarques(c, { note = c.note } = {}) {
 import { afficherSecours } from './secours.js';
 import { afficherAlerte } from './alerte.js';
 import { afficherLieu } from './lieu.js';
-import { testerSonEtEcran } from '../test-appareil.js';
+import { testerSonEtEcran, phraseDuTest } from '../test-appareil.js';
 import { afficherRoles } from './roles.js';
 import { afficherProfession } from './profession.js';
 import { afficherChecklist, etatChecklistInitial } from './checklist.js';
@@ -106,7 +106,7 @@ export class InterfaceIntervention {
     appli.classList.remove('gabarit');
     entete.hidden = true; barre.hidden = true; entete.replaceChildren(); barre.replaceChildren();
     for (const b of bandeaux.querySelectorAll('[data-bandeau="simulation"],[data-bandeau="reprise"],[data-bandeau="version"],[data-bandeau="son"],[data-bandeau="ecran"],[data-bandeau="echeance"],[data-bandeau="rattrapage"]')) b.remove();
-    delete document.body.dataset.mode; delete document.body.dataset.texte;
+    delete document.body.dataset.mode; delete document.body.dataset.texte; delete document.body.dataset.panneau;
   }
 
   surEvenement(e) {
@@ -303,14 +303,14 @@ export class InterfaceIntervention {
       zone.prepend(b);
     }
     if (i.repriseDe) {
-      // UNE ligne (revue M3). Tant que personne n'a rien touché dans la fiche, les deux boutons y sont ; dès le premier toucher le bandeau se
-      // replie en texte seul (le menu garde « Nouvelle urgence » et « Accueil », à 2 touchers) : il ne mange plus l'écran pendant le massage.
-      const texte = `Fiche reprise — intervention commencée à ${heureLocale(i.repriseDe.debut)}`;
-      const b = creer('div', 'bandeau', texte, { 'data-bandeau': 'reprise', title: texte });
-      if (!this.repriseRepliee) {
-        b.append(' ', bouton('NOUVELLE URGENCE', 'bouton bouton-urgence', () => this.actions.nouvelleUrgence(), { id: 'nouvelle-urgence-reprise' }),
-          bouton('Accueil', 'bouton', () => this.actions.accueil(), { id: 'accueil-reprise' }));
-      }
+      // UNE ligne (revue M3). D-28 (cahier 2.8) : « NOUVELLE URGENCE » reste à UN toucher dans tous les cas. Tant que personne n'a rien touché dans la fiche, « Accueil »
+      // l'accompagne ; dès le premier toucher le bandeau se replie (texte court ; « Accueil » passe au menu, 2 touchers) mais GARDE son bouton NOUVELLE URGENCE. La ligne ne
+      // prend pas plus de place qu'avant (le bouton fait 48 px dans les deux cas) et l'équipe n'a jamais à chercher le menu pour repartir sur une autre victime.
+      const texte = this.repriseRepliee ? `Fiche reprise (${heureLocale(i.repriseDe.debut)})` : `Fiche reprise — intervention commencée à ${heureLocale(i.repriseDe.debut)}`;
+      const b = creer('div', 'bandeau bandeau-reprise', '', { 'data-bandeau': 'reprise', title: texte });
+      b.append(creer('span', 'bandeau-texte', texte));
+      b.append(bouton('NOUVELLE URGENCE', 'bouton bouton-urgence', () => this.actions.nouvelleUrgence(), { id: 'nouvelle-urgence-reprise' }));
+      if (!this.repriseRepliee) b.append(bouton('Accueil', 'bouton', () => this.actions.accueil(), { id: 'accueil-reprise' }));
       zone.append(b);
     }
     if (i.versionDifferente && !this.versionVue) {
@@ -347,6 +347,7 @@ export class InterfaceIntervention {
     const i = this.intervention;
     const { contenu } = this.zone;
     this.secours?.arreter(); this.secours = null;
+    document.body.dataset.panneau = this.panneau ?? '';   // l'en-tête se compacte pendant l'appel (app.css, L9c étape 2, M4)
     this.majBandeauxFixes();
     this.majBandeauxSon();
     if (this.panneau === 'checklist' && i.situation !== ACR) this.versPrincipal();   // pas de checklist hors d'une fiche ACR
@@ -453,13 +454,17 @@ export class InterfaceIntervention {
     // zone « cycle » : apparaît au premier toucher d'une tuile vitale ; les tuiles restent en place
     const cycle = creer('div', 'zone-cycle', '', { id: 'zone-cycle' });
     cycle.hidden = !i.tuileTouchee;
-    cycle.append(creer('p', 'cycle-decompte', '--:--', { id: 'cycle-decompte' }));
-    cycle.append(creer('p', 'cycle-statut', '', { id: 'cycle-statut' }));
+    // « haut » = décompte, statut, note et bouton de relance : en portrait il est transparent (display: contents) ; en paysage il reste collé en haut de la zone
+    // centrale quand on fait défiler les tuiles (app.css, L9c étape 2, M1 paysage) ; les événements et les rappels, eux, défilent.
+    const haut = creer('div', 'cycle-haut');
+    haut.append(creer('p', 'cycle-decompte', '--:--', { id: 'cycle-decompte' }));
+    haut.append(creer('p', 'cycle-statut', '', { id: 'cycle-statut' }));
     if (i.chronoCycle) {
       const note = i.chronoCycle.note;
-      if (note) cycle.append(creer('p', 'cycle-note', `${note}${suffixeMarques(i.chronoCycle, { note })}`, { id: 'cycle-note' }));
-      cycle.append(bouton(i.libelleRelance, 'bouton bouton-accent bouton-plein bouton-relance', () => i.relancerCycle(), { id: 'relance-cycle' }));
+      if (note) haut.append(creer('p', 'cycle-note', `${note}${suffixeMarques(i.chronoCycle, { note })}`, { id: 'cycle-note' }));
+      haut.append(bouton(i.libelleRelance, 'bouton bouton-accent bouton-plein bouton-relance', () => i.relancerCycle(), { id: 'relance-cycle' }));
     }
+    cycle.append(haut);
     const evenements = creer('div', 'evenements', '', { id: 'evenements' });
     for (const ev of i.evenements) {
       const b = bouton('', 'bouton', () => { i.noterEvenement(ev.id); }, { 'data-evenement': ev.id });
@@ -534,7 +539,8 @@ export class InterfaceIntervention {
     ligne('Tester le son et l\'écran', async () => {
       this.messageTest = 'Test en cours…'; this.rendre();
       const r = await testerSonEtEcran({ son: this.son, ecran: this.ecran });
-      this.messageTest = `Son : ${r.son.contexte} (canal ${r.son.canal}) · Écran : ${r.ecran.accorde ? 'verrou accordé' : 'verrou non accordé'} · Stockage persistant : ${r.persistance.persistant === null ? 'inconnu' : r.persistance.persistant ? 'oui' : 'non'}. Sur iPhone, l'alerte ne vibre pas : gardez l'écran en vue.`;
+      this.messageTest = phraseDuTest(r);
+      this.actions.testeFait?.(r);   // M5 : le résultat alimente aussi la ligne d'état de l'accueil
       this.rendre();
     }, 'menu-tester');
     if (this.messageTest) page.append(creer('p', 'plan-aide', this.messageTest, { role: 'status' }));

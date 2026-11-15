@@ -31,3 +31,13 @@ export function lireEnvironnement() {
     affichageStandalone: typeof matchMedia === 'function' && matchMedia('(display-mode: standalone)').matches,
   };
 }
+
+/**
+ * Point « appli installée » de la ligne d'état (4.1). Sur iPhone hors appli installée, le stockage de Safari peut être purgé après 7 jours (2.8) : point à vérifier.
+ * Ailleurs, l'état est dit sans rien exiger.
+ */
+export function pointInstallation(entree) {
+  if (estInstallee(entree)) return { ok: true, texte: "Appli installée (ouverte depuis son icône)" };
+  if (estAppareilApple(entree)) return { ok: false, texte: "Appli non installée sur cet iPhone : installez-la et ouvrez-la depuis son icône (le stockage de Safari peut être purgé)" };
+  return { ok: true, texte: 'Appli ouverte dans un navigateur (non installée)' };
+}

@@ -4,6 +4,7 @@
 
 const points = new Map(); // identifiant → { texte, ok }
 let ouvert = false;
+let note = null; // ligne d'information sous le bouton (ex. « son et écran pas encore testés »)
 
 function racine() { return document.getElementById('etat-preparation'); }
 
@@ -14,6 +15,20 @@ export function definirPoint(id, { texte, ok }) {
 }
 
 export function retirerPoint(id) { points.delete(id); rendre(); }
+
+/** Ligne d'information sous le bouton « Prêt » / « n points à vérifier » ; `null` la retire. Elle ne compte pas dans les points à vérifier. */
+export function definirNote(texte) { note = texte; rendre(); }
+
+/**
+ * Point « codes d'accès du lieu » (4.1) : combien de champs sensibles de la structure sont renseignés sur CE téléphone. Ne dit jamais la valeur saisie (donnée sensible).
+ * `ok: true` dans tous les cas : un champ vide n'est pas une panne (la liste informe, elle ne bloque rien). `null` si la structure ne déclare aucun champ.
+ */
+export function pointCodesLocaux(structure, valeurs) {
+  const champs = Array.isArray(structure?.donnees?.champs_sensibles_locaux) ? structure.donnees.champs_sensibles_locaux.filter((c) => typeof c?.id === 'string') : [];
+  if (champs.length === 0) return null;
+  const remplis = champs.filter((c) => typeof valeurs?.[c.id] === 'string' && valeurs[c.id].trim() !== '').length;
+  return { ok: true, texte: `Codes d'accès du lieu : ${remplis} sur ${champs.length} renseignés sur ce téléphone (Réglages)` };
+}
 
 export function pointsAVerifier() { return [...points.values()].filter((p) => !p.ok); }
 
@@ -31,6 +46,7 @@ export function rendre() {
   bouton.textContent = aVerifier.length === 0 ? '✓ Prêt' : `⚠ ${aVerifier.length} point${aVerifier.length > 1 ? 's' : ''} à vérifier`;
   bouton.addEventListener('click', () => { ouvert = !ouvert; rendre(); });
   zone.append(bouton);
+  if (note) { const p = document.createElement('p'); p.className = 'etat-note'; p.textContent = note; zone.append(p); }
 
   if (ouvert) {
     const liste = document.createElement('ul');

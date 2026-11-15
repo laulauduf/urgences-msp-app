@@ -1,11 +1,12 @@
 // Démarrage de l'appli (lot L2 : socle). Règle de fond : l'écran d'accueil s'affiche IMMÉDIATEMENT, sans attendre ni le service
 // worker, ni la vérification du cache, ni le chargement de la structure ni celui des protocoles ; tout cela tourne en parallèle
 // et vient seulement renseigner la ligne d'état de préparation (cahier des charges 2.8, 4.1).
-import { definirPoint, retirerPoint, rendre as rendreEtat } from './etat-preparation.js';
+import { definirPoint, retirerPoint, definirNote, pointCodesLocaux, rendre as rendreEtat } from './etat-preparation.js';
+import { testerSonEtEcran, pointsDuTest, phraseDuTest } from './test-appareil.js';
 import { enregistrer, verifierCache, activerNouvelleVersion, ETATS_MAJ } from './mise-a-jour.js';
 import { chargerStructure, problemeStructure } from './structure.js';
 import { chargerProtocole } from './protocole.js';
-import { lireEnvironnement, bandeauInstallationNecessaire, TEXTE_BANDEAU_INSTALLATION } from './installation.js';
+import { lireEnvironnement, bandeauInstallationNecessaire, pointInstallation, TEXTE_BANDEAU_INSTALLATION } from './installation.js';
 import { stockage } from './stockage.js';
 import { appliquerTheme, themeLocal } from './theme.js';
 import { chargerGroupes } from './professions.js';
@@ -50,6 +51,7 @@ function montrerAccueil() {
     auGlossaire: ouvrirGlossaire,
     auMateriel: ouvrirMateriel,
     auAPropos: ouvrirAPropos,
+    auTester: testerLaPreparation,
     auToucher: () => { app.accueilTouche = true; },
   });
   afficherMiseAJour(app.etatMaj);   // revue m1 : le bandeau « Nouvelle version » appartient à l'accueil : il y revient après l'intervention
@@ -127,6 +129,7 @@ function ouvrirInterface(i) {
     actions: {
       accueil: () => quitterIntervention({ aller: true }),
       professionChangee: () => majPointProfession(),
+      testeFait: (r) => appliquerResultatTest(r),   // « Tester le son et l'écran » du menu alimente aussi la ligne d'état (M5)
       nouvelleUrgence: () => { quitterIntervention({ aller: false }); demarrerUrgence('reel'); },
       urgenceReelle: () => { quitterIntervention({ aller: false }); demarrerUrgence('reel'); }, // la simulation reste en pause, la VRAIE fiche s'ouvre
       terminee: () => quitterIntervention({ aller: true, detruite: true }),
@@ -184,7 +187,7 @@ async function ouvrirReglages() {
     structure: contexte.structure,
     groupes: contexte.groupes,
     onRetour: () => { montrerAccueil(); },
-    onChangement: (cle) => { if (cle === 'profession') majPointProfession(); },
+    onChangement: (cle) => { if (cle === 'profession' || cle === 'champs_sensibles') majPointProfession(); },
   });
   contenu.focus();
 }
@@ -211,10 +214,45 @@ function ouvrirAPropos() {
   contenu.focus();
 }
 
+const NOTE_NON_TESTE = "Son et écran : pas encore testés sur ce téléphone (bouton « Tester le son et l'écran » de l'accueil).";
+let testEnCours = false;
+
+/** M5 : le résultat du test alimente la ligne d'état (points « son », « écran », « stockage persistant ») ; la note « pas encore testés » disparaît. */
+function appliquerResultatTest(r) {
+  const p = pointsDuTest(r);
+  definirPoint('son', p.son); definirPoint('ecran', p.ecran); definirPoint('persistance', p.persistance);
+  definirNote(null);
+}
+
+/**
+ * « Tester le son et l'écran » depuis l'accueil (M5, cahier 2.5, 2.6, 2.8) : UN geste de l'utilisateur pour essayer le son (bip d'alerte), demander le verrou d'écran d'essai
+ * et la persistance du stockage — sans lancer d'intervention. Jamais bloquant ; le résultat est dit sur l'accueil et dans la ligne d'état.
+ */
+async function testerLaPreparation() {
+  if (testEnCours) return;
+  testEnCours = true;
+  const ui = app.accueilUI;
+  ui?.afficherTest('Test en cours…');
+  try {
+    const r = await testerSonEtEcran({ son: app.son, ecran: app.ecran });
+    appliquerResultatTest(r);
+    if (ui === app.accueilUI) ui.afficherTest(phraseDuTest(r));
+  } catch {
+    if (ui === app.accueilUI) ui.afficherTest("Le test n'a pas pu se faire sur ce téléphone : touchez à nouveau le bouton.");
+  } finally { testEnCours = false; }
+}
+
+/** Point « codes d'accès du lieu » (4.1) : informatif, jamais bloquant ; ne dit jamais les valeurs. */
+function majPointCodes() {
+  const p = pointCodesLocaux(contexte.structure, contexte.reglages?.champs_sensibles);
+  if (p) definirPoint('codes', p); else retirerPoint('codes');
+}
+
 /** Point « profession » de la ligne d'état (4.1) : ne bloque jamais, signale seulement. */
 async function majPointProfession() {
   const r = await stockage.lireReglages();
   contexte.reglages = r;
+  majPointCodes();
   const groupe = contexte.groupes.find((g) => g.id === r.profession);
   definirPoint('profession', r.profession === null
     ? { texte: 'Profession non réglée — à régler dans Réglages (comportement du groupe le plus restreint)', ok: false }
@@ -297,6 +335,7 @@ async function verifierStructure() {
   contexte.structure = analyse;
   const probleme = problemeStructure(analyse);
   definirPoint('structure', { texte: probleme ?? 'Configuration de la structure renseignée', ok: probleme === null });
+  majPointCodes();
 }
 
 async function verifierProtocoles() {
@@ -315,6 +354,8 @@ function demarrer() {
   montrerAccueil();
   poserBandeauBrouillon();
   afficherBandeauInstallation();
+  definirPoint('installation', pointInstallation(lireEnvironnement()));
+  definirNote(NOTE_NON_TESTE);
   rendreEtat();
   // Tout le reste en parallèle, sans que l'accueil l'attende.
   brancherStockage();

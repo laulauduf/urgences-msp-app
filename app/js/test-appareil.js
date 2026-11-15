@@ -20,3 +20,30 @@ export async function testerSonEtEcran({ son, ecran, stockageNavigateur = global
   } catch { persistance = { prise_en_charge: true, persistant: false }; }
   return { son: resultatSon, ecran: resultatEcran, persistance };
 }
+
+/**
+ * Le résultat du test, en points de la ligne d'état de préparation (4.1) : « Son testé », « Écran maintenu allumé », « Stockage persistant ».
+ * Un point est « ok » seulement si ce qui a été MESURÉ l'est ; le son qui sort réellement n'est pas mesurable (bug WebKit, cahier 2.6) : le point le dit.
+ * @returns {{son: {texte: string, ok: boolean}, ecran: {texte: string, ok: boolean}, persistance: {texte: string, ok: boolean}}}
+ */
+export function pointsDuTest(r) {
+  const sonOk = r.son.contexte === 'running' && r.son.canal !== 'aucun';
+  const son = sonOk
+    ? { ok: true, texte: `Son testé (contexte ${r.son.contexte}, canal ${r.son.canal}) — l'appli ne peut pas savoir si le son sort : vérifiez le volume média et le mode silencieux` }
+    : { ok: false, texte: `Son : le test n'a pas démarré le son (contexte ${r.son.contexte}, canal ${r.son.canal}) — touchez l'écran puis recommencez` };
+  const ecran = r.ecran.accorde
+    ? { ok: true, texte: 'Écran maintenu allumé : verrou accordé' }
+    : { ok: false, texte: `Écran : verrou non accordé — ${r.ecran.avertissement ?? "il peut s'éteindre"}` };
+  const persistance = r.persistance.persistant === true
+    ? { ok: true, texte: 'Stockage persistant accordé' }
+    : r.persistance.prise_en_charge === false
+      ? { ok: false, texte: 'Stockage persistant : non pris en charge par ce navigateur (état inconnu)' }
+      : { ok: false, texte: "Stockage non persistant : le navigateur n'a pas accordé la protection contre l'effacement automatique" };
+  return { son, ecran, persistance };
+}
+
+/** La phrase du test (menu d'intervention et accueil) : ce que le téléphone a dit de lui-même. */
+export function phraseDuTest(r) {
+  const persistant = r.persistance.persistant === null ? 'inconnu' : r.persistance.persistant ? 'oui' : 'non';
+  return `Son : ${r.son.contexte} (canal ${r.son.canal}) · Écran : ${r.ecran.accorde ? 'verrou accordé' : 'verrou non accordé'} · Stockage persistant : ${persistant}. Sur iPhone, l'alerte ne vibre pas : gardez l'écran en vue.`;
+}
