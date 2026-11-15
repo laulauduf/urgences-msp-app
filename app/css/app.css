@@ -375,6 +375,8 @@ body[data-texte="grand"] .equipe .roles-court { display: inline; }
 }
 .etape[data-etat="faite"] .case { background: var(--ok); border-color: var(--ok); color: var(--sur-ok); }
 .case[disabled] { opacity: 0.45; }
+.etape-renvoi { grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem; padding: 0.25rem 0.5rem 0.25rem 0.75rem; }
+.etape-renvoi .bouton-renvoi { min-height: 48px; padding: 0 1rem; font-weight: 800; }
 .etape-info { text-align: center; color: var(--texte-attenue); font-size: 1.125rem; }
 .etape-texte { display: block; padding: 0.5rem 0.25rem; font-size: 1.1875rem; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
 .etape-titre { grid-column: 2 / 4; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; min-height: 54px; padding: 0; border: 0; border-radius: 0; background: transparent; justify-content: stretch; text-align: left; font-weight: 400; }
@@ -864,3 +866,33 @@ body[data-texte="grand"] .etape-fleche { margin: 0 12px 4px 8px; }
 .info-emplacement { color: var(--texte-attenue); font-size: 0.875rem; }
 /* ligne d'état de préparation : une carte arrondie (comme le reste), plus une dalle collée au bord */
 #etat-preparation { margin: 0 var(--espace) var(--espace); border: 0.0625rem solid var(--ligne); border-radius: var(--rayon-carte); background: var(--surface); overflow: hidden; }
+
+/* ───────── Lot R1e : écran « Autre situation » (style de l'accueil) et clôture allégée ───────── */
+.autre-situation { gap: 0.75rem; }
+.autre-situation .gros-urgence { min-height: max(5.5rem, 14vh); font-size: 1.5rem; }
+.autre-situation .gros-urgence small { font-size: 1rem; }
+.autre-outils > .gros:last-child:nth-child(odd) { grid-column: 1 / -1; }   /* trois outils en deux colonnes : le dernier prend toute la ligne */
+.autre-checklist:empty { display: none; }
+.checklist-commune { display: flex; flex-direction: column; gap: 0.5rem; }
+.checklist-commune .pastilles { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+.autre-bientot { margin: 0; text-align: center; color: var(--texte-attenue); font-size: 0.875rem; font-weight: 500; }
+@media (orientation: landscape) and (max-height: 600px) {
+  .autre-situation { gap: 0.5rem; }
+  .autre-situation .gros-urgence { min-height: 4rem; font-size: 1.25rem; }
+  .autre-situation .gros-urgence small { font-size: 0.875rem; }
+  .autre-outils > .gros:last-child:nth-child(odd) { grid-column: auto; }   /* trois colonnes en paysage bas */
+}
+body[data-texte="grand"] .autre-situation .gros-urgence { min-height: min(4rem, 22vh); }
+body[data-texte="grand"] .autre-situation .autre-bientot { font-size: 0.625rem; }
+body[data-texte="grand"] .checklist-commune .pastilles { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+/* clôture : une phrase visible par avertissement, le détail complet dans « Pourquoi ? » ; texte en graisse 500 */
+.ecran-cloture .cloture-avertissement { font-weight: 500; }
+.cloture-avertissement-replie { padding: 0.375rem 0.5rem; }
+.cloture-avertissement-replie::before { content: none; }
+.cloture-avertissement-replie .cloture-resume { margin: 0; }
+.cloture-avertissement-replie .cloture-resume::before { content: "⚠ "; }
+.cloture-pourquoi summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-size: 0.875rem; text-decoration: underline; }
+.cloture-pourquoi p { margin: 0.25rem 0; font-size: 0.875rem; }
+.cloture-aide { margin: 0; font-size: 0.875rem; font-weight: 500; color: var(--texte-attenue); }   /* 14 px à 100 % ; en rem pour suivre le texte agrandi */
+body[data-mode="intervention"][data-texte="grand"] .cloture-aide, body[data-mode="intervention"][data-texte="grand"] .cloture-pourquoi summary, body[data-mode="intervention"][data-texte="grand"] .cloture-pourquoi p { font-size: 0.6875rem; }

@@ -34,6 +34,8 @@ import { construireMateriel } from '../materiel.js';
 import { construireTransmission } from '../bilan.js';
 import { texteBandeau, texteBandeauCourt, texteBandeauRempli } from '../roles.js';
 import { ACR, AUTRE } from '../intervention.js';
+/** Après la bascule « Autre situation » → ACR, les touchers sur le contenu sont ignorés ce temps (R1f, M2). */
+const DELAI_REBOND_BASCULE_MS = 600;
 
 /**
  * ÉCRANS DE SAISIE : liste UNIQUE des panneaux où l'on tape. Ils ne sont JAMAIS reconstruits sur l'événement « changement » : sinon la
@@ -68,6 +70,8 @@ export class InterfaceIntervention {
     this.jr = { corrige: null, texte: '', erreur: null };   // journal : entrée en cours de correction
     this.cloture = null;                       // écran « Clôture et export » (L8) : il a son propre état et se redessine lui-même
     this.cl = etatAcrInitial();   // précisions dépliées, saisie de l'heure, pastille courante : survit au redessin de l'écran ACR
+    this.clCommun = etatAcrInitial();   // idem pour la checklist commune de « Autre situation » (D-51)
+    this.lieuRetour = 'alerte';         // écran où revient « Retour » du lieu : 'alerte' (d'origine) ou null = écran principal (« Autre situation »), voir ouvrirLieu
     this.secours = null; this.minuteur = null; this.debranchements = []; this.messageTest = null; this.echeances = new Map();
     this.zone = { entete: document.getElementById('entete'), barre: document.getElementById('barre'), contenu: document.getElementById('contenu'), bandeaux: document.getElementById('bandeaux'), appli: document.getElementById('appli') };
   }
@@ -87,6 +91,10 @@ export class InterfaceIntervention {
     this.debranchements.push(this.intervention.ecouter((e) => this.surEvenement(e)));
     // premier toucher dans la fiche reprise : le bandeau « Fiche reprise » se replie APRÈS l'action touchée (jamais entre le toucher et le clic :
     // le contenu ne bouge pas sous le doigt)
+    // R1f (M2) : après un changement de situation (tuile rouge, bouton « Passer en ACR »), les touchers sur le contenu sont ignorés ~600 ms : un double toucher ne doit rien cocher sur l'écran qui s'ouvre
+    const ignorerRebond = (ev) => { if (this.panneau === null && performance.now() < this.touchesIgnoreesJusqua) { ev.stopPropagation(); ev.preventDefault(); } };
+    this.zone.contenu.addEventListener('click', ignorerRebond, true);
+    this.debranchements.push(() => this.zone.contenu.removeEventListener('click', ignorerRebond, true));
     const marquerToucher = () => { if (this.intervention.repriseDe) this.repriseRepliee = true; };
     const replier = () => { if (this.intervention.repriseDe && this.repriseRepliee) this.majBandeauxFixes(); };
     for (const zoneToucher of [this.zone.contenu, this.zone.barre]) {
@@ -422,8 +430,13 @@ export class InterfaceIntervention {
    */
   rendre() {
     this.dessiner();
-    const cle = this.panneau ?? 'principal';
-    if (cle !== this.cleEcran) { this.zone.contenu.scrollTop = 0; this.cleEcran = cle; }
+    this.majBarreVitale();   // R1f (m7) : « Masser » et « DAE » apparaissent avec l'écran ACR, sans attendre la boucle de 250 ms
+    // la clé inclut la situation : de « Autre situation » à l'ACR le panneau reste null, mais l'écran change (R1f, M2 : l'ACR s'ouvrait défilé, « Masser » sous le doigt)
+    const cle = `${this.panneau ?? 'principal'}|${this.intervention.situation ?? ''}`;
+    if (cle !== this.cleEcran) {
+      if (this.situationAffichee === AUTRE && this.intervention.situation === ACR) this.touchesIgnoreesJusqua = performance.now() + DELAI_REBOND_BASCULE_MS;
+      this.zone.contenu.scrollTop = 0; this.cleEcran = cle; this.situationAffichee = this.intervention.situation;
+    }
   }
 
   dessiner() {
@@ -462,9 +475,9 @@ export class InterfaceIntervention {
     } else if (this.panneau === 'glossaire') {
       afficherGlossaire(contenu, { glossaire: i.glossaire, auFermer: () => this.ouvrirPanneau(null) });
     } else if (this.panneau === 'alerte') {
-      afficherAlerte(contenu, { intervention: i, numeros: this.numerosFn(), structure: this.structure, auFermer: () => this.ouvrirPanneau(null), auLieu: () => this.ouvrirPanneau('lieu'), auTransmission: () => this.ouvrirPanneau('transmission') });
+      afficherAlerte(contenu, { intervention: i, numeros: this.numerosFn(), structure: this.structure, auFermer: () => this.ouvrirPanneau(null), auLieu: () => this.ouvrirLieu('alerte'), auTransmission: () => this.ouvrirPanneau('transmission') });
     } else if (this.panneau === 'lieu') {
-      afficherLieu(contenu, { intervention: i, structure: this.structure, auRetour: () => this.ouvrirPanneau('alerte') });
+      afficherLieu(contenu, { intervention: i, structure: this.structure, auRetour: () => this.ouvrirPanneau(this.lieuRetour) });
     } else if (this.panneau === 'roles') {
       afficherRoles(contenu, { intervention: i, auFermer: () => this.ouvrirPanneau(null) });
     } else if (this.panneau === 'profession') {
@@ -509,13 +522,68 @@ export class InterfaceIntervention {
     this.zone.contenu.replaceChildren(page);
   }
 
+  /**
+   * Écran « Autre situation » (lot R1e, CHOIX PROVISOIRE, aucun texte médical) : même style que l'accueil. De haut en bas : la tuile ROUGE « Arrêt cardiaque » (passage en ACR en UN toucher,
+   * journalisé, fiche et coches conservées — `Intervention.choisirAcr`), la checklist COMMUNE (D-51) quand son fichier est publié, les outils (fiche, transmission, lieu), la ligne « Bientôt ».
+   * Le chronomètre global est dans l'en-tête ; la barre du bas reste « Appeler le 15 » + « Fiche » (pas de protocole ACR : ni Masser, ni DAE).
+   */
   afficherAutre() {
-    const page = creer('section', 'page');
-    page.append(creer('h1', null, 'Autre situation'));
-    page.append(creer('p', null, "L'alerte, le chronomètre global, la fiche bilan et le mode transmission restent disponibles."));
-    page.append(bouton('Passer en ACR', 'bouton bouton-accent bouton-plein', () => { this.versPrincipal(); this.intervention.choisirAcr(); }, { id: 'passer-acr' }));
+    const i = this.intervention;
+    const page = creer('section', 'accueil autre-situation', '', { 'aria-label': 'Autre situation' });
+    /** Grosse tuile : titre + sous-titre discret (comme l'accueil). */
+    const gros = (titre, sous, classe, action, id) => { const b = bouton(titre, classe, action, { id }); b.append(creer('small', null, sous)); return b; };
+    const urgence = creer('div', 'accueil-grille');
+    urgence.append(gros('Arrêt cardiaque', 'passer en ACR', 'bouton bouton-urgence gros gros-urgence', () => { this.versPrincipal(); i.choisirAcr().catch(() => {}); }, 'passer-acr'));
+    page.append(urgence);
+    page.append(this.construireChecklistCommune());
+    const outils = creer('div', 'accueil-grille autre-outils');
+    outils.append(
+      gros('Fiche bilan', 'noter les informations', 'bouton gros', () => this.ouvrirPanneau('fiche'), 'autre-fiche'),
+      gros('Transmission au 15', 'message structuré', 'bouton gros', () => this.ouvrirPanneau('transmission'), 'autre-transmission'),
+      gros('Lieu / adresse', 'où envoyer les secours', 'bouton gros', () => this.ouvrirLieu(null), 'autre-lieu'),
+    );
+    page.append(outils);
+    page.append(creer('p', 'autre-bientot', 'Bientôt : autres protocoles', { id: 'autre-bientot' }));
+    page.append(creer('p', 'presentation', "L'alerte, le chronomètre global, la fiche bilan et le mode transmission restent disponibles."));
     this.zone.contenu.replaceChildren(page);
+    this.majPuceEtRoles();
   }
+
+  /**
+   * POINT D'EXTENSION (D-51) : la checklist courte de `protocoles/urgence-commune.json`, affichée par `afficherAcr` (mêmes lignes, mêmes coches T+, mêmes précisions, même pastille Sources).
+   * Tant que le fichier n'est pas publié (`protocole-commun.js`), `protocoleCommun` reste vide : cette fonction ne rend RIEN (aucune requête, aucune erreur). Fichier publié mais illisible : une ligne le dit.
+   */
+  construireChecklistCommune() {
+    const i = this.intervention;
+    const hote = creer('div', 'autre-checklist');
+    if (i.communEtat === 'illisible') {
+      hote.append(creer('p', 'avertissement-checklist', 'Liste de contrôle indisponible (fichier illisible) : les outils ci-dessous restent utilisables.', { id: 'commun-illisible', role: 'status' }));
+      return hote;
+    }
+    if (!i.protocoleCommun || i.vueChecklistCommune.racines.length === 0) return hote;
+    const equipe = this.construireEquipe();
+    const zone = document.createElement('div');   // afficherAcr remplit un conteneur ; on récupère sa section
+    afficherAcr(zone, {
+      intervention: i, etat: this.clCommun, structure: this.structure, avantEcran: equipe.childElementCount > 0 ? [equipe] : [],
+      auAlerte: () => this.ouvrirPanneau('alerte'), auRendre: () => this.rendre(), auRenvoi: (id) => this.renvoyerVers(id), renvoiPossible: (id) => id === i.protocoleId,
+      vue: i.vueChecklistCommune, protocole: i.protocoleCommun, classe: 'checklist-commune', sansMateriel: true,
+    });
+    hote.append(...zone.childNodes);
+    return hote;
+  }
+
+  /**
+   * RENVOI d'une étape de la checklist commune (`renvoi_protocole`) : bascule vers le protocole ACR par le MÊME chemin que la tuile rouge (un toucher, journalisé, fiche et coches conservées).
+   * L'identifiant de l'ACR est celui de l'intervention (`protocoleId`, qui vient de main.js), jamais une chaîne écrite ici ; toute autre valeur est ignorée, sans erreur.
+   */
+  renvoyerVers(idProtocole) {
+    const i = this.intervention;
+    if (idProtocole !== i.protocoleId || i.situation !== AUTRE) return;
+    this.versPrincipal(); i.choisirAcr().catch(() => {});
+  }
+
+  /** Ouvre le lieu ; `retour` = l'écran où revient « Retour » : 'alerte' depuis le panneau d'alerte (comportement d'origine), null depuis « Autre situation ». */
+  ouvrirLieu(retour) { this.lieuRetour = retour; this.ouvrirPanneau('lieu'); }
 
   afficherAcr() {
     const i = this.intervention;

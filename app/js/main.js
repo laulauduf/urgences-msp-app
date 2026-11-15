@@ -32,6 +32,10 @@ appliquerTheme(themeLocal());
 
 // POUR UN 2e PROTOCOLE, toucher ces endroits (revue aval M3) : cette constante et ses usages dans main.js (clôture depuis l'accueil, reprise, ouverture d'une urgence, À propos) ;
 // intervention.js (ACR / AUTRE, protocoleId unique à la construction) ; ecrans/interface-intervention.js (barre selon ACR, choix de situation) ; bilan.js (filtre par protocole) ; le texte BROUILLON est global.
+// DEUXIÈME PROTOCOLE DÉJÀ PRÉVU (D-51) : la checklist commune de « Autre situation », `protocoles/urgence-commune.json` (même format que l'ACR, sans cycle ni DAE). Elle est chargée par
+// protocole-commun.js (aucune requête tant que le fichier n'est pas dans la liste de cache), tenue par `Intervention.protocoleCommun` (identifiants préfixés « commun: » dans `fiche.checklist`, copie dans
+// `fiche.protocoles_utilises`), affichée par `afficherAutre` (interface-intervention.js) avec `afficherAcr`. Pour la publier : ajouter le fichier, `node outils/preparer-version.mjs` (liste de cache), et laisser
+// tests/controle-json.mjs dispenser CE fichier de la règle R9 (pas de premier écran). Un NOUVEAU protocole d'une autre situation suit la même voie : un id, un chargeur, un préfixe, un écran.
 const PROTOCOLE_PAR_DEFAUT = 'acr-adulte-dae';
 
 /** État de l'appli : une seule intervention à la fois, un seul son, un seul verrou d'écran. */

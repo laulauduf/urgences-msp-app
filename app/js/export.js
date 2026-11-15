@@ -14,6 +14,9 @@ export const TEXTE_BROUILLON_DOCUMENT = 'BROUILLON — protocoles non validés p
 export const AVERTISSEMENT_PARTAGE = "Ce document contient des données de santé. Il sort de l'appli : ne l'enregistrez pas dans un dossier synchronisé (iCloud, Google Drive…) ; préférez la remise en main propre au SMUR ; supprimez-le après remise. La messagerie et le courriel sont déconseillés.";
 export const AVERTISSEMENT_SAUVEGARDE = "La sauvegarde automatique du téléphone (iCloud, Google) peut inclure le document enregistré ; si elle inclut aussi le stockage de l'appli, on ne l'a pas établi.";
 export const AVERTISSEMENT_PRESSE_PAPIERS = "Le texte copié reste dans le presse-papiers, et peut passer sur vos autres appareils (iPhone) ou dans l'historique du clavier (Android)";
+// Lot R1e : sur l'écran de clôture, UNE phrase visible par avertissement ; le texte complet ci-dessus reste dans « Pourquoi ? » (on raccourcit, on ne retire rien).
+export const RESUME_SANTE = 'Données de santé : remise en main propre de préférence, pas de dossier synchronisé, à supprimer après remise.';
+export const RESUME_PRESSE_PAPIERS = "Le texte copié reste dans le presse-papiers : il peut passer sur d'autres appareils ou dans l'historique du clavier (Android).";
 /** Les libellés des moyens de remise sont dans bilan.js (le journal les dit aussi) : réexportés ici pour l'écran de clôture. */
 export { MOYENS };
 const PIED_DOCUMENT = 'Ce document contient des données de santé : confidentiel, à remettre en main propre et à supprimer après remise.';

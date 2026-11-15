@@ -7,10 +7,23 @@
 import { creer, bouton, heureLocale } from '../dom.js';
 import { construireTransmission, pageJournal } from '../bilan.js';
 import {
-  AVERTISSEMENT_PARTAGE, AVERTISSEMENT_SAUVEGARDE, AVERTISSEMENT_PRESSE_PAPIERS, QUESTION_REMISE, MOYENS, messageEffacement,
+  AVERTISSEMENT_PARTAGE, AVERTISSEMENT_SAUVEGARDE, AVERTISSEMENT_PRESSE_PAPIERS, RESUME_SANTE, RESUME_PRESSE_PAPIERS, QUESTION_REMISE, MOYENS, messageEffacement,
   peutPartager, partagerFichier, telechargerFichier, copierTexte, imprimerDocument, retirerImpression, empreinteContenu, viderPressePapiers, revoquerExports,
 } from '../export.js';
 import { afficherTransmission } from './transmission.js';
+
+/**
+ * Avertissement de SÛRETÉ allégé (lot R1e) : UNE phrase visible ; le texte complet (un ou plusieurs paragraphes) reste dans « Pourquoi ? » (`details`), jamais retiré :
+ * on raccourcit l'avertissement, on ne le supprime pas. L'identifiant reste sur le bloc entier.
+ */
+function avertissementReplie(id, resume, details) {
+  const bloc = creer('div', 'cloture-avertissement cloture-avertissement-replie', '', { id, role: 'note' });
+  bloc.append(creer('p', 'cloture-resume', resume));
+  const d = creer('details', 'cloture-pourquoi');
+  d.append(creer('summary', null, 'Pourquoi ?'), ...details.map((t) => creer('p', null, t)));
+  bloc.append(d);
+  return bloc;
+}
 
 /**
  * @param {HTMLElement} conteneur
@@ -51,9 +64,7 @@ export function afficherCloture(conteneur, ctx) {
     if (!etat.partage) {
       partage.append(bouton('Partager ou enregistrer…', 'bouton bouton-plein', () => { etat.partage = true; etat.message = peutPartager(entree()) ? '' : "Le partage de fichier n'est pas disponible sur cet appareil : montrez ou imprimez le document, ou enregistrez-le dans un fichier."; rendre(); }, { id: 'cloture-partager' }));
     } else {
-      const av = creer('div', 'cloture-avertissement', '', { id: 'cloture-avertissement-partage', role: 'note' });
-      av.append(creer('p', null, AVERTISSEMENT_PARTAGE), creer('p', null, AVERTISSEMENT_SAUVEGARDE));
-      partage.append(av);
+      partage.append(avertissementReplie('cloture-avertissement-partage', RESUME_SANTE, [AVERTISSEMENT_PARTAGE, AVERTISSEMENT_SAUVEGARDE]));
       if (peutPartager(entree())) {
         partage.append(bouton('Partager le fichier', 'bouton bouton-plein', async () => {
           etat.message = ''; etat.erreur = '';
@@ -78,8 +89,8 @@ export function afficherCloture(conteneur, ctx) {
     // 3. copie : en dernier, avec son avertissement lisible AVANT le geste
     const copie = creer('div', 'cloture-groupe');
     copie.append(
-      creer('p', 'cloture-avertissement', AVERTISSEMENT_PARTAGE, { id: 'cloture-avertissement-copie-sante' }),   // L8c (revue L8 M1) : données de santé, messagerie déconseillée — AVANT la copie (4.10.3)
-      creer('p', 'cloture-avertissement', AVERTISSEMENT_PRESSE_PAPIERS, { id: 'cloture-avertissement-copie' }),
+      ...(etat.partage ? [] : [avertissementReplie('cloture-avertissement-copie-sante', RESUME_SANTE, [AVERTISSEMENT_PARTAGE])]),   // R1f (m6) : pas deux fois la même phrase quand le bloc partage est ouvert, juste au-dessus   // L8c (revue L8 M1) : données de santé, messagerie déconseillée — AVANT la copie (4.10.3)
+      avertissementReplie('cloture-avertissement-copie', RESUME_PRESSE_PAPIERS, [AVERTISSEMENT_PRESSE_PAPIERS]),
       bouton('Copier le texte', 'bouton bouton-plein', async () => {
         etat.message = ''; etat.erreur = '';
         // l'appli retient qu'elle a écrit dans le presse-papiers AVANT d'écrire : si l'écriture aboutit à moitié, il sera quand même vidé à l'effacement
@@ -118,6 +129,8 @@ export function afficherCloture(conteneur, ctx) {
       const b = bouton('Clôturer et effacer', 'bouton bouton-plein', () => { etat.confirmeEffacer = true; etat.confirmeSans = false; rendre(); }, { id: 'cloture-effacer' });
       b.disabled = !exportee || etat.occupe;
       fin.append(b);
+      // bouton grisé : on dit une fois, en petit, ce qui le débloque (aucune explication ailleurs sur l'écran)
+      if (!exportee) { b.setAttribute('aria-describedby', 'cloture-effacer-aide'); fin.append(creer('p', 'cloture-aide', 'Possible une fois la remise confirmée (montrer, imprimer, partager…)', { id: 'cloture-effacer-aide' })); }
     }
     if (!exportee) {
       if (etat.confirmeSans) {

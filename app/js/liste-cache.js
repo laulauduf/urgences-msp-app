@@ -44,6 +44,7 @@ self.URGENCES_LISTE_CACHE = [
   "app/js/mise-a-jour.js",
   "app/js/numeros.js",
   "app/js/professions.js",
+  "app/js/protocole-commun.js",
   "app/js/protocole.js",
   "app/js/purge.js",
   "app/js/reprise.js",
@@ -62,5 +63,6 @@ self.URGENCES_LISTE_CACHE = [
   "protocoles/_commun/numeros.json",
   "protocoles/_commun/professions.json",
   "protocoles/_commun/unites.json",
-  "protocoles/acr-adulte-dae.json"
+  "protocoles/acr-adulte-dae.json",
+  "protocoles/urgence-commune.json"
 ];

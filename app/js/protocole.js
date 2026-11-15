@@ -5,8 +5,12 @@
 
 const DELAI_MAX_MS = 5000;
 
-/** Raisons pour lesquelles ce protocole ne peut pas piloter l'écran ; liste vide = utilisable. Fonction pure. */
-export function verifierProtocole(p) {
+/**
+ * Raisons pour lesquelles ce protocole ne peut pas piloter l'écran ; liste vide = utilisable. Fonction pure.
+ * `premierEcranRequis` (vrai par défaut : l'ACR) : faux pour la checklist commune de « Autre situation », qui n'a ni tuile vitale ni cycle ;
+ * si elle porte tout de même des étapes `premier_ecran`, elles doivent rester « vital ».
+ */
+export function verifierProtocole(p, { premierEcranRequis = true } = {}) {
   const raisons = [];
   const estObjet = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
   if (!estObjet(p)) return ['le fichier ne contient pas un objet JSON'];
@@ -28,7 +32,7 @@ export function verifierProtocole(p) {
     if (!Number.isInteger(e.ordre)) raisons.push(`étape ${e.id ?? i + 1} sans ordre`);
   }
   const premier = etapes.filter((e) => estObjet(e) && e.premier_ecran === true);
-  if (premier.length === 0) raisons.push('aucune étape de premier écran');
+  if (premier.length === 0 && premierEcranRequis) raisons.push('aucune étape de premier écran');
   if (premier.some((e) => e.niveau !== 'vital')) raisons.push("une étape de premier écran n'est pas « vital »");
   for (const e of etapes) {
     // `parent: null` = pas de parent (étape de premier niveau)
@@ -64,7 +68,7 @@ export function verifierProtocole(p) {
  * Charge protocoles/<id>.json. Ne lève jamais d'exception.
  * @returns {Promise<{ok: true, protocole: object} | {ok: false, raisons: string[]}>}
  */
-export async function chargerProtocole(id, { dossier = 'protocoles' } = {}) {
+export async function chargerProtocole(id, { dossier = 'protocoles', premierEcranRequis = true } = {}) {
   const controleur = new AbortController();
   const minuteur = setTimeout(() => controleur.abort(), DELAI_MAX_MS);
   try {
@@ -72,7 +76,7 @@ export async function chargerProtocole(id, { dossier = 'protocoles' } = {}) {
     if (!reponse.ok) return { ok: false, raisons: [`fichier introuvable (HTTP ${reponse.status})`] };
     let protocole;
     try { protocole = await reponse.json(); } catch { return { ok: false, raisons: ['JSON illisible'] }; }
-    const raisons = verifierProtocole(protocole);
+    const raisons = verifierProtocole(protocole, { premierEcranRequis });
     if (protocole?.id !== undefined && protocole.id !== id) raisons.push(`identifiant « ${protocole.id} » différent du nom de fichier « ${id} »`);
     return raisons.length === 0 ? { ok: true, protocole } : { ok: false, raisons };
   } catch (erreur) {

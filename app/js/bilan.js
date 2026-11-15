@@ -151,7 +151,9 @@ function pageS({ fiche, appelant, protocoleId, maintenant }) {
   const id = fiche.identite ?? {}; const c = fiche.circonstances ?? {}; const bv = fiche.bilan_vital ?? {};
   const journal = fiche.journal ?? [];
   const debut = journal[0]?.t ?? fiche.cree_le;
-  const acr = (fiche.situations ?? []).find((s) => s.protocole === protocoleId);
+  // « ACR constaté » seulement tant que l'intervention EST en ACR (R1f, M1) : après un retour en « Autre situation », la transmission ne le dit plus (le journal garde la bascule et le retour horodatés)
+  const situations = fiche.situations ?? [];
+  const acr = situations.at(-1)?.protocole === protocoleId ? situations.find((s) => s.protocole === protocoleId) : undefined;
   // événements répétables : on compte les touchers VALIDES ; un toucher corrigé au journal est compté à part (L7c, revue L7 C1)
   const events = {};
   for (const e of journal) {

@@ -385,7 +385,7 @@
     {
       "id": "securite",
       "libelle": "Sécurité et protection individuelle",
-      "etapes_protocole": {"acr-adulte-dae": ["securite", "protection-individuelle"]},
+      "etapes_protocole": {"acr-adulte-dae": ["securite", "protection-individuelle", "analyse-situation"], "urgence-commune": ["analyse-situation", "securite"]},
       "ref_fiche": "fiche ACR § 2, étapes 1 et 1b (« Tous ») ; aucune ligne propre en § 6 (fiche ACR) ni en § 6 (fiche cadre)",
       "habilitations": {
         "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B1)", "citation": "d'identifier un danger immédiat dans l'environnement et de mettre en œuvre une protection adaptée"}, {"ref": "ERC-BLS", "localisation": "p. 2 et p. 5"}], "raisonnement": "La fiche ACR attribue ces étapes à « Tous » (intervenants de la fiche : médecin, IDE, MK, sage-femme, autres PS formés à l'AFGSU 2) ; objectif AFGSU 2 B1. Valeur transcrite du « Tous » de la fiche, sans ligne propre dans les tableaux de restrictions.", "ref_fiche": "fiche ACR § 2, étapes 1 et 1b ; fiche cadre § 2.B, B1"},
@@ -400,7 +400,7 @@
     {
       "id": "reconnaitre",
       "libelle": "Reconnaître l'arrêt cardio-respiratoire (dont libération des voies aériennes pour évaluer la respiration)",
-      "etapes_protocole": {"acr-adulte-dae": ["reconnaitre-arret", "liberer-voies-aeriennes", "criteres-arret", "respiration-anormale", "convulsions", "doute-reanimer", "allonger-dos", "evaluer-respiration"]},
+      "etapes_protocole": {"acr-adulte-dae": ["reconnaitre-arret", "liberer-voies-aeriennes", "criteres-arret", "respiration-anormale", "convulsions", "doute-reanimer", "allonger-dos", "evaluer-respiration"], "urgence-commune": ["reaction", "respiration", "arret-cardiaque"]},
       "ref_fiche": "fiche ACR § 6, ligne 1 (« Reconnaître l'ACR, alerter, MCE, insufflations sans matériel ») ; fiche cadre § 6, ligne RCP",
       "habilitations": {
         "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4127-9", "localisation": "art. R4127-9", "citation": "Tout médecin qui se trouve en présence d'un malade ou d'un blessé en péril"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B6)", "citation": "d'identifier un arrêt cardiaque"}], "raisonnement": "Fiche ACR § 6 : « Oui (obligation d'assistance) » ; fiche cadre § 6 : « Oui — DÉDUIT (R. 4127-70, R. 4127-9 ; AFGSU B6) ».", "ref_fiche": "fiche ACR § 6, ligne 1 ; fiche cadre § 6, ligne RCP"},
@@ -415,7 +415,7 @@
     {
       "id": "alerter_transmettre",
       "libelle": "Alerter le 15 et transmettre",
-      "etapes_protocole": {"acr-adulte-dae": ["alerter", "haut-parleur", "numeros-urgence", "plan-a-plan-b", "aide-regulateur", "seul-sans-telephone", "appeler-collegues", "appel-aide"]},
+      "etapes_protocole": {"acr-adulte-dae": ["alerter", "haut-parleur", "numeros-urgence", "plan-a-plan-b", "aide-regulateur", "seul-sans-telephone", "appeler-collegues", "appel-aide", "repartir-taches"], "urgence-commune": ["repartir-taches", "alerter", "alerter-consignes", "accueil-secours", "aggravation", "transmettre", "antecedents"]},
       "ref_fiche": "fiche cadre § 6, ligne « Alerter le 15 et transmettre » ; fiche ACR § 6, ligne 1",
       "remarque": "Statut DEDUIT pour tous les groupes (rapport de contrôle F19) : la fiche ACR (§ 6, ligne 1) donne un « Oui » DÉDUIT, la fiche cadre (§ 6) un « Oui » CITÉ ; la règle du fichier retient le plus faible. L'étape constantes-transmission relève désormais du geste constantes_non_invasives (rapport de contrôle B64).",
       "habilitations": {
@@ -552,7 +552,7 @@
     {
       "id": "surveillance_reevaluation",
       "libelle": "Signes de reprise, soins après la reprise et surveillance jusqu'à l'arrivée de l'équipe médicale",
-      "etapes_protocole": {"acr-adulte-dae": ["signes-reprise", "signes-reprise-cabinet", "apres-reprise", "surveillance"]},
+      "etapes_protocole": {"acr-adulte-dae": ["signes-reprise", "signes-reprise-cabinet", "apres-reprise", "surveillance"], "urgence-commune": ["surveiller"]},
       "ref_fiche": "fiche ACR § 2, étapes 11, 11a, 12 et 13 (« Tous ») ; aucune ligne propre en § 6",
       "habilitations": {
         "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4127-70", "localisation": "art. R4127-70, 1re phrase"}], "raisonnement": "Fiche ACR § 2, étapes 11, 11a, 12, 13 : « Tous » ; transcription du « Tous » de la fiche.", "ref_fiche": "fiche ACR § 2, étapes 11 à 13"},
@@ -567,7 +567,7 @@
     {
       "id": "constantes_non_invasives",
       "libelle": "Recueil des constantes : pression artérielle, pouls, surveillance non invasive",
-      "etapes_protocole": {"acr-adulte-dae": ["constantes-transmission", "duree-evaluation-pouls", "pression-arterielle-cible"]},
+      "etapes_protocole": {"acr-adulte-dae": ["constantes-transmission", "duree-evaluation-pouls", "pression-arterielle-cible"], "urgence-commune": ["constantes-repetees"]},
       "ref_fiche": "fiche cadre § 6, ligne « Pression artérielle, pouls, surveillance non invasive » ; fiche ACR § 2, étape 13a (renvoi à la fiche cadre)",
       "remarque": "Geste ajouté le 15/11/2026 d'après le rapport de contrôle (écart majeur B64) : l'étape constantes-transmission était rangée sous le geste alerter_transmettre, donc proposée comme action à des groupes dont l'habilitation au recueil des constantes n'est pas établie.",
       "habilitations": {
@@ -583,7 +583,7 @@
     {
       "id": "position_laterale",
       "libelle": "Position latérale, libération des voies aériennes d'une personne inconsciente qui respire",
-      "etapes_protocole": {"acr-adulte-dae": ["position-laterale"]},
+      "etapes_protocole": {"acr-adulte-dae": ["position-laterale"], "urgence-commune": ["position-laterale"]},
       "ref_fiche": "fiche cadre § 6, ligne « PLS / libération des voies aériennes chez une personne inconsciente qui respire » ; fiche ACR § 2, étape 12b (« Tous »)",
       "habilitations": {
         "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B3)", "citation": "d'identifier l'inconscience et d'assurer la liberté et la protection des voies aériennes d'une personne inconsciente en ventilation spontanée"}], "raisonnement": "Fiche cadre § 6 : « Oui — DÉDUIT », objectif commun aux titulaires de l'AFGSU 2 (B3).", "ref_fiche": "fiche cadre § 6, ligne PLS"},

@@ -26,11 +26,12 @@ const plein = (v) => typeof v === 'string' && v.trim() !== '';
  * @param {HTMLElement} conteneur
  * @param {{intervention: object, etat: ReturnType<typeof etatAcrInitial>, structure: object|null, auAlerte: () => void, auRendre: () => void, avantEcran?: Node[], zoneCycle?: HTMLElement}} options
  *   `avantEcran` : éléments posés AVANT les pastilles (équipe, annulation) ; `zoneCycle` : la carte du cycle, collée en haut de la liste.
+ *   Réutilisation par la checklist COMMUNE de « Autre situation » (D-51), sans toucher à la logique de l'ACR : `vue` et `protocole` remplacent ceux de l'intervention
+ *   (par défaut, l'ACR), `classe` est la classe de la section, `sansMateriel` retire la pastille Matériel (pas de matériel propre à une checklist commune),
+ *   `auRenvoi(idProtocole)` est appelée quand on TOUCHE le bouton « Passer en ACR » d'une étape qui porte `renvoi_protocole` (R1f, M1 : ce n'est PLUS une case) ; `renvoiPossible(idProtocole)` dit si l'interface sait ouvrir ce protocole (sinon l'étape reste une case ordinaire).
  */
-export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte, auRendre, avantEcran = [], zoneCycle = null }) {
-  const vue = intervention.vueChecklist;
-  const protocole = intervention.protocole;
-  const page = creer('section', 'ecran-acr', '', { 'aria-label': protocole?.titre_court ?? 'ACR' });
+export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte, auRendre, avantEcran = [], zoneCycle = null, vue = intervention.vueChecklist, protocole = intervention.protocole, classe = 'ecran-acr', sansMateriel = false, auRenvoi = null, renvoiPossible = () => false }) {
+  const page = creer('section', classe, '', { 'aria-label': protocole?.titre_court ?? 'ACR' });
   const debut = intervention.fiche.journal[0].t;
   const tPlus = (t) => `T+${formaterDuree(t - debut)}`;
   const racines = vue.racines;
@@ -38,7 +39,7 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
   const enConduite = racines.filter((r) => r.etape.section !== 'reprise');
   const sections = [
     { id: 'conduite', libelle: 'Conduite à tenir' },
-    { id: 'materiel', libelle: 'Matériel' },
+    ...(sansMateriel ? [] : [{ id: 'materiel', libelle: 'Matériel' }]),
     ...(enReprise.length > 0 ? [{ id: 'reprise', libelle: 'Reprise' }] : []),
     { id: 'sources', libelle: 'Sources' },
   ];
@@ -47,8 +48,11 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
   const rendre = () => auRendre();
   const cocher = (id) => {
     const r = intervention.cocherDepuisChecklist(id);
-    if (r.ouvrirAlerte) auAlerte(); else rendre();
+    if (r.ouvrirAlerte) { auAlerte(); return; }
+    rendre();
   };
+  /** Cible d'un renvoi affichable en bouton (D-51, R1f M1) : `renvoi_protocole` textuel, non vide, que l'interface sait ouvrir ; sinon null (l'étape reste une case ordinaire). */
+  const renvoiDe = (e) => (auRenvoi && typeof e.renvoi_protocole === 'string' && e.renvoi_protocole !== '' && renvoiPossible(e.renvoi_protocole)) ? e.renvoi_protocole : null;
   const noter = (id) => { etat.notation = { id, valeur: heureCourante(), erreur: null }; rendre(); };
   const valider = () => {
     const n = etat.notation;
@@ -76,7 +80,7 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
       const rel = avantDebut ? `avant le début, T−${formaterDuree(debut - item.notee.t)}` : tPlus(item.notee.t);
       m.append(creer('span', 'etape-notee', `noté fait à ${heureLocale(item.notee.t)} (${rel})`));
     }
-    if (item.nonFaite) m.append(creer('span', 'marque-non-faite', '⚠ non faite'));
+    if (item.nonFaite && renvoiDe(e) === null) m.append(creer('span', 'marque-non-faite', '⚠ non faite'));
     if (complet && e.statut === 'DEDUIT') m.append(creer('span', 'marque', 'DÉDUIT'));   // r2 : le statut DÉDUIT se voit dès le titre replié de Sources
     if (complet && e.statut === 'A_VALIDER') m.append(creer('span', 'marque marque-a-valider', `⚠ ${MARQUE_A_VALIDER}`));
     if (complet && typeof e.provisoire === 'string') m.append(creer('span', 'marque marque-provisoire', MARQUE_PROVISOIRE));   // « provisoire » seulement si le protocole le porte (R15)
@@ -158,6 +162,14 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
     const noterDispo = item.restreint && !item.cochee;
     const depliable = precision !== '' || noterDispo;
     const ouverte = depliable && (etat.deplies.has(item.id) || etat.notation?.id === item.id);
+    const cibleRenvoi = renvoiDe(e);
+    if (cibleRenvoi !== null) {
+      // RENVOI (R1f, M1, CHOIX PROVISOIRE) : pas de case (cocher « vérifié » ne doit jamais déclarer un arrêt cardiaque) ; un bouton rouge net, un toucher, jamais « non faite ».
+      const lr = creer('li', 'etape etape-renvoi', '', { 'data-etape': item.id, 'data-etat': 'renvoi' });
+      if (item.exempte) lr.dataset.vitale = 'oui';
+      lr.append(creer('span', 'etape-texte', e.texte_court), bouton('Passer en ACR', 'bouton bouton-urgence bouton-renvoi', () => auRenvoi(cibleRenvoi), { 'data-renvoi': item.id }));
+      return lr;
+    }
     const etatLigne = item.nonFaite ? 'non_faite' : item.cochee ? 'faite' : item.notee ? 'notee' : item.cochable ? 'a_faire' : 'info';
     const li = creer('li', 'etape', '', { 'data-etape': item.id, 'data-etat': etatLigne });
     if (item.exempte) li.dataset.vitale = 'oui';   // étape vitale : barre verticale et libellé en graisse 800 (jamais de rouge : réservé au 15)

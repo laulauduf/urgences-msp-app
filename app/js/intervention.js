@@ -9,6 +9,8 @@ import { chargerHabilitations } from './habilitations.js';
 import { chargerGlossaire, lireGlossaire } from './glossaire.js';
 import { chargerUnites, lireUnites } from './unites.js';
 import { TYPES_CONSTANTE } from './bilan.js';
+import { verifierProtocole } from './protocole.js';
+import { ID_COMMUN, chargerProtocoleCommun, prefixerProtocole } from './protocole-commun.js';
 
 export const ACR = 'acr';
 /** Délai maximal d'annulation du démarrage (CHOIX PROVISOIRE, revue R1 : 60 s, à faire trancher par Laurent). */
@@ -38,8 +40,11 @@ export class Intervention {
    *          chargerHabilitations?: () => Promise<object|null>, chargerGlossaire?: () => Promise<object>, chargerUnites?: () => Promise<object>}} options
    *   `chargerProtocole` renvoie { ok, protocole } ou { ok: false, raisons } (protocole.js).
    */
-  constructor({ stockage, son, ecran, chargerProtocole, protocoleId, chargerHabilitations: chargerHab = chargerHabilitations, chargerGlossaire: chargerGlo = chargerGlossaire, chargerUnites: chargerUni = chargerUnites }) {
-    Object.assign(this, { stockage, son, ecran, chargerProtocoleFn: chargerProtocole, protocoleId, chargerHabilitationsFn: chargerHab, chargerGlossaireFn: chargerGlo, chargerUnitesFn: chargerUni });
+  constructor({ stockage, son, ecran, chargerProtocole, protocoleId, chargerHabilitations: chargerHab = chargerHabilitations, chargerGlossaire: chargerGlo = chargerGlossaire, chargerUnites: chargerUni = chargerUnites, chargerCommun = chargerProtocoleCommun }) {
+    Object.assign(this, { stockage, son, ecran, chargerProtocoleFn: chargerProtocole, protocoleId, chargerHabilitationsFn: chargerHab, chargerGlossaireFn: chargerGlo, chargerUnitesFn: chargerUni, chargerCommunFn: chargerCommun });
+    // checklist COMMUNE de « Autre situation » (D-51) : second protocole, identifiants préfixés (protocole-commun.js), coches dans le MÊME objet `fiche.checklist`.
+    // communEtat : 'absent' (fichier non publié : aucune requête) | 'chargement' | 'ok' | 'illisible' (publié mais inutilisable : l'écran le dit)
+    this.protocoleCommun = null; this.communEtat = 'absent';
     // checklist (L6) : habilitations par profession (null tant que non lues ou illisibles : tout est alors restrictif), glossaire, mode et étapes passées
     this.habilitations = null; this.habilitationsEtat = 'chargement'; this.glossaire = lireGlossaire(null);
     this.unites = lireUnites(null);   // unités des constantes (D-26), lues de protocoles/_commun/unites.json ; aucune tant que non lues
@@ -115,6 +120,7 @@ export class Intervention {
         else this.basculerSecours(r.raisons);
       }
     }
+    if (this.situation === AUTRE) this.chargerCommun({ copie: fiche.protocoles_utilises?.[ID_COMMUN] });   // la copie de la fiche d'abord (même parade que l'ACR) ; synchrone si elle est exploitable
     this.tuileTouchee = this.etapesPremierEcran().some((e) => this.estCochee(e.id)) || fiche.chronometres.length > 0;
     // Parade 3 (2.4, revue M2) : une version du code peut s'être activée entre-temps (un service worker en attente s'active seul quand plus aucune page
     // n'est ouverte : le navigateur l'impose). On le DIT (bandeau + journal), une seule fois : la fiche prend alors la version courante.
@@ -176,11 +182,39 @@ export class Intervention {
     this.emettre('changement');
   }
 
-  /** « Autre situation » : alerte et chronomètre global, sans checklist. */
+  /** « Autre situation » : alerte, chronomètre global, fiche, transmission, lieu — et la checklist commune quand son fichier est publié (sinon aucune checklist). */
   choisirAutre() {
     this.situation = AUTRE;
     this.stockage.modifier(this.fiche, (f) => { f.situations.push({ protocole: null, depuis: Date.now() }); }, { immediat: true });
     this.journaliser('situation', { protocole: null, libelle: 'autre situation' });
+    this.chargerCommun({ copie: this.fiche.protocoles_utilises?.[ID_COMMUN] });
+    this.emettre('changement');
+  }
+
+  /**
+   * Charge la checklist commune (jamais attendue : l'écran « Autre situation » s'affiche d'abord). Ordre : déjà en mémoire → copie de la fiche (si exploitable) → fichier publié.
+   * Fichier non publié : aucune requête, `communEtat` reste 'absent'. Publié mais illisible : 'illisible' (l'écran le dit ; les outils restent disponibles).
+   * L'adoption n'ajoute PAS d'entrée « situation » : la checklist commune fait partie de « Autre situation ».
+   */
+  async chargerCommun({ copie = null } = {}) {
+    if (this.protocoleCommun) return;
+    if (copie && verifierProtocole(copie, { premierEcranRequis: false }).length === 0) { this.adopterCommun(copie, { copier: false }); return; }
+    this.communEtat = 'chargement';
+    let r;
+    try { r = await this.chargerCommunFn(); } catch { r = { ok: false, absent: false, raisons: ['chargement impossible'] }; }
+    if (this.detruite) return;
+    if (r.ok) this.adopterCommun(r.protocole, { copier: true });
+    else { this.communEtat = r.absent ? 'absent' : 'illisible'; if (!r.absent) this.emettre('changement'); }
+  }
+
+  adopterCommun(protocole, { copier }) {
+    this.protocoleCommun = prefixerProtocole(protocole); this.communEtat = 'ok';
+    if (copier) {
+      this.stockage.modifier(this.fiche, (f) => {
+        f.protocoles_utilises[protocole.id] = structuredClone(protocole);   // copie : un protocole mis à jour ne change jamais une intervention en cours
+        f.versions_protocoles[protocole.id] = protocole.version;
+      }, { immediat: true });
+    }
     this.emettre('changement');
   }
 
@@ -213,9 +247,19 @@ export class Intervention {
   etapesPremierEcran() {
     return (this.protocole?.etapes ?? []).filter((e) => e.premier_ecran === true).sort((a, b) => a.ordre - b.ordre);
   }
-  etape(id) { return this.protocole?.etapes.find((e) => e.id === id) ?? null; }
-  /** L'étape dont la case se coche au premier appel (cochage_auto: « appel ») : celle du bouton « Alerter ». */
-  etapeAlerte() { return this.etapesPremierEcran().find((e) => e.cochage_auto === 'appel') ?? null; }
+  /** Une étape de l'ACR, ou de la checklist commune (identifiants préfixés : jamais de confusion possible entre les deux). */
+  etape(id) { return this.protocole?.etapes.find((e) => e.id === id) ?? this.protocoleCommun?.etapes.find((e) => e.id === id) ?? null; }
+  /**
+   * L'étape dont la case se coche au premier appel (cochage_auto: « appel ») : celle du bouton « Alerter ». En « Autre situation », celle de la checklist commune si elle en a une
+   * (sinon, comme avant, celle de l'ACR si elle est en mémoire).
+   */
+  etapeAlerte() {
+    if (this.situation === AUTRE) {
+      const commune = (this.protocoleCommun?.etapes ?? []).find((e) => e.cochage_auto === 'appel');
+      if (commune) return commune;
+    }
+    return this.etapesPremierEcran().find((e) => e.cochage_auto === 'appel') ?? null;
+  }
   estCochee(id) { return Boolean(this.fiche.checklist[id]); }
 
   cocher(id, { t = Date.now() } = {}) {
@@ -242,6 +286,14 @@ export class Intervention {
     return construireVue({ etapes: this.protocole?.etapes ?? [], checklist: this.fiche.checklist, journal: this.fiche.journal, habilitations: this.habilitations, profession: this.profession });
   }
 
+  /** Vue de la checklist COMMUNE (« Autre situation », D-51) : mêmes règles que l'ACR (filtre par profession, étape vitale exempte, D-25), mêmes coches (`fiche.checklist`, ids préfixés). */
+  get vueChecklistCommune() {
+    return construireVue({ etapes: this.protocoleCommun?.etapes ?? [], checklist: this.fiche.checklist, journal: this.fiche.journal, habilitations: this.habilitations, profession: this.profession });
+  }
+
+  /** L'item d'une étape, dans la vue de l'ACR ou dans celle de la checklist commune. */
+  itemChecklist(id) { return this.vueChecklist.parId.get(id) ?? this.vueChecklistCommune.parId.get(id) ?? null; }
+
   /**
    * Toucher de la case d'une étape dans la checklist. Même objet que les tuiles : `fiche.checklist[id]`.
    * - étape cochée : décochée (journalisée) ; - étape non cochable pour cette profession : refusée (jamais cochée) ;
@@ -249,7 +301,7 @@ export class Intervention {
    * @returns {{ouvrirAlerte: boolean, refuse?: boolean}}
    */
   cocherDepuisChecklist(id) {
-    const item = this.vueChecklist.parId.get(id);
+    const item = this.itemChecklist(id);
     if (!item) return { ouvrirAlerte: false, refuse: true };
     // décocher est toujours permis, même si un changement de profession a rendu l'étape non cochable : décocher n'est pas autoriser (revue L6 m5)
     if (item.cochee) { this.decocher(id); return { ouvrirAlerte: false }; }
@@ -276,7 +328,7 @@ export class Intervention {
    * @returns {{ok: boolean, raison?: string}}
    */
   noterGeste(id, heure) {
-    const item = this.vueChecklist.parId.get(id);
+    const item = this.itemChecklist(id);
     if (!item || !item.restreint) return { ok: false, raison: "cette étape ne se note pas" };
     const t = heureVersTimestamp(heure);
     if (t === null) return { ok: false, raison: 'heure invalide : écrire hh:mm, par exemple 14:32' };
@@ -294,7 +346,7 @@ export class Intervention {
   toucherTuile(id, { prudent = false } = {}) {
     const e = this.etape(id);
     if (!e) return { ouvrirAlerte: false };
-    this.tuileTouchee = true; // la zone « cycle » apparaît dès le premier toucher d'une tuile vitale (4.3 bis)
+    if (!this.protocoleCommun?.etapes.includes(e)) this.tuileTouchee = true; // la zone « cycle » apparaît dès le premier toucher d'une tuile vitale de l'ACR (4.3 bis) ; une étape vitale de la checklist commune n'est pas une action de l'ACR
     if (e.cochage_auto === 'appel') { this.emettre('changement'); return { ouvrirAlerte: true }; }
     // le déclencheur du protocole (métronome, chronomètre) ne part qu'au PREMIER cochage de l'étape dans la fiche : décocher puis recocher ne relance
     // pas un métronome mis en pause (revue L6 M1, second cas)
