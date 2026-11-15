@@ -6,10 +6,10 @@ export const PRESENTATION = "Aide-mémoire interne à la MSP APSIS, qui affiche 
 
 /**
  * @param {HTMLElement} conteneur
- * @param {{auUrgence: () => void, auSimulation: () => void, auxReglages: () => void, auToucher?: () => void}} actions
+ * @param {{auUrgence: () => void, auSimulation: () => void, auxReglages: () => void, auGlossaire?: () => void, auToucher?: () => void}} actions
  * @returns {{afficherEnAttente: (lignes: object[], actions: {reprendre: Function, effacer: Function}) => void}}
  */
-export function afficherAccueil(conteneur, { auUrgence, auSimulation, auxReglages, auToucher = () => {} }) {
+export function afficherAccueil(conteneur, { auUrgence, auSimulation, auxReglages, auGlossaire = null, auToucher = () => {} }) {
   const page = creer('section', 'accueil');
   page.addEventListener('pointerdown', auToucher, { capture: true, passive: true }); // « l'utilisateur a touché l'accueil » : plus de reprise directe
   page.append(creer('h1', 'accueil-titre', 'Urgences MSP APSIS'));
@@ -20,7 +20,10 @@ export function afficherAccueil(conteneur, { auUrgence, auSimulation, auxReglage
   attente.id = 'en-attente';
   page.append(attente);
   const liens = creer('div', 'accueil-liens');
-  liens.append(bouton('Simulation', 'bouton', auSimulation, { id: 'ouvrir-simulation' }), bouton('Réglages', 'bouton', auxReglages, { id: 'ouvrir-reglages' }));
+  // chaque lien n'apparaît qu'à partir du lot qui livre son écran (4.1) : le glossaire est livré au lot L6
+  liens.append(bouton('Simulation', 'bouton', auSimulation, { id: 'ouvrir-simulation' }));
+  if (auGlossaire) liens.append(bouton('Glossaire', 'bouton', auGlossaire, { id: 'ouvrir-glossaire' }));
+  liens.append(bouton('Réglages', 'bouton', auxReglages, { id: 'ouvrir-reglages' }));
   page.append(liens);
   conteneur.replaceChildren(page);
 

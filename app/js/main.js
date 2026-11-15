@@ -10,6 +10,8 @@ import { stockage } from './stockage.js';
 import { appliquerTheme, themeLocal } from './theme.js';
 import { chargerGroupes } from './professions.js';
 import { afficherReglages } from './ecrans/reglages.js';
+import { afficherGlossaire } from './ecrans/glossaire.js';
+import { chargerGlossaire } from './glossaire.js';
 import { afficherAccueil as afficherEcranAccueil } from './ecrans/accueil.js';
 import { InterfaceIntervention } from './ecrans/interface-intervention.js';
 import { Intervention } from './intervention.js';
@@ -39,6 +41,7 @@ function montrerAccueil() {
     auUrgence: () => demarrerUrgence('reel'),
     auSimulation: () => demarrerUrgence('simulation'),
     auxReglages: ouvrirReglages,
+    auGlossaire: ouvrirGlossaire,
     auToucher: () => { app.accueilTouche = true; },
   });
   rafraichirEnAttente();
@@ -123,6 +126,14 @@ async function ouvrirReglages() {
     onRetour: () => { montrerAccueil(); },
     onChangement: (cle) => { if (cle === 'profession') majPointProfession(); },
   });
+  contenu.focus();
+}
+
+/** Glossaire consulté depuis l'accueil (4.12) : lu à l'ouverture ; fichier illisible → message, jamais d'exception. */
+async function ouvrirGlossaire() {
+  const contenu = document.getElementById('contenu');
+  const glossaire = await chargerGlossaire();
+  afficherGlossaire(contenu, { glossaire, auFermer: () => { montrerAccueil(); } });
   contenu.focus();
 }
 

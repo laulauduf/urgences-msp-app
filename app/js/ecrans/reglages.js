@@ -59,6 +59,14 @@ export async function afficherReglages(conteneur, { stockage, structure, groupes
   if (groupes.length === 0) prof.append(creer('p', 'reglage-aide', 'Liste des professions indisponible (fichier absent ou illisible).'));
   page.append(prof);
 
+  // Checklist : mode au démarrage (4.5) — la bascule pendant l'intervention ne change pas ce réglage
+  const modeChecklist = groupe('Checklist : mode au démarrage', "Mode d'ouverture de la checklist ; on peut basculer d'un mode à l'autre en un toucher pendant l'intervention.");
+  modeChecklist.dataset.reglage = 'mode-checklist';
+  for (const [v, libelle] of [['expert', 'Expert (liste compacte)'], ['guide', 'Guidé (une consigne à la fois)']]) {
+    modeChecklist.append(rangeeRadio({ nom: 'mode_affichage', valeur: v, libelle, coche: reglages.mode_affichage === v, auChangement: (val) => enregistrer('mode_affichage', val) }));
+  }
+  page.append(modeChecklist);
+
   // Délai d'effacement
   const delai = groupe("Effacement automatique", `Délai compté depuis la création de la fiche, réglable de ${plancherH} h (minimum, provisoire) à ${MAXIMUM_H} h. L'effacement ne se fait que quand l'appli est ouverte.`);
   delai.dataset.reglage = 'delai';

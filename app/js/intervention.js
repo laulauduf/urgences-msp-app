@@ -4,17 +4,24 @@
 // Aucune valeur médicale ici : étapes, ordre, durées, fréquence et libellés viennent du protocole ; aucun ordre n'est écrit en dur.
 import { Horloge, GestionChronos, lireChronometres, lireMetronome, formaterDuree } from './horloge.js';
 import { attribuerRole, appelant, ajouterPersonne } from './roles.js';
+import { construireVue, heureVersTimestamp } from './checklist.js';
+import { chargerHabilitations } from './habilitations.js';
+import { chargerGlossaire, lireGlossaire } from './glossaire.js';
 
 export const ACR = 'acr';
 export const AUTRE = 'autre';
 
 export class Intervention {
   /**
-   * @param {{stockage: object, son: object, ecran: object, chargerProtocole: (id: string) => Promise<object>, protocoleId: string, numeros?: object}} options
+   * @param {{stockage: object, son: object, ecran: object, chargerProtocole: (id: string) => Promise<object>, protocoleId: string, numeros?: object,
+   *          chargerHabilitations?: () => Promise<object|null>, chargerGlossaire?: () => Promise<object>}} options
    *   `chargerProtocole` renvoie { ok, protocole } ou { ok: false, raisons } (protocole.js).
    */
-  constructor({ stockage, son, ecran, chargerProtocole, protocoleId }) {
-    Object.assign(this, { stockage, son, ecran, chargerProtocoleFn: chargerProtocole, protocoleId });
+  constructor({ stockage, son, ecran, chargerProtocole, protocoleId, chargerHabilitations: chargerHab = chargerHabilitations, chargerGlossaire: chargerGlo = chargerGlossaire }) {
+    Object.assign(this, { stockage, son, ecran, chargerProtocoleFn: chargerProtocole, protocoleId, chargerHabilitationsFn: chargerHab, chargerGlossaireFn: chargerGlo });
+    // checklist (L6) : habilitations par profession (null tant que non lues ou illisibles : tout est alors restrictif), glossaire, mode et étapes passées
+    this.habilitations = null; this.glossaire = lireGlossaire(null);
+    this.modeChecklist = 'expert'; this.modeChoisi = false; this.passees = new Set();
     this.fiche = null; this.mode = 'reel';
     this.protocole = null; this.protocoleEtat = null; this.raisons = [];   // protocoleEtat : null | 'chargement' | 'ok' | 'secours'
     this.situation = null;                                                 // null (choix en cours) | ACR | AUTRE
@@ -53,12 +60,14 @@ export class Intervention {
     this.ecran.demander(); // jamais attendu
     this.prefetch = this.chargerProtocoleFn(this.protocoleId);
     this.chargerReglages();
+    this.chargerReferences();
     return this.fiche;
   }
 
   /** Reprise d'une fiche déjà en base (directe au lancement, ou depuis l'accueil). Le protocole est celui COPIÉ dans la fiche (2.4, parade 2). */
   async reprendre(fiche, { automatique = false } = {}) {
     this.chargerReglages();
+    this.chargerReferences();
     this.fiche = fiche; this.mode = fiche.mode; this.repriseDe = { automatique, debut: fiche.journal[0]?.t ?? fiche.cree_le };
     this.stockage.definirAffichee(fiche.id);
     this.initialiserTemps();
@@ -167,6 +176,75 @@ export class Intervention {
     this.emettre('changement');
     return true;
   }
+
+  // ───────── Checklist (L6, cahier 4.5) ─────────
+
+  /** Habilitations par profession et glossaire : lus sans jamais retarder un écran ; tant que les habilitations manquent, tout est restrictif. */
+  async chargerReferences() {
+    const [habilitations, glossaire] = await Promise.all([this.chargerHabilitationsFn(), this.chargerGlossaireFn()]);
+    if (this.detruite) return;
+    this.habilitations = habilitations ?? null; this.glossaire = glossaire ?? lireGlossaire(null);
+    this.emettre('habilitations');
+  }
+
+  /** Vue de la checklist : le protocole, la fiche (mêmes cases que les tuiles) et la profession courante, filtrés par les habilitations. */
+  get vueChecklist() {
+    return construireVue({ etapes: this.protocole?.etapes ?? [], checklist: this.fiche.checklist, journal: this.fiche.journal, habilitations: this.habilitations, profession: this.profession });
+  }
+
+  /** Bascule expert / guidé pour CETTE intervention ; le réglage par défaut (Réglages) ne change pas. */
+  definirModeChecklist(mode) {
+    if (!['expert', 'guide'].includes(mode) || mode === this.modeChecklist) return false;
+    this.modeChecklist = mode; this.modeChoisi = true;
+    return true;
+  }
+
+  /**
+   * Toucher de la case d'une étape dans la checklist. Même objet que les tuiles : `fiche.checklist[id]`.
+   * - étape cochée : décochée (journalisée) ; - étape non cochable pour cette profession : refusée (jamais cochée) ;
+   * - étape vitale : même chemin que sa tuile (déclencheur du protocole, alerte au premier appel) ; - « Alerter » : ouvre l'alerte, ne coche pas.
+   * @returns {{ouvrirAlerte: boolean, refuse?: boolean}}
+   */
+  cocherDepuisChecklist(id) {
+    const item = this.vueChecklist.parId.get(id);
+    if (!item || !item.cochable) return { ouvrirAlerte: false, refuse: true };
+    if (item.cochee) { this.decocher(id); return { ouvrirAlerte: false }; }
+    const e = item.etape;
+    this.passees.delete(id);
+    if (e.premier_ecran === true) return this.toucherTuile(id);
+    if (e.cochage_auto === 'appel') { this.emettre('changement'); return { ouvrirAlerte: true }; }
+    if (this.cocher(id)) this.declencher(e);
+    return { ouvrirAlerte: false };
+  }
+
+  /** Décoche une étape : la case sort de la fiche ; le journal garde les deux entrées (la seconde marquée `decochee`). */
+  decocher(id) {
+    if (!this.estCochee(id)) return false;
+    this.stockage.modifier(this.fiche, (f) => { delete f.checklist[id]; }, { immediat: true });
+    this.journaliser('case', { id, libelle: this.etape(id)?.texte_court ?? id, decochee: true });
+    this.emettre('changement');
+    return true;
+  }
+
+  /**
+   * « Noter : fait à hh:mm » (Q-31, PROVISOIRE) : pour une action que ce profil ne peut pas cocher. Crée une entrée `geste` au journal, à l'heure
+   * saisie (l'occurrence la plus récente, jamais dans le futur), SANS cocher la case : noter un geste fait n'est pas l'autoriser.
+   * @returns {{ok: boolean, raison?: string}}
+   */
+  noterGeste(id, heure) {
+    const item = this.vueChecklist.parId.get(id);
+    if (!item || !item.restreint) return { ok: false, raison: "cette étape ne se note pas" };
+    const t = heureVersTimestamp(heure);
+    if (t === null) return { ok: false, raison: 'heure invalide : écrire hh:mm, par exemple 14:32' };
+    this.journaliser('geste', { id, libelle: item.etape.texte_court }, { maintenant: t });
+    this.passees.delete(id);
+    this.ecrire();
+    this.emettre('changement');
+    return { ok: true };
+  }
+
+  /** Mode guidé : « Passer » laisse l'étape non faite (une critique passée est signalée « non faite » dès qu'une suivante est cochée). */
+  passerEtape(id) { this.passees.add(id); this.emettre('changement'); }
 
   /**
    * Toucher d'une tuile vitale. « Alerter » (cochage_auto: appel) n'est PAS coché à l'ouverture du panneau (ouvrir n'est pas alerter) : elle
@@ -288,6 +366,7 @@ export class Intervention {
     const reglages = await this.stockage.lireReglages();
     if (this.detruite) return;
     this.profession = reglages.profession; this.personnes = reglages.personnes;
+    if (!this.modeChoisi) this.modeChecklist = reglages.mode_affichage;   // réglage par défaut, sauf si l'équipe a déjà basculé
     this.emettre('reglages');
   }
 

@@ -10,6 +10,8 @@ import { afficherLieu } from './lieu.js';
 import { testerSonEtEcran } from '../test-appareil.js';
 import { afficherRoles } from './roles.js';
 import { afficherProfession } from './profession.js';
+import { afficherChecklist, etatChecklistInitial } from './checklist.js';
+import { afficherGlossaire } from './glossaire.js';
 import { texteBandeau, texteBandeauCourt } from '../roles.js';
 import { ACR, AUTRE } from '../intervention.js';
 
@@ -17,7 +19,7 @@ import { ACR, AUTRE } from '../intervention.js';
 export const BARRE = [
   { id: 'acr', libelle: 'ACR', disponible: true },
   { id: 'alerter', libelle: 'ALERTER', disponible: true },
-  { id: 'checklist', libelle: 'CHECKLIST', disponible: false },   // lot L6
+  { id: 'checklist', libelle: 'CHECKLIST', disponible: true },    // lot L6 (visible seulement dans une fiche ACR : voir majBarre)
   { id: 'fiche', libelle: 'FICHE', disponible: false },            // lot L7
   { id: 'menu', libelle: '⋯', disponible: true, nom: 'Menu' },
 ];
@@ -29,7 +31,9 @@ export class InterfaceIntervention {
    */
   constructor({ intervention, son, ecran, numeros, structure, groupes = () => [], actions }) {
     Object.assign(this, { intervention, son, ecran, numerosFn: numeros, structureFn: structure, groupesFn: groupes, actions });
-    this.panneau = null;            // null | 'alerte' | 'lieu' | 'menu' | 'situation' | 'roles' | 'profession'
+    this.panneau = null;            // null | 'alerte' | 'lieu' | 'menu' | 'situation' | 'roles' | 'profession' | 'checklist' | 'glossaire'
+    this.retourA = null;            // écran d'où l'on vient (null = l'écran principal) : « Fermer » y revient — aujourd'hui seulement la checklist
+    this.cl = etatChecklistInitial();   // étapes dépliées, saisie de l'heure : survit au redessin de la checklist
     this.secours = null; this.minuteur = null; this.debranchements = []; this.messageTest = null; this.echeances = new Map();
     this.zone = { entete: document.getElementById('entete'), barre: document.getElementById('barre'), contenu: document.getElementById('contenu'), bandeaux: document.getElementById('bandeaux'), appli: document.getElementById('appli') };
   }
@@ -73,6 +77,8 @@ export class InterfaceIntervention {
   surEvenement(e) {
     // pendant la saisie du lieu, un changement ne doit PAS reconstruire le formulaire (on perdrait la saisie en cours)
     if (e.type === 'changement' && !['lieu', 'roles', 'profession'].includes(this.panneau)) this.rendre();
+    // la checklist dépend de la profession et des habilitations lues : elle se redessine quand l'une ou l'autre arrive ou change
+    if ((e.type === 'reglages' || e.type === 'habilitations') && this.panneau === 'checklist') this.rendre();
     if (e.type === 'roles' || e.type === 'reglages') this.majPuceEtRoles();
     if (e.type === 'echeance') this.afficherEcheance(e);
     if (e.type === 'rattrapage') this.afficherRattrapage(e);
@@ -213,14 +219,27 @@ export class InterfaceIntervention {
     const i = this.intervention;
     if (id === 'alerter') { this.ouvrirPanneau('alerte'); return; }
     if (id === 'menu') { this.ouvrirPanneau(this.panneau === 'menu' ? null : 'menu'); return; }
+    if (id === 'checklist') { this.ouvrirPanneau('checklist'); return; }
     if (id === 'acr') {
-      this.panneau = null;
+      this.versPrincipal();
       if (i.situation !== ACR) i.choisirAcr(); // « Autre situation » → ACR en UN toucher (journalisé, la fiche est conservée)
       else this.rendre();
     }
   }
 
-  ouvrirPanneau(nom) { this.panneau = nom; this.messageTest = null; this.rendre(); }
+  /**
+   * Ouvre un écran. `null` = « fermer » : retour à l'écran d'où l'on vient (la checklist si l'on en venait), sinon l'écran principal.
+   * Seule la checklist se rouvre ainsi : on ne perd pas sa place pour un appel, un rôle, une profession ou le glossaire.
+   */
+  ouvrirPanneau(nom) {
+    if (nom === null) { nom = this.retourA; this.retourA = null; }
+    else if (nom === 'checklist') this.retourA = null;
+    else if (this.panneau === 'checklist') this.retourA = 'checklist';
+    this.panneau = nom; this.messageTest = null; this.rendre();
+  }
+
+  /** Retour à l'écran principal (ACR, choix de situation…) sans aucun écran de retour en mémoire. */
+  versPrincipal() { this.panneau = null; this.retourA = null; }
 
   // ───────── Bandeaux d'état : simulation, reprise ─────────
 
@@ -261,8 +280,14 @@ export class InterfaceIntervention {
     this.secours?.arreter(); this.secours = null;
     this.majBandeauxFixes();
     this.majBandeauxSon();
+    if (this.panneau === 'checklist' && i.situation !== ACR) this.versPrincipal();   // pas de checklist hors d'une fiche ACR
     this.majBarre();
-    if (this.panneau === 'alerte') {
+    if (this.panneau === 'checklist') {
+      if (i.protocoleEtat === 'ok') afficherChecklist(contenu, { intervention: i, etat: this.cl, auAlerte: () => this.ouvrirPanneau('alerte'), auRendre: () => this.rendre() });
+      else contenu.replaceChildren(creer('p', 'page', i.protocoleEtat === 'secours' ? 'Checklist indisponible : le protocole est illisible. Masser, alerter, DAE : voir l\'écran ACR.' : 'Chargement du protocole…', { role: 'status' }));
+    } else if (this.panneau === 'glossaire') {
+      afficherGlossaire(contenu, { glossaire: i.glossaire, auFermer: () => this.ouvrirPanneau(null) });
+    } else if (this.panneau === 'alerte') {
       afficherAlerte(contenu, { intervention: i, numeros: this.numerosFn(), structure: this.structure, auFermer: () => this.ouvrirPanneau(null), auLieu: () => this.ouvrirPanneau('lieu') });
     } else if (this.panneau === 'lieu') {
       afficherLieu(contenu, { intervention: i, structure: this.structure, auRetour: () => this.ouvrirPanneau('alerte') });
@@ -293,6 +318,12 @@ export class InterfaceIntervention {
     const i = this.intervention;
     const acr = document.getElementById('barre-acr');
     if (acr) acr.setAttribute('aria-current', this.panneau === null && i.situation === ACR ? 'page' : 'false');
+    // CHECKLIST : seulement dans une fiche ACR (ailleurs, cet emplacement deviendra TRANSMISSION au lot L7, 4.0)
+    const checklist = document.getElementById('barre-checklist');
+    if (checklist) {
+      checklist.hidden = i.situation !== ACR;
+      checklist.setAttribute('aria-current', this.panneau === 'checklist' ? 'page' : 'false');
+    }
   }
 
   afficherChoix() {
@@ -300,8 +331,8 @@ export class InterfaceIntervention {
     const page = creer('section', 'choix-situation');
     page.setAttribute('aria-label', 'Situation');
     // (rendre() explicite : si la situation est déjà celle-là — menu « Changer de situation » — aucun événement ne la réaffiche)
-    page.append(bouton('ACR adulte', 'bouton bouton-accent bouton-tres-grand bouton-plein', async () => { this.panneau = null; const p = i.choisirAcr(); this.rendre(); await p; this.rendre(); }, { id: 'choix-acr' }));
-    page.append(bouton('Autre situation', 'bouton bouton-plein', () => { this.panneau = null; i.choisirAutre(); this.rendre(); }, { id: 'choix-autre' }));
+    page.append(bouton('ACR adulte', 'bouton bouton-accent bouton-tres-grand bouton-plein', async () => { this.versPrincipal(); const p = i.choisirAcr(); this.rendre(); await p; this.rendre(); }, { id: 'choix-acr' }));
+    page.append(bouton('Autre situation', 'bouton bouton-plein', () => { this.versPrincipal(); i.choisirAutre(); this.rendre(); }, { id: 'choix-autre' }));
     // « Annuler (démarrage par erreur) » : seulement sur CET écran, tant que la fiche ne contient rien d'autre que l'entrée « urgence »
     if (i.annulable) page.append(bouton('Annuler (démarrage par erreur)', 'bouton', async () => { await i.annulerDemarrage(); this.actions.accueil({ dejaDetruite: true }); }, { id: 'annuler-demarrage' }));
     this.zone.contenu.replaceChildren(page);
@@ -311,7 +342,7 @@ export class InterfaceIntervention {
     const page = creer('section', 'page');
     page.append(creer('h1', null, 'Autre situation'));
     page.append(creer('p', null, "L'alerte et le chronomètre global restent disponibles. La fiche bilan arrive au lot L7."));
-    page.append(bouton('Passer en ACR', 'bouton bouton-accent bouton-plein', () => { this.panneau = null; this.intervention.choisirAcr(); }, { id: 'passer-acr' }));
+    page.append(bouton('Passer en ACR', 'bouton bouton-accent bouton-plein', () => { this.versPrincipal(); this.intervention.choisirAcr(); }, { id: 'passer-acr' }));
     this.zone.contenu.replaceChildren(page);
   }
 
@@ -398,6 +429,7 @@ export class InterfaceIntervention {
     ligne('Accueil', () => this.actions.accueil(), 'menu-accueil');
     ligne('Rôles', () => this.ouvrirPanneau('roles'), 'menu-roles');
     ligne('Changer de situation', () => this.ouvrirPanneau('situation'), 'menu-situation');
+    ligne('Glossaire', () => this.ouvrirPanneau('glossaire'), 'menu-glossaire');
     ligne('Tester le son et l\'écran', async () => {
       this.messageTest = 'Test en cours…'; this.rendre();
       const r = await testerSonEtEcran({ son: this.son, ecran: this.ecran });
