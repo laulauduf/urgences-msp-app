@@ -22,6 +22,10 @@ import { afficherRoles } from './roles.js';
 import { afficherProfession } from './profession.js';
 import { afficherChecklist, etatChecklistInitial } from './checklist.js';
 import { afficherGlossaire } from './glossaire.js';
+import { afficherFiche } from './fiche.js';
+import { afficherTransmission } from './transmission.js';
+import { afficherJournal } from './journal.js';
+import { construireTransmission } from '../bilan.js';
 import { texteBandeau, texteBandeauCourt } from '../roles.js';
 import { ACR, AUTRE } from '../intervention.js';
 
@@ -30,7 +34,8 @@ export const BARRE = [
   { id: 'acr', libelle: 'ACR', disponible: true },
   { id: 'alerter', libelle: 'ALERTER', disponible: true },
   { id: 'checklist', libelle: 'CHECKLIST', disponible: true },    // lot L6 (visible seulement dans une fiche ACR : voir majBarre)
-  { id: 'fiche', libelle: 'FICHE', disponible: false },            // lot L7
+  { id: 'transmission', libelle: 'TRANSMISSION', disponible: true }, // lot L7 : à la place de CHECKLIST hors d'une fiche ACR (4.0)
+  { id: 'fiche', libelle: 'FICHE', disponible: true },             // lot L7
   { id: 'menu', libelle: '⋯', disponible: true, nom: 'Menu' },
 ];
 
@@ -44,6 +49,9 @@ export class InterfaceIntervention {
     this.panneau = null;            // null | 'alerte' | 'lieu' | 'menu' | 'situation' | 'roles' | 'profession' | 'checklist' | 'glossaire'
     this.repriseRepliee = false; this.versionVue = false;   // bandeaux « Fiche reprise » (replié au premier toucher) et « Appli mise à jour » (acquitté)
     this.retourA = null;            // écran d'où l'on vient (null = l'écran principal) : « Fermer » y revient — aujourd'hui seulement la checklist
+    this.fb = { ajout: null };                 // fiche bilan : formulaire d'ajout ouvert
+    this.tr = { page: 0, edition: false };     // mode transmission : page courante, saisie E / D ouverte
+    this.jr = { corrige: null, texte: '', erreur: null };   // journal : entrée en cours de correction
     this.cl = etatChecklistInitial();   // étapes dépliées, saisie de l'heure : survit au redessin de la checklist
     this.secours = null; this.minuteur = null; this.debranchements = []; this.messageTest = null; this.echeances = new Map();
     this.zone = { entete: document.getElementById('entete'), barre: document.getElementById('barre'), contenu: document.getElementById('contenu'), bandeaux: document.getElementById('bandeaux'), appli: document.getElementById('appli') };
@@ -60,6 +68,7 @@ export class InterfaceIntervention {
     entete.hidden = false; barre.hidden = false;
     this.construireEntete();
     this.construireBarre();
+    if (this.intervention.transmissionAuRetour) { this.intervention.transmissionAuRetour = false; this.panneau = 'transmission'; }   // reprise après un appel : transmission d'abord
     this.debranchements.push(this.intervention.ecouter((e) => this.surEvenement(e)));
     // premier toucher dans la fiche reprise : le bandeau « Fiche reprise » se replie APRÈS l'action touchée (jamais entre le toucher et le clic :
     // le contenu ne bouge pas sous le doigt)
@@ -96,7 +105,9 @@ export class InterfaceIntervention {
 
   surEvenement(e) {
     // pendant la saisie du lieu, un changement ne doit PAS reconstruire le formulaire (on perdrait la saisie en cours)
-    if (e.type === 'changement' && !['lieu', 'roles', 'profession'].includes(this.panneau)) this.rendre();
+    if (e.type === 'changement' && !['lieu', 'roles', 'profession', 'fiche', 'transmission', 'journal'].includes(this.panneau)) this.rendre();
+    // retour d'un appel `tel:` (page revenue au premier plan) : le mode transmission s'ouvre seul (4.7, 2.10)
+    if (e.type === 'retour' && this.intervention.appelEnAttente) { this.intervention.appelEnAttente = false; this.ouvrirPanneau('transmission'); }
     // la checklist dépend de la profession et des habilitations lues : elle se redessine quand l'une ou l'autre arrive ou change
     if ((e.type === 'reglages' || e.type === 'habilitations') && this.panneau === 'checklist') this.rendre();
     if (e.type === 'roles' || e.type === 'reglages') this.majPuceEtRoles();
@@ -241,7 +252,7 @@ export class InterfaceIntervention {
     const i = this.intervention;
     if (id === 'alerter') { this.ouvrirPanneau('alerte'); return; }
     if (id === 'menu') { this.ouvrirPanneau(this.panneau === 'menu' ? null : 'menu'); return; }
-    if (id === 'checklist') { this.ouvrirPanneau('checklist'); return; }
+    if (id === 'checklist' || id === 'fiche' || id === 'transmission') { this.ouvrirPanneau(id); return; }
     if (id === 'acr') {
       this.versPrincipal();
       if (i.situation !== ACR) i.choisirAcr(); // « Autre situation » → ACR en UN toucher (journalisé, la fiche est conservée)
@@ -254,9 +265,10 @@ export class InterfaceIntervention {
    * Seule la checklist se rouvre ainsi : on ne perd pas sa place pour un appel, un rôle, une profession ou le glossaire.
    */
   ouvrirPanneau(nom) {
+    const PRINCIPAUX = ['checklist', 'fiche', 'transmission'];
     if (nom === null) { nom = this.retourA; this.retourA = null; }
-    else if (nom === 'checklist') this.retourA = null;
-    else if (this.panneau === 'checklist') this.retourA = 'checklist';
+    else if (PRINCIPAUX.includes(nom)) { if (!['menu', 'alerte'].includes(this.panneau)) this.retourA = null; }   // depuis le menu ou l'alerte, on garde l'écran d'origine
+    else if (PRINCIPAUX.includes(this.panneau)) this.retourA = this.panneau;
     this.panneau = nom; this.messageTest = null; this.rendre();
   }
 
@@ -328,13 +340,20 @@ export class InterfaceIntervention {
     this.majBandeauxSon();
     if (this.panneau === 'checklist' && i.situation !== ACR) this.versPrincipal();   // pas de checklist hors d'une fiche ACR
     this.majBarre();
-    if (this.panneau === 'checklist') {
+    if (this.panneau === 'fiche') {
+      afficherFiche(contenu, { intervention: i, etat: this.fb });
+    } else if (this.panneau === 'transmission') {
+      const pages = construireTransmission({ fiche: i.fiche, structure: this.structure, champsSensibles: i.champsSensibles, appelant: i.appelant, protocoleId: i.protocoleId, maintenant: Date.now() });
+      afficherTransmission(contenu, { pages, etat: this.tr, intervention: i, auFermer: () => this.ouvrirPanneau(null), auRendre: () => this.rendre() });
+    } else if (this.panneau === 'journal') {
+      afficherJournal(contenu, { intervention: i, etat: this.jr, auFermer: () => this.ouvrirPanneau(null), auRendre: () => this.rendre() });
+    } else if (this.panneau === 'checklist') {
       if (i.protocoleEtat === 'ok') afficherChecklist(contenu, { intervention: i, etat: this.cl, auAlerte: () => this.ouvrirPanneau('alerte'), auRendre: () => this.rendre() });
       else contenu.replaceChildren(creer('p', 'page', i.protocoleEtat === 'secours' ? 'Checklist indisponible : le protocole est illisible. Masser, alerter, DAE : voir l\'écran ACR.' : 'Chargement du protocole…', { role: 'status' }));
     } else if (this.panneau === 'glossaire') {
       afficherGlossaire(contenu, { glossaire: i.glossaire, auFermer: () => this.ouvrirPanneau(null) });
     } else if (this.panneau === 'alerte') {
-      afficherAlerte(contenu, { intervention: i, numeros: this.numerosFn(), structure: this.structure, auFermer: () => this.ouvrirPanneau(null), auLieu: () => this.ouvrirPanneau('lieu') });
+      afficherAlerte(contenu, { intervention: i, numeros: this.numerosFn(), structure: this.structure, auFermer: () => this.ouvrirPanneau(null), auLieu: () => this.ouvrirPanneau('lieu'), auTransmission: () => this.ouvrirPanneau('transmission') });
     } else if (this.panneau === 'lieu') {
       afficherLieu(contenu, { intervention: i, structure: this.structure, auRetour: () => this.ouvrirPanneau('alerte') });
     } else if (this.panneau === 'roles') {
@@ -365,6 +384,13 @@ export class InterfaceIntervention {
     const acr = document.getElementById('barre-acr');
     if (acr) acr.setAttribute('aria-current', this.panneau === null && i.situation === ACR ? 'page' : 'false');
     // CHECKLIST : seulement dans une fiche ACR (ailleurs, cet emplacement deviendra TRANSMISSION au lot L7, 4.0)
+    const transmission = document.getElementById('barre-transmission');
+    if (transmission) {
+      transmission.hidden = i.situation === ACR;   // dans une fiche ACR, la transmission est dans le panneau d'alerte et le menu (4.0)
+      transmission.setAttribute('aria-current', this.panneau === 'transmission' ? 'page' : 'false');
+    }
+    const fiche = document.getElementById('barre-fiche');
+    if (fiche) fiche.setAttribute('aria-current', this.panneau === 'fiche' ? 'page' : 'false');
     const checklist = document.getElementById('barre-checklist');
     if (checklist) {
       checklist.hidden = i.situation !== ACR;
@@ -387,7 +413,7 @@ export class InterfaceIntervention {
   afficherAutre() {
     const page = creer('section', 'page');
     page.append(creer('h1', null, 'Autre situation'));
-    page.append(creer('p', null, "L'alerte et le chronomètre global restent disponibles. La fiche bilan arrive au lot L7."));
+    page.append(creer('p', null, "L'alerte, le chronomètre global, la fiche bilan et le mode transmission restent disponibles."));
     page.append(bouton('Passer en ACR', 'bouton bouton-accent bouton-plein', () => { this.versPrincipal(); this.intervention.choisirAcr(); }, { id: 'passer-acr' }));
     this.zone.contenu.replaceChildren(page);
   }
@@ -471,10 +497,12 @@ export class InterfaceIntervention {
     page.setAttribute('aria-label', 'Menu');
     const ligne = (libelle, action, id) => page.append(bouton(libelle, 'bouton bouton-plein', action, { id }));
     // « le plus utile d'abord » ; chaque lot n'ajoute que les écrans qu'il livre
+    ligne('Mode transmission', () => this.ouvrirPanneau('transmission'), 'menu-transmission');
     ligne('Nouvelle urgence', () => this.actions.nouvelleUrgence(), 'menu-nouvelle-urgence');
     ligne('Accueil', () => this.actions.accueil(), 'menu-accueil');
     ligne('Rôles', () => this.ouvrirPanneau('roles'), 'menu-roles');
     ligne('Changer de situation', () => this.ouvrirPanneau('situation'), 'menu-situation');
+    ligne('Journal', () => this.ouvrirPanneau('journal'), 'menu-journal');
     ligne('Glossaire', () => this.ouvrirPanneau('glossaire'), 'menu-glossaire');
     ligne('Tester le son et l\'écran', async () => {
       this.messageTest = 'Test en cours…'; this.rendre();

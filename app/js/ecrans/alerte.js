@@ -12,7 +12,7 @@ export const MARQUE_A_VALIDER = 'à valider';
  * @param {HTMLElement} conteneur
  * @param {{intervention: object, numeros: {numeros: object[], rappels: object[]}, structure: object|null, auFermer: () => void, auLieu: () => void}} options
  */
-export function afficherAlerte(conteneur, { intervention, numeros, structure, auFermer, auLieu }) {
+export function afficherAlerte(conteneur, { intervention, numeros, structure, auFermer, auLieu, auTransmission = null }) {
   const simulation = intervention.simulation;
   const panneau = creer('section', 'panneau-alerte');
   panneau.setAttribute('aria-label', "Alerter");
@@ -20,6 +20,8 @@ export function afficherAlerte(conteneur, { intervention, numeros, structure, au
 
   const titre = creer('div', 'panneau-titre');
   titre.append(bouton('Fermer', 'bouton', auFermer, { id: 'fermer-alerte' }));
+  // « Mode transmission » : en tête du panneau, sans défilement (4.0, fonction 5) ; la transmission se lit à voix haute pendant l'appel
+  if (auTransmission) titre.append(bouton('Mode transmission', 'bouton', auTransmission, { id: 'mode-transmission' }));
   panneau.append(titre);
 
   /** Un bouton d'appel : lien tel:/sms: sans `target`, horodaté dans le journal au toucher ; en simulation, un bouton « Appel simulé ». */

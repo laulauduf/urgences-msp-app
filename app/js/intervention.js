@@ -7,6 +7,7 @@ import { attribuerRole, appelant, ajouterPersonne } from './roles.js';
 import { construireVue, heureVersTimestamp, estVitale } from './checklist.js';
 import { chargerHabilitations } from './habilitations.js';
 import { chargerGlossaire, lireGlossaire } from './glossaire.js';
+import { TYPES_CONSTANTE } from './bilan.js';
 
 export const ACR = 'acr';
 export const AUTRE = 'autre';
@@ -27,7 +28,7 @@ export class Intervention {
     this.situation = null;                                                 // null (choix en cours) | ACR | AUTRE
     this.definitions = []; this.metronome = null; this.gestion = null; this.horloge = null;
     this.auditeurs = new Set(); this.debranchements = []; this.prefetch = null; this.dernierGlobal = 0;
-    this.repriseDe = null; this.versionDifferente = null; this.detruite = false; this.tuileTouchee = false;
+    this.repriseDe = null; this.versionDifferente = null; this.champsSensibles = {}; this.appelEnAttente = false; this.transmissionAuRetour = false; this.detruite = false; this.tuileTouchee = false;
     this.profession = null; this.personnes = [];   // réglages de l'appareil (L3), chargés au démarrage : profession courante, personnes connues
   }
 
@@ -96,6 +97,9 @@ export class Intervention {
       this.stockage.modifier(fiche, (f) => { f.version_appli = courante; }, { immediat: true });
       this.journaliser('version_differente', { de, vers: courante });
     }
+    // retour d'un appel `tel:` avec rechargement de la page (iPhone) : la dernière chose écrite est l'appel lancé → le mode transmission s'ouvre (4.7, 2.10)
+    const dernierJournal = fiche.journal.at(-1);
+    if (dernierJournal?.type === 'appel_lance' && Date.now() - dernierJournal.t < 30 * 60 * 1000) this.transmissionAuRetour = true;
     this.journaliser('reprise', { automatique });
     this.gestion?.rattraper();
     this.emettre('changement');
@@ -371,6 +375,7 @@ export class Intervention {
   appelLance(numero, moyen = 'tel') {
     const t = Date.now();
     this.journaliser(this.simulation ? 'appel_simule' : 'appel_lance', { numero, moyen }, { maintenant: t });
+    if (!this.simulation) this.appelEnAttente = true;   // au retour au premier plan, le mode transmission s'ouvre seul (4.7)
     const alerte = this.etapeAlerte();
     if (alerte) this.cocher(alerte.id, { t }); // « Alerter » se coche au premier appel, avec l'heure de l'appel (aucun doublon)
     this.emettre('changement');
@@ -387,13 +392,68 @@ export class Intervention {
 
   get appelsFaits() { return this.fiche.journal.filter((e) => ['appel_lance', 'appel_simule', 'appel_fait'].includes(e.type)).length; }
 
+  // ───────── Fiche bilan (L7, 4.6) : saisie sans validation bloquante, enregistrée à chaque frappe ─────────
+
+  /** Écrit un champ de la fiche (`bloc` : « identite », « circonstances », « bilan_vital » ou null pour un champ de premier niveau). N'émet RIEN : l'écran de saisie ne se redessine pas. */
+  definirChamp(bloc, cle, valeur) {
+    this.stockage.modifier(this.fiche, (f) => {
+      if (bloc) f[bloc] = { ...(f[bloc] ?? {}), [cle]: valeur }; else f[cle] = valeur;
+    });
+  }
+
+  /** Date de naissance en trois champs : `partie` = jour, mois ou annee. */
+  definirNaissance(partie, valeur) {
+    this.stockage.modifier(this.fiche, (f) => {
+      const n = { ...(f.identite?.date_naissance ?? {}), [partie]: valeur };
+      f.identite = { ...(f.identite ?? {}), date_naissance: n };
+    });
+  }
+
+  /** Constante : valeur BRUTE, horodatée (heure préremplie « maintenant », modifiable) ; aucune interprétation (D-19). @returns {{ok: boolean, raison?: string}} */
+  ajouterConstante(type, valeur, heure) {
+    if (!TYPES_CONSTANTE.some((t) => t.id === type)) return { ok: false, raison: 'type de mesure inconnu' };
+    if (typeof valeur !== 'string' || valeur.trim() === '') return { ok: false, raison: 'écrire la valeur mesurée' };
+    const t = heureVersTimestamp(heure);
+    if (t === null) return { ok: false, raison: 'heure invalide : écrire hh:mm' };
+    const v = valeur.trim();
+    this.stockage.modifier(this.fiche, (f) => { f.constantes = [...(f.constantes ?? []), { t, type, valeur: v, unite: '' }]; }, { immediat: true });
+    this.journaliser('constante', { type, valeur: v }, { maintenant: t });
+    this.emettre('fiche');
+    return { ok: true };
+  }
+
+  /** Geste ou produit saisi (texte libre, jamais calculé) à l'heure indiquée. */
+  ajouterGeste(texte, heure) {
+    if (typeof texte !== 'string' || texte.trim() === '') return { ok: false, raison: 'écrire le geste ou le produit' };
+    const t = heureVersTimestamp(heure);
+    if (t === null) return { ok: false, raison: 'heure invalide : écrire hh:mm' };
+    const x = texte.trim();
+    this.stockage.modifier(this.fiche, (f) => { f.gestes_produits = [...(f.gestes_produits ?? []), { t, texte: x }]; }, { immediat: true });
+    this.journaliser('geste', { texte: x }, { maintenant: t });
+    this.emettre('fiche');
+    return { ok: true };
+  }
+
+  // ───────── Journal (L7, 4.10) ─────────
+
+  /** Correction d'une entrée : une NOUVELLE entrée qui renvoie à l'originale (qui reste lisible et barrée) ; l'heure de la correction est conservée. */
+  corrigerEntree(id, texte) {
+    const cible = this.fiche.journal.find((e) => e.id === id);
+    if (!cible || cible.type === 'correction') return { ok: false, raison: 'cette entrée ne se corrige pas' };
+    if (typeof texte !== 'string' || texte.trim() === '') return { ok: false, raison: 'écrire la correction' };
+    this.journaliser('correction', { texte: texte.trim() }, { correction_de: id });
+    this.ecrire();
+    this.emettre('journal');
+    return { ok: true };
+  }
+
   // ───────── Rôles, profession (L5b) ─────────
 
   /** Profession et personnes connues de l'appareil : lues sans jamais retarder l'écran (valeurs par défaut en attendant). */
   async chargerReglages() {
     const reglages = await this.stockage.lireReglages();
     if (this.detruite) return;
-    this.profession = reglages.profession; this.personnes = reglages.personnes;
+    this.profession = reglages.profession; this.personnes = reglages.personnes; this.champsSensibles = reglages.champs_sensibles ?? {};
     if (!this.modeChoisi) this.modeChecklist = reglages.mode_affichage;   // réglage par défaut, sauf si l'équipe a déjà basculé
     this.emettre('reglages');
   }
