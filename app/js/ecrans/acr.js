@@ -9,14 +9,14 @@
 // étape à l'autre, ex. « Protéger », « Alerter ») ; `section` (« reprise » range l'étape sous la pastille Reprise, sinon Conduite à tenir).
 import { creer, bouton, heureLocale } from '../dom.js';
 import { formaterDuree, MARQUE_PROVISOIRE, MARQUE_A_VALIDER } from '../horloge.js';
-import { texteSource } from '../checklist.js';
+import { texteSource, MENTION_SUR_DEMANDE } from '../checklist.js';
 import { detailHabilitation } from '../habilitations.js';
 import { construireDefinition } from './glossaire.js';
 import { afficherMateriel } from './materiel.js';
 import { construireMateriel } from '../materiel.js';
 
 /** État d'affichage de l'écran ACR, conservé par l'interface entre deux dessins. */
-export function etatAcrInitial() { return { deplies: new Set(), acronymes: new Set(), notation: null, section: 'conduite', evenements: false }; }
+export function etatAcrInitial() { return { deplies: new Set(), acronymes: new Set(), notation: null, section: 'conduite', evenements: false, confirmation: null }; }
 
 const STATUTS = { CITE: 'CITÉ', DEDUIT: 'DÉDUIT', A_VALIDER: 'A_VALIDER' };
 const heureCourante = () => heureLocale(Date.now());
@@ -30,7 +30,7 @@ const plein = (v) => typeof v === 'string' && v.trim() !== '';
  *   (par défaut, l'ACR), `classe` est la classe de la section, `sansMateriel` retire la pastille Matériel (pas de matériel propre à une checklist commune),
  *   `auRenvoi(idProtocole)` est appelée quand on TOUCHE le bouton « Passer en ACR » d'une étape qui porte `renvoi_protocole` (R1f, M1 : ce n'est PLUS une case) ; `renvoiPossible(idProtocole)` dit si l'interface sait ouvrir ce protocole (sinon l'étape reste une case ordinaire).
  */
-export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte, auRendre, avantEcran = [], zoneCycle = null, vue = intervention.vueChecklist, protocole = intervention.protocole, classe = 'ecran-acr', sansMateriel = false, auRenvoi = null, renvoiPossible = () => false }) {
+export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte, auRendre, avantEcran = [], zoneCycle = null, vue = intervention.vueChecklist, protocole = intervention.protocole, classe = 'ecran-acr', sansMateriel = false, auRenvoi = null, renvoiPossible = () => false, renvoiCibles = null }) {
   const page = creer('section', classe, '', { 'aria-label': protocole?.titre_court ?? 'ACR' });
   const debut = intervention.fiche.journal[0].t;
   const tPlus = (t) => `T+${formaterDuree(t - debut)}`;
@@ -48,11 +48,24 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
   const rendre = () => auRendre();
   const cocher = (id) => {
     const r = intervention.cocherDepuisChecklist(id);
+    // étape réservée aux habilités, profession non habilitée ou non réglée (D-58, P4d M1) : rien n'est coché ; la confirmation « fait sur demande du 15 » s'ouvre sous la ligne
+    if (r.confirmationRequise) { etat.confirmation = id; rendre(); return; }
+    etat.confirmation = null;
     if (r.ouvrirAlerte) { auAlerte(); return; }
     rendre();
   };
+  const confirmer = (id) => { etat.confirmation = null; intervention.cocherDepuisChecklist(id, { confirme: true }); rendre(); };
   /** Cible d'un renvoi affichable en bouton (D-51, R1f M1) : `renvoi_protocole` textuel, non vide, que l'interface sait ouvrir ; sinon null (l'étape reste une case ordinaire). */
   const renvoiDe = (e) => (auRenvoi && typeof e.renvoi_protocole === 'string' && e.renvoi_protocole !== '' && renvoiPossible(e.renvoi_protocole)) ? e.renvoi_protocole : null;
+  /**
+   * Les boutons d'un renvoi (P4a) : par défaut un seul, « Passer en ACR » vers la cible du protocole. Quand l'interface propose plusieurs protocoles de même nature (`renvoiCibles` : ACR adulte
+   * ET enfant), un bouton par protocole, nommé par le protocole ; la cible du protocole est la PREMIÈRE (elle seule porte `data-renvoi`).
+   */
+  const boutonsRenvoi = (cible, id) => {
+    const cibles = renvoiCibles ? renvoiCibles(cible) : [];
+    const liste = cibles.length > 0 ? [...cibles].sort((a, b) => (b.id === cible) - (a.id === cible)) : [{ id: cible, libelle: 'Passer en ACR' }];
+    return liste.map((c, rang) => bouton(liste.length > 1 ? c.libelle : 'Passer en ACR', 'bouton bouton-urgence bouton-renvoi', () => auRenvoi(c.id), rang === 0 ? { 'data-renvoi': id, 'data-cible': c.id } : { 'data-renvoi-autre': id, 'data-cible': c.id }));
+  };
   const noter = (id) => { etat.notation = { id, valeur: heureCourante(), erreur: null }; rendre(); };
   const valider = () => {
     const n = etat.notation;
@@ -82,11 +95,15 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
     }
     if (item.nonFaite && renvoiDe(e) === null) m.append(creer('span', 'marque-non-faite', '⚠ non faite'));
     if (complet && e.statut === 'DEDUIT') m.append(creer('span', 'marque', 'DÉDUIT'));   // r2 : le statut DÉDUIT se voit dès le titre replié de Sources
-    if (complet && e.statut === 'A_VALIDER') m.append(creer('span', 'marque marque-a-valider', `⚠ ${MARQUE_A_VALIDER}`));
+    if (complet && e.statut === 'A_VALIDER') m.append(creer('span', 'marque marque-a-valider', MARQUE_A_VALIDER));   // (la marque porte déjà son « ⚠ » : P4a, il s'affichait en double)
     if (complet && typeof e.provisoire === 'string') m.append(creer('span', 'marque marque-provisoire', MARQUE_PROVISOIRE));   // « provisoire » seulement si le protocole le porte (R15)
     // pas de mention sur une étape VITALE : elle reste cochable pour tous (règle absolue 5), la mention contredirait la case active (revue L6 m1)
     // profession non réglée : la ligne en tête de l'écran le dit une fois pour toutes ; seule une profession RÉGLÉE affiche la mention sur chaque ligne concernée
-    if (item.habilitation !== 'oui' && !item.exempte && (complet || intervention.profession !== null)) {
+    if (item.reserve) {
+      // étape réservée aux habilités (D-58) : « sur demande du 15 » pour une profession réglée non habilitée tant qu'elle n'est pas faite ; une fois faite, la mention dit comment (jamais « non proposé »)
+      if (item.surDemande && !item.cochee) m.append(creer('span', complet ? 'marque marque-habilitation' : 'etape-habilitation etape-sur-demande', MENTION_SUR_DEMANDE));
+      if (item.cocheeSurDemande) m.append(creer('span', 'etape-fait etape-sur-demande', MENTION_SUR_DEMANDE));
+    } else if (item.habilitation !== 'oui' && !item.exempte && (complet || intervention.profession !== null)) {
       const texte = item.habilitation === 'non' ? 'non proposé pour votre profession' : 'habilitation non établie';
       const cause = intervention.profession === null || intervention.professionReconnue ? '' : ' (profession non reconnue)';
       m.append(creer('span', complet ? 'marque marque-habilitation' : 'etape-habilitation', `⚠ ${texte}${cause}`));
@@ -166,13 +183,16 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
     if (cibleRenvoi !== null) {
       // RENVOI (R1f, M1, CHOIX PROVISOIRE) : pas de case (cocher « vérifié » ne doit jamais déclarer un arrêt cardiaque) ; un bouton rouge net, un toucher, jamais « non faite ».
       const lr = creer('li', 'etape etape-renvoi', '', { 'data-etape': item.id, 'data-etat': 'renvoi' });
-      if (item.exempte) lr.dataset.vitale = 'oui';
-      lr.append(creer('span', 'etape-texte', e.texte_court), bouton('Passer en ACR', 'bouton bouton-urgence bouton-renvoi', () => auRenvoi(cibleRenvoi), { 'data-renvoi': item.id }));
+      if (item.vitale) lr.dataset.vitale = 'oui';
+      lr.append(creer('span', 'etape-texte', e.texte_court));
+      const boutons = boutonsRenvoi(cibleRenvoi, item.id);
+      if (boutons.length === 1) lr.append(boutons[0]);
+      else { const groupe = creer('span', 'renvoi-boutons'); groupe.append(...boutons); lr.append(groupe); lr.classList.add('etape-renvoi-multi'); }   // plusieurs boutons : sous le libellé, sur toute la largeur (sinon le libellé est écrasé)
       return lr;
     }
     const etatLigne = item.nonFaite ? 'non_faite' : item.cochee ? 'faite' : item.notee ? 'notee' : item.cochable ? 'a_faire' : 'info';
     const li = creer('li', 'etape', '', { 'data-etape': item.id, 'data-etat': etatLigne });
-    if (item.exempte) li.dataset.vitale = 'oui';   // étape vitale : barre verticale et libellé en graisse 800 (jamais de rouge : réservé au 15)
+    if (item.vitale) li.dataset.vitale = 'oui';   // (même l'étape réservée aux habilités, qui n'est plus « exempte ») étape vitale : barre verticale et libellé en graisse 800 (jamais de rouge : réservé au 15)
     if (item.cochable || item.cochee) {
       // une étape déjà cochée garde sa case (pour pouvoir la décocher) même si la profession a changé ; sinon elle ne se coche que si elle est cochable
       const c = bouton(item.cochee ? '✓' : '', 'bouton case', () => cocher(item.id), {
@@ -201,6 +221,15 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
       li.append(titre);
     }
     li.append(marques(item));
+    if (etat.confirmation === item.id && item.surDemande && !item.cochee) {
+      // confirmation « fait sur demande du 15 » (D-58) : deux boutons sous la ligne, la case ne se coche qu'au second geste ; Annuler ne coche rien
+      const c = creer('div', 'demande-confirmation', '', { 'data-confirmation': item.id, role: 'group', 'aria-label': `${e.texte_court} : confirmer ${MENTION_SUR_DEMANDE}` });
+      c.append(
+        bouton(`Confirmer : fait ${MENTION_SUR_DEMANDE}`, 'bouton bouton-accent bouton-plein', () => confirmer(item.id), { 'data-confirmer': item.id }),
+        bouton('Annuler', 'bouton bouton-plein', () => { etat.confirmation = null; rendre(); }, { 'data-annuler-confirmation': item.id }),
+      );
+      li.append(c);
+    }
     if (ouverte) {
       if (precision !== '') li.append(creer('p', 'etape-precision', precision, { 'data-precision': item.id }));
       if (noterDispo) {

@@ -8,7 +8,7 @@ export const FORMAT_FICHE = 1;
 export const TYPES_JOURNAL = [
   'urgence', 'situation', 'role', 'profession', 'case', 'evenement', 'constante', 'geste', 'appel_lance', 'appel_fait', 'appel_simule',
   'chronometre', 'echeance', 'rattrapage', 'horloge_modifiee', 'reprise', 'nouvelle_urgence', 'stockage_echec', 'version_differente',
-  'secours_protocole', 'purge_reportee', 'correction', 'export', 'note',
+  'secours_protocole', 'acr_illisible', 'purge_reportee', 'correction', 'export', 'note',
 ];
 
 /** Événements qu'on écrit tout de suite, sans regroupement (2.8) : URGENCE, appels, case cochée, événement du DAE. */

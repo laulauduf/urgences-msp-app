@@ -34,6 +34,8 @@ import { construireMateriel } from '../materiel.js';
 import { construireTransmission } from '../bilan.js';
 import { texteBandeau, texteBandeauCourt, texteBandeauRempli } from '../roles.js';
 import { ACR, AUTRE } from '../intervention.js';
+import { PROTOCOLES_ACR, CONDUITES, titreDe } from '../catalogue.js';
+import { ID_COMMUN, protocolePublie } from '../protocole-commun.js';
 /** Après la bascule « Autre situation » → ACR, les touchers sur le contenu sont ignorés ce temps (R1f, M2). */
 const DELAI_REBOND_BASCULE_MS = 600;
 
@@ -92,7 +94,9 @@ export class InterfaceIntervention {
     // premier toucher dans la fiche reprise : le bandeau « Fiche reprise » se replie APRÈS l'action touchée (jamais entre le toucher et le clic :
     // le contenu ne bouge pas sous le doigt)
     // R1f (M2) : après un changement de situation (tuile rouge, bouton « Passer en ACR »), les touchers sur le contenu sont ignorés ~600 ms : un double toucher ne doit rien cocher sur l'écran qui s'ouvre
-    const ignorerRebond = (ev) => { if (this.panneau === null && performance.now() < this.touchesIgnoreesJusqua) { ev.stopPropagation(); ev.preventDefault(); } };
+    // P4c (n1 de la revue R1f, règle absolue 5) : le toucher de la case « Alerter » (cochage_auto: appel) n'est JAMAIS ignoré — il ouvre le panneau d'alerte, il ne coche rien : le perdre sans signal serait gratuit
+    const ouvreAlerte = (cible) => { const id = cible?.closest?.('button[data-case]')?.dataset.case; return typeof id === 'string' && this.intervention.etape(id)?.cochage_auto === 'appel'; };
+    const ignorerRebond = (ev) => { if (this.panneau === null && performance.now() < this.touchesIgnoreesJusqua && !ouvreAlerte(ev.target)) { ev.stopPropagation(); ev.preventDefault(); } };
     this.zone.contenu.addEventListener('click', ignorerRebond, true);
     this.debranchements.push(() => this.zone.contenu.removeEventListener('click', ignorerRebond, true));
     const marquerToucher = () => { if (this.intervention.repriseDe) this.repriseRepliee = true; };
@@ -123,7 +127,7 @@ export class InterfaceIntervention {
     const { appli, entete, barre, bandeaux } = this.zone;
     appli.classList.remove('gabarit');
     entete.hidden = true; barre.hidden = true; entete.replaceChildren(); barre.replaceChildren();
-    for (const b of bandeaux.querySelectorAll('[data-bandeau="simulation"],[data-bandeau="reprise"],[data-bandeau="version"],[data-bandeau="son"],[data-bandeau="ecran"],[data-bandeau="echeance"],[data-bandeau="rattrapage"]')) b.remove();
+    for (const b of bandeaux.querySelectorAll('[data-bandeau="simulation"],[data-bandeau="reprise"],[data-bandeau="acr-illisible"],[data-bandeau="version"],[data-bandeau="son"],[data-bandeau="ecran"],[data-bandeau="echeance"],[data-bandeau="rattrapage"]')) b.remove();
     delete document.body.dataset.mode; delete document.body.dataset.texte; delete document.body.dataset.panneau;
   }
 
@@ -174,7 +178,10 @@ export class InterfaceIntervention {
     const i = this.intervention;
     const el = document.getElementById('entete-titre');
     if (!el) return;
-    el.textContent = i.situation === ACR ? (i.protocole?.titre_court ?? i.protocole?.titre ?? 'Urgence') : i.situation === AUTRE ? 'Autre situation' : 'Urgence';
+    // l'ACR en cours : le titre de SON protocole (le catalogue le nomme tant qu'il charge ou si un autre est encore en mémoire) ; la conduite : celui de son fichier, sinon le catalogue ; « Autre situation » : la commune
+    const acr = i.protocole?.id === i.protocoleActifId ? (i.protocole?.titre_court ?? i.protocole?.titre) : null;
+    const conduite = i.conduiteId === ID_COMMUN ? 'Autre situation' : (i.protocoleCommun?.titre_court ?? titreDe(i.conduiteId) ?? 'Autre situation');
+    el.textContent = i.situation === ACR ? (acr ?? titreDe(i.protocoleActifId) ?? 'Urgence') : i.situation === AUTRE ? conduite : 'Urgence';
   }
 
   /**
@@ -404,6 +411,14 @@ export class InterfaceIntervention {
       if (!this.repriseRepliee) b.append(bouton('Accueil', 'bouton', () => this.actions.accueil(), { id: 'accueil-reprise' }));
       zone.append(b);
     }
+    // P4d (m4) : un CHANGEMENT d'ACR a échoué (fichier illisible) : on reste sur l'ACR en cours — Masser, DAE, métronome, cycle — et on le dit, sans écran de secours
+    zone.querySelector('[data-bandeau="acr-illisible"]')?.remove();
+    if (i.echecAcr && i.situation === ACR) {
+      const nom = PROTOCOLES_ACR.find((p) => p.id === i.echecAcr.id)?.libelle ?? i.echecAcr.id;
+      const b = creer('div', 'bandeau bandeau-avertissement', `${nom} illisible : on reste sur l'arrêt cardiaque en cours.`, { 'data-bandeau': 'acr-illisible', role: 'status' });
+      b.append(' ', bouton('OK', 'bouton', () => { i.echecAcr = null; b.remove(); }, { id: 'acr-illisible-ok' }));
+      zone.append(b);
+    }
     if (i.versionDifferente && !this.versionVue) {
       // parade 3 (2.4, revue M2) : l'appli a changé de version pendant l'intervention ; dit une fois, acquittable en un toucher
       const texte = `Appli mise à jour pendant l'intervention (version ${i.versionDifferente.de} → ${i.versionDifferente.vers})`;
@@ -432,7 +447,8 @@ export class InterfaceIntervention {
     this.dessiner();
     this.majBarreVitale();   // R1f (m7) : « Masser » et « DAE » apparaissent avec l'écran ACR, sans attendre la boucle de 250 ms
     // la clé inclut la situation : de « Autre situation » à l'ACR le panneau reste null, mais l'écran change (R1f, M2 : l'ACR s'ouvrait défilé, « Masser » sous le doigt)
-    const cle = `${this.panneau ?? 'principal'}|${this.intervention.situation ?? ''}`;
+    // (P4a : et le protocole choisi — de l'ACR adulte à l'ACR enfant, ou d'une conduite à l'autre, l'écran repart aussi du haut)
+    const cle = `${this.panneau ?? 'principal'}|${this.intervention.situation ?? ''}|${this.intervention.situation === ACR ? this.intervention.protocoleActifId : this.intervention.situation === AUTRE ? this.intervention.conduiteId : ''}`;
     if (cle !== this.cleEcran) {
       if (this.situationAffichee === AUTRE && this.intervention.situation === ACR) this.touchesIgnoreesJusqua = performance.now() + DELAI_REBOND_BASCULE_MS;
       this.zone.contenu.scrollTop = 0; this.cleEcran = cle; this.situationAffichee = this.intervention.situation;
@@ -452,21 +468,21 @@ export class InterfaceIntervention {
       this.cloture?.demonter();
       this.cloture = afficherCloture(contenu, {
         fiche: i.fiche, stockage: i.stockage,
-        structure: () => this.structure, champsSensibles: () => i.champsSensibles, appelant: () => i.appelant, protocoleId: i.protocoleId,
+        structure: () => this.structure, champsSensibles: () => i.champsSensibles, appelant: () => i.appelant, protocoleId: i.protocolesAcr,
         effacer: () => i.cloturerEtEffacer(),
         apresEffacement: (res) => this.actions.effacee?.(res),
         auFermer: () => (i.detruite ? this.actions.terminee() : this.ouvrirPanneau(null)),   // L8c (revue L8 m2) : l'intervention est déjà terminée (effacement échoué) : retour à l'accueil, où la fiche attend (Exporter, Effacer)
       });
     } else if (this.panneau === 'materiel') {
       // le protocole de la fiche (copie), sinon celui en mémoire : « Autre situation » n'en a pas, la liste est alors dite vide
-      const protocole = i.protocole ?? i.fiche.protocoles_utilises?.[i.protocoleId] ?? null;
+      const protocole = i.protocole ?? i.fiche.protocoles_utilises?.[i.protocoleActifId] ?? null;
       afficherMateriel(contenu, { modele: construireMateriel({ protocole, structure: this.structure }), avecArticles: true, auFermer: () => this.ouvrirPanneau(null) });
     } else if (this.panneau === 'apropos') {
       afficherAPropos(contenu, { chargerProtocole: () => (i.protocole ? Promise.resolve({ ok: true, protocole: i.protocole }) : i.chargerProtocoleFn(i.protocoleId)), stockage: i.stockage, auFermer: () => this.ouvrirPanneau(null) });
     } else if (this.panneau === 'fiche') {
       afficherFiche(contenu, { intervention: i, etat: this.fb });
     } else if (this.panneau === 'transmission') {
-      const pages = construireTransmission({ fiche: i.fiche, structure: this.structure, champsSensibles: i.champsSensibles, appelant: i.appelant, protocoleId: i.protocoleId, maintenant: Date.now() });
+      const pages = construireTransmission({ fiche: i.fiche, structure: this.structure, champsSensibles: i.champsSensibles, appelant: i.appelant, protocoleId: i.protocolesAcr, maintenant: Date.now() });
       afficherTransmission(contenu, { pages, etat: this.tr, intervention: i, auFermer: () => this.ouvrirPanneau(null), auRendre: () => this.rendre() });
     } else if (this.panneau === 'journal') {
       afficherJournal(contenu, { intervention: i, etat: this.jr, auFermer: () => this.ouvrirPanneau(null), auRendre: () => this.rendre() });
@@ -516,7 +532,15 @@ export class InterfaceIntervention {
     const page = creer('section', 'choix-situation');
     page.setAttribute('aria-label', 'Situation');
     // (rendre() explicite : si la situation est déjà celle-là — menu « Changer de situation » — aucun événement ne la réaffiche)
-    page.append(bouton('ACR adulte', 'bouton bouton-accent bouton-tres-grand bouton-plein', async () => { this.versPrincipal(); const p = i.choisirAcr(); this.rendre(); await p; this.rendre(); }, { id: 'choix-acr' }));
+    // P4a : un bouton par ACR (adulte, puis enfant s'il est publié), un par conduite publiée, puis « Autre situation » (la conduite commune) ; les noms viennent du catalogue
+    for (const p of PROTOCOLES_ACR) {
+      if (p.id !== i.protocoleId && !(i.protocolesAcr.includes(p.id) && protocolePublie(p.id))) continue;
+      page.append(bouton(p.libelle, 'bouton bouton-accent bouton-tres-grand bouton-plein', async () => { this.versPrincipal(); const a = i.choisirAcr(p.id); this.rendre(); await a; this.rendre(); }, { id: p.id === i.protocoleId ? 'choix-acr' : `choix-${p.id}` }));
+    }
+    for (const c of CONDUITES) {
+      if (!i.conduites.includes(c.id) || !protocolePublie(c.id)) continue;
+      page.append(bouton(c.titre, 'bouton bouton-plein', () => { this.versPrincipal(); i.choisirAutre(c.id); this.rendre(); }, { id: `choix-${c.id}` }));
+    }
     page.append(bouton('Autre situation', 'bouton bouton-plein', () => { this.versPrincipal(); i.choisirAutre(); this.rendre(); }, { id: 'choix-autre' }));
     // « Annuler (démarrage par erreur) » : seulement sur CET écran, tant que la fiche ne contient rien d'autre que l'entrée « urgence »
     this.zone.contenu.replaceChildren(page);
@@ -529,11 +553,14 @@ export class InterfaceIntervention {
    */
   afficherAutre() {
     const i = this.intervention;
-    const page = creer('section', 'accueil autre-situation', '', { 'aria-label': 'Autre situation' });
+    const page = creer('section', 'accueil autre-situation', '', { 'aria-label': i.conduiteId === ID_COMMUN ? 'Autre situation' : (i.protocoleCommun?.titre_court ?? titreDe(i.conduiteId) ?? 'Autre situation'), 'data-conduite': i.conduiteId });
     /** Grosse tuile : titre + sous-titre discret (comme l'accueil). */
     const gros = (titre, sous, classe, action, id) => { const b = bouton(titre, classe, action, { id }); b.append(creer('small', null, sous)); return b; };
-    const urgence = creer('div', 'accueil-grille');
-    urgence.append(gros('Arrêt cardiaque', 'passer en ACR', 'bouton bouton-urgence gros gros-urgence', () => { this.versPrincipal(); i.choisirAcr().catch(() => {}); }, 'passer-acr'));
+    // la tuile rouge « Arrêt cardiaque » : toujours à UN toucher, quelle que soit la conduite ; deux tuiles (adulte, enfant) quand l'ACR enfant est publié — CHOIX PROVISOIRE (D-15, P4a)
+    const urgence = creer('div', 'accueil-grille autre-urgences');
+    const acrs = PROTOCOLES_ACR.filter((p) => p.id === i.protocoleId || (i.protocolesAcr.includes(p.id) && protocolePublie(p.id)));
+    for (const p of acrs) urgence.append(gros(p.titre, acrs.length > 1 ? p.sous.split(' · ')[0] : 'passer en ACR', 'bouton bouton-urgence gros gros-urgence', () => { this.versPrincipal(); i.choisirAcr(p.id).catch(() => {}); }, p.id === i.protocoleId ? 'passer-acr' : `passer-${p.id}`));
+    if (acrs.length > 1) urgence.classList.add('autre-urgences-deux');
     page.append(urgence);
     page.append(this.construireChecklistCommune());
     const outils = creer('div', 'accueil-grille autre-outils');
@@ -543,7 +570,6 @@ export class InterfaceIntervention {
       gros('Lieu / adresse', 'où envoyer les secours', 'bouton gros', () => this.ouvrirLieu(null), 'autre-lieu'),
     );
     page.append(outils);
-    page.append(creer('p', 'autre-bientot', 'Bientôt : autres protocoles', { id: 'autre-bientot' }));
     page.append(creer('p', 'presentation', "L'alerte, le chronomètre global, la fiche bilan et le mode transmission restent disponibles."));
     this.zone.contenu.replaceChildren(page);
     this.majPuceEtRoles();
@@ -565,7 +591,8 @@ export class InterfaceIntervention {
     const zone = document.createElement('div');   // afficherAcr remplit un conteneur ; on récupère sa section
     afficherAcr(zone, {
       intervention: i, etat: this.clCommun, structure: this.structure, avantEcran: equipe.childElementCount > 0 ? [equipe] : [],
-      auAlerte: () => this.ouvrirPanneau('alerte'), auRendre: () => this.rendre(), auRenvoi: (id) => this.renvoyerVers(id), renvoiPossible: (id) => id === i.protocoleId,
+      auAlerte: () => this.ouvrirPanneau('alerte'), auRendre: () => this.rendre(), auRenvoi: (id) => this.renvoyerVers(id), renvoiPossible: (id) => i.protocolesAcr.includes(id),
+      renvoiCibles: (id) => (i.protocolesAcr.includes(id) ? PROTOCOLES_ACR.filter((p) => p.id === id || (i.protocolesAcr.includes(p.id) && protocolePublie(p.id))).map((p) => ({ id: p.id, libelle: p.libelle })) : []),
       vue: i.vueChecklistCommune, protocole: i.protocoleCommun, classe: 'checklist-commune', sansMateriel: true,
     });
     hote.append(...zone.childNodes);
@@ -574,12 +601,12 @@ export class InterfaceIntervention {
 
   /**
    * RENVOI d'une étape de la checklist commune (`renvoi_protocole`) : bascule vers le protocole ACR par le MÊME chemin que la tuile rouge (un toucher, journalisé, fiche et coches conservées).
-   * L'identifiant de l'ACR est celui de l'intervention (`protocoleId`, qui vient de main.js), jamais une chaîne écrite ici ; toute autre valeur est ignorée, sans erreur.
+   * Les identifiants des ACR sont ceux de l'intervention (`protocolesAcr`, qui viennent de main.js), jamais une chaîne écrite ici ; toute autre valeur est ignorée, sans erreur.
    */
   renvoyerVers(idProtocole) {
     const i = this.intervention;
-    if (idProtocole !== i.protocoleId || i.situation !== AUTRE) return;
-    this.versPrincipal(); i.choisirAcr().catch(() => {});
+    if (!i.protocolesAcr.includes(idProtocole) || i.situation !== AUTRE) return;
+    this.versPrincipal(); i.choisirAcr(idProtocole).catch(() => {});
   }
 
   /** Ouvre le lieu ; `retour` = l'écran où revient « Retour » : 'alerte' depuis le panneau d'alerte (comportement d'origine), null depuis « Autre situation ». */

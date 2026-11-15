@@ -10,6 +10,7 @@ self.URGENCES_LISTE_CACHE = [
   "app/js/a-propos.js",
   "app/js/barre-vitale.js",
   "app/js/bilan.js",
+  "app/js/catalogue.js",
   "app/js/checklist.js",
   "app/js/dom.js",
   "app/js/ecran-allume.js",
@@ -64,5 +65,10 @@ self.URGENCES_LISTE_CACHE = [
   "protocoles/_commun/professions.json",
   "protocoles/_commun/unites.json",
   "protocoles/acr-adulte-dae.json",
+  "protocoles/acr-enfant.json",
+  "protocoles/anaphylaxie.json",
+  "protocoles/avc.json",
+  "protocoles/douleur-thoracique.json",
+  "protocoles/hypoglycemie.json",
   "protocoles/urgence-commune.json"
 ];

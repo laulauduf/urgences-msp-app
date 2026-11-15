@@ -3,7 +3,7 @@
   "id": "urgence-commune",
   "titre": "Conduite à tenir commune à toute urgence (hors arrêt cardiaque), jusqu'à l'arrivée des secours",
   "titre_court": "Urgence : conduite commune",
-  "version": "0.1.2",
+  "version": "0.1.6",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/urgence-commune.md",
@@ -20,6 +20,26 @@
         "par": "agent recherche-reco (Opus 5.5 / high), lancé par « urgences - pilote 3 »",
         "le": "2026-11-15",
         "objet": "Version 0.1.1, d'après le rapport docs/controle/urgence-commune-0.1.0-controle-2026-11-15.md (44 éléments ; 14 écarts : 4 majeurs, 10 mineurs), qui porte sur la 0.1.0 : la 0.1.1 n'est pas contrôlée (rapport_controle laissé à null). Majeurs : obstruction (#14 : victime consciente, toux inefficace, compressions abdominales) ; position latérale (#24 : origine inconnue) ; rachis cervical (#39 : ERC premiers secours tableau 3 et p. 7) ; ordre analyse-situation / securite aligné sur D-52 (#4). Mineurs : hémorragie (#12), habilitations « tous » remplacées selon D-4 (#36), constantes (#29), statut de l'alerte (#20), antécédents (#32), ordre alerte / position latérale (#5), aggravation (#28), qui_fiche (#37), remarques périmées (#38), libellé « Respire ? (10 s) » (#40)."
+      },
+      {
+        "par": "agent recherche-reco (Sonnet 5.5 / élevé), lancé par « urgences - pilote 3 »",
+        "le": "2026-11-15",
+        "objet": "Version 0.1.3 : décision D-55 de Laurent (remarque en testant la version 0.2.4). Une étape de premier niveau ajoutée, bilan-15 (« Bilan à passer au 15 », phase Alerter, cochable), juste après alerter et ses deux détails, avant gestes-adaptes ; contenu d'après les informations minimales de l'alerte (RTN premiers secours citoyen p. 11, premiers secours en équipe p. 72 et p. 380) et le guide Saed de la HAS (d'après la fiche cadre transversal). Statut DEDUIT (autorise_par D-55). Champ ordre renuméroté : 23 étapes ; identifiants, parent, ref_fiche existants et cochage_auto « appel » (alerter) inchangés ; nouvelle étape : ref_fiche « § 2, étape 9 bis ». Source HAS-SAED-2014 ajoutée au bloc sources. Version 0.1.3 non contrôlée."
+      },
+      {
+        "par": "agent recherche-reco (Sonnet 5.5 / élevé), lancé par « urgences - pilote 3 »",
+        "le": "2026-11-15",
+        "objet": "Version 0.1.4 : décision D-56 de Laurent (vocabulaire médical dans les textes affichés). Remplacements ciblés, sans changer le sens ni les sources : étape obstruction, libellé « S'étouffe ? » devenu « Obstruction voies aériennes ? » (intitulé du logigramme PSC p. 3) ; étape hemorragie, « saigne sans s'arrêter » devenu « saignement persistant », « sauf le nez » devenu « hors épistaxis », « sur le côté » devenu « en décubitus latéral » ; étape position-attente, « difficultés à respirer » devenu « dyspnée » et « position où elle se sent le mieux » devenu « position de confort ». Citations, statuts, habilitations, ordre et détails inchangés. Version 0.1.4 non contrôlée."
+      },
+      {
+        "par": "agent recherche-reco (Opus 5.5 / high), lancé par « urgences - pilote 4 »",
+        "le": "2026-11-15",
+        "objet": "Version 0.1.5 : décision D-57 de Laurent (étendue à la conduite commune par le pilote, par cohérence). L'étape repartir-taches (« À plusieurs : répartir ») passe en tête, juste après analyse-situation et avant securite (rang 2 au lieu de 9), avec l'intertitre Protéger au lieu d'Alerter ; V4 tranché. Précision « Alerte, gestes, matériel, accueil des secours » remplacée par « Bilan, alerte, matériel, appui (aider le leader ou un intervenant) » : liste de D-57 adaptée (« DAE » devient « matériel », le défibrillateur relevant du protocole arrêt cardiaque ; l'accueil des secours reste dans la consigne et l'étape accueil-secours). Source ajoutée : RTN premiers secours en équipe p. 65 (définition du bilan) ; marques decision et autorise_par D-57. Champ ordre renuméroté de 2 à 9 ; identifiants, parent et ref_fiche inchangés. Version 0.1.5 non contrôlée."
+      },
+      {
+        "par": "agent code « urgences - code 5 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
+        "le": "2026-11-15",
+        "objet": "Version 0.1.6 (lot P4c) : trois mineurs du contrôle ciblé docs/controle/urgence-commune-0.1.1-controle-cible-2026-11-15.md. N4 : page du collier cervical corrigée, « pas de collier cervical en routine (p. 20) » dans le détail de l'étape traumatisme (la p. 7 de l'ERC premiers secours porte le maintien tête-cou, pas le collier ; revérifié dans le texte extrait de l'ERC premiers secours, marqueur de page 20). N5 : qui_fiche de hemorragie, hemorragie-relais, obstruction, position-attente et traumatisme aligné sur les autres étapes (« Groupes 1 à 4 ; groupes 5 à 7 : A_VALIDER (D-4) »), sans effet à l'écran (le code lit `professions`). N6 : remarque de arret-cardiaque mise à jour (renvoi_protocole exploité par le code). Aucun autre changement. NON FAIT ici (hors périmètre : docs/) : la fiche docs/reco/urgence-commune.md dit encore p. 7 (§ 2, 10c et § 7) pour le collier. Version 0.1.6 non contrôlée."
       }
     ]
   },
@@ -30,11 +50,14 @@
     {"decision": "D-36", "etat": "REPONDUE", "objet": "Aide-mémoire pour soignants formés, pas un guide pas à pas"},
     {"decision": "D-37", "etat": "REPONDUE", "objet": "Environ trois mots par étape, au plus une précision d'une ligne"},
     {"decision": "D-47", "etat": "REPONDUE", "autorise_par": "D-47", "objet": "Libellé « Se protéger » (étape securite), repris de la conduite à tenir de l'arrêt cardiaque par cohérence"},
-    {"decision": "D-48", "etat": "REPONDUE", "autorise_par": "D-48", "objet": "« Analyse de la situation » et « Si plusieurs, répartir les tâches » (étapes analyse-situation et repartir-taches), reprises par cohérence ; leur ordre suit D-52"},
-    {"decision": "D-52", "etat": "REPONDUE", "autorise_par": "D-52", "objet": "« Analyser la situation » AVANT « Se protéger » (ordre des sources : observer avant de protéger, logigramme PSC p. 4) ; appliqué ici comme dans la conduite ACR 0.4.8. « À plusieurs : répartir » après « Respire ? » : D-52 vise l'ACR ; ici, l'étape vient après « Respire ? » et « Arrêt cardiaque ? », avant l'alerte (place à confirmer, V4)"},
+    {"decision": "D-48", "etat": "REPONDUE", "autorise_par": "D-48", "objet": "« Analyse de la situation » et « Si plusieurs, répartir les tâches » (étapes analyse-situation et repartir-taches), reprises par cohérence ; leur ordre suit D-52, puis D-57 pour repartir-taches (0.1.5)"},
+    {"decision": "D-52", "etat": "REPONDUE", "autorise_par": "D-52", "objet": "« Analyser la situation » AVANT « Se protéger » (ordre des sources : observer avant de protéger, logigramme PSC p. 4) ; appliqué ici comme dans la conduite ACR 0.4.8. « À plusieurs : répartir » après « Respire ? » : D-52 vise l'ACR ; ici, l'étape venait après « Respire ? » et « Arrêt cardiaque ? », avant l'alerte (V4) ; depuis la version 0.1.5, sa place suit D-57"},
+    {"decision": "D-55", "etat": "REPONDUE", "autorise_par": "D-55", "objet": "Ligne à cocher « Bilan à passer au 15 » juste après « Alerter le 15 » (étape bilan-15), précision « Nombre de victimes, âge, identité, état, gestes faits » (Laurent : « nombre de victimes, âge, identité… ») ; contenu d'après les informations minimales de l'alerte (RTN premiers secours citoyen p. 11) et le guide Saed de la HAS"},
     {"decision": "D-49", "etat": "REPONDUE", "autorise_par": "D-49", "objet": "Libellé « Réaction de la victime » et types de réaction (étape reaction), repris par cohérence"},
     {"decision": "D-50", "etat": "REPONDUE", "autorise_par": "D-50", "objet": "Précision « gants, masque » de l'étape securite, reprise par cohérence"},
-    {"decision": "D-51", "etat": "REPONDUE", "autorise_par": "D-51", "objet": "Conduite à tenir commune à toute urgence sur l'écran « Autre situation », au format de D-37, sourcée, contrôlée par le verificateur ; liste indicative (se protéger, analyser, bilan vital, alerter le 15, gestes adaptés, surveiller) sourcée et ajustée dans ce fichier"}
+    {"decision": "D-51", "etat": "REPONDUE", "autorise_par": "D-51", "objet": "Conduite à tenir commune à toute urgence sur l'écran « Autre situation », au format de D-37, sourcée, contrôlée par le verificateur ; liste indicative (se protéger, analyser, bilan vital, alerter le 15, gestes adaptés, surveiller) sourcée et ajustée dans ce fichier"},
+    {"decision": "D-56", "etat": "REPONDUE", "autorise_par": "D-56", "objet": "Vocabulaire médical dans tous les textes affichés (libellés, précisions, consignes) : l'appli s'adresse à des professionnels de santé ; sigles absents des sources toujours en toutes lettres (D-10)"},
+    {"decision": "D-57", "etat": "REPONDUE", "autorise_par": "D-57", "objet": "« À plusieurs : répartir » en premier, juste après « Analyser la situation » (avant « Se protéger ») ; précision listant les tâches à répartir (D-57 : bilan, alerte, DAE, appui), adaptée ici en « bilan, alerte, matériel, appui » ; choix du médecin référent pour l'ACR, étendu à la conduite commune par le pilote par cohérence (à corriger par Laurent s'il ne le veut que pour l'ACR) ; tranche V4 ; marque portée par l'étape repartir-taches"}
   ],
   "ordre_etapes": {
     "statut": "DEDUIT",
@@ -48,16 +71,16 @@
       {"ref": "ERC-FA", "localisation": "p. 4 (évaluation structurée) et tableau 3 p. 5 (ordre ERC : sécurité, réaction, hémorragie grave, puis A-B-C-D-E)", "citation": "Pay immediate attention to safety, responsiveness of the victim, and catastrophic bleeding"},
       {"ref": "SPEC", "localisation": "partie 1, « Déroulé d'une intervention », point 3 (logique attendue de la checklist)"}
     ],
-    "raisonnement": "Le processus général du recueil de logigrammes des premiers secours citoyen (p. 3) enchaîne : danger, hémorragie, obstruction des voies aériennes, réponse, respiration ; si la victime ne respire pas : réanimer ; puis surveiller en permanence. Il suit la logique « ce qui tue en premier » (PSC p. 3 ; PSE p. 65). Le texte des références prime sur les logigrammes (p. 2), mais aucune fiche du PSC ne donne cet enchaînement général en texte : le logigramme est la seule source française lue qui le donne. L'alerte vient après une évaluation rapide de la situation et des risques (PSC p. 11) ; le cahier des charges attend : protéger, bilan vital, alerter, gestes, bilan complémentaire, surveillance. L'ERC premiers secours range la réaction avant l'hémorragie grave (p. 4 et tableau 3) : divergence d'ordre écrite dans la fiche (§ 7). Les gestes immédiats d'une menace vitale (comprimer une hémorragie, désobstruer) sont dits dans la précision de l'étape du bilan qui la découvre, parce que les sources les font faire sans attendre (PSC p. 15 « arrêter immédiatement » ; PSE p. 68 « immédiatement »). « Analyser la situation » précède « Se protéger » (D-52, ordre des sources : observer avant de protéger, logigramme p. 4) ; la place de « À plusieurs : répartir » est une proposition, à confirmer (V4). L'alerte précède les gestes adaptés (cahier des charges, Déroulé 3), alors que le PSC p. 37 fait mettre en position latérale de sécurité puis alerter : divergence écrite dans la fiche (§ 7) ; à plusieurs, l'alerte confiée à un tiers se fait en parallèle des gestes.",
+    "raisonnement": "Le processus général du recueil de logigrammes des premiers secours citoyen (p. 3) enchaîne : danger, hémorragie, obstruction des voies aériennes, réponse, respiration ; si la victime ne respire pas : réanimer ; puis surveiller en permanence. Il suit la logique « ce qui tue en premier » (PSC p. 3 ; PSE p. 65). Le texte des références prime sur les logigrammes (p. 2), mais aucune fiche du PSC ne donne cet enchaînement général en texte : le logigramme est la seule source française lue qui le donne. L'alerte vient après une évaluation rapide de la situation et des risques (PSC p. 11) ; le cahier des charges attend : protéger, bilan vital, alerter, gestes, bilan complémentaire, surveillance. L'ERC premiers secours range la réaction avant l'hémorragie grave (p. 4 et tableau 3) : divergence d'ordre écrite dans la fiche (§ 7). Les gestes immédiats d'une menace vitale (comprimer une hémorragie, désobstruer) sont dits dans la précision de l'étape du bilan qui la découvre, parce que les sources les font faire sans attendre (PSC p. 15 « arrêter immédiatement » ; PSE p. 68 « immédiatement »). « Analyser la situation » précède « Se protéger » (D-52, ordre des sources : observer avant de protéger, logigramme p. 4) ; « À plusieurs : répartir » vient juste après « Analyser la situation », avant « Se protéger » (D-57, 0.1.5 ; V4 tranché). L'alerte précède les gestes adaptés (cahier des charges, Déroulé 3), alors que le PSC p. 37 fait mettre en position latérale de sécurité puis alerter : divergence écrite dans la fiche (§ 7) ; à plusieurs, l'alerte confiée à un tiers se fait en parallèle des gestes.",
     "ref_fiche": "§ 2, note en tête ; § 7"
   },
   "phases_et_sections": {
     "statut": "DEDUIT",
     "objet": "Intertitres de regroupement (champ phase des étapes de premier niveau). Ce ne sont pas des étapes : ils ne modifient ni l'ordre ni le contenu.",
     "phases": {
-      "Protéger": "analyse-situation, securite (ordre D-52) : fiche « Protection » (PSC p. 10) ; logigramme « Sécuriser l'intervention » (p. 4) ; même intertitre que la conduite à tenir de l'arrêt cardiaque",
+      "Protéger": "analyse-situation, repartir-taches, securite (ordre D-52, puis D-57 pour repartir-taches) : fiche « Protection » (PSC p. 10) ; logigramme « Sécuriser l'intervention » (p. 4) ; même intertitre que la conduite à tenir de l'arrêt cardiaque ; repartir-taches, placée entre les deux autres, garde leur intertitre pour ne pas couper le groupe (choix d'affichage, 0.1.5)",
       "Bilan": "hemorragie, obstruction, reaction, respiration, arret-cardiaque : questions du processus « Pour toute intervention » (logigramme p. 3) ; le PSE nomme « bilan » ce recueil (p. 65)",
-      "Alerter": "repartir-taches, alerter : fiche « Alerte » (PSC p. 11-12 : alerte confiée à une autre personne, accueil des secours)",
+      "Alerter": "alerter, bilan-15 (0.1.3, D-55 : contenu du message d'alerte, PSC p. 11) : fiche « Alerte » (PSC p. 11-12 : alerte confiée à une autre personne, accueil des secours)",
       "Secourir": "gestes-adaptes : chapitre 02 « Secourir une personne » du PSC (p. 14)",
       "Surveiller": "surveiller : « Surveiller en permanence (victime, gestes) » (logigramme p. 3) ; fiche « Surveillance de la victime » (PSE p. 71)",
       "Transmettre": "transmettre : fiche « Transmission du bilan » (PSE p. 72)"
@@ -103,7 +126,7 @@
       "url": "https://www.securite-civile.interieur.gouv.fr/documentation/secourisme-et-associations/secourisme-references-techniques-nationales.html",
       "consulte_le": "2026-11-15",
       "en_vigueur": "oui",
-      "lu_en_entier": "Non : p. 65 à 72 (bilans, surveillance, transmission) lues par l'auteur le 15/11/2026 sur le texte extrait (_sources/_texte/DGSCGC_RTN_PSE_2026-07.txt)",
+      "lu_en_entier": "Non : p. 65 à 72 (bilans, surveillance, transmission) et p. 380-381 (fiche « Alerte », lue pour la 0.1.3) lues par l'auteur le 15/11/2026 sur le texte extrait (_sources/_texte/DGSCGC_RTN_PSE_2026-07.txt)",
       "remarque": "Annexe 3 de l'arrêté du 07/07/2026. Référentiel des secouristes en équipe, pas du citoyen ni des soignants libéraux : cité pour information et en appui, jamais seul pour fonder une étape."
     },
     "ERC-FA": {
@@ -135,6 +158,16 @@
       "en_vigueur": "oui",
       "lu_en_entier": "Articles (JO p. 1-2) lus par l'auteur le 15/11/2026 sur le texte extrait (_sources/_texte/JORF_0155_2019-07-06_arrete_AFGSU.txt). Annexe 2 : NON LUE par l'auteur (pages en images, extraction pauvre) ; ses objectifs sont cités d'après la fiche cadre transversal (§ 2.B, lecture visuelle), divergence C-14",
       "remarque": "Arrêté du 30/12/2014 consolidé « en vigueur au 15 novembre 2026 » selon la fiche organisation-secours (R1)."
+    },
+    "HAS-SAED-2014": {
+      "titre": "Saed : un guide pour faciliter la communication entre professionnels de santé",
+      "organisme": "HAS",
+      "annee": 2014,
+      "url": "https://www.has-sante.fr/jcms/c_1776178/fr/saed-ca-aide-a-communiquer",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "incertain",
+      "lu_en_entier": "Non relu par l'auteur de la 0.1.3 : citation reprise de la fiche cadre transversal (docs/reco/cadre-transversal.md § 2.D, ligne D4), dont l'auteur a lu les p. 1-15 du guide le 14/11/2026 ; annexes non lues ; le PDF du guide n'a pas été rouvert (D-8)",
+      "remarque": "Validé par le Collège de la HAS le 08/10/2014, mis en ligne le 24/11/2014 ; aucune abrogation ni mise à jour constatée (fiche cadre, V18). Seule référence officielle trouvée pour la structure du mode transmission (D-9)."
     },
     "SPEC": {
       "titre": "SPEC.md, cahier des charges de l'appli (partie 1 : Déroulé d'une intervention, Module d'alerte, Rôles d'équipe ; partie 2 : Décisions)",
@@ -222,8 +255,43 @@
       "materiel": []
     },
     {
-      "id": "securite",
+      "id": "repartir-taches",
       "ordre": 2,
+      "parent": null,
+      "phase": "Protéger",
+      "niveau": "principal",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Si plusieurs, répartir les tâches",
+      "texte_court": "À plusieurs : répartir",
+      "precision": "Bilan, alerte, matériel, appui (aider le leader ou un intervenant)",
+      "consigne_guidee": "À plusieurs, répartissez les tâches dès le début : qui fait le bilan, qui alerte, qui apporte le matériel, qui vient en appui du leader ou d'un intervenant ; si possible, une personne accueille les secours.",
+      "detail": "Tâches de la précision : décision D-57 du médecin référent, adaptée à la conduite commune (le défibrillateur, propre à l'arrêt cardiaque qui a son protocole, est compris dans le matériel ; « appui » : venir aider le leader ou un intervenant qui a une tâche). Premiers secours citoyen : l'alerte peut être donnée par le secouriste ou un témoin ; quand on la confie à une autre personne, s'assurer avant qu'elle a tous les éléments et vérifier après qu'elle l'a faite ; si possible, envoyer une personne pour accueillir les secours et organiser leur accès. Premiers secours en équipe (pour information) : le bilan est la phase de recueil d'informations qui évalue la situation et l'état de la victime ; à plusieurs secouristes, les mesures peuvent être faites pendant qu'un autre s'occupe de l'interrogatoire et de l'examen. Attestation de niveau 2 : prise en charge « seul ou en équipe ». Les rôles de l'écran « Rôles d'équipe » viennent du cahier des charges ; aucune source lue ne fixe une répartition nominative entre soignants libéraux. Libellé repris de la conduite à tenir de l'arrêt cardiaque (décision D-48) ; place en tête, juste après « Analyser la situation » et avant « Se protéger » : décision D-57.",
+      "statut": "DEDUIT",
+      "statut_fiche": "CITÉ (alerte confiée, accueil des secours : PSC p. 11-12 ; bilan et travail simultané : PSE p. 65 et p. 70 ; seul ou en équipe : AFGSU art. 5) ; DÉDUIT (matériel et appui ; adaptation de la liste de D-57 à la conduite commune) ; liste et place : D-57 ; libellé : D-48",
+      "sources": [
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 11 (fiche « Alerte »)", "citation": "L'alerte doit être transmise, par le secouriste ou un témoin"},
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 12 (alerte confiée à une autre personne)", "citation": "avant l'alerte, de s'assurer qu'elle possède tous les éléments"},
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 12", "citation": "Si possible, envoyer une personne pour accueillir les secours"},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 65 (généralités sur les bilans ; pour information)", "citation": "Le bilan est la phase de recueil d'informations permettant d'évaluer une situation et l'état d'une victime"},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 70 (quatrième regard ; pour information)", "citation": "À plusieurs secouristes, la réalisation de la mesure des paramètres physiologiques"},
+        {"ref": "ARRETE-AFGSU-2019", "localisation": "art. 1er, 5°, JO p. 2", "citation": "sa prise en charge, seul ou en équipe"},
+        {"ref": "SPEC", "localisation": "partie 2, D-57 (tâches à répartir, place en tête) ; partie 1, « Déroulé d'une intervention », point 2 (rôles d'équipe)"}
+      ],
+      "raisonnement": "Les sources font confier l'alerte et l'accueil des secours à un tiers (PSC p. 11-12), font du bilan le recueil d'informations sur la situation et la victime et le font partager entre secouristes (PSE p. 65 et p. 70, pour information) ; l'attestation de niveau 2 prévoit la prise en charge en équipe. La liste de la précision suit D-57 (bilan, alerte, DAE, appui), adaptée par l'auteur à la conduite commune : « DAE » devient « matériel », parce que le défibrillateur ne sert ici que si la victime bascule en arrêt cardiaque (protocole dédié) et que le matériel comprend aussi les appareils de mesure du bilan ; adaptation DÉDUITE, à confirmer. L'accueil des secours (CITÉ, PSC p. 12) reste dans la consigne et dans l'étape accueil-secours. Le mot « appui » n'est écrit dans aucune source lue : son sens est celui que Laurent lui donne (D-57). Place en tête : décision D-57, étendue par le pilote à la conduite commune par cohérence ; le PSC fait alerter après l'évaluation de la situation et une éventuelle mise en sécurité (p. 11) : répartir n'est pas exécuter, l'alerte elle-même reste après le bilan vital.",
+      "ref_fiche": "§ 2, étape 8",
+      "qui_fiche": "Tous",
+      "professions": {"geste": "alerter_transmettre"},
+      "decision": "D-57",
+      "autorise_par": "D-57",
+      "remarque": "Rattachement au geste alerter_transmettre : DÉDUIT, comme dans le protocole ACR (répartir, c'est d'abord confier l'alerte à un tiers) ; identifiant déjà présent dans professions.json. Version 0.1.5 (D-57) : déplacée de l'intertitre Alerter (après « Arrêt cardiaque ? », proposition de l'auteur, V4) en tête, juste après analyse-situation, intertitre Protéger (choix d'affichage, pour ne pas couper le groupe Protéger) ; précision « Alerte, gestes, matériel, accueil des secours » remplacée par la liste de D-57 adaptée ; V4 tranché par D-57. ref_fiche inchangé (identifiant publié).",
+      "cochable": true,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "securite",
+      "ordre": 3,
       "parent": null,
       "phase": "Protéger",
       "niveau": "principal",
@@ -251,14 +319,14 @@
       "professions": {"geste": "securite"},
       "decision": "D-50",
       "autorise_par": "D-50",
-      "remarque": "Libellé repris de D-47, précision de D-50 (même texte que l'étape securite du protocole ACR 0.4.8). Placée après « Analyser la situation » (D-52). Identifiant déjà présent dans professions.json (geste securite).",
+      "remarque": "Libellé repris de D-47, précision de D-50 (même texte que l'étape securite du protocole ACR 0.4.8). Placée après « Analyser la situation » (D-52) et, depuis la 0.1.5, après « À plusieurs : répartir » (D-57). Identifiant déjà présent dans professions.json (geste securite).",
       "cochable": true,
       "acronymes": [],
       "materiel": []
     },
     {
       "id": "hemorragie",
-      "ordre": 3,
+      "ordre": 4,
       "parent": null,
       "phase": "Bilan",
       "niveau": "principal",
@@ -266,8 +334,8 @@
       "critique": false,
       "titre_fiche": "Hémorragie ?",
       "texte_court": "Hémorragie ?",
-      "precision": "Plaie qui saigne sans s'arrêter : comprimer",
-      "consigne_guidee": "Cherchez une hémorragie ; si une plaie saigne sans s'arrêter, faites comprimer ou comprimez immédiatement l'endroit qui saigne. Perte de sang par un orifice naturel (sauf le nez) : pas de compression, allongez la victime (sur le côté ou en position d'attente si elle vomit ou crache du sang).",
+      "precision": "Plaie, saignement persistant : comprimer",
+      "consigne_guidee": "Cherchez une hémorragie ; si une plaie saigne de façon persistante, faites comprimer ou comprimez immédiatement l'endroit qui saigne. Perte de sang par un orifice naturel (hors épistaxis) : pas de compression, allongez la victime (en décubitus latéral ou en position d'attente si elle vomit ou crache du sang).",
       "detail": "Premiers secours citoyen : une hémorragie est une perte de sang, par une plaie ou un orifice naturel, qui ne s'arrête pas spontanément ; la constater, si nécessaire en écartant les vêtements ; l'arrêter immédiatement en demandant à la victime de comprimer l'endroit qui saigne, ou à défaut le faire à sa place ; maintenir la compression ; allonger la victime ; faire alerter. Perte de sang par un orifice naturel (sauf le nez) : pas de compression ; si la victime vomit ou crache du sang, position où elle se sent le mieux (consciente) ou allongée sur le côté (sans connaissance) ; sinon l'allonger. Saignement de nez : assise, tête penchée en avant, comprimer les narines 10 minutes. Deuxième question du processus « Pour toute intervention », juste après « Danger ». ERC premiers secours : attention immédiate à l'hémorragie grave ; compression manuelle directe, pansements, pansements hémostatiques ou garrot. Premiers secours en équipe (pour information) : l'hémorragie externe grave est la première menace vitale du deuxième regard.",
       "statut": "CITE",
       "statut_fiche": "CITÉ (reformulé ; précision limitée à la plaie, l'orifice naturel se traitant sans compression : PSC p. 16)",
@@ -282,7 +350,7 @@
         {"ref": "DGSCGC-PSE-2026", "localisation": "p. 67 (deuxième regard, tableau des menaces vitales ; pour information)", "citation": "Hémorragie externe grave Arrêter l'hémorragie"}
       ],
       "ref_fiche": "§ 2, étape 3",
-      "qui_fiche": "Tous (groupes 5 à 7 : A_VALIDER, D-4)",
+      "qui_fiche": "Groupes 1 à 4 ; groupes 5 à 7 : A_VALIDER (D-4)",
       "professions": {
         "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "DGSCGC-PSC-2026", "localisation": "p. 2 (préface) et p. 15", "citation": "faire acquérir à toute personne les compétences nécessaires"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "art. 1er, 5°, JO p. 2", "citation": "sa prise en charge, seul ou en équipe"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B5 : arrêter une hémorragie externe ; cité d'après la fiche cadre transversal § 2.B, annexe non relue par l'auteur)"}], "raisonnement": "Compression d'une hémorragie : geste de premiers secours enseigné à toute personne (PSC p. 2 et p. 15) ; objectif de l'attestation de niveau 2 (B5, d'après la fiche cadre) ; fiche cadre transversal § 6, ligne « Compression, pansement hémostatique, garrot » : « Oui » pour le médecin."},
         "ide": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "DGSCGC-PSC-2026", "localisation": "p. 2 (préface) et p. 15", "citation": "faire acquérir à toute personne les compétences nécessaires"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B5, d'après la fiche cadre transversal)"}], "raisonnement": "Geste de premiers secours enseigné à toute personne (PSC p. 2 et p. 15) ; fiche cadre transversal § 6 : « Oui — DÉDUIT (AFGSU B5 ; R. 4311-7) »."},
@@ -299,7 +367,7 @@
     },
     {
       "id": "hemorragie-relais",
-      "ordre": 4,
+      "ordre": 5,
       "parent": "hemorragie",
       "niveau": "detail",
       "premier_ecran": false,
@@ -318,7 +386,7 @@
         {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B5, cité d'après la fiche cadre transversal § 2.B ; annexe non relue par l'auteur)"}
       ],
       "ref_fiche": "§ 2, étape 3a",
-      "qui_fiche": "Tous (groupes 5 à 7 : A_VALIDER, D-4)",
+      "qui_fiche": "Groupes 1 à 4 ; groupes 5 à 7 : A_VALIDER (D-4)",
       "professions": {
         "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "DGSCGC-PSC-2026", "localisation": "p. 2 (préface : matériel pour faire un garrot) et p. 15"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B5, d'après la fiche cadre transversal)"}], "raisonnement": "Même raisonnement que l'étape hemorragie ; fiche cadre § 6, ligne « Compression, pansement hémostatique, garrot » : « Oui »."},
         "ide": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "DGSCGC-PSC-2026", "localisation": "p. 2 et p. 15"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B5, d'après la fiche cadre transversal)"}], "raisonnement": "Même raisonnement que l'étape hemorragie ; fiche cadre § 6 : « Oui — DÉDUIT ». L'arrêté infirmier de 2026 ne cite que le garrot pneumatique d'usage chirurgical : à ne pas confondre (fiche cadre § 6)."},
@@ -335,16 +403,16 @@
     },
     {
       "id": "obstruction",
-      "ordre": 5,
+      "ordre": 6,
       "parent": null,
       "phase": "Bilan",
       "niveau": "principal",
       "premier_ecran": false,
       "critique": false,
       "titre_fiche": "Obstruction des voies aériennes ?",
-      "texte_court": "S'étouffe ?",
+      "texte_court": "Obstruction voies aériennes ?",
       "precision": "Consciente, toux impossible ou inefficace : claques puis compressions",
-      "consigne_guidee": "Victime consciente : demandez-lui si elle s'étouffe ; si elle ne peut plus parler ni tousser, ou si sa toux devient inefficace, donnez 1 à 5 claques dans le dos puis 1 à 5 compressions abdominales (thoraciques chez le nourrisson, et si obèse, enceinte, alitée ou abdomen impossible à encercler), à répéter. Si elle perd connaissance : au sol, protocole arrêt cardiaque.",
+      "consigne_guidee": "Victime consciente : recherchez une obstruction des voies aériennes (demandez-lui si elle s'étouffe) ; si elle ne peut plus parler ni tousser, ou si sa toux devient inefficace, donnez 1 à 5 claques dans le dos puis 1 à 5 compressions abdominales (thoraciques chez le nourrisson, et si obèse, enceinte, alitée ou abdomen impossible à encercler), à répéter. Si elle perd connaissance : au sol, protocole arrêt cardiaque.",
       "detail": "Premiers secours citoyen : demander à la victime si elle s'étouffe et de tousser. Si elle peut parler, crier, tousser : encourager la toux et surveiller. Les claques dans le dos sont indiquées chez une victime consciente incapable de parler ou de tousser, ou dont la toux devient inefficace (logigramme : « Tousse » non ou inefficace). Si elle ne peut plus parler, crier, tousser (obstruction totale) : la laisser dans sa position, généralement debout ou assise ; 1 à 5 claques dans le dos ; 1 à 5 compressions (abdominales chez l'adulte ; thoraciques chez la personne obèse ou la femme enceinte s'il est impossible d'encercler l'abdomen, ou chez une personne alitée) ; répéter ; arrêter dès une toux efficace, la reprise de la respiration ou le rejet du corps étranger. Si elle perd connaissance : l'accompagner au sol, réanimation (protocole arrêt cardiaque). Troisième question du processus « Pour toute intervention ». ERC premiers secours : « Is the person choking and unable to cough? » ; claques dans le dos et compressions abdominales.",
       "statut": "CITE",
       "statut_fiche": "CITÉ (reformulé)",
@@ -362,7 +430,7 @@
         {"ref": "DGSCGC-PSE-2026", "localisation": "p. 67 (deuxième regard, menaces vitales ; pour information)", "citation": "Obstruction des voies aériennes"}
       ],
       "ref_fiche": "§ 2, étape 4",
-      "qui_fiche": "Tous (groupes 5 à 7 : A_VALIDER, D-4)",
+      "qui_fiche": "Groupes 1 à 4 ; groupes 5 à 7 : A_VALIDER (D-4)",
       "professions": {
         "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "DGSCGC-PSC-2026", "localisation": "p. 2 (préface) et p. 21", "citation": "faire acquérir à toute personne les compétences nécessaires"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B4 : obstruction aiguë des voies aériennes ; cité d'après la fiche cadre transversal § 2.B, annexe non relue par l'auteur)"}], "raisonnement": "Désobstruction : geste de premiers secours enseigné à toute personne (PSC p. 2 et p. 21) ; objectif de l'attestation de niveau 2 (B4, d'après la fiche cadre)."},
         "ide": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "DGSCGC-PSC-2026", "localisation": "p. 2 et p. 21"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, p. 7 (objectif B4, d'après la fiche cadre transversal)"}], "raisonnement": "Même raisonnement que pour le médecin : geste de premiers secours enseigné à toute personne ; objectif B4."},
@@ -372,14 +440,14 @@
         "paramedical_autre": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : groupes 5 à 7 limités à l'alerte, au massage cardiaque et au défibrillateur ; argument à soumettre : le PSC s'adresse à « toute personne » (p. 2)."},
         "non_soignant": {"valeur": "A_VALIDER", "statut": "A_VALIDER", "a_valider": "D-4 : groupe 7 limité à l'alerte, au massage cardiaque et au défibrillateur ; Q-25 ; argument à soumettre : le PSC s'adresse à « toute personne » (p. 2)."}
       },
-      "remarque": "Étape ajoutée à la liste indicative de Laurent (D-51), parce que le processus « Pour toute intervention » la place entre l'hémorragie et la réaction (logigramme p. 3) : à confirmer. Libellé « S'étouffe ? » : mot du PSC p. 21 (« si elle s'étouffe »). Aucun geste de professions.json ne couvre la désobstruction : habilitations portées par l'étape (proposition : créer un geste dans professions.json). Précision 0.1.1 (contrôle #14) : « Consciente » parce que l'étape précède « Réaction de la victime » (sans réaction : réanimation, PSC p. 21) ; toux inefficace ajoutée (PSC p. 22 ; logigramme p. 5) ; « compressions abdominales » pour ne pas confondre avec le massage cardiaque (thoraciques dans les cas particuliers : consigne guidée et détail).",
+      "remarque": "Étape ajoutée à la liste indicative de Laurent (D-51), parce que le processus « Pour toute intervention » la place entre l'hémorragie et la réaction (logigramme p. 3) : à confirmer. Libellé 0.1.4 (D-56) « Obstruction voies aériennes ? » : intitulé du logigramme PSC p. 3 (avant : « S'étouffe ? », mot du PSC p. 21, resté dans la consigne guidée). Aucun geste de professions.json ne couvre la désobstruction : habilitations portées par l'étape (proposition : créer un geste dans professions.json). Précision 0.1.1 (contrôle #14) : « Consciente » parce que l'étape précède « Réaction de la victime » (sans réaction : réanimation, PSC p. 21) ; toux inefficace ajoutée (PSC p. 22 ; logigramme p. 5) ; « compressions abdominales » pour ne pas confondre avec le massage cardiaque (thoraciques dans les cas particuliers : consigne guidée et détail).",
       "cochable": true,
       "acronymes": [],
       "materiel": []
     },
     {
       "id": "reaction",
-      "ordre": 6,
+      "ordre": 7,
       "parent": null,
       "phase": "Bilan",
       "niveau": "principal",
@@ -413,7 +481,7 @@
     },
     {
       "id": "respiration",
-      "ordre": 7,
+      "ordre": 8,
       "parent": null,
       "phase": "Bilan",
       "niveau": "principal",
@@ -442,7 +510,7 @@
     },
     {
       "id": "arret-cardiaque",
-      "ordre": 8,
+      "ordre": 9,
       "parent": null,
       "phase": "Bilan",
       "niveau": "vital",
@@ -466,7 +534,7 @@
       "qui_fiche": "Tous (étape vitale, jamais filtrée) ; geste reconnaitre : groupes 5 à 7 A_VALIDER (D-4)",
       "professions": {"geste": "reconnaitre"},
       "renvoi_protocole": "acr-adulte-dae",
-      "remarque": "Champ renvoi_protocole : nouveau, non exploité par le code actuel (à implémenter : ouvrir la conduite à tenir de l'arrêt cardiaque sans perdre la fiche, SPEC.md, Déroulé point 1). Premier écran : voir le bloc priorite. Accès pour tous les groupes (contrôle #18) : le geste reconnaitre est A_VALIDER pour les groupes 5 à 7, mais l'étape, de niveau « vital », est exemptée du filtre par profession (app/js/checklist.js, estVitale ; choix provisoire D-25) : le renvoi vers l'arrêt cardiaque reste à un toucher pour tous. Retirer le drapeau « vital » couperait cet accès aux groupes 5 à 7.",
+      "remarque": "Champ renvoi_protocole : exploité par le code depuis le lot R1e (bouton « Passer en ACR » ; depuis le lot P4a, un bouton par arrêt cardiaque, adulte et enfant) : il ouvre la conduite à tenir de l'arrêt cardiaque sans perdre la fiche (SPEC.md, Déroulé point 1). Premier écran : voir le bloc priorite. Accès pour tous les groupes (contrôle #18) : le geste reconnaitre est A_VALIDER pour les groupes 5 à 7, mais l'étape, de niveau « vital », est exemptée du filtre par profession (app/js/checklist.js, estVitale ; choix provisoire D-25) : le renvoi vers l'arrêt cardiaque reste à un toucher pour tous. Retirer le drapeau « vital » couperait cet accès aux groupes 5 à 7.",
       "cochable": true,
       "acronymes": [],
       "materiel": [],
@@ -478,40 +546,6 @@
         ],
         "raisonnement": "Reconnaître l'arrêt cardiaque et basculer sans délai vers sa conduite à tenir est l'action dont le retard coûte le plus (PSC p. 26). Drapeaux vital, premier écran et critique : choix d'affichage DÉDUIT, pour que le passage au protocole arrêt cardiaque reste à un toucher (règle absolue 5), pour toute profession (le niveau « vital » exempte l'étape du filtre par profession) ; à confirmer (V6), en sachant que retirer « vital » couperait l'accès des groupes 5 à 7."
       }
-    },
-    {
-      "id": "repartir-taches",
-      "ordre": 9,
-      "parent": null,
-      "phase": "Alerter",
-      "niveau": "principal",
-      "premier_ecran": false,
-      "critique": false,
-      "titre_fiche": "Si plusieurs, répartir les tâches",
-      "texte_court": "À plusieurs : répartir",
-      "precision": "Alerte, gestes, matériel, accueil des secours",
-      "consigne_guidee": "À plusieurs, répartissez les tâches : qui alerte, qui fait les gestes, qui apporte le matériel, qui accueille les secours.",
-      "detail": "Premiers secours citoyen : l'alerte peut être donnée par le secouriste ou un témoin ; quand on la confie à une autre personne, s'assurer avant qu'elle a tous les éléments et vérifier après qu'elle l'a faite ; si possible, envoyer une personne pour accueillir les secours et organiser leur accès. Premiers secours en équipe (pour information) : à plusieurs secouristes, les mesures peuvent être faites pendant qu'un autre s'occupe de l'interrogatoire et de l'examen. Attestation de niveau 2 : prise en charge « seul ou en équipe ». Les rôles de l'écran « Rôles d'équipe » viennent du cahier des charges ; aucune source lue ne fixe une répartition nominative entre soignants libéraux. Libellé repris de la conduite à tenir de l'arrêt cardiaque (décision D-48).",
-      "statut": "DEDUIT",
-      "statut_fiche": "CITÉ (alerte confiée, accueil des secours : PSC p. 11-12 ; travail simultané : PSE p. 70 ; seul ou en équipe : AFGSU art. 5) ; DÉDUIT (liste de la précision) ; libellé : D-48 ; place : proposition",
-      "sources": [
-        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 11 (fiche « Alerte »)", "citation": "L'alerte doit être transmise, par le secouriste ou un témoin"},
-        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 12 (alerte confiée à une autre personne)", "citation": "avant l'alerte, de s'assurer qu'elle possède tous les éléments"},
-        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 12", "citation": "Si possible, envoyer une personne pour accueillir les secours"},
-        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 70 (quatrième regard ; pour information)", "citation": "À plusieurs secouristes, la réalisation de la mesure des paramètres physiologiques"},
-        {"ref": "ARRETE-AFGSU-2019", "localisation": "art. 1er, 5°, JO p. 2", "citation": "sa prise en charge, seul ou en équipe"},
-        {"ref": "SPEC", "localisation": "partie 1, « Déroulé d'une intervention », point 2 (rôles d'équipe)"}
-      ],
-      "raisonnement": "Les sources font confier l'alerte et l'accueil des secours à un tiers (PSC p. 11-12) et mener en même temps plusieurs tâches à plusieurs (PSE p. 70, pour information) ; l'attestation de niveau 2 prévoit la prise en charge en équipe. La précision regroupe ces tâches (alerte, accueil des secours : cités ; gestes et matériel : déduits de la suite de la conduite à tenir). Libellé repris de D-48 par cohérence ; place juste avant « Alerter le 15 », pour que l'alerte puisse être confiée : proposition de l'auteur, à confirmer.",
-      "ref_fiche": "§ 2, étape 8",
-      "qui_fiche": "Tous",
-      "professions": {"geste": "alerter_transmettre"},
-      "decision": "D-48",
-      "autorise_par": "D-48",
-      "remarque": "Rattachement au geste alerter_transmettre : DÉDUIT, comme dans le protocole ACR (répartir, c'est d'abord confier l'alerte à un tiers) ; identifiant déjà présent dans professions.json. Place après « Respire ? » : cohérente avec D-52, qui vise l'ACR.",
-      "cochable": true,
-      "acronymes": [],
-      "materiel": []
     },
     {
       "id": "alerter",
@@ -604,8 +638,44 @@
       "materiel": []
     },
     {
-      "id": "gestes-adaptes",
+      "id": "bilan-15",
       "ordre": 13,
+      "parent": null,
+      "phase": "Alerter",
+      "niveau": "principal",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Bilan à passer au 15",
+      "texte_court": "Bilan à passer au 15",
+      "precision": "Nombre de victimes, âge, identité, état, gestes faits",
+      "consigne_guidee": "Préparez ce que vous direz au 15 : numéro de rappel, lieu précis, nombre de victimes ; pour chaque victime, son identité, son âge, ce qu'elle présente (signes constatés) et les gestes déjà faits. Donnez d'abord l'essentiel sans retarder l'alerte, complétez ensuite. Le mode transmission de l'appli aide à le faire.",
+      "detail": "Informations minimales de l'alerte (premiers secours citoyen p. 11 ; premiers secours en équipe p. 380, pour information) : numéro de rappel, nature du problème, nombre de victimes en cas de victimes multiples, localisation la plus précise possible ; l'alerte doit être « rapide et précise ». Premiers secours en équipe (pour information, p. 72) : en cas de détresse vitale, transmettre sans délai la nature de l'intervention, le motif de la demande de renfort médical, le sexe et l'âge de la victime, puis compléter « dans les meilleurs délais » par un bilan complet (motif réel, sexe et âge, plainte principale, résultat du bilan et gestes de secours entrepris). Guide Saed de la HAS, 2014 (d'après la fiche cadre transversal § 2.D) : dans « Situation », l'identité du patient (nom, prénom, âge), sa localisation actuelle, le motif de l'appel et les faits objectifs (signes cliniques, constantes vitales). Dans l'appli : le mode transmission présente ces éléments (structure Saed, décision D-9) pour aider à les donner pendant l'appel. Libellé, place et précision (« nombre de victimes, âge, identité… ») : décision D-55 de Laurent ; la liste exacte de la précision est un choix de l'auteur, appuyé sur ces sources, à confirmer. La transmission du bilan complet, plus tard, reste l'étape « Transmettre le bilan ».",
+      "statut": "DEDUIT",
+      "statut_fiche": "CITÉ (informations minimales de l'alerte : PSC p. 11 ; sexe, âge, résultat du bilan, gestes entrepris : PSE p. 72, pour information ; identité : guide Saed, d'après la fiche cadre, guide non relu par l'auteur) ; DÉDUIT (liste retenue pour la précision, application au soignant libéral) ; libellé et place : D-55",
+      "sources": [
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 11 (fiche « Alerte », informations minimales à transmettre)", "citation": "en cas de situation à multiples victimes, préciser le nombre de victimes"},
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 11 (fiche « Alerte », présentation)", "citation": "Elle doit être rapide et précise"},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 380 (fiche « Alerte » ; même liste d'informations minimales ; pour information)", "citation": "la nature du problème : maladie, accident, attaque terroriste, etc."},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 72 (fiche « Transmission du bilan », la victime présente une détresse vitale ; pour information)", "citation": "le sexe et l'âge de la victime"},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 72 (fiche « Transmission du bilan », la victime présente une détresse vitale ; pour information)", "citation": "transmettre sans délai une demande de moyen médical en renfort"},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 72 (fiche « Transmission du bilan », la victime ne présente pas de détresse vitale ; pour information)", "citation": "le résultat du bilan et les gestes de secours entrepris"},
+        {"ref": "HAS-SAED-2014", "localisation": "§ 1.2, p. 9 (S : situation), cité d'après la fiche cadre transversal § 2.D, ligne D4 ; guide non relu par l'auteur", "citation": "l'identité du patient (nom, prénom, âge du patient)"},
+        {"ref": "SPEC", "localisation": "partie 1, « Module d'alerte » (mode transmission) ; partie 2, D-9 et D-55"}
+      ],
+      "raisonnement": "Le contenu minimal d'une alerte est cité : numéro de rappel, nature du problème, nombre de victimes si elles sont plusieurs, lieu (PSC p. 11 ; PSE p. 380). Le PSE p. 72 (secouristes en équipe, pour information) ajoute le sexe et l'âge, puis le résultat du bilan et les gestes entrepris, avec la consigne de transmettre sans délai l'essentiel puis de compléter. L'identité (nom, prénom, âge) vient du guide Saed de la HAS (S), cité d'après la fiche cadre ; ni le PSC ni le PSE ne la demandent pour l'alerte. La précision reprend la demande de Laurent (« nombre de victimes, âge, identité… ») et la complète de deux mots tirés du PSE p. 72 et de Saed : « état » (résultat du bilan ; signes cliniques) et « gestes faits » (gestes de secours entrepris). Le PSE et Saed s'adressent à des secouristes en équipe et à des professionnels de santé : l'application à un soignant libéral qui alerte le 15 est DÉDUITE ; aucune source lue ne dit ce qu'un soignant libéral doit transmettre au 15 (fiche cadre transversal, D15 : A_VALIDER). Libellé et place : D-55.",
+      "ref_fiche": "§ 2, étape 9 bis",
+      "qui_fiche": "Tous",
+      "professions": {"geste": "alerter_transmettre"},
+      "decision": "D-55",
+      "autorise_par": "D-55",
+      "remarque": "Étape ajoutée en 0.1.3 (D-55, remarque de Laurent en testant la version 0.2.4). Placée en premier niveau juste après « Alerter le 15 » et ses deux détails (alerter-consignes, accueil-secours), avant « Gestes adaptés » ; cochage_auto « appel » reste sur l'étape alerter. Cochable, jamais bloquante (l'appli ne retarde pas l'alerte). Rattachement au geste alerter_transmettre : DÉDUIT (transmettre les informations à l'alerte) ; l'identifiant est à ajouter à professions.json (geste alerter_transmettre, etapes_protocole), fichier tenu par le pilote. Même texte que l'étape bilan-15 du protocole acr-adulte-dae, hors le détail de l'état (arrêt) et des gestes (massage, défibrillateur).",
+      "cochable": true,
+      "acronymes": ["saed"],
+      "materiel": []
+    },
+    {
+      "id": "gestes-adaptes",
+      "ordre": 14,
       "parent": null,
       "phase": "Secourir",
       "niveau": "principal",
@@ -644,7 +714,7 @@
     },
     {
       "id": "position-laterale",
-      "ordre": 14,
+      "ordre": 15,
       "parent": "gestes-adaptes",
       "niveau": "detail",
       "premier_ecran": false,
@@ -673,15 +743,15 @@
     },
     {
       "id": "position-attente",
-      "ordre": 15,
+      "ordre": 16,
       "parent": "gestes-adaptes",
       "niveau": "detail",
       "premier_ecran": false,
       "critique": false,
       "titre_fiche": "Position d'attente",
       "texte_court": "Position d'attente",
-      "precision": "Allongée ; assise si difficultés à respirer ; sinon confort",
-      "consigne_guidee": "Victime consciente : installez-la allongée, assise si elle a du mal à respirer, sinon dans la position où elle se sent le mieux.",
+      "precision": "Allongée ; assise si dyspnée ; sinon confort",
+      "consigne_guidee": "Victime consciente : installez-la allongée, assise si elle est dyspnéique, sinon en position de confort.",
       "detail": "Premiers secours citoyen (malaise, conduite en toute circonstance) : installer la victime en position d'attente, confortablement et sans délai : allongée ; assise en cas de difficultés à respirer ; sinon dans la position où elle se sent le mieux. Logigramme « Mettre en position d'attente » : assise (difficultés respiratoires), allongée jambes fléchies (douleur abdominale, plaie de l'abdomen), sur le côté (vomissements, crachats de sang), position où elle se sent le mieux (autres situations), si elle supporte la position.",
       "statut": "CITE",
       "statut_fiche": "CITÉ",
@@ -690,7 +760,7 @@
         {"ref": "DGSCGC-LOGI-PSC-2026", "localisation": "p. 4 (« Mettre en position d'attente »)"}
       ],
       "ref_fiche": "§ 2, étape 10b",
-      "qui_fiche": "Tous (groupes 5 à 7 : A_VALIDER, D-4)",
+      "qui_fiche": "Groupes 1 à 4 ; groupes 5 à 7 : A_VALIDER (D-4)",
       "professions": {
         "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "DGSCGC-PSC-2026", "localisation": "p. 2 (préface) et p. 41", "citation": "faire acquérir à toute personne les compétences nécessaires"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "art. 1er, 5°, JO p. 2", "citation": "sa prise en charge, seul ou en équipe"}], "raisonnement": "Position d'attente : geste de premiers secours enseigné à toute personne (PSC p. 2 et p. 41), inclus dans la prise en charge visée par l'attestation de niveau 2 (art. 5) ; l'AFGSU 2 intègre le PSC1 (fiche organisation-secours R3 ; lien avec le PSC 2026 DÉDUIT, V9)."},
         "ide": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "DGSCGC-PSC-2026", "localisation": "p. 2 et p. 41"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "art. 1er, 5°, JO p. 2"}], "raisonnement": "Même raisonnement que pour le médecin."},
@@ -707,7 +777,7 @@
     },
     {
       "id": "traumatisme",
-      "ordre": 16,
+      "ordre": 17,
       "parent": "gestes-adaptes",
       "niveau": "detail",
       "premier_ecran": false,
@@ -716,7 +786,7 @@
       "texte_court": "Traumatisme : ne pas bouger",
       "precision": "Ne pas mobiliser la partie atteinte",
       "consigne_guidee": "Après un traumatisme, conseillez fermement à la victime de ne pas bouger la partie atteinte ; ne tentez pas de réaligner une fracture.",
-      "detail": "Premiers secours citoyen : le secouriste ne doit pas mobiliser la victime ; si elle a perdu connaissance, conduite à tenir de la perte de connaissance d'origine traumatique (laisser sur le dos) ; sinon conseiller fermement de ne pas mobiliser la partie atteinte, ne pas tenter de réaligner une fracture déplacée, protéger de la chaleur, du froid, des intempéries, faire alerter, surveiller. Rachis cervical : ERC premiers secours (écrit pour les secouristes) : limiter les mouvements du rachis cervical (tableau 3) ; victime consciente : l'encourager à maintenir elle-même son cou ; victime sans réaction sur le dos : maintenir la tête et le cou à deux mains ; pas de collier cervical en routine (p. 7). Premiers secours citoyen : le maintien de la libération des voies aériennes stabilise le rachis cervical (p. 37, note 3) ; victime qui vomit : sur le côté en maintenant si possible l'axe tête-cou-tronc. Premiers secours en équipe (pour information) : stabilisation du rachis cervical à titre conservatoire devant une lésion traumatique du rachis, évidente ou suspectée. Affichage du maintien de la tête : non décidé (V9).",
+      "detail": "Premiers secours citoyen : le secouriste ne doit pas mobiliser la victime ; si elle a perdu connaissance, conduite à tenir de la perte de connaissance d'origine traumatique (laisser sur le dos) ; sinon conseiller fermement de ne pas mobiliser la partie atteinte, ne pas tenter de réaligner une fracture déplacée, protéger de la chaleur, du froid, des intempéries, faire alerter, surveiller. Rachis cervical : ERC premiers secours (écrit pour les secouristes) : limiter les mouvements du rachis cervical (tableau 3) ; victime consciente : l'encourager à maintenir elle-même son cou ; victime sans réaction sur le dos : maintenir la tête et le cou à deux mains ; pas de collier cervical en routine (p. 20). Premiers secours citoyen : le maintien de la libération des voies aériennes stabilise le rachis cervical (p. 37, note 3) ; victime qui vomit : sur le côté en maintenant si possible l'axe tête-cou-tronc. Premiers secours en équipe (pour information) : stabilisation du rachis cervical à titre conservatoire devant une lésion traumatique du rachis, évidente ou suspectée. Affichage du maintien de la tête : non décidé (V9).",
       "statut": "CITE",
       "statut_fiche": "CITÉ (reformulé)",
       "sources": [
@@ -730,7 +800,7 @@
         {"ref": "DGSCGC-PSC-2026", "localisation": "p. 37, note 3 (perte de connaissance d'origine traumatique)", "citation": "Le maintien de la libération des voies aériennes permet de stabiliser le rachis cervical"}
       ],
       "ref_fiche": "§ 2, étape 10c",
-      "qui_fiche": "Tous (groupes 5 à 7 : A_VALIDER, D-4)",
+      "qui_fiche": "Groupes 1 à 4 ; groupes 5 à 7 : A_VALIDER (D-4)",
       "professions": {
         "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "DGSCGC-PSC-2026", "localisation": "p. 2 (préface) et p. 47", "citation": "faire acquérir à toute personne les compétences nécessaires"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "art. 1er, 5°, JO p. 2", "citation": "sa prise en charge, seul ou en équipe"}], "raisonnement": "Conseil de ne pas mobiliser : conduite de premiers secours enseignée à toute personne (PSC p. 2 et p. 47), incluse dans la prise en charge visée par l'attestation de niveau 2 (art. 5)."},
         "ide": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "DGSCGC-PSC-2026", "localisation": "p. 2 et p. 47"}, {"ref": "ARRETE-AFGSU-2019", "localisation": "art. 1er, 5°, JO p. 2"}], "raisonnement": "Même raisonnement que pour le médecin."},
@@ -747,7 +817,7 @@
     },
     {
       "id": "surveiller",
-      "ordre": 17,
+      "ordre": 18,
       "parent": null,
       "phase": "Surveiller",
       "niveau": "principal",
@@ -778,7 +848,7 @@
     },
     {
       "id": "aggravation",
-      "ordre": 18,
+      "ordre": 19,
       "parent": "surveiller",
       "niveau": "detail",
       "premier_ecran": false,
@@ -804,7 +874,7 @@
     },
     {
       "id": "constantes-repetees",
-      "ordre": 19,
+      "ordre": 20,
       "parent": "surveiller",
       "niveau": "detail",
       "premier_ecran": false,
@@ -832,7 +902,7 @@
     },
     {
       "id": "confort",
-      "ordre": 20,
+      "ordre": 21,
       "parent": "surveiller",
       "niveau": "detail",
       "premier_ecran": false,
@@ -867,7 +937,7 @@
     },
     {
       "id": "transmettre",
-      "ordre": 21,
+      "ordre": 22,
       "parent": null,
       "phase": "Transmettre",
       "niveau": "principal",
@@ -898,7 +968,7 @@
     },
     {
       "id": "antecedents",
-      "ordre": 22,
+      "ordre": 23,
       "parent": "transmettre",
       "niveau": "detail",
       "premier_ecran": false,
@@ -941,18 +1011,21 @@
     {"point": "Numéro d'alerte", "consequence": "PSC p. 11 : 18, 15, 112, 114 sans hiérarchie ; AFGSU B2 (d'après la fiche cadre) et cahier des charges : 15 en premier. Libellé « Alerter le 15 ».", "ref_fiche": "§ 7, ligne 5"},
     {"point": "Alerte avant ou après la position latérale de sécurité", "consequence": "PSC p. 37 : mettre en position latérale de sécurité, puis faire alerter. Cahier des charges (Déroulé 3) : alerter, puis gestes. Retenu : l'alerte avant les gestes adaptés ; à plusieurs, l'alerte confiée à un tiers se fait en parallèle. À confirmer.", "ref_fiche": "§ 7"},
     {"point": "Position latérale : origine inconnue", "consequence": "PSC p. 37 : traumatisme ou origine inconnue, laisser sur le dos. ERC premiers secours tableau 3 : position latérale si réactivité diminuée d'origine non traumatique, pas en cas de traumatisme ; l'origine inconnue n'est pas nommée. Retenu : la formulation du PSC dans la précision ; à confirmer.", "ref_fiche": "§ 7"},
-    {"point": "Rachis cervical", "consequence": "ERC premiers secours (secouristes) : limiter les mouvements du rachis cervical (tableau 3 p. 5) ; maintien manuel de la tête et du cou chez la victime sans réaction (p. 7) ; pas de collier en routine. PSC : pas de geste de maintien de la tête dans le texte ; la libération des voies aériennes maintenue stabilise le rachis (p. 37, note 3). PSE (équipe) : stabilisation conservatoire (p. 67). Affichage : non décidé (V9).", "ref_fiche": "§ 7"}
+    {"point": "Rachis cervical", "consequence": "ERC premiers secours (secouristes) : limiter les mouvements du rachis cervical (tableau 3 p. 5) ; maintien manuel de la tête et du cou chez la victime sans réaction (p. 7) ; pas de collier en routine. PSC : pas de geste de maintien de la tête dans le texte ; la libération des voies aériennes maintenue stabilise le rachis (p. 37, note 3). PSE (équipe) : stabilisation conservatoire (p. 67). Affichage : non décidé (V9).", "ref_fiche": "§ 7"},
+    {"point": "Répartir les tâches : quand ? (0.1.5)", "consequence": "PSC p. 11 : l'alerte se fait après une évaluation rapide de la situation, des risques et une éventuelle mise en sécurité ; p. 12 : alerte confiée à un tiers, accueil des secours. D-57 place « À plusieurs : répartir » en tête, avant « Se protéger ». Pas de contradiction de contenu : répartir n'est pas exécuter, l'alerte elle-même reste après le bilan vital ; divergence d'ordre écrite, tranchée par D-57 (étendue par le pilote à la conduite commune : V12).", "decision": "D-57", "autorise_par": "D-57", "ref_fiche": "§ 7"}
   ],
   "points_a_valider_fiche": [
     {"id": "V1", "point": "Ordre du bilan vital (logigramme PSC) au lieu de la liste de Laurent (réaction, respiration, saignement)", "decision": "confirmation de Laurent"},
     {"id": "V2", "point": "Ajout de l'étape « S'étouffe ? » (obstruction des voies aériennes), absente de la liste indicative", "decision": "confirmation de Laurent"},
     {"id": "V3", "point": "Habilitations des groupes 5 à 7 pour la compression d'une hémorragie, la désobstruction, la position d'attente et le conseil de ne pas mobiliser (D-4 : A_VALIDER ; argument : le PSC s'adresse à toute personne, p. 2)", "decision": "décision de Laurent"},
-    {"id": "V4", "point": "Place de « À plusieurs : répartir » (après « Respire ? » et « Arrêt cardiaque ? », avant l'alerte). « Analyser la situation » avant « Se protéger » : tranché par D-52", "decision": "confirmation de Laurent"},
+    {"id": "V4", "point": "Place de « À plusieurs : répartir » (jusqu'à la 0.1.4 : après « Respire ? » et « Arrêt cardiaque ? », avant l'alerte). « Analyser la situation » avant « Se protéger » : tranché par D-52", "decision": "TRANCHÉ par D-57 (0.1.5) : en tête, juste après « Analyser la situation », avant « Se protéger » ; reste à confirmer par Laurent l'extension de D-57 à la conduite commune et l'adaptation de la liste (« matériel » au lieu de « DAE ») : V12"},
     {"id": "V5", "point": "Intervalles des constantes (5 min si détresse vitale, sinon 10 à 15 min), tirés du référentiel des secouristes en équipe et affichés comme tels ; faut-il les marquer A_VALIDER tant que ce point est ouvert ?", "decision": "confirmation de Laurent"},
     {"id": "V6", "point": "Premier écran : « Arrêt cardiaque ? » (renvoi au protocole arrêt cardiaque) et « Alerter le 15 » ; le code prévoyait une conduite commune sans premier écran, le contrôle automatique (R9) en exige un", "decision": "décision du pilote et de Laurent"},
     {"id": "V7", "point": "Objectifs de l'annexe 2 de l'arrêté AFGSU (B2, B4, B5, B7, B10) cités d'après la fiche cadre, non relus par l'auteur (divergence C-14)", "decision": "relecture de l'annexe (Laurent ou verificateur)"},
     {"id": "V8", "point": "Habilitation des groupes 5 à 7 sur « Gestes adaptés » (regroupement) et « Couvrir, lui parler » (confort) : A_VALIDER depuis la 0.1.1 (D-4) ; argument pour « oui » : mesures enseignées à toute personne (PSC p. 2)", "decision": "décision de Laurent"},
     {"id": "V9", "point": "Maintien manuel de la tête et du cou (rachis cervical) non affiché : recommandé par l'ERC premiers secours (tableau 3 p. 5 ; p. 7) et le PSE (p. 67), absent comme geste du PSC (p. 37, note 3 : la libération des voies aériennes stabilise le rachis)", "decision": "décision de Laurent"},
-    {"id": "V10", "point": "Lien juridique AFGSU 2 → références premiers secours citoyen 2026 (fiche organisation-secours, V9)", "decision": "lecture juridique"}
+    {"id": "V10", "point": "Lien juridique AFGSU 2 → références premiers secours citoyen 2026 (fiche organisation-secours, V9)", "decision": "lecture juridique"},
+    {"id": "V11", "point": "Ce qu'un soignant libéral doit transmettre au 15 (étape bilan-15, D-55) : liste « nombre de victimes, âge, identité, état, gestes faits » tirée des informations minimales de l'alerte du citoyen (PSC p. 11), du PSE (p. 72, p. 380) et de Saed (HAS 2014, via la fiche cadre) ; aucune source lue ne fixe le contenu du bilan donné au 15 par un soignant libéral", "decision": "confirmation de Laurent"},
+    {"id": "V12", "point": "Extension de D-57 à la conduite commune (0.1.5) : « À plusieurs : répartir » en tête, et précision « Bilan, alerte, matériel, appui (aider le leader ou un intervenant) » — « DAE » de D-57 remplacé par « matériel » (le défibrillateur relève ici du protocole arrêt cardiaque ; le matériel comprend aussi les appareils de mesure du bilan) ; « accueil des secours » (PSC p. 12) sorti de la précision, gardé dans la consigne et l'étape accueil-secours", "decision": "confirmation de Laurent"}
   ]
 }

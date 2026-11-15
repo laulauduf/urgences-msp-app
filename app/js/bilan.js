@@ -152,8 +152,14 @@ function pageS({ fiche, appelant, protocoleId, maintenant }) {
   const journal = fiche.journal ?? [];
   const debut = journal[0]?.t ?? fiche.cree_le;
   // « ACR constaté » seulement tant que l'intervention EST en ACR (R1f, M1) : après un retour en « Autre situation », la transmission ne le dit plus (le journal garde la bascule et le retour horodatés)
+  // `protocoleId` : l'identifiant de l'ACR, OU la liste des identifiants des ACR (adulte, enfant…).
+  // L'heure est celle de l'ENTRÉE DANS L'ACR EN COURS (P4c, n2 de la revue R1f) : la première situation de la série d'ACR qui se termine la fiche — pas celle d'une première bascule annulée
+  // (ACR, retour en « Autre situation », nouvelle bascule : l'heure de la seconde) ; de l'ACR adulte à l'ACR enfant, la série continue : l'heure de l'adulte.
   const situations = fiche.situations ?? [];
-  const acr = situations.at(-1)?.protocole === protocoleId ? situations.find((s) => s.protocole === protocoleId) : undefined;
+  const idsAcr = Array.isArray(protocoleId) ? protocoleId : [protocoleId];
+  const estAcr = (s) => s?.protocole != null && idsAcr.includes(s.protocole);
+  let acr;
+  for (let k = situations.length - 1; k >= 0 && estAcr(situations[k]); k--) acr = situations[k];
   // événements répétables : on compte les touchers VALIDES ; un toucher corrigé au journal est compté à part (L7c, revue L7 C1)
   const events = {};
   for (const e of journal) {
@@ -247,6 +253,7 @@ export function libelleEntree(e) {
     case 'stockage_echec': return 'Enregistrement en échec';
     case 'version_differente': return `Appli mise à jour : version ${d.de ?? '?'} → ${d.vers ?? '?'}`;
     case 'secours_protocole': return 'Protocole illisible : écran de secours';
+    case 'acr_illisible': return "Autre arrêt cardiaque illisible : l'arrêt cardiaque en cours est gardé";
     case 'purge_reportee': return "Délai d'effacement atteint (effacement reporté)";
     case 'export': return d.moyen ? `Export confirmé : ${MOYENS[d.moyen] ?? d.moyen}` : 'Export';
     case 'note': return d.texte ?? 'Note';

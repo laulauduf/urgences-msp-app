@@ -26,6 +26,7 @@ import { construireMateriel } from './materiel.js';
 import { messageEffacement, viderPressePapiers, TEXTE_BROUILLON_DOCUMENT } from './export.js';
 import { creer } from './dom.js';
 import { appelant } from './roles.js';
+import { PROTOCOLES_ACR, IDS_ACR, IDS_CONDUITES } from './catalogue.js';
 
 // Thème mémorisé localement : appliqué avant tout le reste, pour éviter un clignotement clair → sombre.
 appliquerTheme(themeLocal());
@@ -36,7 +37,9 @@ appliquerTheme(themeLocal());
 // protocole-commun.js (aucune requête tant que le fichier n'est pas dans la liste de cache), tenue par `Intervention.protocoleCommun` (identifiants préfixés « commun: » dans `fiche.checklist`, copie dans
 // `fiche.protocoles_utilises`), affichée par `afficherAutre` (interface-intervention.js) avec `afficherAcr`. Pour la publier : ajouter le fichier, `node outils/preparer-version.mjs` (liste de cache), et laisser
 // tests/controle-json.mjs dispenser CE fichier de la règle R9 (pas de premier écran). Un NOUVEAU protocole d'une autre situation suit la même voie : un id, un chargeur, un préfixe, un écran.
-const PROTOCOLE_PAR_DEFAUT = 'acr-adulte-dae';
+// P4a : les ACR (adulte = le protocole par défaut, enfant) et les conduites propres à une urgence (douleur thoracique, AVC, anaphylaxie, hypoglycémie) sont nommés dans `catalogue.js` ;
+// `Intervention` les reçoit (protocolesAcr, conduites) ; l'accueil n'affiche que ceux dont le fichier est dans la liste de cache.
+const PROTOCOLE_PAR_DEFAUT = PROTOCOLES_ACR[0].id;
 
 /** État de l'appli : une seule intervention à la fois, un seul son, un seul verrou d'écran. */
 const app = { son: new Son(), ecran: new EcranAllume(), intervention: null, interface: null, accueilTouche: false, accueilUI: null, etatMaj: null, numeros: lireNumeros(null) };
@@ -45,6 +48,7 @@ const app = { son: new Son(), ecran: new EcranAllume(), intervention: null, inte
 function montrerAccueil() {
   app.accueilUI = afficherEcranAccueil(document.getElementById('contenu'), {
     auUrgence: () => demarrerUrgence('reel'),
+    auProtocole: (id) => demarrerUrgence('reel', id),   // ACR enfant ou une conduite de l'accueil (P4a)
     auAutre: () => demarrerUrgence('reel', 'autre'),
     auSimulation: () => demarrerUrgence('simulation'),
     auxReglages: ouvrirReglages,
@@ -98,7 +102,7 @@ async function ouvrirCloture(resume) {
   const contenu = document.getElementById('contenu');
   afficherCloture(contenu, {
     fiche, stockage,
-    structure: () => contexte.structure, champsSensibles: () => reglages.champs_sensibles ?? {}, appelant: () => appelant(fiche.roles), protocoleId: PROTOCOLE_PAR_DEFAUT,
+    structure: () => contexte.structure, champsSensibles: () => reglages.champs_sensibles ?? {}, appelant: () => appelant(fiche.roles), protocoleId: IDS_ACR,
     effacer: () => stockage.effacerFiche(fiche.mode, fiche.id),
     apresEffacement: (res) => { stockage.definirAffichee(null); montrerAccueil(); app.accueilUI.afficherResultat(messageEffacement(res)); },
     auFermer: () => { stockage.definirAffichee(null); montrerAccueil(); },
@@ -115,15 +119,18 @@ async function ouvrirCloture(resume) {
  * Toucher « Arrêt cardiaque » (ou « Autre urgence », « Simulation ») : SYNCHRONE — la fiche, le son et le verrou d'écran sont lancés dans le geste, la situation est posée
  * dans le même geste (refonte R1 : plus d'écran de choix avant la conduite à tenir) et l'écran suivant s'affiche à l'instant ; le protocole arrive en parallèle.
  */
-function demarrerUrgence(mode, situation = 'acr') {
+function demarrerUrgence(mode, situation = PROTOCOLE_PAR_DEFAUT) {
   app.accueilTouche = true;
   const i = nouvelleIntervention();
   i.demarrer(mode);
-  if (situation === 'autre') i.choisirAutre(); else i.choisirAcr().catch(() => {});
+  // `situation` : 'autre' (conduite commune), l'identifiant d'une conduite, ou celui d'un ACR (l'adulte par défaut ; 'acr' = l'adulte, ancien nom) ; inconnu : l'ACR par défaut
+  if (situation === 'autre') i.choisirAutre();
+  else if (IDS_CONDUITES.includes(situation)) i.choisirAutre(situation);
+  else i.choisirAcr(IDS_ACR.includes(situation) ? situation : PROTOCOLE_PAR_DEFAUT).catch(() => {});
   ouvrirInterface(i);
 }
 
-const nouvelleIntervention = () => new Intervention({ stockage, son: app.son, ecran: app.ecran, chargerProtocole, protocoleId: PROTOCOLE_PAR_DEFAUT });
+const nouvelleIntervention = () => new Intervention({ stockage, son: app.son, ecran: app.ecran, chargerProtocole, protocoleId: PROTOCOLE_PAR_DEFAUT, protocolesAcr: IDS_ACR, conduites: IDS_CONDUITES });
 
 function ouvrirInterface(i) {
   app.intervention = i;

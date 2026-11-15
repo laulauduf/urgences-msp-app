@@ -4,13 +4,14 @@
 // Aucune valeur médicale ici : étapes, ordre, durées, fréquence et libellés viennent du protocole ; aucun ordre n'est écrit en dur.
 import { Horloge, GestionChronos, lireChronometres, lireMetronome, formaterDuree } from './horloge.js';
 import { attribuerRole, appelant, ajouterPersonne } from './roles.js';
-import { construireVue, heureVersTimestamp, estVitale } from './checklist.js';
+import { construireVue, heureVersTimestamp, estVitale, MENTION_SUR_DEMANDE } from './checklist.js';
 import { chargerHabilitations } from './habilitations.js';
 import { chargerGlossaire, lireGlossaire } from './glossaire.js';
 import { chargerUnites, lireUnites } from './unites.js';
 import { TYPES_CONSTANTE } from './bilan.js';
 import { verifierProtocole } from './protocole.js';
-import { ID_COMMUN, chargerProtocoleCommun, prefixerProtocole } from './protocole-commun.js';
+import { ID_COMMUN, chargerProtocoleCommun, prefixerProtocole, prefixeDe } from './protocole-commun.js';
+import { titreDe } from './catalogue.js';
 
 export const ACR = 'acr';
 /** Délai maximal d'annulation du démarrage (CHOIX PROVISOIRE, revue R1 : 60 s, à faire trancher par Laurent). */
@@ -40,10 +41,19 @@ export class Intervention {
    *          chargerHabilitations?: () => Promise<object|null>, chargerGlossaire?: () => Promise<object>, chargerUnites?: () => Promise<object>}} options
    *   `chargerProtocole` renvoie { ok, protocole } ou { ok: false, raisons } (protocole.js).
    */
-  constructor({ stockage, son, ecran, chargerProtocole, protocoleId, chargerHabilitations: chargerHab = chargerHabilitations, chargerGlossaire: chargerGlo = chargerGlossaire, chargerUnites: chargerUni = chargerUnites, chargerCommun = chargerProtocoleCommun }) {
+  constructor({ stockage, son, ecran, chargerProtocole, protocoleId, protocolesAcr = [protocoleId], conduites = [], chargerHabilitations: chargerHab = chargerHabilitations, chargerGlossaire: chargerGlo = chargerGlossaire, chargerUnites: chargerUni = chargerUnites, chargerCommun = chargerProtocoleCommun }) {
     Object.assign(this, { stockage, son, ecran, chargerProtocoleFn: chargerProtocole, protocoleId, chargerHabilitationsFn: chargerHab, chargerGlossaireFn: chargerGlo, chargerUnitesFn: chargerUni, chargerCommunFn: chargerCommun });
-    // checklist COMMUNE de « Autre situation » (D-51) : second protocole, identifiants préfixés (protocole-commun.js), coches dans le MÊME objet `fiche.checklist`.
+    // P4a : plusieurs protocoles de type ACR (adulte = `protocoleId`, par défaut ; enfant…) et plusieurs conduites propres à une urgence (douleur thoracique…). Leurs identifiants viennent de main.js.
+    // `protocoleActifId` : l'ACR en cours (celui dont la copie est dans la fiche). Les ACR PARTAGENT les identifiants d'étape (coches, chronomètres) : passer de l'adulte à l'enfant ne perd rien
+    // (CHOIX PROVISOIRE, D-15 : « Alerter » fait reste fait, le cycle en cours continue).
+    this.protocolesAcr = Array.isArray(protocolesAcr) && protocolesAcr.length > 0 ? [...new Set([protocoleId, ...protocolesAcr])] : [protocoleId];
+    this.conduites = Array.isArray(conduites) ? [...conduites] : [];
+    this.protocoleActifId = protocoleId;
+    // conduite de « Autre situation » : la COMMUNE (D-51) ou une conduite propre à une urgence ; identifiants préfixés (protocole-commun.js), coches dans le MÊME objet `fiche.checklist`.
+    // `protocoleCommun` désigne la conduite COURANTE (le nom est resté, il est lu par l'interface et par les tests).
     // communEtat : 'absent' (fichier non publié : aucune requête) | 'chargement' | 'ok' | 'illisible' (publié mais inutilisable : l'écran le dit)
+    this.conduiteId = ID_COMMUN;
+    this.acrDemande = null; this.echecAcr = null;   // P4d : dernier ACR demandé (le dernier choix l'emporte) ; { id, raisons } quand un CHANGEMENT d'ACR a échoué et que l'ACR en cours est gardé
     this.protocoleCommun = null; this.communEtat = 'absent';
     // checklist (L6) : habilitations par profession (null tant que non lues ou illisibles : tout est alors restrictif), glossaire, mode et étapes passées
     this.habilitations = null; this.habilitationsEtat = 'chargement'; this.glossaire = lireGlossaire(null);
@@ -90,7 +100,7 @@ export class Intervention {
     this.debranchements.push(() => document.removeEventListener('visibilitychange', surVisibilite));
     this.son.debloquer();
     this.ecran.demander(); // jamais attendu
-    this.prefetch = this.chargerProtocoleFn(this.protocoleId);
+    this.prefetch = this.chargerProtocoleFn(this.protocoleId); this.prefetchId = this.protocoleId;   // l'ACR adulte, le plus probable ; un autre ACR se charge à son choix (choisirAcr)
     this.chargerReglages();
     this.chargerReferences();
     return this.fiche;
@@ -108,19 +118,23 @@ export class Intervention {
     this.son.preparer?.();   // M1 : contexte audio créé (suspendu) pour que le bandeau « Son arrêté » s'affiche ; le premier toucher le reprend
     this.ecran.demander().catch?.(() => {});
     const derniere = fiche.situations.at(-1);
-    this.situation = derniere ? (derniere.protocole === this.protocoleId ? ACR : AUTRE) : null;
+    // la DERNIÈRE situation dit où l'on était : un ACR connu (adulte, enfant…), une conduite connue, sinon (null, identifiant inconnu) « Autre situation » commune
+    const idDerniere = derniere?.protocole ?? null;
+    this.situation = derniere ? (this.protocolesAcr.includes(idDerniere) ? ACR : AUTRE) : null;
+    if (this.situation === ACR) this.protocoleActifId = idDerniere;
+    if (this.situation === AUTRE) this.conduiteId = this.conduites.includes(idDerniere) ? idDerniere : ID_COMMUN;
     if (this.situation === ACR) {
-      const copie = fiche.protocoles_utilises?.[this.protocoleId];
+      const copie = fiche.protocoles_utilises?.[this.protocoleActifId];
       const { verifierProtocole } = await import('./protocole.js');
       if (copie && verifierProtocole(copie).length === 0) this.adopterProtocole(copie, { journaliserSituation: false });
       else { // pas de copie exploitable : on retombe sur le fichier courant, ou sur l'écran de secours
         this.protocoleEtat = 'chargement'; this.emettre('changement');
-        const r = await this.chargerProtocoleFn(this.protocoleId);
+        const r = await this.chargerProtocoleFn(this.protocoleActifId);
         if (r.ok) this.adopterProtocole(r.protocole, { journaliserSituation: false });
         else this.basculerSecours(r.raisons);
       }
     }
-    if (this.situation === AUTRE) this.chargerCommun({ copie: fiche.protocoles_utilises?.[ID_COMMUN] });   // la copie de la fiche d'abord (même parade que l'ACR) ; synchrone si elle est exploitable
+    if (this.situation === AUTRE) this.chargerCommun({ copie: fiche.protocoles_utilises?.[this.conduiteId] });   // la copie de la fiche d'abord (même parade que l'ACR) ; synchrone si elle est exploitable
     this.tuileTouchee = this.etapesPremierEcran().some((e) => this.estCochee(e.id)) || fiche.chronometres.length > 0;
     // Parade 3 (2.4, revue M2) : une version du code peut s'être activée entre-temps (un service worker en attente s'active seul quand plus aucune page
     // n'est ouverte : le navigateur l'impose). On le DIT (bandeau + journal), une seule fois : la fiche prend alors la version courante.
@@ -152,8 +166,20 @@ export class Intervention {
         f.versions_protocoles[protocole.id] = protocole.version;
         f.situations.push({ protocole: protocole.id, depuis: Date.now() });
       }, { immediat: true });
-      this.journaliser('situation', { protocole: protocole.id, version: protocole.version });
+      this.journaliser('situation', { protocole: protocole.id, version: protocole.version, libelle: protocole.titre_court ?? protocole.titre });   // (libellé lisible : le journal et le document ne montrent pas l'identifiant du fichier, P4d m7)
+      this.reprendreAppelDansAcr();
     }
+  }
+
+  /**
+   * P4d (revue P4, « Alerter ») : le 15 a déjà été appelé dans une autre situation (une conduite, « Autre situation », l'ACR précédent) : l'étape « Alerter » de l'ACR qui s'ouvre est cochée avec l'heure du PREMIER appel
+   * (journalisée `repris: true`), au lieu de s'afficher « ⚠ non faite » à tort. L'équipe peut la décocher (rappeler pour signaler l'arrêt reste son choix). Seulement à l'adoption d'un ACR, jamais à la reprise d'une fiche.
+   */
+  reprendreAppelDansAcr() {
+    const alerte = this.etapesPremierEcran().find((e) => e.cochage_auto === 'appel');
+    if (!alerte || this.estCochee(alerte.id)) return;
+    const appel = this.fiche.journal.find((e) => ['appel_lance', 'appel_fait', 'appel_simule'].includes(e.type));
+    if (appel) this.cocher(alerte.id, { t: appel.t, repris: true });
   }
 
   basculerSecours(raisons) {
@@ -163,31 +189,51 @@ export class Intervention {
 
   // ───────── Choix et changement de situation ─────────
 
-  /** ACR adulte (ou passage en ACR depuis « autre situation », un toucher). Affiche tout de suite ; le protocole arrive en parallèle. */
-  async choisirAcr() {
-    if (this.situation === ACR && this.protocoleEtat !== 'secours') return;
-    this.situation = ACR; this.protocoleEtat = 'chargement'; this.emettre('changement');
-    this.prefetch ??= this.chargerProtocoleFn(this.protocoleId);
+  /**
+   * Un ACR (adulte par défaut ; enfant…) : choix à l'accueil, passage depuis une autre situation (un toucher), ou changement d'ACR par le menu. Affiche tout de suite ; le protocole arrive en
+   * parallèle. Identifiant inconnu : ignoré, sans erreur. Même ACR déjà en cours : rien.
+   */
+  async choisirAcr(id = this.protocoleId) {
+    if (!this.protocolesAcr.includes(id)) return;
+    this.acrDemande = id;   // le DERNIER choix l'emporte, même s'il revient à l'ACR en cours (annule alors le changement en attente)
+    if (this.situation === ACR && this.protocoleActifId === id && this.protocoleEtat !== 'secours') { this.echecAcr = null; return; }
+    // P4d (m3) : CHANGEMENT d'ACR (un ACR est déjà adopté et affiché) : il reste affiché, avec sa barre « Masser · DAE », jusqu'à l'arrivée du nouveau ; jamais d'écran « Chargement » qui masquerait un massage en cours
+    const garde = this.situation === ACR && this.protocoleEtat === 'ok';
+    this.situation = ACR; this.echecAcr = null;
+    if (!garde) { this.protocoleActifId = id; this.protocoleEtat = 'chargement'; }
+    this.emettre('changement');
+    if (!this.prefetch || this.prefetchId !== id) { this.prefetch = this.chargerProtocoleFn(id); this.prefetchId = id; }
     const r = await this.prefetch;
-    if (this.detruite) return;
-    if (r.ok) this.adopterProtocole(r.protocole);
-    else {
+    // (P4d, m1) un autre choix ou un départ de l'ACR pendant le chargement : il l'emporte, l'ACR n'est ni adopté ni enregistré
+    if (this.detruite || this.situation !== ACR || this.acrDemande !== id) return;
+    if (r.ok) { this.protocoleActifId = id; this.adopterProtocole(r.protocole); }
+    else if (garde && this.protocoleEtat === 'ok') {
+      // P4d (m4) : l'autre ACR est illisible alors qu'un ACR est déjà adopté : on RESTE sur lui (Masser, DAE, métronome, cycle), l'échec est dit (bandeau) et journalisé ; pas d'écran de secours
+      this.prefetch = null;
+      this.echecAcr = { id, raisons: r.raisons };
+      this.journaliser('acr_illisible', { protocole: id, raisons: r.raisons });
+    } else {
       this.prefetch = null; // on réessaiera au prochain essai
-      if (!this.fiche.situations.some((s) => s.protocole === this.protocoleId)) {
-        this.stockage.modifier(this.fiche, (f) => { f.situations.push({ protocole: this.protocoleId, depuis: Date.now(), secours: true }); });
-        this.journaliser('situation', { protocole: this.protocoleId, secours: true });
+      if (!this.fiche.situations.some((s) => s.protocole === id)) {
+        this.stockage.modifier(this.fiche, (f) => { f.situations.push({ protocole: id, depuis: Date.now(), secours: true }); });
+        this.journaliser('situation', { protocole: id, secours: true });
       }
       this.basculerSecours(r.raisons);
     }
     this.emettre('changement');
   }
 
-  /** « Autre situation » : alerte, chronomètre global, fiche, transmission, lieu — et la checklist commune quand son fichier est publié (sinon aucune checklist). */
-  choisirAutre() {
-    this.situation = AUTRE;
-    this.stockage.modifier(this.fiche, (f) => { f.situations.push({ protocole: null, depuis: Date.now() }); }, { immediat: true });
-    this.journaliser('situation', { protocole: null, libelle: 'autre situation' });
-    this.chargerCommun({ copie: this.fiche.protocoles_utilises?.[ID_COMMUN] });
+  /**
+   * « Autre situation » : alerte, chronomètre global, fiche, transmission, lieu — et la conduite commune (par défaut) ou la conduite propre à une urgence (`id`) quand son fichier est publié
+   * (sinon aucune checklist). Identifiant de conduite inconnu : la conduite commune.
+   */
+  choisirAutre(id = ID_COMMUN) {
+    const conduite = this.conduites.includes(id) ? id : ID_COMMUN;
+    if (conduite !== this.conduiteId) { this.protocoleCommun = null; this.communEtat = 'absent'; }   // une autre conduite : l'ancienne est lâchée (ses coches restent dans la fiche, sous son préfixe)
+    this.conduiteId = conduite; this.situation = AUTRE;
+    this.stockage.modifier(this.fiche, (f) => { f.situations.push({ protocole: conduite === ID_COMMUN ? null : conduite, depuis: Date.now() }); }, { immediat: true });
+    this.journaliser('situation', { protocole: conduite === ID_COMMUN ? null : conduite, libelle: conduite === ID_COMMUN ? 'autre situation' : (titreDe(conduite) ?? 'autre situation') });   // (le nom de navigation, pas l'identifiant du fichier : P4d m7)
+    this.chargerCommun({ copie: this.fiche.protocoles_utilises?.[conduite] });
     this.emettre('changement');
   }
 
@@ -198,17 +244,18 @@ export class Intervention {
    */
   async chargerCommun({ copie = null } = {}) {
     if (this.protocoleCommun) return;
+    const id = this.conduiteId;
     if (copie && verifierProtocole(copie, { premierEcranRequis: false }).length === 0) { this.adopterCommun(copie, { copier: false }); return; }
     this.communEtat = 'chargement';
     let r;
-    try { r = await this.chargerCommunFn(); } catch { r = { ok: false, absent: false, raisons: ['chargement impossible'] }; }
-    if (this.detruite) return;
+    try { r = await this.chargerCommunFn({ id }); } catch { r = { ok: false, absent: false, raisons: ['chargement impossible'] }; }
+    if (this.detruite || this.conduiteId !== id) return;   // une autre conduite a été choisie pendant le chargement
     if (r.ok) this.adopterCommun(r.protocole, { copier: true });
     else { this.communEtat = r.absent ? 'absent' : 'illisible'; if (!r.absent) this.emettre('changement'); }
   }
 
   adopterCommun(protocole, { copier }) {
-    this.protocoleCommun = prefixerProtocole(protocole); this.communEtat = 'ok';
+    this.protocoleCommun = prefixerProtocole(protocole, prefixeDe(this.conduiteId)); this.communEtat = 'ok';
     if (copier) {
       this.stockage.modifier(this.fiche, (f) => {
         f.protocoles_utilises[protocole.id] = structuredClone(protocole);   // copie : un protocole mis à jour ne change jamais une intervention en cours
@@ -262,11 +309,13 @@ export class Intervention {
   }
   estCochee(id) { return Boolean(this.fiche.checklist[id]); }
 
-  cocher(id, { t = Date.now() } = {}) {
+  /** `surDemande` (D-58) : coche d'une étape réservée aux habilités, confirmée « fait sur demande du 15 » ; le journal le dit (donnée `sur_demande`, mention dans le libellé : la transmission la reprend). */
+  cocher(id, { t = Date.now(), surDemande = false, repris = false } = {}) {
     if (this.estCochee(id)) return false;
     this.stockage.modifier(this.fiche, (f) => { f.checklist[id] = { coche_le: t }; }, { immediat: true });
     const e = this.etape(id);
-    this.journaliser('case', { id, libelle: e?.texte_court ?? id }, { maintenant: t });
+    const libelle = e?.texte_court ?? id;
+    this.journaliser('case', { id, libelle: surDemande ? `${libelle} — ${MENTION_SUR_DEMANDE}` : libelle, ...(surDemande ? { sur_demande: true } : {}), ...(repris ? { repris: true } : {}) }, { maintenant: t });
     this.emettre('changement');
     return true;
   }
@@ -298,18 +347,21 @@ export class Intervention {
    * Toucher de la case d'une étape dans la checklist. Même objet que les tuiles : `fiche.checklist[id]`.
    * - étape cochée : décochée (journalisée) ; - étape non cochable pour cette profession : refusée (jamais cochée) ;
    * - étape vitale : même chemin que sa tuile (déclencheur du protocole, alerte au premier appel) ; - « Alerter » : ouvre l'alerte, ne coche pas.
-   * @returns {{ouvrirAlerte: boolean, refuse?: boolean}}
+   * - étape RÉSERVÉE aux habilités (D-58) pour une profession réglée non habilitée : rien n'est coché tant que `confirme` n'est pas vrai ({confirmationRequise}) ; confirmée, elle se coche « sur demande du 15 ».
+   * @returns {{ouvrirAlerte: boolean, refuse?: boolean, confirmationRequise?: boolean}}
    */
-  cocherDepuisChecklist(id) {
+  cocherDepuisChecklist(id, { confirme = false } = {}) {
     const item = this.itemChecklist(id);
     if (!item) return { ouvrirAlerte: false, refuse: true };
     // décocher est toujours permis, même si un changement de profession a rendu l'étape non cochable : décocher n'est pas autoriser (revue L6 m5)
     if (item.cochee) { this.decocher(id); return { ouvrirAlerte: false }; }
     if (!item.cochable) return { ouvrirAlerte: false, refuse: true };
+    if (item.surDemande && !confirme) return { ouvrirAlerte: false, confirmationRequise: true };   // la confirmation ne se contourne pas : elle est exigée ICI, pas seulement par l'écran
     const e = item.etape;
-    if (estVitale(e)) return this.toucherTuile(id, { prudent: true });   // une seule définition d'« étape vitale » (revue L6 m10)
+    const surDemande = item.surDemande === true;
+    if (estVitale(e)) return this.toucherTuile(id, { prudent: true, surDemande });   // une seule définition d'« étape vitale » (revue L6 m10)
     if (e.cochage_auto === 'appel') { this.emettre('changement'); return { ouvrirAlerte: true }; }
-    if (this.cocher(id)) this.declencher(e, { prudent: true });
+    if (this.cocher(id, { surDemande })) this.declencher(e, { prudent: true });
     return { ouvrirAlerte: false };
   }
 
@@ -343,7 +395,7 @@ export class Intervention {
    * ouvre le panneau et se coche au premier appel lancé ou au premier « J'ai appelé ». Un second toucher ne décoche jamais (toucher maladroit).
    * @returns {{ouvrirAlerte: boolean}}
    */
-  toucherTuile(id, { prudent = false } = {}) {
+  toucherTuile(id, { prudent = false, surDemande = false } = {}) {
     const e = this.etape(id);
     if (!e) return { ouvrirAlerte: false };
     if (!this.protocoleCommun?.etapes.includes(e)) this.tuileTouchee = true; // la zone « cycle » apparaît dès le premier toucher d'une tuile vitale de l'ACR (4.3 bis) ; une étape vitale de la checklist commune n'est pas une action de l'ACR
@@ -351,7 +403,7 @@ export class Intervention {
     // le déclencheur du protocole (métronome, chronomètre) ne part qu'au PREMIER cochage de l'étape dans la fiche : décocher puis recocher ne relance
     // pas un métronome mis en pause (revue L6 M1, second cas)
     const premiere = !this.fiche.journal.some((x) => x.type === 'case' && x.donnees?.id === id);
-    const neuve = this.cocher(id);
+    const neuve = this.cocher(id, { surDemande });
     if (neuve && premiere) this.declencher(e, { prudent });
     return { ouvrirAlerte: false };
   }

@@ -896,3 +896,34 @@ body[data-texte="grand"] .checklist-commune .pastilles { grid-auto-flow: row; gr
 .cloture-pourquoi p { margin: 0.25rem 0; font-size: 0.875rem; }
 .cloture-aide { margin: 0; font-size: 0.875rem; font-weight: 500; color: var(--texte-attenue); }   /* 14 px à 100 % ; en rem pour suivre le texte agrandi */
 body[data-mode="intervention"][data-texte="grand"] .cloture-aide, body[data-mode="intervention"][data-texte="grand"] .cloture-pourquoi summary, body[data-mode="intervention"][data-texte="grand"] .cloture-pourquoi p { font-size: 0.6875rem; }
+
+/* ───────── Lot P4a : accueil avec arrêt cardiaque de l'enfant et « Autres urgences » ; renvois à deux boutons ─────────
+   CHOIX PROVISOIRE (D-15) : l'ADULTE reste la grande tuile ; l'enfant est une seconde tuile rouge, moins haute ; les autres urgences sont en liste de tuiles. */
+.gros-urgence-enfant { grid-column: 1 / -1; min-height: max(4.75rem, 11vh); font-size: 1.375rem; letter-spacing: 0.01em; box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.18); }
+.gros-urgence-enfant small { color: inherit; opacity: 1; font-size: 1rem; }
+.accueil-autres { display: flex; flex-direction: column; gap: 0.5rem; }
+.accueil-sous-titre { margin: 0.25rem 0 0; font-size: 1rem; font-weight: 800; color: var(--texte-attenue); }
+.accueil-autres-grille > .gros { min-height: 4.75rem; }
+.accueil-autres-grille > .gros:last-child:nth-child(odd) { grid-column: 1 / -1; }   /* nombre impair : la dernière tuile (Autre situation) prend toute la ligne */
+.autre-urgences-deux .gros-urgence { grid-column: auto; }
+.etape-renvoi-multi { grid-template-columns: minmax(0, 1fr); }
+.renvoi-boutons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+.renvoi-boutons .bouton-renvoi { padding: 0 0.5rem; }
+@media (orientation: landscape) and (max-height: 600px) {
+  .gros-urgence-enfant { min-height: 3.5rem; font-size: 1.125rem; }
+  .accueil-autres-grille > .gros { min-height: 3.5rem; }
+  .accueil-autres-grille > .gros:last-child:nth-child(odd) { grid-column: auto; }
+  .accueil-sous-titre { margin: 0; }
+}
+body[data-texte="grand"] .accueil .gros-urgence-enfant { font-size: 0.875rem; min-height: 3rem; }
+body[data-texte="grand"] .accueil .accueil-sous-titre { font-size: 0.75rem; }
+body[data-texte="grand"] .accueil .accueil-autres-grille > .gros { min-height: 3rem; }
+body[data-texte="grand"] .autre-urgences-deux .gros-urgence { font-size: 0.875rem; }
+
+/* ───────── Lot P4b : étape réservée aux habilités — « sur demande du 15 » et confirmation (D-58) ───────── */
+.etape .demande-confirmation { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; margin: 0 0.75rem 0.75rem; }
+.etape .demande-confirmation .bouton { min-height: 48px; font-size: 0.9375rem; font-weight: 800; padding: 0 0.5rem; }
+.etape-sur-demande { font-weight: 700; }
+body[data-texte="grand"] .etape .demande-confirmation { grid-template-columns: minmax(0, 1fr); }
+body[data-texte="grand"] .etape .demande-confirmation .bouton { font-size: 0.75rem; }
+@media (orientation: landscape) and (max-height: 600px) { .etape .demande-confirmation { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

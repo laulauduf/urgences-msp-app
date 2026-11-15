@@ -1,0 +1,1188 @@
+{
+  "format": 1,
+  "id": "hypoglycemie",
+  "titre": "Hypoglycémie de l'adulte (diabétique ou non), jusqu'à l'arrivée des secours",
+  "titre_court": "Hypoglycémie",
+  "version": "0.1.3",
+  "statut_validation": "BROUILLON",
+  "date_redaction": "2026-11-15",
+  "fiche_source": "docs/reco/hypoglycemie.md",
+  "rapport_controle": null,
+  "validateur": null,
+  "date_validation": null,
+  "transcription": {
+    "par": "agent de transcription (Sonnet 5.5 / élevé), lancé par « urgences - pilote 3 »",
+    "le": "2026-11-15",
+    "fiche_source_commit": "035072d pour la première rédaction de la fiche ; fiche corrigée le 15/11/2026 avec la version 0.1.2 de ce protocole, dans le même commit du pilote",
+    "regle": "Première transcription de la fiche docs/reco/hypoglycemie.md (décision D-54), sans recherche nouvelle et sans ajout de contenu médical. Même format que protocoles/urgence-commune.json et protocoles/acr-adulte-dae.json : texte_court = environ trois mots, QUOI faire et jamais COMMENT ; precision = au plus une ligne dépliable (D-37) ; consigne_guidee et detail pour le mode guidé et la fiche détaillée. Quand un élément s'appuie sur plusieurs statuts, le champ statut retient le plus faible (CITE, puis DEDUIT, puis A_VALIDER) et statut_fiche recopie la mention de la fiche. Règle absolue 4 : aucune dose ni quantité (sucre, glucagon, glucose) dans ce fichier ; la section 8 de la fiche n'est pas transcrite ; aucun seuil de glycémie n'est écrit tant qu'il est A_VALIDER (V1 ; D-19 : aucun signal « hors normes »). Unité usuelle g/L seulement là où la fiche l'écrit (D-26). Sigles absents des sources écrits en toutes lettres (D-10) ; « accident vasculaire cérébral » est aussi écrit en toutes lettres dans les libellés affichés parce que le glossaire n'a pas d'entrée « AVC » avec source (règle R11 du contrôle automatique). Habilitations : renvoi à un geste de professions.json quand il existe ; pour glycémie capillaire, sucre par la bouche et glucagon, aucun geste n'existe : habilitations portées par l'étape, recopiées de la fiche § 6, sans emprunter un geste voisin plus permissif. Les étapes de la conduite commune reprennent mot pour mot libellé et précision de urgence-commune.json quand la fiche les reprend (étape aggravation) ; quand la fiche donne une autre précision (alerter, surveiller), celle de la fiche est conservée.",
+    "corrections": [
+      {
+        "par": "agent recherche-reco (Sonnet 5.5 / élevé), lancé par « urgences - pilote 3 »",
+        "le": "2026-11-15",
+        "objet": "Version 0.1.1 : décision D-56 de Laurent (vocabulaire médical dans les textes affichés). Remplacements ciblés, sans changer le sens ni les sources : « rien en bouche » devenu « rien per os » (libellé et consigne de l'étape inconsciente-rien-en-bouche) ; étape signes, « mal de tête » devenu « céphalées », « cœur qui bat vite » devenu « palpitations », « grande fatigue » devenu « asthénie » ; étape glycemie-lecteur-patient, « contrôle au doigt » et « mesurez au doigt » devenus « glycémie capillaire » (mot du PSE) ; étape apres-glucagon, « sur le côté » devenu « décubitus latéral » ; « si le matériel est là » devenu « est disponible ». Citations, statuts, habilitations, ordre et détails inchangés. Version non contrôlée."
+      },
+      {
+        "par": "agent recherche-reco (Opus 5.5 / élevé), lancé par « urgences - pilote 4 »",
+        "le": "2026-11-15",
+        "objet": "Version 0.1.2 : corrections du rapport de contrôle docs/controle/hypoglycemie-0.1.1-controle-2026-11-15.md (5 majeurs, 7 mineurs, 1 non vérifiable), par remplacements ciblés. #34 : après glucagon, glucides seulement si la victime est réveillée ET capable d'avaler (notice GLUCAGEN, rubrique 3). #23 : étape aide-traitement-prescrit RETIRÉE (transposition de la conduite du malaise ; son traitement peut être l'insuline ou un hypoglycémiant) ; choix le plus prudent, à confirmer (V13). #28 et #27 : étape inconsciente-rien-en-bouche scindée : « Inconsciente : rien per os » (interdiction et alerte, geste alerter_transmettre) et nouvelle étape inconsciente-pls (position latérale avec la condition « traumatisme ou origine inconnue : sur le dos », mots de la conduite commune, geste position_laterale) ; la glycémie est renvoyée à l'étape glycemie-capillaire ; consignes des étapes convulsions et glycemie-lecteur-patient sans mesure par le soignant. #31 : glucagon réservé au diabétique insulinotraité ; limites (jeûne prolongé, alcool) et contre-indication (phéochromocytome) dans la consigne et le détail (RCP 4.1, 4.3, 4.4) ; affichage à confirmer (V4). #25 : étape reevaluer-15-min scindée : resucrer (habilitations du sucre) et nouvelle étape glycemie-controle (habilitations de la glycémie). #11 : dénutrition ajoutée ; citation ERC en p. 6 seulement. #22 : sucre et comprimés de glucose cités sans hiérarchie. #33 : citation du R. 4311-7 corrigée. #40 : unidoses de resucrage retirées de l'étape sucre-quoi-donner (sur prescription). #45 : détail de l'étape signes en vocabulaire médical. #47 : version de la conduite commune et en-tête de la fiche. #4 : annexe 2 de l'arrêté AFGSU relue sur le fac-similé du Journal officiel (p. 7-8). Omission n° 4 : protéger la tête pendant une crise convulsive (PSE p. 192). V11 fermé (RCP 5.1). Version non contrôlée."
+      },
+      {
+        "par": "agent recherche-reco (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
+        "le": "2026-11-15",
+        "objet": "Version 0.1.3 : habilitations de treize étapes renvoyées aux gestes de professions.json 0.3.0, valeurs identiques à celles qui étaient en ligne ou portées par le geste précédent (glycemie-capillaire, glycemie-unite, glycemie-controle → glycemie_capillaire ; glycemie-lecteur-patient → aide_mesure_glycemie_par_la_victime ; sucre-par-la-bouche, sucre-quoi-donner, reevaluer-15-min, collation → sucre_per_os ; glucagon, apres-glucagon → glucagon ; hypoglycemie-suspectee, signes, signes-avc : reconnaitre → reconnaitre_malaise_grave, mêmes valeurs). Aucun libellé, aucune précision, aucun statut de source modifié. Les champs remarque de ces étapes (« Geste manquant », « habilitations portées par l'étape ») n'ont pas été touchés : devenus obsolètes, à nettoyer."
+      }
+    ]
+  },
+  "decisions_appliquees": [
+    {"decision": "D-4", "etat": "REPONDUE", "objet": "Sept groupes de professions (protocoles/_commun/professions.json) ; groupes 5 à 7 limités aux gestes ouverts à toute personne (alerte, massage cardiaque, défibrillateur), les autres gestes marqués A_VALIDER ; appliqué aux habilitations de toutes les étapes. Exemption des étapes vitales (choix provisoire du code D-25, specs/REGISTRE_DECISIONS.md ; app/js/checklist.js, estVitale) : seule l'étape alerter est vitale ici."},
+    {"decision": "D-9", "etat": "REPONDUE", "objet": "Mode transmission selon le guide Saed de la HAS ; renvoi depuis l'étape transmettre-glycemie"},
+    {"decision": "D-10", "etat": "REPONDUE", "objet": "Sigles sans source autorisée écrits en toutes lettres (aucun sigle propre à l'hypoglycémie : fiche § 4)"},
+    {"decision": "D-19", "etat": "PROVISOIRE", "objet": "Aucun signal « hors normes » : aucun seuil de glycémie n'est écrit dans ce fichier (V1 A_VALIDER) et aucune valeur saisie ne déclenche une conduite"},
+    {"decision": "D-26", "etat": "REPONDUE", "autorise_par": "D-26", "objet": "Unité usuelle g/L affichée à côté de la glycémie dans la fiche bilan, sans conversion ni seuil (étape glycemie-unite)"},
+    {"decision": "D-36", "etat": "REPONDUE", "objet": "Aide-mémoire pour soignants formés, pas un guide pas à pas"},
+    {"decision": "D-37", "etat": "REPONDUE", "objet": "Environ trois mots par étape, au plus une précision d'une ligne"},
+    {"decision": "D-54", "etat": "REPONDUE", "objet": "Protocoles de la version complète (phase 4) : douleur thoracique, AVC, anaphylaxie, hypoglycémie, ACR enfant (15/11/2026)"},
+    {"decision": "D-56", "etat": "REPONDUE", "autorise_par": "D-56", "objet": "Vocabulaire médical dans tous les textes affichés (libellés, précisions, consignes) : l'appli s'adresse à des professionnels de santé ; sigles absents des sources toujours en toutes lettres (D-10)"}
+  ],
+  "ordre_etapes": {
+    "statut": "DEDUIT",
+    "statut_fiche": "DÉDUIT : bilan vital d'abord ; puis reconnaître, mesurer si le matériel est là, resucrer si la victime avale, réévaluer à 15 min ; branche « inconsciente » ; alerte ; surveillance. Divergence PSE / ERC sur « mesurer avant de resucrer » : fiche § 7, D1",
+    "sources": [
+      {"ref": "DGSCGC-PSE-2026", "localisation": "p. 197 (conduite à tenir : « réaliser en priorité les gestes d'urgence qui s'imposent » ; mesure au quatrième regard puis sucre)", "citation": "réaliser en priorité les gestes d'urgence qui s'imposent"},
+      {"ref": "ERC-FA", "localisation": "p. 6 (le glucose est donné à la personne qui avale ; mesure « If feasible »)", "citation": "If feasible, measure capillary blood sugar using a blood glucose meter"},
+      {"ref": "DGSCGC-LOGI-PSE-2026", "localisation": "p. 15 (logigramme « Malaise hypoglycémique » : contrôler, resucrer)"}
+    ],
+    "raisonnement": "Le référentiel des secouristes en équipe fait réaliser en priorité les gestes d'urgence (PSE p. 197) : d'où le bilan vital d'abord, avec renvoi à la conduite commune. Viennent ensuite reconnaître, mesurer si le matériel est disponible, resucrer si la victime avale, réévaluer à 15 min, puis la branche de la victime inconsciente, l'alerte et la surveillance. Divergence : l'ERC fait donner le sucre puis mesurer « If feasible » ; le PSE mesure au quatrième regard puis resucre, mais resucre aussi sans mesure si l'origine du malaise est inconnue (fiche § 7, D1 et D4). Choix proposé par la fiche : la mesure ne retarde jamais le sucre (à confirmer, V9). Le PSE est le référentiel des secouristes en équipe et sa fiche « Malaise hypoglycémique » semble optionnelle (logigramme marqué « OPT ») : c'est pourtant la seule source française lue qui détaille la conduite à tenir.",
+    "ref_fiche": "§ 2, note en tête ; § 7, D1, D4 et D9",
+    "remarque": "La fiche ne propose aucun niveau vital ni premier écran propre à l'hypoglycémie (V12). Le seul premier écran de ce fichier, l'étape alerter, a été demandé par la consigne du pilote (règle R9 du contrôle automatique)."
+  },
+  "phases_et_sections": {
+    "statut": "DEDUIT",
+    "objet": "Intertitres de regroupement (champ phase des étapes de premier niveau). Ce ne sont pas des étapes : ils ne modifient ni l'ordre ni le contenu.",
+    "phases": {
+      "Bilan vital": "étape bilan-vital : conduite à tenir commune, bilan avant tout (PSE p. 197)",
+      "Reconnaître": "étape hypoglycemie-suspectee (fiche § 2 bis : « Reconnaître »)",
+      "Mesurer": "étape glycemie-capillaire (fiche § 2 bis : « Mesurer », PSE p. 99)",
+      "Resucrer": "étapes sucre-par-la-bouche et reevaluer-15-min : mot du recueil de logigrammes PSE, p. 15 (« Resucrer ») ; le libellé court de l'étape sucre-par-la-bouche reste « Avale ? Sucre » (D-37 : quoi, pas comment)",
+      "Inconsciente": "étapes inconsciente-rien-en-bouche et glucagon (fiche § 2 bis)",
+      "Alerter": "étape alerter (fiche § 2 bis)",
+      "Surveiller": "étape surveiller (fiche § 2 bis)"
+    },
+    "sources": [
+      {"ref": "DGSCGC-LOGI-PSE-2026", "localisation": "p. 15 (« Resucrer »)"},
+      {"ref": "DGSCGC-PSE-2026", "localisation": "p. 99 (mesure de la glycémie capillaire)"}
+    ],
+    "raisonnement": "Intertitres proposés par la fiche (§ 2 bis, DÉDUIT) ; « Resucrer » est le mot de la source française (logigramme PSE p. 15). Ils regroupent, ils n'imposent pas d'attendre la fin d'un groupe pour commencer le suivant.",
+    "ref_fiche": "§ 2 bis"
+  },
+  "medicaments": {
+    "integres": false,
+    "remarque": "Les médicaments, produits et quantités mentionnés par les sources (fiche § 8 : sucre, glucose, glucagon injectable ou nasal, glucose intraveineux) ne sont pas transcrits : SPEC.md, règle absolue 4 ; aucune dose, aucune quantité. Les étapes sucre-par-la-bouche et glucagon disent le geste sans chiffre (quantité : à décider, V2 et V4)."
+  },
+  "exceptions_controle": [],
+  "sources": {
+    "DGSCGC-PSC-2026": {
+      "titre": "Références techniques nationales – Premiers secours citoyen, édition juillet 2026",
+      "organisme": "DGSCGC (ministère de l'Intérieur)",
+      "annee": 2026,
+      "url": "https://www.securite-civile.interieur.gouv.fr/documentation/secourisme-et-associations/secourisme-references-techniques-nationales.html",
+      "consulte_le": "2026-11-15",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Non : p. 40-41 lues par l'auteur de la fiche le 15/11/2026 sur le texte extrait ; p. 2 et p. 37-38 reprises de la fiche urgence-commune",
+      "remarque": "Lien avec l'AFGSU 2 (qui intègre le PSC1) : DÉDUIT, lecture juridique à confirmer."
+    },
+    "DGSCGC-PSE-2026": {
+      "titre": "Références techniques nationales – Premiers secours en équipe, édition juillet 2026",
+      "organisme": "DGSCGC (ministère de l'Intérieur)",
+      "annee": 2026,
+      "url": "https://www.securite-civile.interieur.gouv.fr/documentation/secourisme-et-associations/secourisme-references-techniques-nationales.html",
+      "consulte_le": "2026-11-15",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Non : p. 70, 97-100, 171-172, 177, 188-189, 192, 195-197, 385 lues par l'auteur de la fiche le 15/11/2026 sur le texte extrait (fiches 04FT13, 06AC06, 06PR06 datées 07-2026)",
+      "remarque": "Référentiel des secouristes en équipe, pas du citoyen ni des soignants libéraux ; la fiche « Malaise hypoglycémique » semble optionnelle (logigramme marqué « OPT » ; le PSE parle de « fiches optionnelles », p. 385 : lien DÉDUIT). C'est pourtant la seule source française lue qui détaille la conduite à tenir : citée toujours signalée, et les choix qui en dépendent sont A_VALIDER."
+    },
+    "DGSCGC-LOGI-PSE-2026": {
+      "titre": "Recueil de logigrammes – Références techniques nationales Premiers secours en équipe (en-tête « LOGI / 07-2026 »)",
+      "organisme": "DGSCGC (ministère de l'Intérieur)",
+      "annee": 2026,
+      "url": "https://www.securite-civile.interieur.gouv.fr/documentation/secourisme-et-associations/secourisme-references-techniques-nationales.html",
+      "consulte_le": "2026-11-15",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Non : p. 10 et 15 lues par l'auteur de la fiche le 15/11/2026 sur le texte extrait",
+      "remarque": "Aide à la compréhension : le texte des références techniques prime sur les logigrammes."
+    },
+    "ERC-FA": {
+      "titre": "European Resuscitation Council Guidelines 2025 First Aid, Resuscitation 215 (2025) 110752",
+      "organisme": "ERC",
+      "annee": 2025,
+      "url": "https://doi.org/10.1016/j.resuscitation.2025.110752",
+      "consulte_le": "2026-11-15",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Non : p. 5 (tableau 3), p. 6-7 et p. 19 lues par l'auteur de la fiche le 15/11/2026 sur le texte extrait",
+      "remarque": "Édition 2025, qui remplace 2021. Destinataires : premiers secours, y compris par des personnes formées."
+    },
+    "ERC-PLS": {
+      "titre": "European Resuscitation Council Guidelines 2025 Paediatric Life Support, Resuscitation 215 (2025) 110767",
+      "organisme": "ERC",
+      "annee": 2025,
+      "url": "https://doi.org/10.1016/j.resuscitation.2025.110767",
+      "consulte_le": "2026-11-15",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Non : p. 5, 7, 9, 25, 43 lues par l'auteur de la fiche le 15/11/2026 sur le texte extrait",
+      "remarque": "Soignants, enfant gravement malade : cité seulement pour le repérage de ce qui change chez l'enfant (aucun protocole pédiatrique ici)."
+    },
+    "HAS-SFAR-2026-AC": {
+      "titre": "Aides cognitives « Arrêt cardiaque » et « Urgence vitale » en service d'hospitalisation conventionnelle (adulte) (recommandations sur l'organisation de la prise en charge de l'urgence vitale intra-hospitalière, SFAR, SFMU, SRLF ; label HAS)",
+      "organisme": "HAS / SFAR",
+      "annee": 2026,
+      "url": "https://www.has-sante.fr/jcms/p_3961703/fr/recommandations-pour-l-organisation-de-la-prise-en-charge-de-l-urgence-vitale-intra-hospitaliere",
+      "consulte_le": "2026-11-15",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Oui (2 cartes), par l'auteur de la fiche, sur le texte extrait (_sources/_texte/HAS-SFAR_2026_aide-cognitive_UVIH_adulte.txt)",
+      "remarque": "Contexte hospitalier : appui français pour des soignants, transposition au cabinet DÉDUITE."
+    },
+    "ARRETE-AFGSU-2019": {
+      "titre": "Arrêté du 1er juillet 2019 modifiant l'arrêté du 30 décembre 2014 relatif à l'attestation de formation aux gestes et soins d'urgence (articles et annexes), JORF n° 0155 du 06/07/2019, texte n° 24",
+      "organisme": "Ministère chargé de la santé (Légifrance)",
+      "annee": 2019,
+      "url": "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000038730202",
+      "consulte_le": "2026-11-15",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Articles : oui ; annexe 2 : p. 7-8 du fac-similé du Journal officiel (texte 24) relues le 15/11/2026 sur les images locales _sources/_images/JORF_0155_2019-07-06_arrete_AFGSU/p07.png et p08.png (aucun téléchargement)",
+      "remarque": "Annexe 2, module 2 (« prise en charge des urgences potentielles »), JO p. 8 : « d'identifier les signes de gravité d'un malaise notamment un accident vasculaire cérébral, une douleur thoracique, un risque de sepsis, une hypoglycémie et de mettre en œuvre les soins d'urgence adaptés au regard de ses compétences acquises par ailleurs ». Annexe 2, JO p. 7 : l'AFGSU 2 « intègre l'ensemble des éléments des référentiels du PSC1 ». La divergence C-14 est levée pour cet objectif."
+    },
+    "ARRETE-IDE-2026": {
+      "titre": "Arrêté du 26 juin 2026 fixant la liste des actes et soins pouvant être réalisés par les infirmiers diplômés d'État (NOR SFHH2610764A)",
+      "organisme": "Ministère chargé de la santé (Légifrance)",
+      "annee": 2026,
+      "url": "https://www.legifrance.gouv.fr/loda/id/JORFTEXT000054321952",
+      "consulte_le": "2026-11-15",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Non : recherche des mots glucagon, glycémie, injection, urgence, protocole ; art. 2 (intro, B), art. 4 (intro, II)",
+      "remarque": "En vigueur depuis le 30/06/2026. Aucune mention du glucagon dans l'arrêté."
+    },
+    "CSP-R4311": {
+      "titre": "Code de la santé publique, art. R. 4311-7 (infirmier : urgence, protocoles de soins d'urgence)",
+      "organisme": "Légifrance",
+      "annee": 2026,
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006913894",
+      "consulte_le": "2026-11-15",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Oui (résumé de l'outil ; citations exactes reprises de la fiche cadre § 6) ; citation corrigée en 0.1.2 d'après le rapport de contrôle (#33), qui l'a relue sur Légifrance : « préalablement écrits, datés et signés par le médecin responsable »",
+      "remarque": "Version en vigueur depuis le 30/06/2026."
+    },
+    "CSP-R4127-70": {
+      "titre": "Code de la santé publique, art. R. 4127-70 (compétence du médecin)",
+      "organisme": "Légifrance",
+      "annee": 2004,
+      "url": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006912939",
+      "consulte_le": "2026-11-15",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Citation de la première phrase reprise de protocoles/_commun/professions.json (la fiche § 6 cite l'article sans l'URL)",
+      "remarque": "Numérotation à revérifier après le décret n° 2026-691 du 27/07/2026 (fiche cadre § 9, V17)."
+    },
+    "ARRETE-LISTES-2012": {
+      "titre": "Arrêté du 1er juin 2012 portant classement sur la liste des substances vénéneuses",
+      "organisme": "Ministère chargé de la santé (Légifrance)",
+      "annee": 2012,
+      "url": "https://www.legifrance.gouv.fr/loda/id/JORFTEXT000026009140",
+      "consulte_le": "2026-11-15",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Non : art. 1er et 2",
+      "remarque": "Glucagon : liste I (prescription)."
+    },
+    "GLUCAGEN-RCP": {
+      "titre": "GLUCAGEN KIT, poudre et solvant pour solution injectable — RCP (rubriques 4.1 à 4.4, 4.8, 5.1) et notice (rubriques 2 et 3)",
+      "organisme": "ANSM (base de données publique des médicaments)",
+      "annee": 2023,
+      "url": "https://base-donnees-publique.medicaments.gouv.fr/medicament/69301034/extrait",
+      "consulte_le": "2026-11-15",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Non : rubriques 4.1, 4.2 et notice rubriques 2 et 3 (fiche) ; rubriques 4.3, 4.4, 4.8 et 5.1 et notice rubrique 3 relues le 15/11/2026 pour la version 0.1.2 (page HTML)",
+      "remarque": "RCP mis à jour le 27/11/2023 ; liste I, remboursable. Les doses de la rubrique 4.2 ne sont pas transcrites."
+    },
+    "MAT": {
+      "titre": "docs/materiel-propose.md (liste de matériel proposée, BROUILLON)",
+      "organisme": "Projet Urgences MSP APSIS (document interne)",
+      "annee": 2026,
+      "url": "docs/materiel-propose.md",
+      "consulte_le": "2026-11-15",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Parties utiles : § 1, § 7.1, § 7.3, § 7.4, § 8.5, B6",
+      "remarque": "Document du projet, pas une source médicale : il rapporte la liste SFMU 2018 et d'autres listes ; ses statuts sont A_VALIDER."
+    },
+    "URGENCE-COMMUNE": {
+      "titre": "Protocole « urgence-commune » (conduite à tenir commune à toute urgence, hors arrêt cardiaque), version 0.1.4",
+      "organisme": "Projet Urgences MSP APSIS (document interne)",
+      "annee": 2026,
+      "url": "protocoles/urgence-commune.json",
+      "consulte_le": "2026-11-15",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Étapes utiles : reaction, respiration, arret-cardiaque, alerter, position-laterale, surveiller, aggravation (relues le 15/11/2026 dans la version de travail 0.1.5, qui ne change que la place de l'étape « À plusieurs : répartir », absente de ce protocole)",
+      "remarque": "Protocole BROUILLON non validé : repris pour l'articulation et les libellés communs."
+    },
+    "SPEC": {
+      "titre": "SPEC.md, cahier des charges de l'appli (partie 1 : Contexte ; partie 2 : Décisions)",
+      "organisme": "Projet Urgences MSP APSIS (document interne)",
+      "annee": 2026,
+      "url": "SPEC.md",
+      "consulte_le": "2026-11-15",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Parties utiles : oui",
+      "remarque": "Document du projet, pas une source médicale : cité pour le périmètre, les règles absolues et les décisions (D-9, D-26)."
+    }
+  },
+  "public": {
+    "victime": {
+      "texte": "Adulte, diabétique ou non, chez qui l'on suspecte une hypoglycémie. L'hypoglycémie survient surtout chez les diabétiques sous insuline ou autre traitement hypoglycémiant, mais aussi sans diabète (jeûne prolongé, excès d'alcool, maladie grave ; malaise à l'effort, à jeun). Ce qui change chez l'enfant est repéré dans le bloc enfant_reperage, sans protocole pédiatrique.",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ",
+      "sources": [
+        {"ref": "ERC-FA", "localisation": "p. 19", "citation": "prolonged fasting, excessive alcohol consumption, or critical illness"},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 195 (non-diabétiques : malaise à l'effort, à jeun)"}
+      ],
+      "ref_fiche": "§ 1, Victime"
+    },
+    "intervenants": {
+      "texte": "Professionnels de santé libéraux de la maison de santé, formés à l'attestation de formation aux gestes et soins d'urgence de niveau 2 ; le module 2 « urgences potentielles » vise les signes de gravité d'un malaise, notamment une hypoglycémie, et la mise en œuvre des soins d'urgence adaptés au regard des compétences de chacun.",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ (annexe 2 relue sur le fac-similé du Journal officiel, 0.1.2)",
+      "sources": [
+        {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 2, JO n° 0155 du 06/07/2019, texte 24, p. 8 (relu sur l'image locale p08.png ; objectif B12 de la fiche cadre)", "citation": "d'identifier les signes de gravité d'un malaise notamment un accident vasculaire cérébral, une douleur thoracique, un risque de sepsis, une hypoglycémie et de mettre en œuvre les soins d'urgence adaptés au regard de ses compétences acquises par ailleurs"},
+        {"ref": "SPEC", "localisation": "partie 1, Contexte"}
+      ],
+      "ref_fiche": "§ 1, Intervenants"
+    },
+    "lieu": {
+      "texte": "Cabinet de la maison de santé ou domicile du patient, avec le matériel d'un cabinet libéral (lecteur de glycémie, sucre ; glucagon : voir matériel), jusqu'à l'arrivée des secours.",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ (cahier des charges)",
+      "sources": [{"ref": "SPEC", "localisation": "partie 1, Contexte"}],
+      "ref_fiche": "§ 1, Lieu, matériel"
+    },
+    "hors_champ": [
+      {
+        "texte": "Glucose intraveineux et voie veineuse : gestes de SMUR ou sur prescription, cités pour information seulement.",
+        "statut": "DEDUIT",
+        "sources": [
+          {"ref": "ERC-PLS", "localisation": "p. 9, p. 43"},
+          {"ref": "GLUCAGEN-RCP", "localisation": "RCP rubrique 4.2"},
+          {"ref": "ARRETE-IDE-2026", "localisation": "art. 4, II"}
+        ],
+        "raisonnement": "Le glucose intraveineux relève d'une voie veineuse (sur prescription pour l'infirmier, art. 4, II de l'arrêté de 2026) ; les sources le citent en second recours ou chez l'enfant gravement malade (ERC pédiatrique) ou en cas d'absence de réaction au glucagon (RCP 4.2) : hors des gestes de cette fiche.",
+        "ref_fiche": "§ 1, Hors champ (1)"
+      },
+      {
+        "texte": "Hyperglycémie (« évolue en règle générale progressivement » et « fait rarement l'objet d'un recours à des services de secours d'urgence ») ; nouveau-né (chapitre ERC distinct).",
+        "statut": "DEDUIT",
+        "statut_fiche": "CITÉ (hyperglycémie) ; DÉDUIT (nouveau-né)",
+        "sources": [
+          {"ref": "DGSCGC-PSE-2026", "localisation": "p. 195", "citation": "fait rarement l'objet d'un recours à des services de secours d'urgence"},
+          {"ref": "ERC-PLS", "localisation": "champ pédiatrique (chapitre distinct pour le nouveau-né)"}
+        ],
+        "raisonnement": "Hyperglycémie : citée par le PSE comme hors du champ des secours d'urgence. Nouveau-né : déduit de l'existence d'un chapitre ERC distinct.",
+        "ref_fiche": "§ 1, Hors champ (2)"
+      },
+      {
+        "texte": "Articulation : cette conduite s'ouvre après le bilan vital de la conduite commune (analyser, se protéger, réaction, respiration ; arrêt cardiaque : protocole arrêt cardiaque).",
+        "statut": "DEDUIT",
+        "sources": [
+          {"ref": "DGSCGC-PSE-2026", "localisation": "p. 197", "citation": "réaliser en priorité les gestes d'urgence qui s'imposent"},
+          {"ref": "URGENCE-COMMUNE", "localisation": "étapes analyse-situation, securite, reaction, respiration, arret-cardiaque"}
+        ],
+        "raisonnement": "Le PSE fait réaliser en priorité les gestes d'urgence (p. 197) ; le bilan vital est celui du protocole urgence-commune, dont l'étape arret-cardiaque renvoie au protocole arrêt cardiaque.",
+        "ref_fiche": "§ 1, Articulation"
+      }
+    ]
+  },
+  "etapes": [
+    {
+      "id": "bilan-vital",
+      "ordre": 1,
+      "parent": null,
+      "phase": "Bilan vital",
+      "niveau": "principal",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Bilan vital d'abord",
+      "texte_court": "Bilan vital d'abord",
+      "precision": "Conduite commune ; arrêt cardiaque : protocole arrêt cardiaque",
+      "consigne_guidee": "Commencez par le bilan vital de la conduite commune (réaction, respiration) ; si c'est un arrêt cardiaque, passez au protocole arrêt cardiaque.",
+      "detail": "Premiers secours en équipe (pour information) : « Face à une urgence ou une détresse vitale, ou en cas d'aggravation • appliquer la conduite à tenir adaptée et réaliser en priorité les gestes d'urgence qui s'imposent ». Renvoi aux étapes de la conduite commune (réaction, respiration, arrêt cardiaque ?).",
+      "statut": "DEDUIT",
+      "statut_fiche": "CITÉ (priorité) ; DÉDUIT (renvoi)",
+      "sources": [
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 197", "citation": "réaliser en priorité les gestes d'urgence qui s'imposent"},
+        {"ref": "URGENCE-COMMUNE", "localisation": "étapes reaction, respiration, arret-cardiaque (fiche : étapes 5 à 7 de la conduite commune)"}
+      ],
+      "raisonnement": "La priorité donnée aux gestes d'urgence est citée (PSE p. 197, référentiel des secouristes en équipe) ; le renvoi vers les étapes du protocole commun et vers le protocole arrêt cardiaque est déduit (fiche § 2, note en tête et étape 1).",
+      "ref_fiche": "§ 2, étape 1",
+      "qui_fiche": "Comme la conduite commune (renvoi arrêt cardiaque : tous, D-25)",
+      "professions": {"geste": "reconnaitre"},
+      "renvoi_protocole": "acr-adulte-dae",
+      "remarque": "Champ renvoi_protocole : même usage que l'étape arret-cardiaque de urgence-commune (non exploité par le code actuel). La fiche ne propose aucun niveau vital (V12) : l'étape reste de niveau principal. Conséquence à signaler : le geste reconnaitre est A_VALIDER pour les groupes 5 à 7 (D-4) et l'exemption des étapes vitales (D-25) ne joue pas ici ; l'accès à un toucher au protocole arrêt cardiaque reste garanti par l'étape arret-cardiaque de la conduite commune, pas par celle-ci. À décider avec V12.",
+      "cochable": true,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "hypoglycemie-suspectee",
+      "ordre": 2,
+      "parent": null,
+      "phase": "Reconnaître",
+      "niveau": "principal",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Hypoglycémie ?",
+      "texte_court": "Hypoglycémie ?",
+      "precision": "Diabète traité, dénutrition, jeûne, alcool, effort ; confusion, sueurs",
+      "consigne_guidee": "Évoquez une hypoglycémie : diabète traité, dénutrition chronique, jeûne, alcool ou effort, avec malaise, confusion, trouble du comportement ou sueurs.",
+      "detail": "ERC premiers secours : suspecter une hypoglycémie chez une personne diabétique ou chroniquement dénutrie, avec un trouble brutal de la réactivité ou du comportement (« Suspect hypoglycaemia in someone with diabetes or chronic malnutrition AND sudden impaired responsiveness or behavioural change »). Causes hors diabète : jeûne prolongé, excès d'alcool, maladie grave. Symptômes, de la transpiration, des tremblements et des palpitations à la confusion, aux convulsions et à l'inconscience. Premiers secours en équipe (pour information) : facteurs favorisants (alimentation inadaptée, exercice inhabituel, excès de traitement, déshydratation, fièvre) ; chez un non-diabétique : malaise à l'effort, à jeun.",
+      "statut": "DEDUIT",
+      "statut_fiche": "CITÉ (reformulé) ; libellé : DÉDUIT",
+      "sources": [
+        {"ref": "ERC-FA", "localisation": "p. 6 (critère de suspicion)", "citation": "Suspect hypoglycaemia in someone with diabetes or chronic malnutrition AND sudden impaired responsiveness or behavioural change"},
+        {"ref": "ERC-FA", "localisation": "p. 19 (causes hors diabète et symptômes)", "citation": "prolonged fasting, excessive alcohol consumption, or critical illness"},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 195 (facteurs favorisants ; non-diabétiques : malaise à l'effort, à jeun)"}
+      ],
+      "raisonnement": "Les critères de suspicion (ERC p. 6 : diabète ou dénutrition chronique, avec trouble brutal de la réactivité ou du comportement), les causes et les symptômes (ERC p. 19 ; PSE p. 195, référentiel des secouristes en équipe) sont cités. Le libellé court « Hypoglycémie ? » et sa précision sont un choix de rédaction de la fiche (§ 2, étape 2) ; la dénutrition a été ajoutée à la précision en 0.1.2 (contrôle #11).",
+      "ref_fiche": "§ 2, étape 2",
+      "qui_fiche": "Groupes 1 à 4 ; groupes 5 à 7 : A_VALIDER (D-4, geste reconnaitre)",
+      "professions": {"geste": "reconnaitre_malaise_grave"},
+      "remarque": "Rattachement au geste reconnaitre (libellé centré sur l'arrêt cardio-respiratoire) : le plus proche existant, comme pour les étapes reaction et respiration de la conduite commune ; fiche § 6 : « Reconnaître, bilan vital, position latérale, surveiller » (gestes reconnaitre, position_laterale, surveillance_reevaluation).",
+      "cochable": true,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "signes",
+      "ordre": 3,
+      "parent": "hypoglycemie-suspectee",
+      "niveau": "detail",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Signes",
+      "texte_court": "Signes",
+      "precision": "Perte de connaissance, convulsions, comportement, sueurs, pâleur",
+      "consigne_guidee": "Cherchez les signes : perte de connaissance, convulsions, trouble du comportement, sueurs abondantes, pâleur ; plaintes : faim, asthénie, céphalées, palpitations, tremblements.",
+      "detail": "Premiers secours en équipe (pour information) : perte de connaissance ; convulsions généralisées ; trouble du comportement « (prostration, agitation, agressivité, signes d'ébriété sans consommation d'alcool) » ; sueurs abondantes ; pâleur ; plaintes (reformulées en termes médicaux) : faim, asthénie, céphalées, palpitations, tremblements.",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ (reformulé)",
+      "sources": [
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 196", "citation": "(prostration, agitation, agressivité, signes d'ébriété sans consommation d'alcool)"}
+      ],
+      "ref_fiche": "§ 2, étape 2a",
+      "qui_fiche": "Idem étape 2 (groupes 1 à 4 ; groupes 5 à 7 : A_VALIDER)",
+      "professions": {"geste": "reconnaitre_malaise_grave"},
+      "cochable": false,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "signes-avc",
+      "ordre": 4,
+      "parent": "hypoglycemie-suspectee",
+      "niveau": "detail",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Signes d'AVC ?",
+      "texte_court": "Accident vasculaire cérébral ?",
+      "precision": "Glycémie avant de conclure à un accident vasculaire cérébral",
+      "consigne_guidee": "Devant des signes évoquant un accident vasculaire cérébral, recherchez et corrigez une hypoglycémie avant de conclure.",
+      "detail": "Premiers secours en équipe (pour information) : « une hypoglycémie peut simuler un AVC » ; « Il est donc indispensable de rechercher et de corriger une hypoglycémie avant d'affirmer être en présence de signes d'AVC. » Aussi p. 196 : signes évoquant un accident vasculaire cérébral.",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ",
+      "sources": [
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 188", "citation": "Il est donc indispensable de rechercher et de corriger une hypoglycémie avant d'affirmer être en présence de signes d'AVC."},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 196 (signes évoquant un accident vasculaire cérébral)"}
+      ],
+      "ref_fiche": "§ 2, étape 2b",
+      "qui_fiche": "Idem étape 2 ; mesure : étape 3",
+      "professions": {"geste": "reconnaitre_malaise_grave"},
+      "remarque": "Libellé affiché en toutes lettres (fiche : « Signes d'AVC ? ») : le glossaire n'a pas d'entrée « AVC » avec source, et la règle R11 interdit un sigle sans entrée dans texte_court et consigne_guidee. Proposition au pilote : ajouter « AVC » au glossaire (présent dans le PSC p. 40 et le PSE p. 188 : fiche § 4), puis revenir au libellé de la fiche.",
+      "cochable": false,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "antecedents-traitements",
+      "ordre": 5,
+      "parent": "hypoglycemie-suspectee",
+      "niveau": "detail",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Antécédents, traitements",
+      "texte_court": "Antécédents, traitements",
+      "precision": "Diabète, traitement, durée du malaise",
+      "consigne_guidee": "Renseignez-vous auprès de la victime ou de son entourage : âge, durée du malaise, antécédents (diabète), traitements pris.",
+      "detail": "Premiers secours citoyen (malaise) : se renseigner sur l'âge, la durée du malaise, les antécédents, « les traitements médicamenteux qu'elle prend ». Premiers secours en équipe (pour information) : apprendre à l'interrogatoire que la victime est diabétique.",
+      "statut": "DEDUIT",
+      "statut_fiche": "CITÉ (reformulé) ; application : DÉDUIT",
+      "sources": [
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 41 (fiche « Malaises »)", "citation": "les traitements médicamenteux qu'elle prend"},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 196 (interrogatoire : la victime est diabétique)"}
+      ],
+      "raisonnement": "La liste des renseignements à recueillir est citée pour le malaise (PSC p. 41) et pour l'interrogatoire des secouristes en équipe (PSE p. 196) ; son application à la suspicion d'hypoglycémie est déduite (fiche § 2, étape 2c).",
+      "ref_fiche": "§ 2, étape 2c",
+      "qui_fiche": "Tous (D-4 : alerte et transmission ouvertes à tous ; comme l'étape antecedents de la conduite commune)",
+      "professions": {"geste": "alerter_transmettre"},
+      "cochable": false,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "glycemie-capillaire",
+      "ordre": 6,
+      "parent": null,
+      "phase": "Mesurer",
+      "niveau": "principal",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Glycémie capillaire",
+      "texte_court": "Glycémie capillaire",
+      "precision": "Si lecteur disponible ; ne retarde pas le sucre",
+      "consigne_guidee": "Si un lecteur est disponible, mesurez la glycémie capillaire, sans retarder le sucre chez une victime qui avale.",
+      "detail": "Premiers secours en équipe (pour information) : mesure « lors du 4ème regard si le matériel est disponible » ; indications : signes évoquant un accident vasculaire cérébral, malaise chez un diabétique, malaise à l'effort ou à jeun, troubles du comportement, perte de connaissance (p. 99) ; victime qui a perdu connaissance et respire, après sa prise en charge (p. 197) ; après une crise convulsive, au retour de la conscience (p. 192 ; logigrammes p. 15). Glycémie de contrôle après le sucre : étape glycemie-controle. ERC premiers secours : « If feasible, measure capillary blood sugar using a blood glucose meter » ; répéter la mesure après traitement. « Ne retarde pas le sucre » : le PSE resucre aussi si « l'origine du malaise est inconnue », l'ERC donne le sucre sans attendre la mesure (divergence : fiche § 7, D1 ; choix à confirmer, V9). Aide cognitive HAS/SFAR 2026 (hospitalière) : « Glycémie » dans le bloc « Coma » de la carte « Urgence vitale ».",
+      "statut": "DEDUIT",
+      "statut_fiche": "CITÉ (mesure) ; DÉDUIT (« ne retarde pas le sucre »)",
+      "sources": [
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 99 (indications de la mesure) et p. 197", "citation": "lors du 4ème regard si le matériel est disponible"},
+        {"ref": "ERC-FA", "localisation": "p. 6", "citation": "If feasible, measure capillary blood sugar using a blood glucose meter"},
+        {"ref": "HAS-SFAR-2026-AC", "localisation": "carte « Urgence vitale », bloc « Coma » (« Glycémie »)"}
+      ],
+      "raisonnement": "La mesure est citée (PSE p. 99 et p. 197 ; ERC p. 6 ; aide cognitive HAS/SFAR). La formule « ne retarde pas le sucre » est déduite de la divergence entre le PSE (mesurer puis resucrer, mais resucrer aussi si l'origine est inconnue) et l'ERC (sucre sans attendre la mesure) : choix proposé par la fiche, à confirmer (V9).",
+      "ref_fiche": "§ 2, étape 3",
+      "qui_fiche": "Médecin, IDE ; MK, sage-femme, groupes 5 à 7 : A_VALIDER (fiche § 6)",
+      "professions": {"geste": "glycemie_capillaire"},
+      "remarque": "GESTE MANQUANT : professions.json n'a aucun geste « glycémie capillaire » (il figure dans gestes_non_transcrits). Habilitations portées par l'étape, recopiées de la fiche § 6. Le geste existant le plus proche, constantes_non_invasives, ouvrirait la mesure aux masseurs-kinésithérapeutes (valeur « oui » DÉDUIT) alors que la fiche la laisse A_VALIDER : il n'a donc pas été emprunté. Proposition au pilote : créer un geste « glycémie capillaire » dans professions.json (médecin oui DÉDUIT, infirmier oui CITÉ, autres A_VALIDER) et y renvoyer les étapes glycemie-capillaire, glycemie-unite et glycemie-controle (glycemie-seuil-traitement est une étape d'information, sans habilitation). Depuis la 0.1.2, aucune autre étape ne demande au soignant de mesurer la glycémie : les étapes inconsciente-rien-en-bouche, convulsions et glycemie-lecteur-patient y renvoient (contrôle #28).",
+      "cochable": true,
+      "acronymes": [],
+      "materiel": ["lecteur-glycemie", "protection-mesure", "bandelettes-controle", "solution-controle-lecteur"]
+    },
+    {
+      "id": "glycemie-unite",
+      "ordre": 7,
+      "parent": "glycemie-capillaire",
+      "niveau": "detail",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Valeur et unité",
+      "texte_court": "Valeur et unité",
+      "precision": "Noter l'unité affichée (g/L, mmol/L, mg/dL)",
+      "consigne_guidee": "Notez la valeur avec l'unité affichée par le lecteur ; dans la fiche bilan, l'unité usuelle est le g/L.",
+      "detail": "Premiers secours en équipe : « il est essentiel d'indiquer l'unité de mesure de la glycémie utilisée par l'appareil : millimoles par litre (mmol/l), milligrammes par décilitre (mg/dl) ou grammes par litre (g/l). En fonction de l'unité, le chiffre est totalement différent. » ; « transmettre le résultat de la glycémie en indiquant son unité de mesure ». Fiche bilan : unité usuelle g/L (D-26), sans seuil ni signal (D-19).",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ ; affichage : D-26",
+      "sources": [
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 100 et p. 196", "citation": "En fonction de l'unité, le chiffre est totalement différent."},
+        {"ref": "SPEC", "localisation": "partie 2, Décisions, D-26 (unité usuelle en France, sans conversion ni seuil) et D-19 (aucun signal)"}
+      ],
+      "ref_fiche": "§ 2, étape 3a",
+      "qui_fiche": "Qui mesure",
+      "decision": "D-26",
+      "autorise_par": "D-26",
+      "professions": {"geste": "glycemie_capillaire"},
+      "remarque": "Geste manquant : voir l'étape glycemie-capillaire. Décision D-26 : l'unité usuelle g/L est écrite seulement ici, là où la fiche l'écrit ; aucune conversion, aucun seuil.",
+      "cochable": false,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "glycemie-lecteur-patient",
+      "ordre": 8,
+      "parent": "glycemie-capillaire",
+      "niveau": "detail",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Son lecteur, son capteur",
+      "texte_court": "Son lecteur, son capteur",
+      "precision": "La laisser mesurer ou l'aider ; capteur : capillaire quand même",
+      "consigne_guidee": "Si la victime ou un aidant a l'habitude de mesurer sa glycémie avec son lecteur, laissez-le faire ou aidez-le, même s'il porte un capteur en continu : la glycémie capillaire reste à faire.",
+      "detail": "Premiers secours en équipe : si la victime ou un aidant « a l'habitude de réaliser elle-même la glycémie capillaire, la laisser faire ou l'aider » ; « Même si la victime dispose d'un dispositif de mesure en continu de la glycémie capillaire il faut mesurer la glycémie capillaire. » Mesure faite par le soignant lui-même : étape glycémie capillaire et ses habilitations (masseur-kinésithérapeute et sage-femme : habilitation non établie).",
+      "statut": "DEDUIT",
+      "statut_fiche": "CITÉ ; ouverture à tous : DÉDUIT (V3)",
+      "sources": [
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 99", "citation": "la laisser faire ou l'aider"}
+      ],
+      "raisonnement": "Le PSE cite « la laisser faire ou l'aider » et la mesure au doigt malgré un capteur (p. 99) ; l'ouverture de « la laisser faire ou l'aider » à tous les soignants est déduite : aucun texte d'actes ne vise ce geste (fiche § 6).",
+      "ref_fiche": "§ 2, étape 3b",
+      "qui_fiche": "Tous pour « la laisser faire ou l'aider » (DÉDUIT) ; mesure par le soignant : comme l'étape 3",
+      "professions": {"geste": "aide_mesure_glycemie_par_la_victime"},
+      "remarque": "Geste manquant : aucun geste de professions.json ne couvre « laisser la victime mesurer elle-même, l'aider » : habilitations portées par l'étape (fiche § 6). Incohérence interne de la fiche : la ligne de l'étape 3b dit « Tous », le tableau § 6 dit A_VALIDER pour les groupes 5 à 7 (D-4) ; le plus restrictif est retenu. 0.1.2 (contrôle #28) : la consigne ne demande plus au soignant de mesurer lui-même ; elle vise la mesure faite par la victime ou son aidant, que le masseur-kinésithérapeute et la sage-femme peuvent aider (« la laisser faire ou l'aider », PSE p. 99).",
+      "cochable": false,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "glycemie-seuil-traitement",
+      "ordre": 9,
+      "parent": "glycemie-capillaire",
+      "niveau": "detail",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Seuil de traitement",
+      "texte_court": "Seuil de traitement",
+      "precision": "Deux sources, deux seuils : choix à faire",
+      "consigne_guidee": "Aucun seuil n'est affiché : le choix entre les deux seuils des sources est à faire.",
+      "detail": "Les deux sources lues donnent un seuil de traitement différent : le référentiel des secouristes en équipe (PSE p. 196-197 ; logigrammes p. 10 et 15) et l'ERC premiers secours (p. 6 : seuil de traitement ; p. 19 : définition la plus fréquente). Les valeurs ne sont pas transcrites tant que le choix n'est pas fait (fiche § 2, étape 3c ; § 9, V1) ; aucun signal automatique (D-19).",
+      "statut": "A_VALIDER",
+      "statut_fiche": "CITÉ (deux seuils) ; choix et équivalent g/L : A_VALIDER (V1)",
+      "sources": [
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 196-197"},
+        {"ref": "DGSCGC-LOGI-PSE-2026", "localisation": "p. 10 et p. 15"},
+        {"ref": "ERC-FA", "localisation": "p. 6 et p. 19"}
+      ],
+      "a_valider": "V1 : seuil à afficher (texte seulement, D-19) : celui du PSE, celui de l'ERC, ou aucun. L'ERC n'écrit pas l'équivalent en g/L de sa valeur (simple changement d'unité, non écrit). Cherché : PSE, logigrammes PSE, ERC premiers secours et pédiatrique lus ; HAS : un seuil figurerait dans le référentiel HAS 2018 sur l'activité physique et le diabète de type 2 (PDF non lu) ; SFD : aucun référentiel sur l'hypoglycémie dans les listes en ligne ; SFMU : rien trouvé. Divergence : fiche § 7, D2. Anomalie d'unité dans la source PSE p. 99 (fiche § 3).",
+      "ref_fiche": "§ 2, étape 3c",
+      "qui_fiche": "Information",
+      "remarque": "Aucune valeur numérique n'est écrite dans ce fichier (règle absolue 4 ; consigne du pilote : aucun seuil affiché tant qu'il est A_VALIDER). Pas de champ professions : étape d'information (colonne « Qui » de la fiche : Information).",
+      "cochable": false,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "sucre-par-la-bouche",
+      "ordre": 10,
+      "parent": null,
+      "phase": "Resucrer",
+      "niveau": "principal",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Avale ? Sucre",
+      "texte_court": "Avale ? Sucre",
+      "precision": "Réveillée, réactive, avale ; quantité : à décider",
+      "consigne_guidee": "Si la victime est réveillée, réactive et capable d'avaler, aidez-la à prendre du sucre (quantité non affichée : à décider).",
+      "detail": "Premiers secours en équipe (pour information) : « Si la victime est réveillée, réactive, et capable d'avaler », et glycémie sous le seuil « ou l'origine du malaise est inconnue », « aider la victime à prendre » du sucre. ERC premiers secours : glucose « by mouth if the person is awake and able to swallow » ; tableau 3 : glucose ou comprimés de dextrose par la bouche en cas de suspicion d'hypoglycémie. Premiers secours citoyen : aider la victime, « à sa demande ou à la demande des secours », à prendre « du sucre en morceaux ». La quantité n'est pas transcrite (règle absolue 4 ; décision à prendre, V2).",
+      "statut": "A_VALIDER",
+      "statut_fiche": "CITÉ (geste et conditions) ; quantité : A_VALIDER (V2)",
+      "sources": [
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 197", "citation": "Si la victime est réveillée, réactive, et capable d'avaler"},
+        {"ref": "ERC-FA", "localisation": "p. 5 (tableau 3) et p. 6", "citation": "by mouth if the person is awake and able to swallow"},
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 41", "citation": "du sucre en morceaux"}
+      ],
+      "a_valider": "V2 : quantité de sucre (adulte) et produit préféré (sucre en morceaux du PSE ou comprimés de glucose de l'ERC) : aucune source HAS, SFD ou SFMU lue ne donne de quantité ; chiffres des sources : fiche § 8 (non transcrite). Divergence : fiche § 7, D3. Critère du sucre sans mesure (« origine inconnue » du PSE ou suspicion ERC) : V9, fiche § 7, D4. Groupes 5 à 7 : V3.",
+      "ref_fiche": "§ 2, étape 4",
+      "qui_fiche": "Groupes 1 à 4 (DÉDUIT) ; groupes 5 à 7 : A_VALIDER (D-4, V3)",
+      "professions": {"geste": "sucre_per_os"},
+      "remarque": "GESTE MANQUANT : aucun geste de professions.json pour « sucre par la bouche à une victime qui avale » ; aucun geste voisin ne convient : habilitations portées par l'étape, recopiées de la fiche § 6. Proposition au pilote : créer un geste « sucre par la bouche » dans professions.json (médecin, infirmier, masseur-kinésithérapeute, sage-femme oui DÉDUIT ; autres A_VALIDER) et y renvoyer les étapes sucre-par-la-bouche, sucre-quoi-donner, reevaluer-15-min (resucrer, depuis la 0.1.2) et collation. Statut de l'étape : A_VALIDER (le plus faible des statuts de la fiche, à cause de la quantité).",
+      "cochable": true,
+      "acronymes": [],
+      "materiel": ["sucre"]
+    },
+    {
+      "id": "sucre-quoi-donner",
+      "ordre": 11,
+      "parent": "sucre-par-la-bouche",
+      "niveau": "detail",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Quoi donner",
+      "texte_court": "Quoi donner",
+      "precision": "Sucre, comprimés de glucose ; sinon boisson sucrée, bonbons",
+      "consigne_guidee": "Sucre en morceaux ou en poudre, ou comprimés de glucose ; sinon boisson sucrée ou bonbons ; gel de glucose si aucun glucose oral n'est disponible (ordre de préférence entre les sources et quantités à décider).",
+      "detail": "Premiers secours en équipe : « de préférence du sucre en morceaux ou en poudre » ; sinon « une boisson sucrée comme un jus d'orange ou du miel », « des bonbons contenant du sucrose ». ERC premiers secours : comprimés de glucose ou de dextrose ; à défaut, d'autres sucres alimentaires (bonbons, jus de fruit ou soda sucré) ; à défaut, gel de glucose « partially held in the cheek, and partially swallowed ». Ordre de préférence différent entre les deux sources (fiche § 7, D3) ; quantités non transcrites (règle absolue 4).",
+      "statut": "A_VALIDER",
+      "statut_fiche": "CITÉ ; ordre de préférence : A_VALIDER (V2)",
+      "sources": [
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 197", "citation": "de préférence du sucre en morceaux ou en poudre"},
+        {"ref": "ERC-FA", "localisation": "p. 6", "citation": "partially held in the cheek, and partially swallowed"}
+      ],
+      "a_valider": "V2 : ordre de préférence entre le sucre en morceaux ou en poudre (PSE) et les comprimés de glucose ou de dextrose (ERC) ; quantités : fiche § 8, non transcrites. Divergence : fiche § 7, D3.",
+      "ref_fiche": "§ 2, étape 4a",
+      "qui_fiche": "Idem étape 4",
+      "professions": {"geste": "sucre_per_os"},
+      "remarque": "Geste manquant : voir l'étape sucre-par-la-bouche. 0.1.2 (contrôle #22) : le premier choix de chaque source est cité sans hiérarchie (PSE : sucre en morceaux ou en poudre « de préférence » ; ERC : comprimés de glucose ou de dextrose), puis les produits que les deux sources donnent ensuite (boisson sucrée, bonbons), puis le gel, que seul l'ERC cite (« If oral glucose is not available, give a glucose gel », p. 6) ; l'ordre entre sucre et comprimés reste à décider (V2). 0.1.2 (contrôle #40) : l'article unidoses-resucrage (sur prescription, liste SFMU 2018) n'est plus rattaché à cette étape, ouverte à des professions non prescriptrices.",
+      "cochable": false,
+      "acronymes": [],
+      "materiel": ["sucre", "comprimes-glucose", "boisson-sucree"]
+    },
+    {
+      "id": "reevaluer-15-min",
+      "ordre": 12,
+      "parent": null,
+      "phase": "Resucrer",
+      "niveau": "principal",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Réévaluer à 15 min",
+      "texte_court": "Réévaluer à 15 min",
+      "precision": "Pas mieux à 15 min : resucrer",
+      "consigne_guidee": "Réévaluez les signes 10 à 15 minutes après le sucre ; sans amélioration au bout de 15 minutes, resucrez.",
+      "detail": "Premiers secours en équipe : « si aucune amélioration ne survient au bout de 15 minutes suite à une ingestion de sucre, une seconde dose de sucre peut être prise » ; note : « environ 10 à 15 minutes entre l'ingestion du sucre, une élévation de la glycémie et une amélioration des signes ». Recueil de logigrammes : « Contrôler à l'issue de 10 à 15 min » ; « Si pas d'amélioration après 15 min, resucrer de nouveau ». ERC premiers secours : « Repeat giving oral glucose if the symptoms are still present and not improving after 15 min » ; glycémie recontrôlée « 15min after ingestion of sugar ». La quantité de la deuxième prise n'est pas transcrite (règle absolue 4).",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ",
+      "sources": [
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 197 (et note 1)", "citation": "si aucune amélioration ne survient au bout de 15 minutes suite à une ingestion de sucre, une seconde dose de sucre peut être prise"},
+        {"ref": "DGSCGC-LOGI-PSE-2026", "localisation": "p. 15", "citation": "Si pas d'amélioration après 15 min, resucrer de nouveau"},
+        {"ref": "ERC-FA", "localisation": "p. 6 et p. 19", "citation": "Repeat giving oral glucose if the symptoms are still present and not improving after 15 min"}
+      ],
+      "ref_fiche": "§ 2, étape 5",
+      "qui_fiche": "Resucrer : comme l'étape 4 ; glycémie : comme l'étape 3 (étape glycemie-controle)",
+      "professions": {"geste": "sucre_per_os"},
+      "remarque": "Geste manquant : voir sucre-par-la-bouche. 0.1.2 (contrôle #25) : l'étape mixte de la fiche (« Resucrer : comme 4 ; glycémie : comme 3 ») est scindée ; cette étape ne garde que la réévaluation et le resucrage, avec les habilitations de l'étape sucre-par-la-bouche ; la glycémie de contrôle passe dans l'étape glycemie-controle, avec les habilitations de l'étape glycemie-capillaire. Le masseur-kinésithérapeute et la sage-femme retrouvent la case « resucrer » que la fiche § 6 leur ouvre.",
+      "cochable": true,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "glycemie-controle",
+      "ordre": 13,
+      "parent": "reevaluer-15-min",
+      "niveau": "detail",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Glycémie de contrôle",
+      "texte_court": "Glycémie de contrôle",
+      "precision": "Vers 15 min après le sucre",
+      "consigne_guidee": "Recontrôlez la glycémie capillaire environ 15 minutes après la prise de sucre.",
+      "detail": "Recueil de logigrammes : « Contrôler à l'issue de 10 à 15 min ». ERC premiers secours : mesurer, traiter si la valeur est basse « and repeat measurement after treatment » (p. 6) ; glycémie recontrôlée « 15min after ingestion of sugar » (p. 19). Mesure : habilitations de l'étape glycémie capillaire.",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ (fiche § 2, étape 5, partie « glycémie de contrôle »)",
+      "sources": [
+        {"ref": "DGSCGC-LOGI-PSE-2026", "localisation": "p. 15", "citation": "Contrôler à l'issue de 10 à 15 min"},
+        {"ref": "ERC-FA", "localisation": "p. 6", "citation": "and repeat measurement after treatment"}
+      ],
+      "ref_fiche": "§ 2, étape 5 (glycémie de contrôle)",
+      "qui_fiche": "Glycémie : comme l'étape 3",
+      "professions": {"geste": "glycemie_capillaire"},
+      "remarque": "Étape créée en 0.1.2 par scission de reevaluer-15-min (contrôle #25) ; geste manquant : voir glycemie-capillaire. Non cochable, comme les autres étapes de détail de ce protocole.",
+      "cochable": false,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "collation",
+      "ordre": 14,
+      "parent": "reevaluer-15-min",
+      "niveau": "detail",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Mieux : collation",
+      "texte_court": "Mieux : collation",
+      "precision": "Collation légère une fois les signes disparus",
+      "consigne_guidee": "Une fois les signes disparus, encouragez la victime à prendre une collation légère.",
+      "detail": "ERC premiers secours : « Following recovery from symptoms (5–10 min after sugar intake) encourage the person to eat a light snack » ; p. 19 : repas équilibré « to prevent recurrent hypoglycaemia ». Le PSE et le PSC ne disent rien de la collation (fiche § 7, D6).",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ (ERC seul ; fiche § 7, D6)",
+      "sources": [
+        {"ref": "ERC-FA", "localisation": "p. 7 et p. 19", "citation": "Following recovery from symptoms (5–10 min after sugar intake) encourage the person to eat a light snack"}
+      ],
+      "ref_fiche": "§ 2, étape 5a",
+      "qui_fiche": "Groupes 1 à 4 ; groupes 5 à 7 : A_VALIDER (D-4)",
+      "professions": {"geste": "sucre_per_os"},
+      "remarque": "Geste manquant : voir l'étape sucre-par-la-bouche.",
+      "cochable": false,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "inconsciente-rien-en-bouche",
+      "ordre": 15,
+      "parent": null,
+      "phase": "Inconsciente",
+      "niveau": "principal",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Inconsciente : rien en bouche",
+      "texte_court": "Inconsciente : rien per os",
+      "precision": "Risque d'inhalation ; alerter le 15",
+      "consigne_guidee": "Victime inconsciente : ne donnez rien per os (risque d'inhalation) et alertez le 15.",
+      "detail": "ERC premiers secours : « For unresponsive persons, do not give oral sugar due to the risk of aspiration, instead call your local emergency number » ; « Oral sugars should not be provided to unconscious persons ». Premiers secours en équipe (pour information) : après avoir pris en charge la victime qui a perdu connaissance et respire, mesure de la glycémie (si le matériel est disponible) et avis médical avec le résultat ; principe : « préserver la respiration tout en maintenant la liberté des voies aériennes, si la victime a perdu connaissance ». Position : étape suivante (position latérale de sécurité, ou sur le dos après un traumatisme ou si l'origine est inconnue). Glycémie : étape glycémie capillaire et ses habilitations.",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ ; scission de l'étape en 0.1.2 (contrôle #27 et #28)",
+      "sources": [
+        {"ref": "ERC-FA", "localisation": "p. 7", "citation": "For unresponsive persons, do not give oral sugar due to the risk of aspiration, instead call your local emergency number"},
+        {"ref": "ERC-FA", "localisation": "p. 19", "citation": "Oral sugars should not be provided to unconscious persons"},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 196", "citation": "préserver la respiration tout en maintenant la liberté des voies aériennes, si la victime a perdu connaissance"}
+      ],
+      "ref_fiche": "§ 2, étape 6",
+      "qui_fiche": "Interdiction et alerte : tous (D-4, geste alerter_transmettre) ; position latérale : étape inconsciente-pls ; glycémie : étape glycemie-capillaire",
+      "professions": {"geste": "alerter_transmettre"},
+      "remarque": "0.1.2 (contrôle #27 et #28) : l'étape mixte de la 0.1.1 (rattachée à position_laterale, qui ouvrait la mesure de la glycémie au masseur-kinésithérapeute et à la sage-femme) est scindée. Cette étape garde l'interdiction et l'alerte, ouvertes à tous selon la fiche (« Interdiction et alerte : tous ») : geste alerter_transmettre. La position latérale passe dans l'étape inconsciente-pls (geste position_laterale), avec la condition « traumatisme ou origine inconnue : sur le dos » (PSC p. 37). La glycémie est renvoyée à l'étape glycemie-capillaire. Mot « inhalation » : terme médical (D-56) pour « aspiration » de l'ERC.",
+      "cochable": true,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "inconsciente-pls",
+      "ordre": 16,
+      "parent": "inconsciente-rien-en-bouche",
+      "niveau": "detail",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Position latérale de sécurité",
+      "texte_court": "Position latérale de sécurité",
+      "precision": "Ne réagit pas, respire ; traumatisme ou origine inconnue : sur le dos",
+      "consigne_guidee": "Victime qui ne réagit pas mais respire, sans traumatisme : position latérale de sécurité ; après un traumatisme ou si l'origine est inconnue : la laisser sur le dos.",
+      "detail": "Premiers secours citoyen : victime qui ne répond pas, ne réagit pas et respire, à la suite d'un événement non traumatique : position latérale de sécurité, faire alerter, surveiller en permanence la respiration ; « À la suite d'un traumatisme ou d'un événement d'origine inconnue » : laisser la victime sur le dos, la mettre sur le côté si elle vomit ou régurgite. Même étape que position-laterale de la conduite commune.",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ (fiche § 2, étape 6 : « Position latérale : [COMMUNE] 10a ([PSC] p. 37-38) »)",
+      "sources": [
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 37 (conduite à tenir selon l'origine)", "citation": "À la suite d'un traumatisme ou d'un événement d'origine inconnue • laisser la victime sur le dos"},
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 38 (indication de la position latérale de sécurité)", "citation": "victime qui ne répond pas, ne réagit pas, mais respire"},
+        {"ref": "URGENCE-COMMUNE", "localisation": "étape position-laterale (même libellé, même précision, même consigne)"}
+      ],
+      "ref_fiche": "§ 2, étape 6 (position latérale)",
+      "qui_fiche": "Comme la conduite commune (geste position_laterale : groupes 1 à 4 ; groupes 5 à 7 : A_VALIDER)",
+      "professions": {"geste": "position_laterale"},
+      "remarque": "Étape créée en 0.1.2 par scission de inconsciente-rien-en-bouche (contrôle #27 et #28). Libellé, précision et consigne repris mot pour mot de l'étape position-laterale de urgence-commune.json (0.1.4). Le rapport de contrôle (#27) rappelle qu'une victime retrouvée inconsciente au sol, après une chute possible, relève du cas « origine inconnue ». Sigle PLS écrit en toutes lettres (glossaire). Question pour V12 : cette étape devrait-elle être critique ?",
+      "cochable": false,
+      "acronymes": ["pls"],
+      "materiel": []
+    },
+    {
+      "id": "convulsions",
+      "ordre": 17,
+      "parent": "inconsciente-rien-en-bouche",
+      "niveau": "detail",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Convulsions",
+      "texte_court": "Convulsions",
+      "precision": "Ne pas contraindre, protéger la tête ; heure, durée",
+      "consigne_guidee": "Pendant la crise : ne contraignez pas les mouvements, protégez la tête, ne placez rien dans la bouche ; notez l'heure et la durée. Après la crise, la glycémie capillaire relève de l'étape de mesure et de ses habilitations.",
+      "detail": "Premiers secours en équipe (crise convulsive) : « protéger la tête de la victime en glissant si possible un vêtement ou un tissu plié sous sa tête, sans recouvrir les voies aériennes » ; « ne rien placer entre les dents ou dans la bouche de la victime » ; « ne jamais contraindre les mouvements de la victime durant toute la crise » ; noter l'heure et la durée ; « lorsque la victime redevient consciente […] réaliser une mesure de la glycémie capillaire ». Recueil de logigrammes : après la crise, « Prendre une glycémie capillaire ». Mesure : habilitations de l'étape glycémie capillaire.",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ ; « protéger la tête » ajouté en 0.1.2 (omission n° 4 du contrôle)",
+      "sources": [
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 192", "citation": "ne jamais contraindre les mouvements de la victime durant toute la crise"},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 192 (au début de la crise)", "citation": "protéger la tête de la victime en glissant si possible un vêtement ou un tissu plié sous sa tête, sans recouvrir les voies aériennes"},
+        {"ref": "DGSCGC-LOGI-PSE-2026", "localisation": "p. 15", "citation": "Prendre une glycémie capillaire"}
+      ],
+      "ref_fiche": "§ 2, étape 6a",
+      "qui_fiche": "Groupes 1 à 4 ; groupes 5 à 7 : A_VALIDER ; glycémie : comme l'étape 3",
+      "professions": {"geste": "surveillance_reevaluation"},
+      "remarque": "Aucun geste de professions.json pour la conduite devant une crise convulsive : rattaché à surveillance_reevaluation (le plus proche : noter l'heure et la durée, surveiller ; groupes 1 à 4 oui, groupes 5 à 7 A_VALIDER, comme la fiche). 0.1.2 (contrôle #28) : la mesure de la glycémie après la crise n'est plus une action de cette étape ; la consigne renvoie à l'étape glycemie-capillaire et à ses habilitations. Omission n° 4 du contrôle : protéger la tête et ne rien placer dans la bouche (PSE p. 192) ajoutés.",
+      "cochable": false,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "glucagon",
+      "ordre": 18,
+      "parent": null,
+      "phase": "Inconsciente",
+      "niveau": "principal",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Glucagon ?",
+      "texte_court": "Glucagon ?",
+      "precision": "Diabétique insulinotraité ; selon habilitation, avis du 15",
+      "consigne_guidee": "Le glucagon (injectable ou nasal) ne vise que le diabétique insulinotraité ; peu ou pas d'effet après un jeûne prolongé ou une hypoglycémie liée à l'alcool. Il n'est évoqué que selon l'habilitation de la profession et l'avis du 15 ; aucune dose n'est affichée.",
+      "detail": "ERC premiers secours : si la personne a un auto-injecteur de glucagon prescrit, il « could be administered under the skin in the outer thigh (self-administered or by trained individuals) » ; certains diabétiques ont du glucagon nasal ; « First aid providers may administer glucagon, either via injection or nasal spray, as per the manufacturer's instructions if it is available and if they have been trained in its administration ». GLUCAGEN KIT : indiqué « dans le traitement des hypoglycémies sévères » « qui peuvent survenir chez les enfants et les adultes diabétiques insulinotraités » (RCP 4.1) ; contre-indications : hypersensibilité, « Phéochromocytome » (RCP 4.3) ; « Le glucagon ne sera pas efficace chez les patients dont les réserves de glycogène hépatique sont épuisées », d'où peu ou pas d'effet « en cas de jeûne prolongé, d'insuffisance adrénergique, d'hypoglycémie chronique ou d'hypoglycémie induite par l'alcool » (RCP 4.4) ; nausées fréquentes (RCP 4.8) ; effet sur la glycémie « habituellement observé dans les 10 minutes qui suivent l'injection » (RCP 5.1). Notice : la famille et les proches doivent l'utiliser si le patient perd connaissance, « Il est important qu'ils soient entraînés à l'utilisation de GLUCAGEN KIT ». Glucagon : liste I des substances vénéneuses. Le PSC et le PSE ne mentionnent pas le glucagon (recherche plein texte). Aucune dose n'est transcrite (règle absolue 4).",
+      "statut": "A_VALIDER",
+      "statut_fiche": "CITÉ (sources) ; étape, qui et quand : A_VALIDER (V4, V5) ; indication et limites ajoutées en 0.1.2 (contrôle #31), affichage à confirmer (V4)",
+      "sources": [
+        {"ref": "ERC-FA", "localisation": "p. 19", "citation": "First aid providers may administer glucagon, either via injection or nasal spray, as per the manufacturer's instructions if it is available and if they have been trained in its administration"},
+        {"ref": "GLUCAGEN-RCP", "localisation": "RCP rubrique 4.1 (indication)", "citation": "qui peuvent survenir chez les enfants et les adultes diabétiques insulinotraités"},
+        {"ref": "GLUCAGEN-RCP", "localisation": "RCP rubrique 4.4 (mises en garde)", "citation": "le glucagon a peu ou pas d'effet en cas de jeûne prolongé, d'insuffisance adrénergique, d'hypoglycémie chronique ou d'hypoglycémie induite par l'alcool"},
+        {"ref": "GLUCAGEN-RCP", "localisation": "RCP rubrique 4.3 (contre-indications)", "citation": "Phéochromocytome."},
+        {"ref": "GLUCAGEN-RCP", "localisation": "notice rubrique 2", "citation": "Il est important qu'ils soient entraînés à l'utilisation de GLUCAGEN KIT"},
+        {"ref": "ARRETE-LISTES-2012", "localisation": "art. 1er (glucagon : liste I)"},
+        {"ref": "ARRETE-IDE-2026", "localisation": "art. 4, II"},
+        {"ref": "CSP-R4311", "localisation": "art. R4311-7"}
+      ],
+      "a_valider": "V4 : l'étape est-elle affichée ou non ; qui (médecin ; infirmier avec protocole R. 4311-7 signé par un médecin de la MSP ?) ; glucagon du patient ou de la trousse (V8) ; depuis la 0.1.2 (contrôle #31), la précision et la consigne affichent l'indication (diabétique insulinotraité, RCP 4.1) et les limites d'efficacité (jeûne prolongé, alcool, RCP 4.4) ; la contre-indication (phéochromocytome, RCP 4.3) n'est que dans le détail : à confirmer. V5 : masseur-kinésithérapeute, sage-femme, pharmacien, groupes 6 et 7, valeur juridique d'une administration par un professionnel non habilité avec le kit prescrit du patient. Cherché : ERC, RCP et notice GLUCAGEN ; arrêté IDE 2026 (aucune mention du glucagon) ; arrêté du 01/06/2012 (liste I) ; Légifrance, recherche « glucagon » dans le CSP (0 article) ; décret n° 2022-325 (sages-femmes : pas de mention dans la page ; annexe 41-4 du CSP non lue) ; PSC et PSE (aucune mention). Divergence : fiche § 7, D7.",
+      "ref_fiche": "§ 2, étape 7",
+      "qui_fiche": "Médecin (DÉDUIT) ; IDE : sur prescription ou protocole écrit (CITÉ + DÉDUIT) ; MK, sage-femme, groupes 5 à 7 : A_VALIDER (fiche § 6)",
+      "professions": {"geste": "glucagon"},
+      "remarque": "GESTE MANQUANT : aucun geste de professions.json pour l'injection d'un médicament d'urgence : le plus proche, medicaments_arret_cardiaque (« non intégrés à l'appli »), n'a pas été emprunté (il porte sur l'arrêt cardiaque) ; habilitations portées par l'étape, recopiées de la fiche § 6. Proposition au pilote : créer un geste « glucagon » dans professions.json. Étape non cochable tant que V4 et V5 ne sont pas tranchés (étape A_VALIDER : information, pas action proposée). Aucune dose (règle absolue 4) : doses des sources en fiche § 8, non transcrites.",
+      "cochable": false,
+      "acronymes": [],
+      "materiel": ["glucagon-patient"]
+    },
+    {
+      "id": "apres-glucagon",
+      "ordre": 19,
+      "parent": "glucagon",
+      "niveau": "detail",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Après glucagon",
+      "texte_court": "Après glucagon",
+      "precision": "Décubitus latéral si inconsciente ; réveillée et avale : glucides",
+      "consigne_guidee": "Mettez en décubitus latéral la personne inconsciente ; dès qu'elle a repris connaissance et peut de nouveau avaler, donnez-lui un aliment riche en sucre ; contactez un médecin ou un professionnel de santé.",
+      "detail": "GLUCAGEN KIT, notice rubrique 3 : « Tournez la personne inconsciente sur le côté afin de prévenir tout étouffement » ; « Dès que cette personne a repris connaissance et est à nouveau capable d'avaler, donnez-lui un aliment riche en sucre » ; contacter un médecin ou un professionnel de santé. RCP 4.2 : glucides par voie orale « Si le patient a réagi au traitement » ; en l'absence de réaction dans les 10 minutes : glucose intraveineux (hors champ de cette conduite). Nausées : effet indésirable fréquent du glucagon (RCP 4.8).",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ ; condition « capable d'avaler » ajoutée en 0.1.2 (contrôle #34)",
+      "sources": [
+        {"ref": "GLUCAGEN-RCP", "localisation": "notice rubrique 3", "citation": "Tournez la personne inconsciente sur le côté afin de prévenir tout étouffement"},
+        {"ref": "GLUCAGEN-RCP", "localisation": "notice rubrique 3", "citation": "Dès que cette personne a repris connaissance et est à nouveau capable d'avaler, donnez-lui un aliment riche en sucre"},
+        {"ref": "GLUCAGEN-RCP", "localisation": "RCP rubrique 4.2", "citation": "Si le patient a réagi au traitement"}
+      ],
+      "ref_fiche": "§ 2, étape 7a",
+      "qui_fiche": "Comme l'étape 7",
+      "professions": {"geste": "glucagon"},
+      "remarque": "Geste manquant : voir l'étape glucagon. Contenu CITÉ du RCP et de la notice ; seule l'habilitation est A_VALIDER.",
+      "cochable": false,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "alerter",
+      "ordre": 20,
+      "parent": null,
+      "phase": "Alerter",
+      "niveau": "vital",
+      "premier_ecran": true,
+      "critique": true,
+      "titre_fiche": "Alerter le 15",
+      "texte_court": "Alerter le 15",
+      "precision": "Inconsciente, pas d'amélioration, doute ; transmettre la glycémie",
+      "consigne_guidee": "Alertez le 15 si la victime est ou devient inconsciente, si l'état ne s'améliore pas ou en cas de doute, et transmettez la glycémie avec son unité.",
+      "detail": "ERC premiers secours : « Call your emergency number (112) if the person is/or becomes unresponsive or the condition does not improve. » Premiers secours en équipe (pour information) : principe « demander un avis médical, dans tous les cas » (p. 196) ; victime inconsciente qui respire : avis médical avec le résultat de la glycémie ; victime consciente : avis médical « si son état ne s'améliore pas rapidement », « en cas de doute » (p. 197). Premiers secours citoyen : avis médical en présence de signes d'alerte ou de doute. Le 15 est le numéro retenu par le projet (conduite commune). Faut-il appeler même si tout s'améliore ? Les sources divergent (fiche § 7, D5 ; V6).",
+      "statut": "A_VALIDER",
+      "statut_fiche": "CITÉ (conditions) ; choix du 15 et de la règle « toujours ou non » : DÉDUIT / A_VALIDER (V6)",
+      "sources": [
+        {"ref": "ERC-FA", "localisation": "p. 7", "citation": "Call your emergency number (112) if the person is/or becomes unresponsive or the condition does not improve."},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 196-197", "citation": "demander un avis médical, dans tous les cas"},
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 41"},
+        {"ref": "URGENCE-COMMUNE", "localisation": "étape alerter (le 15, plan A du module d'alerte)"}
+      ],
+      "a_valider": "V6 : alerte toujours (« dans tous les cas », PSE p. 196) ou seulement dans les cas cités (inconscience, pas d'amélioration, doute : ERC p. 7 ; PSE p. 197) ; cas du médecin sur place. Choix du 15 : plan A du projet, DÉDUIT. Divergence : fiche § 7, D5.",
+      "ref_fiche": "§ 2, étape 8",
+      "qui_fiche": "Tous",
+      "professions": {"geste": "alerter_transmettre"},
+      "cochage_auto": "appel",
+      "remarque": "Libellé « Alerter le 15 » repris de l'étape alerter de la conduite commune ; précision de la fiche (§ 2, étape 8), différente de celle de la conduite commune (« Ou faire alerter ; transmettre, appliquer les consignes »), conservée. Statut A_VALIDER pour la règle « toujours ou non » (V6) ; l'alerte reste un bouton toujours visible et l'étape reste proposée à tous (étape vitale, D-25) quel que soit ce statut. Premier écran, vital et critique : choix demandé par la consigne du pilote (règle R9 du contrôle automatique) ; la fiche ne propose aucun niveau vital (V12).",
+      "cochable": true,
+      "acronymes": [],
+      "materiel": [],
+      "priorite": {
+        "statut": "DEDUIT",
+        "sources": [
+          {"ref": "DGSCGC-PSC-2026", "localisation": "p. 11 (fiche « Alerte », reprise de urgence-commune)", "citation": "L'absence d'information d'un service d'urgence peut compromettre la vie ou la santé d'une victime"},
+          {"ref": "SPEC", "localisation": "partie 1, règle absolue 5 ; « Module d'alerte » (bouton ALERTER toujours visible)"}
+        ],
+        "raisonnement": "La fiche ne propose aucun niveau vital ni premier écran (§ 2, note en tête ; V12). Les drapeaux vital, premier écran et critique sont un choix d'affichage demandé par la consigne du pilote (règle R9 : au moins une étape de premier écran) ; la justification est reprise de l'étape alerter de la conduite commune : l'alerte conditionne l'arrivée des secours (PSC p. 11) et le cahier des charges veut un bouton d'alerte toujours visible. À confirmer (V12)."
+      }
+    },
+    {
+      "id": "transmettre-glycemie",
+      "ordre": 21,
+      "parent": "alerter",
+      "niveau": "detail",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Transmettre",
+      "texte_court": "Transmettre",
+      "precision": "Glycémie avec unité, heure, sucre donné, évolution",
+      "consigne_guidee": "Transmettez au 15 la glycémie avec son unité, l'heure, le sucre donné et l'évolution.",
+      "detail": "Premiers secours en équipe : demander un avis médical « en indiquant le résultat de la mesure de glycémie » ; unité indispensable (étape glycemie-unite) ; mesure = « élément précieux pour le médecin régulateur ». L'heure, le sucre donné et l'évolution sont le contenu de la fiche bilan et du journal (mode transmission selon le guide Saed de la HAS, D-9).",
+      "statut": "DEDUIT",
+      "statut_fiche": "CITÉ (glycémie, unité) ; DÉDUIT (heure, sucre, évolution)",
+      "sources": [
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 99, p. 196-197", "citation": "en indiquant le résultat de la mesure de glycémie"},
+        {"ref": "SPEC", "localisation": "partie 2, D-9 (mode transmission selon Saed) et D-26 (unité)"}
+      ],
+      "raisonnement": "La transmission de la glycémie avec son unité au régulateur est citée (PSE p. 99, p. 196-197) ; l'heure, le sucre donné et l'évolution sont déduits du contenu de la fiche bilan et du journal (fiche § 2, étape 8a ; D-9, D-26).",
+      "ref_fiche": "§ 2, étape 8a",
+      "qui_fiche": "Tous",
+      "professions": {"geste": "alerter_transmettre"},
+      "cochable": false,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "surveiller",
+      "ordre": 22,
+      "parent": null,
+      "phase": "Surveiller",
+      "niveau": "principal",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Surveiller",
+      "texte_court": "Surveiller",
+      "precision": "Conscience, respiration ; récidive possible",
+      "consigne_guidee": "Surveillez la conscience et la respiration jusqu'à l'arrivée des secours : une récidive est possible ; parlez à la victime.",
+      "detail": "Premiers secours en équipe (pour information) : « surveiller » la victime après le sucre (p. 197). Premiers secours citoyen : surveiller en permanence, lui parler ; en cas d'aggravation, alerter de nouveau. Récidive : ERC p. 19 (repas « to prevent recurrent hypoglycaemia ») ; GLUCAGEN KIT, RCP 4.2 : glucides par voie orale pour reconstituer les réserves de glycogène et prévenir une récidive (reformulé).",
+      "statut": "DEDUIT",
+      "statut_fiche": "CITÉ (reformulé) ; regroupement : DÉDUIT",
+      "sources": [
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 197", "citation": "surveiller"},
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 41"},
+        {"ref": "ERC-FA", "localisation": "p. 19", "citation": "to prevent recurrent hypoglycaemia"},
+        {"ref": "GLUCAGEN-RCP", "localisation": "RCP rubrique 4.2 (glucides par voie orale, prévention d'une récidive : reformulé)"}
+      ],
+      "raisonnement": "La surveillance après le sucre est citée (PSE p. 197 ; PSC p. 41) et le risque de récidive (ERC p. 19 ; RCP GLUCAGEN 4.2, reformulé) ; le regroupement en une étape « Surveiller : conscience, respiration, récidive possible » est un choix de rédaction de la fiche (§ 2, étape 9).",
+      "ref_fiche": "§ 2, étape 9",
+      "qui_fiche": "Groupes 1 à 4 ; groupes 5 à 7 : A_VALIDER (D-4, geste surveillance_reevaluation)",
+      "professions": {"geste": "surveillance_reevaluation"},
+      "remarque": "Libellé identique à l'étape surveiller de la conduite commune, précision de la fiche (« Conscience, respiration ; récidive possible ») conservée.",
+      "cochable": true,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "aggravation",
+      "ordre": 23,
+      "parent": "surveiller",
+      "niveau": "detail",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Aggravation : rappeler le 15",
+      "texte_court": "Aggravation : rappeler le 15",
+      "precision": "Et pratiquer les gestes qui s'imposent",
+      "consigne_guidee": "En cas d'aggravation, alertez de nouveau le 15 et faites les gestes qui s'imposent.",
+      "detail": "Premiers secours citoyen, formule commune aux conduites à tenir : « en cas d'aggravation, alerter de nouveau les secours et pratiquer les gestes qui s'imposent » (même étape que la conduite commune).",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ",
+      "sources": [
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 41", "citation": "en cas d'aggravation, alerter de nouveau les secours et pratiquer les gestes qui s'imposent"},
+        {"ref": "URGENCE-COMMUNE", "localisation": "étape aggravation (même libellé, même précision)"}
+      ],
+      "ref_fiche": "§ 2, étape 9a",
+      "qui_fiche": "Tous",
+      "professions": {"geste": "alerter_transmettre"},
+      "remarque": "Libellé, précision et consigne guidée repris mot pour mot de l'étape aggravation de la conduite commune.",
+      "cochable": false,
+      "acronymes": [],
+      "materiel": []
+    }
+  ],
+  "evenements": [],
+  "chronometres": [],
+  "materiel": [
+    {
+      "id": "lecteur-glycemie",
+      "libelle": "Lecteur de glycémie, bandelettes adaptées, autopiqueurs (lancettes autorétractables), manuel",
+      "niveau": "indispensable",
+      "niveau_fiche": "Cité par le PSE ; le niveau « Indispensable » est proposé par la liste du projet (docs/materiel-propose.md B6), dont le statut est A_VALIDER",
+      "qui_fiche": "Qui mesure (fiche § 6)",
+      "statut": "A_VALIDER",
+      "statut_fiche": "CITÉ (liste) ; niveau : [MAT]",
+      "sources": [
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 99"},
+        {"ref": "MAT", "localisation": "B6 (liste SFMU 2018 p. 4)"}
+      ],
+      "a_valider": "Le niveau « Indispensable » vient de docs/materiel-propose.md B6, lui-même A_VALIDER ; présence dans la trousse de la structure non vérifiée.",
+      "ref_fiche": "§ 5, ligne 1",
+      "ref_liste_proposee": ["B6"]
+    },
+    {
+      "id": "protection-mesure",
+      "libelle": "Gants, savon et compresses, collecteur d'objets piquants, tranchants, coupants, sac pour déchets d'activités de soins à risques infectieux",
+      "niveau_fiche": "Cité (niveau non précisé par la fiche)",
+      "qui_fiche": "Qui mesure",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ",
+      "sources": [{"ref": "DGSCGC-PSE-2026", "localisation": "p. 99"}],
+      "ref_fiche": "§ 5, ligne 2"
+    },
+    {
+      "id": "bandelettes-controle",
+      "libelle": "Bandelettes non périmées, stockage selon le fabricant ; certains lecteurs à calibrer",
+      "niveau_fiche": "Cité (niveau non précisé par la fiche)",
+      "qui_fiche": "Qui gère le sac",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ",
+      "sources": [{"ref": "DGSCGC-PSE-2026", "localisation": "p. 99-100"}],
+      "ref_fiche": "§ 5, ligne 3"
+    },
+    {
+      "id": "solution-controle-lecteur",
+      "libelle": "Vérification du lecteur (solution de contrôle)",
+      "niveau": "recommande",
+      "niveau_fiche": "Recommandé par docs/materiel-propose.md",
+      "qui_fiche": "Qui vérifie le sac",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ via [MAT]",
+      "sources": [{"ref": "MAT", "localisation": "§ 8.5 (liste SFMU 2018 p. 4)"}],
+      "ref_fiche": "§ 5, ligne 4"
+    },
+    {
+      "id": "sucre",
+      "libelle": "Sucre en morceaux ou en poudre",
+      "niveau_fiche": "Cité « de préférence » (PSE)",
+      "qui_fiche": "Groupes 1 à 4 ; groupes 5 à 7 : A_VALIDER",
+      "statut": "A_VALIDER",
+      "statut_fiche": "CITÉ ; présence dans la trousse : A_VALIDER",
+      "sources": [
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 197", "citation": "de préférence du sucre en morceaux ou en poudre"},
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 41"}
+      ],
+      "a_valider": "Présence dans la trousse de la structure : A_VALIDER (fiche § 5).",
+      "ref_fiche": "§ 5, ligne 5"
+    },
+    {
+      "id": "comprimes-glucose",
+      "libelle": "Comprimés de glucose ou de dextrose ; gel de glucose",
+      "niveau_fiche": "Cité, première intention ERC",
+      "qui_fiche": "Idem sucre",
+      "statut": "A_VALIDER",
+      "statut_fiche": "CITÉ ; présence : A_VALIDER",
+      "sources": [{"ref": "ERC-FA", "localisation": "p. 6"}],
+      "a_valider": "Présence dans la trousse de la structure : A_VALIDER (fiche § 5).",
+      "ref_fiche": "§ 5, ligne 6"
+    },
+    {
+      "id": "boisson-sucree",
+      "libelle": "Boisson sucrée (jus), bonbons au saccharose",
+      "niveau_fiche": "Cité « sinon »",
+      "qui_fiche": "Idem sucre",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ",
+      "sources": [
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 197"},
+        {"ref": "ERC-FA", "localisation": "p. 6"}
+      ],
+      "ref_fiche": "§ 5, ligne 7"
+    },
+    {
+      "id": "unidoses-resucrage",
+      "libelle": "Unidoses de resucrage rapide (sachets), sur prescription",
+      "niveau_fiche": "Kit « Hypoglycémie » SFMU 2018, sur prescription du médecin ou du médecin régulateur",
+      "qui_fiche": "Selon prescription",
+      "statut": "A_VALIDER",
+      "statut_fiche": "CITÉ via [MAT] ; A_VALIDER",
+      "sources": [{"ref": "MAT", "localisation": "§ 7.1 (liste SFMU 2018 p. 7)"}],
+      "a_valider": "Présence et prescription : A_VALIDER (fiche § 5).",
+      "ref_fiche": "§ 5, ligne 9"
+    },
+    {
+      "id": "glucagon-patient",
+      "libelle": "Glucagon (kit injectable ou nasal), celui du patient (prescrit)",
+      "niveau_fiche": "Celui du patient (prescrit) : cité par l'ERC ; dans la trousse du cabinet : non tranché",
+      "qui_fiche": "Voir restrictions de l'étape glucagon",
+      "statut": "A_VALIDER",
+      "statut_fiche": "A_VALIDER (V4, V8)",
+      "sources": [
+        {"ref": "ERC-FA", "localisation": "p. 6"},
+        {"ref": "MAT", "localisation": "§ 7.3 et § 7.4 (« sans consensus » dans la thèse citée ; présent dans la liste UFSBD)"}
+      ],
+      "a_valider": "Glucagon dans la trousse de la MSP (kit injectable ou nasal) ; ruptures d'approvisionnement non vérifiées (V4, V8).",
+      "ref_fiche": "§ 5, ligne 10"
+    },
+    {
+      "id": "glucose-injectable",
+      "libelle": "Glucose injectable (kit SFMU 2018 ; concentrations non transcrites), pour information",
+      "niveau_fiche": "Kit SFMU 2018 ; voie veineuse hors champ des gestes de cette fiche",
+      "qui_fiche": "Médecin ; infirmier sur prescription",
+      "statut": "A_VALIDER",
+      "statut_fiche": "Information ; A_VALIDER",
+      "sources": [{"ref": "MAT", "localisation": "§ 7.1 (liste SFMU 2018 p. 7)"}],
+      "a_valider": "Hors champ de cette conduite (voie veineuse) ; aucune concentration ni dose transcrite (règle absolue 4).",
+      "ref_fiche": "§ 5, ligne 11"
+    }
+  ],
+  "materiel_correspondance": "Le lien entre étapes et articles (champ materiel des étapes) est établi par la transcription, d'après la colonne « Qui l'utilise » de la fiche § 5 : lecteur et accessoires sous glycemie-capillaire ; sucre sous sucre-par-la-bouche et sucre-quoi-donner ; glucagon du patient sous glucagon. Le seul rattachement à la liste proposée (champ ref_liste_proposee) est celui que la fiche nomme (B6) ; à vérifier. Aucune étape n'est liée à glucose-injectable (hors champ) ni, depuis la 0.1.2, à unidoses-resucrage (« sur prescription médecin ou médecin régulateur du SAMU », liste SFMU 2018 rapportée par docs/materiel-propose.md § 7.1 ; contrôle #40).",
+  "enfant_reperage": [
+    {
+      "id": "E1",
+      "point": "Quantité de sucre chez l'enfant",
+      "texte": "Le PSE donne une quantité plus faible pour l'enfant que pour l'adulte ; chiffres non transcrits (règle absolue 4).",
+      "statut": "A_VALIDER",
+      "statut_fiche": "CITÉ ; quantité affichée : A_VALIDER (V2)",
+      "sources": [{"ref": "DGSCGC-PSE-2026", "localisation": "p. 197"}, {"ref": "DGSCGC-LOGI-PSE-2026", "localisation": "p. 15"}],
+      "a_valider": "V2 : quantité à afficher, adulte et enfant.",
+      "ref_fiche": "§ 2 ter, E1"
+    },
+    {
+      "id": "E2",
+      "point": "Enfant qui refuse d'avaler",
+      "texte": "L'ERC envisage du sucre de table sous la langue de l'enfant s'il refuse d'avaler le glucose oral (« Sublingual sugar should be considered for children ») ; quantité non transcrite.",
+      "statut": "A_VALIDER",
+      "statut_fiche": "CITÉ ; affichage : A_VALIDER (V7)",
+      "sources": [{"ref": "ERC-FA", "localisation": "p. 7 et p. 19", "citation": "Sublingual sugar should be considered for children"}],
+      "a_valider": "V7 : affichage de ce geste, de sa quantité et des habilitations.",
+      "ref_fiche": "§ 2 ter, E2"
+    },
+    {
+      "id": "E3",
+      "point": "Seuil chez l'enfant (soignants, enfant gravement malade)",
+      "texte": "L'ERC pédiatrique donne un seuil de traitement de l'hypoglycémie de l'enfant gravement malade, par la voie orale si possible, et des valeurs distinctes en arrêt cardiaque ; valeurs en g/L non écrites par l'ERC ; valeurs non transcrites. Le PSE ne donne pas de seuil propre à l'enfant.",
+      "statut": "A_VALIDER",
+      "statut_fiche": "CITÉ ; usage hors hôpital : A_VALIDER (V7)",
+      "sources": [{"ref": "ERC-PLS", "localisation": "p. 43 et p. 25"}, {"ref": "DGSCGC-PSE-2026", "localisation": "p. 196-197"}],
+      "a_valider": "V7 : usage de ce seuil hors hôpital.",
+      "ref_fiche": "§ 2 ter, E3"
+    },
+    {
+      "id": "E4",
+      "point": "Glycémie dans le bilan de l'enfant",
+      "texte": "Évaluation neurologique de l'enfant gravement malade : « Check blood glucose ».",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ",
+      "sources": [{"ref": "ERC-PLS", "localisation": "p. 5", "citation": "Check blood glucose"}],
+      "ref_fiche": "§ 2 ter, E4"
+    },
+    {
+      "id": "E5",
+      "point": "Glucagon chez l'enfant",
+      "texte": "ERC (soignants, enfant gravement malade) : glucagon par voie intramusculaire, sous-cutanée ou nasale quand le glucose intraveineux n'est pas disponible, « as a temporary rescue measure » ; GLUCAGEN KIT : enfants et adultes diabétiques insulinotraités ; glucagon nasal BAQSIMI : adultes, adolescents et enfants à partir d'un âge minimal (résumé de l'avis de la Commission de la transparence du 24/03/2021). Doses : non transcrites, aucun calcul.",
+      "statut": "A_VALIDER",
+      "statut_fiche": "CITÉ ; habilitations : A_VALIDER",
+      "sources": [
+        {"ref": "ERC-PLS", "localisation": "p. 9 et p. 43", "citation": "as a temporary rescue measure"},
+        {"ref": "GLUCAGEN-RCP", "localisation": "RCP rubrique 4.1"}
+      ],
+      "a_valider": "Habilitations (V4, V5) ; RCP de BAQSIMI NON LU, version en vigueur de l'âge minimal à relire (V10).",
+      "ref_fiche": "§ 2 ter, E5"
+    },
+    {
+      "id": "E6",
+      "point": "Nourrisson qui convulse",
+      "texte": "Recueil de logigrammes PSE : après la crise, glycémie capillaire ; « Si nourrisson : prendre température + refroidissement actif ». Pour information.",
+      "statut": "CITE",
+      "statut_fiche": "CITÉ (pour information)",
+      "sources": [{"ref": "DGSCGC-LOGI-PSE-2026", "localisation": "p. 15", "citation": "Si nourrisson : prendre température + refroidissement actif"}],
+      "ref_fiche": "§ 2 ter, E6"
+    },
+    {
+      "id": "E7",
+      "point": "Matériel pédiatrique",
+      "texte": "Rien de propre à la glycémie de l'enfant trouvé dans les pages lues ; la liste SFMU 2018 ne vise que l'adulte.",
+      "statut": "A_VALIDER",
+      "statut_fiche": "A_VALIDER",
+      "sources": [{"ref": "MAT", "localisation": "§ 1"}],
+      "a_valider": "V7 : matériel pédiatrique pour la glycémie ; rien trouvé dans les pages lues.",
+      "ref_fiche": "§ 2 ter, E7"
+    }
+  ],
+  "acronymes_fiche": [
+    {"acronyme": "(aucun sigle propre)", "signification": "« Glycémie capillaire », « resucrer », « malaise hypoglycémique » : mots en toutes lettres", "present_dans": "PSE, logigrammes PSE", "statut": "CITE", "sources": [{"ref": "DGSCGC-PSE-2026", "localisation": "p. 99, p. 195"}, {"ref": "DGSCGC-LOGI-PSE-2026", "localisation": "p. 15"}], "ref_fiche": "§ 4"},
+    {"acronyme": "AVC", "signification": "Accident vasculaire cérébral (écrit en toutes lettres dans les libellés affichés : pas d'entrée avec source dans le glossaire)", "present_dans": "PSC, PSE", "statut": "CITE", "sources": [{"ref": "DGSCGC-PSC-2026", "localisation": "p. 40"}, {"ref": "DGSCGC-PSE-2026", "localisation": "p. 188"}], "ref_fiche": "§ 4"},
+    {"acronyme": "EVDA", "signification": "Éveillée, Voix, Douleur, Aréactive (niveau de conscience) ; non utilisé dans les étapes", "present_dans": "PSE (AVPU « en anglo-saxon » ; ACVPU dans le tableau 3 de l'ERC)", "statut": "CITE", "sources": [{"ref": "DGSCGC-PSE-2026", "localisation": "p. 97"}], "ref_fiche": "§ 4"},
+    {"acronyme": "PLS", "signification": "Position latérale de sécurité (affichage en toutes lettres)", "present_dans": "PSC", "statut": "CITE", "sources": [{"ref": "DGSCGC-PSC-2026", "localisation": "p. 38"}], "ref_fiche": "§ 4"},
+    {"acronyme": "OPTC, DASRI, AES", "signification": "Collecteur d'objets piquants, tranchants, coupants ; déchets d'activités de soins à risques infectieux ; accident d'exposition au sang : non affichés", "present_dans": "PSE", "statut": "CITE", "sources": [{"ref": "DGSCGC-PSE-2026", "localisation": "p. 99-100"}], "ref_fiche": "§ 4"},
+    {"acronyme": "G30, DT1/DT2, MCG", "signification": "Non retenus : absents des sources lues en texte (D-10)", "present_dans": "—", "statut": "CITE", "sources": [{"ref": "SPEC", "localisation": "partie 2, D-10"}], "ref_fiche": "§ 4"}
+  ],
+  "recapitulatif_chiffre": [
+    {"parametre": "Hypoglycémie (secouristes en équipe) : seuil", "valeur": "non transcrit : choix entre deux seuils à faire (V1) ; aucun signal automatique (D-19)", "statut": "A_VALIDER", "sources": [{"ref": "DGSCGC-PSE-2026", "localisation": "p. 196-197"}, {"ref": "DGSCGC-LOGI-PSE-2026", "localisation": "p. 10 et p. 15"}], "a_valider": "V1 ; anomalie d'unité de la source p. 99 notée dans la fiche § 3.", "ref_fiche": "§ 3"},
+    {"parametre": "Hypoglycémie (ERC, seuil de traitement) : seuil", "valeur": "non transcrit : l'équivalent en g/L n'est pas écrit par la source (V1)", "statut": "A_VALIDER", "sources": [{"ref": "ERC-FA", "localisation": "p. 6 et p. 19"}], "a_valider": "V1.", "ref_fiche": "§ 3"},
+    {"parametre": "Hypoglycémie de l'enfant (ERC, soignants) : seuil", "valeur": "non transcrit (usage hors hôpital : V7)", "statut": "A_VALIDER", "sources": [{"ref": "ERC-PLS", "localisation": "p. 43"}], "a_valider": "V7.", "ref_fiche": "§ 3"},
+    {"parametre": "Délai d'effet du sucre", "valeur": "environ 10 à 15 min", "statut": "CITE", "sources": [{"ref": "DGSCGC-PSE-2026", "localisation": "p. 197, note 1", "citation": "environ 10 à 15 minutes entre l'ingestion du sucre, une élévation de la glycémie et une amélioration des signes"}], "ref_fiche": "§ 3"},
+    {"parametre": "Réévaluation après sucre", "valeur": "contrôle à 10-15 min ; nouveau sucre si pas d'amélioration après 15 min", "statut": "CITE", "sources": [{"ref": "DGSCGC-LOGI-PSE-2026", "localisation": "p. 15"}, {"ref": "DGSCGC-PSE-2026", "localisation": "p. 197"}, {"ref": "ERC-FA", "localisation": "p. 6 et p. 19"}], "ref_fiche": "§ 3"},
+    {"parametre": "Collation", "valeur": "après récupération, 5–10 min après la prise de sucre", "statut": "CITE", "sources": [{"ref": "ERC-FA", "localisation": "p. 7", "citation": "5–10 min after sugar intake"}], "ref_fiche": "§ 3"},
+    {"parametre": "Glucagon sans réaction (information)", "valeur": "10 min, puis glucose intraveineux (hors champ de cette conduite)", "statut": "CITE", "sources": [{"ref": "GLUCAGEN-RCP", "localisation": "RCP rubrique 4.2"}], "ref_fiche": "§ 3"},
+    {"parametre": "Délai d'action du glucagon (information)", "valeur": "effet sur la glycémie habituellement observé dans les 10 minutes qui suivent l'injection", "statut": "CITE", "sources": [{"ref": "GLUCAGEN-RCP", "localisation": "RCP rubrique 5.1 (relue le 15/11/2026 ; V11 fermé en 0.1.2)", "citation": "un effet du glucagon sur la glycémie est habituellement observé dans les 10 minutes qui suivent l'injection"}], "ref_fiche": "§ 3"},
+    {"parametre": "Fréquence des mesures de surveillance", "valeur": "aucune valeur propre à l'hypoglycémie ; renvoi au repère général de la conduite commune (étape constantes-repetees)", "statut": "DEDUIT", "sources": [{"ref": "URGENCE-COMMUNE", "localisation": "étape constantes-repetees"}], "raisonnement": "Aucune source lue ne donne d'intervalle propre à l'hypoglycémie : la fiche renvoie au repère général déjà discuté dans la conduite commune (V5 de cette fiche).", "ref_fiche": "§ 3"}
+  ],
+  "divergences_fiche": [
+    {"point": "Mesurer avant de resucrer ? (D1)", "source_a": "PSE p. 197 : mesure « lors du 4ème regard si le matériel est disponible », puis sucre si glycémie sous le seuil ou origine du malaise inconnue", "source_b": "ERC p. 6 : donner le glucose à qui avale ; mesurer « If feasible »", "consequence": "Proposé : « ne retarde pas le sucre » (étape glycemie-capillaire) ; à confirmer (V9).", "ref_fiche": "§ 7, D1"},
+    {"point": "Seuil de traitement (D2)", "source_a": "PSE : un seuil donné en trois unités", "source_b": "ERC : un autre seuil (adulte) ; ERC pédiatrique (enfant) : deux valeurs selon les symptômes", "consequence": "Choix de Laurent (V1) ; valeurs non transcrites ; aucun signal automatique (D-19).", "ref_fiche": "§ 7, D2"},
+    {"point": "Quoi et combien donner (D3)", "source_a": "PSE : « de préférence » sucre en morceaux ou en poudre, quantités en morceaux ou cuillères", "source_b": "ERC : comprimés de glucose ou de dextrose en grammes ; autres sucres à défaut ; gel", "consequence": "Quantité affichée : A_VALIDER (V2) ; aucune quantité transcrite.", "ref_fiche": "§ 7, D3"},
+    {"point": "Sucre sans mesure : quand ? (D4)", "source_a": "PSE : dès que « l'origine du malaise est inconnue » chez une victime qui avale (critère large)", "source_b": "ERC : suspicion (diabète ou dénutrition chronique ET trouble brutal de la réactivité ou du comportement)", "consequence": "Critère affiché : A_VALIDER (V9).", "ref_fiche": "§ 7, D4"},
+    {"point": "Alerte systématique ? (D5)", "source_a": "PSE p. 196 : « demander un avis médical, dans tous les cas »", "source_b": "PSE p. 197 (conscient) : avis médical si pas d'amélioration rapide ou doute ; ERC p. 7 : appeler si inconscient ou pas d'amélioration", "consequence": "« Alerter le 15 » à conditions, ou toujours ? Et si le soignant est médecin ? (V6).", "ref_fiche": "§ 7, D5"},
+    {"point": "Collation après correction (D6)", "source_a": "ERC p. 7 et p. 19 : collation, repas", "source_b": "PSC, PSE : rien", "consequence": "Sous-étape collation citée d'après l'ERC seul.", "ref_fiche": "§ 7, D6"},
+    {"point": "Glucagon par un secouriste (D7)", "source_a": "ERC p. 6 et p. 19 : possible par des personnes formées, auto-injecteur ou spray nasal du patient", "source_b": "PSC, PSE : aucune mention ; droit français : liste I, infirmier sur prescription ou protocole", "consequence": "Étape glucagon A_VALIDER (V4, V5).", "ref_fiche": "§ 7, D7"},
+    {"point": "Capteur de glucose en continu (D8)", "source_a": "PSE p. 99 : mesurer au doigt même avec un capteur", "source_b": "ERC p. 19 : le capteur réduit les hypoglycémies sévères (sans consigne pour le secouriste)", "consequence": "Sous-étape glycemie-lecteur-patient d'après le PSE.", "ref_fiche": "§ 7, D8"},
+    {"point": "Priorité des sources (D9)", "source_a": "SPEC.md, Agent 1 : AFGSU puis ERC", "source_b": "SPEC.md, Règles absolues : ERC puis AFGSU", "consequence": "Non tranché. Ici l'AFGSU ne détaille rien (objectif « hypoglycémie » seulement) ; la source française détaillée est le PSE, dont la fiche semble optionnelle.", "ref_fiche": "§ 7, D9"},
+    {"point": "Mesure par des non-soignants (D10)", "source_a": "PSE p. 99 : les secouristes mesurent en l'absence d'infirmier ou de médecin", "source_b": "D-4 et textes d'actes : masseur-kinésithérapeute, sage-femme, groupes 5 à 7 non établis", "consequence": "V3.", "ref_fiche": "§ 7, D10"}
+  ],
+  "points_a_valider_fiche": [
+    {"id": "V1", "point": "Seuil à afficher (texte seulement, D-19) : celui du PSE ou celui de l'ERC (équivalent en g/L non écrit par l'ERC), ou aucun", "decision": "décision de Laurent"},
+    {"id": "V2", "point": "Quantité de sucre (adulte) et produit préféré (sucre en morceaux du PSE ou comprimés de glucose de l'ERC)", "decision": "décision de Laurent"},
+    {"id": "V3", "point": "Habilitations : glycémie (masseur-kinésithérapeute, sage-femme, groupes 5 à 7) ; sucre par la bouche (groupes 5 à 7 ; l'aide au traitement est retirée en 0.1.2, V13) ; arguments PSE p. 99 et PSC p. 2", "decision": "décision de Laurent et lecture juridique"},
+    {"id": "V4", "point": "Glucagon : étape affichée ou non ; qui (médecin, infirmier avec protocole R. 4311-7 signé par un médecin de la MSP ?) ; glucagon du patient ou de la trousse", "decision": "décision de Laurent"},
+    {"id": "V5", "point": "Glucagon pour masseur-kinésithérapeute, sage-femme, pharmacien, groupes 6 et 7 ; valeur juridique d'une administration par un professionnel non habilité avec le kit prescrit du patient", "decision": "lecture juridique, puis Laurent"},
+    {"id": "V6", "point": "Alerte : toujours (« dans tous les cas », PSE p. 196) ou à conditions ; cas du médecin sur place", "decision": "décision de Laurent"},
+    {"id": "V7", "point": "Enfant : quantité, sucre sous la langue, seuil, matériel pédiatrique", "decision": "décision de Laurent"},
+    {"id": "V8", "point": "Glucagon dans la trousse de la MSP (kit injectable ou nasal) ; ruptures d'approvisionnement", "decision": "décision de Laurent"},
+    {"id": "V9", "point": "Critère du sucre sans mesure (« origine inconnue » du PSE ou suspicion ERC) et « ne retarde pas le sucre »", "decision": "décision de Laurent"},
+    {"id": "V10", "point": "Version en vigueur du RCP de BAQSIMI (âge minimal) : RCP = PDF EMA, NON LU (téléchargement nécessaire)", "decision": "relecture"},
+    {"id": "V11", "point": "Délai d'action du glucagon : FERMÉ en 0.1.2 (RCP GLUCAGEN 5.1 : « habituellement observé dans les 10 minutes qui suivent l'injection »)", "decision": "relecture faite le 15/11/2026"},
+    {"id": "V12", "point": "Niveau d'affichage : faut-il un premier écran propre à l'hypoglycémie (alerte, « Inconsciente : rien en bouche ») ? Le premier écran de ce fichier (alerter) a été demandé par la consigne du pilote (règle R9) ; depuis la 0.1.2, la même question vaut pour l'étape inconsciente-pls (critique ou non)", "decision": "décision du pilote, puis de Laurent"},
+    {"id": "V13", "point": "Étape « Son traitement » (aider la victime, à sa demande, à prendre son traitement prescrit : PSC p. 41, PSE p. 177, conduite du malaise à laquelle renvoie le PSE p. 197) RETIRÉE en 0.1.2 (contrôle #23) : dans une hypoglycémie, « son traitement » peut être l'insuline ou un hypoglycémiant, première cause d'hypoglycémie (ERC p. 19). Choix : (a) la laisser retirée (choix appliqué, le plus prudent) ; (b) la rétablir restreinte, par exemple « traitement de resucrage prescrit ; ni insuline ni hypoglycémiant » (restriction DÉDUITE, écrite par aucune source)", "decision": "décision de Laurent"}
+  ]
+}

@@ -4,6 +4,8 @@
 // Aucun texte médical ici.
 import { creer, bouton, heureLocale } from '../dom.js';
 import { etatTest, confirmerSon } from '../test-appareil.js';
+import { PROTOCOLES_ACR, CONDUITES } from '../catalogue.js';
+import { protocolePublie } from '../protocole-commun.js';
 
 export const PRESENTATION = "Aide-mémoire interne à la MSP APSIS, qui affiche des recommandations publiées et aide à noter et transmettre les informations d'une intervention.";
 
@@ -12,7 +14,7 @@ export const PRESENTATION = "Aide-mémoire interne à la MSP APSIS, qui affiche 
  * @param {{auUrgence: () => void, auAutre?: () => void, auSimulation: () => void, auxReglages: () => void, auGlossaire?: () => void, auToucher?: () => void}} actions
  * @returns {{afficherEnAttente: (lignes: object[], actions: {reprendre: Function, effacer: Function}) => void}}
  */
-export function afficherAccueil(conteneur, { auUrgence, auAutre = null, auSimulation, auxReglages, auGlossaire = null, auMateriel = null, auAPropos = null, auTester = null, auToucher = () => {} }) {
+export function afficherAccueil(conteneur, { auUrgence, auProtocole = null, auAutre = null, auSimulation, auxReglages, auGlossaire = null, auMateriel = null, auAPropos = null, auTester = null, auToucher = () => {} }) {
   const page = creer('section', 'accueil');
   page.addEventListener('pointerdown', auToucher, { capture: true, passive: true }); // « l'utilisateur a touché l'accueil » : plus de reprise directe
   page.append(creer('h1', 'accueil-titre', 'Urgences MSP APSIS'));
@@ -24,14 +26,36 @@ export function afficherAccueil(conteneur, { auUrgence, auAutre = null, auSimula
     if (sous) b.append(creer('small', null, sous));
     return b;
   };
-  grille.append(gros('Arrêt cardiaque', 'adulte · DAE', 'bouton bouton-urgence gros gros-urgence', auUrgence, 'urgence'));
-  // grille 2 × 2 (relecture design D9) : Autre urgence · Simulation · Matériel · Préparer ce téléphone ; le reste en liens discrets dessous
-  if (auAutre) grille.append(gros('Autre urgence', 'alerte, fiche bilan', 'bouton gros', auAutre, 'ouvrir-autre'));
-  grille.append(gros('Simulation', "pour s'entraîner", 'bouton gros', auSimulation, 'ouvrir-simulation'));
-  if (auMateriel) grille.append(gros('Matériel', 'où est quoi', 'bouton gros', auMateriel, 'ouvrir-materiel'));
-  const test = auTester ? gros('Préparer ce téléphone', '', 'bouton gros', auTester, 'ouvrir-test') : null;
-  if (test) { const etat = creer('small', null, etatTest.son ? 'son vérifié ✓' : 'à faire ✱', { id: 'etat-test' }); test.append(etat); grille.append(test); }
+  // P4a (CHOIX PROVISOIRE, D-15) : l'arrêt cardiaque ADULTE reste la grande tuile ; l'arrêt cardiaque de l'ENFANT est une seconde tuile rouge dessous (seulement si son fichier est publié) ;
+  // puis la liste « Autres urgences » (conduites publiées, puis « Autre situation ») ; puis Simulation · Matériel · Préparer ce téléphone ; le reste en liens discrets.
+  const ACR_PAR_DEFAUT = PROTOCOLES_ACR[0];
+  grille.append(gros(ACR_PAR_DEFAUT.titre, ACR_PAR_DEFAUT.sous, 'bouton bouton-urgence gros gros-urgence', auUrgence, 'urgence'));
+  if (auProtocole) {
+    for (const p of PROTOCOLES_ACR.slice(1)) {
+      if (protocolePublie(p.id)) grille.append(gros(p.titre, p.sous, 'bouton bouton-urgence gros gros-urgence-enfant', () => auProtocole(p.id), `urgence-${p.id}`));
+    }
+  }
   page.append(grille);
+
+  const autres = [];
+  if (auProtocole) for (const c of CONDUITES) if (protocolePublie(c.id)) autres.push(gros(c.titre, c.sous, 'bouton gros', () => auProtocole(c.id), `ouvrir-${c.id}`));
+  if (auAutre) autres.push(gros('Autre situation', 'alerte, fiche bilan', 'bouton gros', auAutre, 'ouvrir-autre'));
+  if (autres.length > 0) {
+    const bloc = creer('section', 'accueil-autres', '', { 'aria-label': 'Autres urgences' });
+    bloc.append(creer('h2', 'accueil-sous-titre', 'Autres urgences'));
+    const liste = creer('div', 'accueil-grille accueil-autres-grille');
+    liste.append(...autres);
+    bloc.append(liste);
+    page.append(bloc);
+  }
+
+  // grille 2 × 2 (relecture design D9) : Simulation · Matériel · Préparer ce téléphone
+  const outils = creer('div', 'accueil-grille accueil-outils');
+  outils.append(gros('Simulation', "pour s'entraîner", 'bouton gros', auSimulation, 'ouvrir-simulation'));
+  if (auMateriel) outils.append(gros('Matériel', 'où est quoi', 'bouton gros', auMateriel, 'ouvrir-materiel'));
+  const test = auTester ? gros('Préparer ce téléphone', '', 'bouton gros', auTester, 'ouvrir-test') : null;
+  if (test) { const etat = creer('small', null, etatTest.son ? 'son vérifié ✓' : 'à faire ✱', { id: 'etat-test' }); test.append(etat); outils.append(test); }
+  page.append(outils);
 
   const attente = creer('div', 'en-attente');
   attente.id = 'en-attente';

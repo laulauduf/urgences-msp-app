@@ -1,5 +1,5 @@
 // Version de l'appli (script CLASSIQUE, pas un module : lu par la page et, par importScripts, par sw.js — cahier des charges 2.3).
 // Le numéro de version s'écrit à la main (ou : node outils/preparer-version.mjs --incrementer).
 // L'empreinte est écrite par outils/preparer-version.mjs : ne pas la modifier à la main.
-self.URGENCES_VERSION = '0.2.4';
-self.URGENCES_EMPREINTE = 'd74bb9b8cc138725';
+self.URGENCES_VERSION = '0.2.5';
+self.URGENCES_EMPREINTE = '39fa0e0dd2936662';

@@ -8,12 +8,27 @@ import { habilitationPour, OUI } from './habilitations.js';
  * Règle absolue 5 de SPEC.md : l'appli ne bloque jamais un geste vital. Une étape VITALE (niveau « vital » OU étape du premier écran)
  * est EXEMPTE du filtre par profession : elle reste cochable pour TOUTE profession, y compris « non réglée », même si les
  * habilitations sont absentes ou illisibles. Ne pas « uniformiser » avec `etapesPremierEcran` (intervention.js, qui ne retient que
- * `premier_ecran` : usage différent et voulu). Avant toute modification : relire la règle absolue 5 et la décision D-25, puis lancer
+ * `premier_ecran` : usage différent et voulu). SEULE exception décidée par le médecin référent : l'étape marquée `reserve_habilites: true` (D-58, lot P4b : adrénaline de l'anaphylaxie),
+ * voir MENTION_SUR_DEMANDE plus bas. Avant toute modification : relire la règle absolue 5 et les décisions D-25 et D-58, puis lancer
  * `node --test tests/unitaires/checklist.test.mjs tests/unitaires/protections-surete.test.mjs` (le test « étape vitale cochable pour TOUTE profession »
  * doit rester vert).
  */
 /** Étape VITALE : niveau « vital » ou étape du premier écran. Une seule définition (revue L6 m10) : elle sert à l'exemption du filtre ET au chemin de la tuile. */
 export function estVitale(etape) { return etape?.niveau === 'vital' || etape?.premier_ecran === true; }
+
+/**
+ * ÉTAPE « RÉSERVÉE AUX HABILITÉS » (lot P4b, décision D-58, réponse de Laurent à ANA-2) : une étape vitale dont le protocole porte `reserve_habilites: true` (aujourd'hui l'adrénaline de l'anaphylaxie)
+ * N'EST PLUS exemptée du filtre par profession (D-25). Elle reste en tête du premier écran, cochable par TOUS — jamais bloquée (règle absolue 5) — mais :
+ *  - habilitation du profil = « oui » (le médecin) : coche directe ;
+ *  - profession RÉGLÉE, habilitation autre (ou habilitations illisibles) : mention « sur demande du 15 », coche APRÈS une confirmation « fait sur demande du 15 » (l'heure est celle de la confirmation,
+ *    elle part dans la transmission avec la mention) ;
+ *  - profession NON réglée (état par défaut d'un téléphone neuf) : comme une profession non habilitée — « sur demande du 15 » + confirmation (P4d, M1 de la revue de code P4 : D-58 réserve la coche directe au
+ *    médecin, et une profession non réglée prend ailleurs le groupe le plus restreint) ; un toucher de plus, rien n'est bloqué ;
+ *  - jamais « non faite » (critique sans effet), jamais « Noter : fait à hh:mm » (inutile : elle se coche).
+ * Seule la valeur booléenne `true` compte. Les autres étapes vitales (alerter, masser, DAE…) restent exemptées.
+ */
+export const MENTION_SUR_DEMANDE = 'sur demande du 15';
+export function estReservee(etape) { return etape?.reserve_habilites === true; }
 
 /**
  * @param {{etapes: object[], checklist: Record<string, {coche_le: number}>, journal: object[], habilitations: object|null, profession: string|null}} p
@@ -23,16 +38,21 @@ export function estVitale(etape) { return etape?.niveau === 'vital' || etape?.pr
 export function construireVue({ etapes, checklist, journal, habilitations, profession }) {
   const items = [...(Array.isArray(etapes) ? etapes : [])].sort((a, b) => a.ordre - b.ordre).map((etape) => {
     // ══ NE PAS MODIFIER SANS DÉCISION DU MÉDECIN RÉFÉRENT (D-25) ══ (voir le bloc au-dessus de estVitale)
-    // une étape VITALE (premier écran) est « exempte » : elle reste cochable pour toute profession, comme sa tuile (règle absolue 5 : aucun geste vital bloqué)
-    const exempte = estVitale(etape);
+    // une étape VITALE (premier écran) est « exempte » : elle reste cochable pour toute profession, comme sa tuile (règle absolue 5 : aucun geste vital bloqué) —
+    // SAUF l'étape « réservée aux habilités » (P4b, D-58 : voir MENTION_SUR_DEMANDE), qui reste cochable par tous mais avec confirmation pour une profession réglée non habilitée
+    const reserve = estReservee(etape);
+    const exempte = estVitale(etape) && !reserve;
     const habilitation = habilitationPour(etape, profession, habilitations);
     const cochableProtocole = etape.cochable === true;
-    const cochable = cochableProtocole && (exempte || habilitation === OUI);
+    const cochable = cochableProtocole && (exempte || reserve || habilitation === OUI);
+    const surDemande = cochable && reserve && habilitation !== OUI;   // (toute profession dont l'habilitation n'est pas « oui », y compris non réglée)
     const coche = checklist?.[etape.id];
     return {
       id: etape.id, etape, enfants: [], habilitation, exempte, cochable, cochableProtocole,
+      vitale: estVitale(etape), reserve, surDemande,        // `vitale` : barre verticale, même pour l'étape réservée (qui n'est plus « exempte »)
       restreint: cochableProtocole && !cochable,            // action normalement cochable que ce profil ne peut pas cocher : « Noter : fait à hh:mm »
       cochee: Boolean(coche), coche_le: coche?.coche_le ?? null,
+      cocheeSurDemande: Boolean(coche) && derniereCocheSurDemande(journal, etape.id),
       notee: derniereNote(journal, etape.id), nonFaite: false,
     };
   });
@@ -44,7 +64,8 @@ export function construireVue({ etapes, checklist, journal, habilitations, profe
   }
   // « non faite » : critique, ni cochée ni notée, alors qu'une étape SUIVANTE (ordre croissant) est cochée
   const derniereCochee = Math.max(-Infinity, ...items.filter((i) => i.cochee).map((i) => i.etape.ordre));
-  for (const i of items) i.nonFaite = i.etape.critique === true && !i.cochee && !i.notee && derniereCochee > i.etape.ordre;
+  // (jamais pour l'étape réservée aux habilitations, D-58 : « jamais signalée non faite »)
+  for (const i of items) i.nonFaite = i.etape.critique === true && !i.reserve && !i.cochee && !i.notee && derniereCochee > i.etape.ordre;
   return {
     racines, plat: items, parId,
     critiques: items.filter((i) => i.etape.critique === true),
@@ -56,6 +77,13 @@ export function construireVue({ etapes, checklist, journal, habilitations, profe
 export function texteSource(s) {
   const ref = typeof s?.ref === 'string' ? s.ref : '?';
   return typeof s?.localisation === 'string' && s.localisation !== '' ? `${ref} — ${s.localisation}` : ref;
+}
+
+/** La coche COURANTE d'une étape a-t-elle été faite « sur demande du 15 » ? La dernière entrée `case` non décochée du journal fait foi. */
+function derniereCocheSurDemande(journal, id) {
+  let sur = false;
+  for (const e of Array.isArray(journal) ? journal : []) if (e?.type === 'case' && e.donnees?.id === id && !e.donnees?.decochee) sur = e.donnees?.sur_demande === true;
+  return sur;
 }
 
 /** Dernière note « geste fait » du journal pour une étape (entrée `geste`), ou null. */

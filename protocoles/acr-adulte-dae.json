@@ -3,7 +3,7 @@
   "id": "acr-adulte-dae",
   "titre": "Arrêt cardio-respiratoire de l'adulte, avec défibrillateur automatisé externe",
   "titre_court": "Arrêt cardiaque adulte",
-  "version": "0.4.8",
+  "version": "0.4.11",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/acr-adulte-dae.md",
@@ -46,6 +46,21 @@
         "par": "agent recherche-reco (Opus 5.5 / high), lancé par « urgences - pilote 3 »",
         "le": "2026-11-15",
         "objet": "Version 0.4.7 : décisions D-48, D-49 et D-50 de Laurent (15/11/2026, test de la version 0.2.3). D-48 : deux étapes de premier niveau ajoutées, analyse-situation (« Analyser la situation », après securite, phase Protéger ; RTN premiers secours citoyen p. 11 et logigramme p. 4 ; RTN premiers secours en équipe p. 65-66, premier regard) et repartir-taches (« À plusieurs : répartir », après appel-aide, phase Bilan ; RTN premiers secours en équipe p. 138 ; premiers secours citoyen p. 28 ; ERC BLS p. 5, ALS p. 6 et p. 15 ; HAS/SFAR 2026). D-49 : reconnaitre-arret devient « Réaction de la victime », précision « Verbale, motrice ? Aucune : suspecter un arrêt » (PSC p. 27 et p. 29 ; PSE p. 67). D-50 : précision de securite « Gants, masque si disponibles ; approche sans risque » (ERC BLS p. 21 ; PSC p. 10 et p. 28). Ces trois étapes passent DEDUIT (autorise_par). Champ ordre renuméroté (71 étapes) ; identifiants et ref_fiche existants inchangés ; nouvelles étapes : ref_fiche « § 2, étape 1 bis » et « § 2, étape 3 bis »."
+      },
+      {
+        "par": "agent recherche-reco (Sonnet 5.5 / élevé), lancé par « urgences - pilote 3 »",
+        "le": "2026-11-15",
+        "objet": "Version 0.4.9 : décision D-55 de Laurent (remarque en testant la version 0.2.4). Une étape de premier niveau ajoutée, bilan-15 (« Bilan à passer au 15 », phase Alerter, cochable), juste après alerter et ses détails, avant faire-chercher-defibrillateur ; contenu d'après les informations minimales de l'alerte (RTN premiers secours citoyen p. 11, premiers secours en équipe p. 72 et p. 380) et le guide Saed de la HAS (d'après la fiche cadre transversal). Statut DEDUIT (autorise_par D-55). Champ ordre renuméroté : 72 étapes ; identifiants, parent, ref_fiche existants et cochage_auto « appel » (alerter) inchangés ; nouvelle étape : ref_fiche « § 2, étape 7 bis ». Source HAS-SAED-2014 ajoutée au bloc sources. Version non contrôlée."
+      },
+      {
+        "par": "agent recherche-reco (Sonnet 5.5 / élevé), lancé par « urgences - pilote 3 »",
+        "le": "2026-11-15",
+        "objet": "Version 0.4.10 : décision D-56 de Laurent (vocabulaire médical dans les textes affichés). Relecture de tous les libellés, précisions et consignes guidées ; un seul remplacement nécessaire, étape position-antero-laterale (précision et consigne) : « sous clavicule droite, sous aisselle gauche » devenu « infraclaviculaire droite, axillaire gauche » (la consigne garde « ligne axillaire moyenne gauche »). Les autres textes emploient déjà le vocabulaire médical (respiration agonique, gasps, convulsions, compressions, insufflations…). Citations, statuts, habilitations, ordre et détails inchangés. Version non contrôlée."
+      },
+      {
+        "par": "agent recherche-reco (Opus 5.5 / high), lancé par « urgences - pilote 4 »",
+        "le": "2026-11-15",
+        "objet": "Version 0.4.11 : décision D-57 de Laurent (remarque en testant la version 0.2.4). L'étape repartir-taches (« À plusieurs : répartir ») passe en tête, juste après analyse-situation et avant securite (rang 2 au lieu de 15), avec l'intertitre Protéger (choix d'affichage, pour ne pas couper le groupe) ; D-57 remplace D-52 pour cette étape. Précision « Chef, compressions, défibrillateur, appel » remplacée par « Bilan, alerte, DAE, appui (aider le leader ou un intervenant) » ; consigne, détail, sources (ajouts : RTN premiers secours en équipe p. 65 et p. 70 ; premiers secours citoyen p. 28, rôle du coach ; ERC BLS p. 4 et p. 18), raisonnement et marques (decision et autorise_par D-57) mis à jour. Champ ordre renuméroté de 2 à 15 ; identifiants, parent et ref_fiche inchangés. Mentions de place périmées corrigées (analyse-situation, decisions_appliquees D-48 et D-52, ordre_etapes, phases_et_sections, equipe[repartition-roles], V31). Version non contrôlée."
       }
     ]
   },
@@ -69,10 +84,13 @@
     {"decision": "D-45", "etat": "REPONDUE", "objet": "Défibrillateur à vue : aller le chercher avant de masser ; sinon masser et envoyer quelqu'un le chercher si possible (message de Laurent au pilote 3, 15/11/2026 vers 16 h 15). Lève V23 (ERC : moins d'une minute ; PSC : 10 s). Marque portée par l'étape faire-chercher-defibrillateur, equipe[sauveteur-seul] et recapitulatif_chiffre « Absence du sauveteur seul… »"},
     {"decision": "D-46", "etat": "REPONDUE", "objet": "Précision de D-45 : à plusieurs, DAE à vue, le premier commence le massage et l'autre va chercher le DAE ; seul, aller le chercher d'abord"},
     {"decision": "D-47", "etat": "REPONDUE", "autorise_par": "D-47", "objet": "Libellé de la première étape : « Se protéger » au lieu de « Danger ? » (choix du médecin référent ; la source parle de protection : RTN PSC p. 10)"},
-    {"decision": "D-48", "etat": "REPONDUE", "autorise_par": "D-48", "objet": "Deux étapes ajoutées : « Analyse de la situation » après « Se protéger » (analyse-situation) et « Si plusieurs, répartir les tâches » après « Appeler à l'aide » (repartir-taches) ; placement proposé par le pilote, à corriger par Laurent s'il le veut"},
+    {"decision": "D-48", "etat": "REPONDUE", "autorise_par": "D-48", "objet": "Deux étapes ajoutées : « Analyse de la situation » après « Se protéger » (analyse-situation) et « Si plusieurs, répartir les tâches » après « Appeler à l'aide » (repartir-taches) ; placement proposé par le pilote, à corriger par Laurent s'il le veut ; places modifiées ensuite par D-52, puis par D-57 pour repartir-taches"},
     {"decision": "D-49", "etat": "REPONDUE", "autorise_par": "D-49", "objet": "Étape reconnaitre-arret : libellé « Réaction de la victime » au lieu de « Répond ? » ; précision sur les types de réaction (Laurent : « motrice, orale... »)"},
     {"decision": "D-50", "etat": "REPONDUE", "autorise_par": "D-50", "objet": "Précision de l'étape securite : citer l'équipement de protection individuelle (Laurent : « gants, masque... »)"},
-    {"decision": "D-52", "etat": "REPONDUE", "objet": "Point V31 tranché (ordre des sources) : « Analyser la situation » avant « Se protéger » (logigramme PSC) ; « À plusieurs : répartir » une fois l'arrêt reconnu, après « Respire ? » (RTN PSE p. 138)"}
+    {"decision": "D-52", "etat": "REPONDUE", "objet": "Point V31 tranché (ordre des sources) : « Analyser la situation » avant « Se protéger » (logigramme PSC) ; « À plusieurs : répartir » une fois l'arrêt reconnu, après « Respire ? » (RTN PSE p. 138) ; ce second point est remplacé par D-57 depuis la version 0.4.11"},
+    {"decision": "D-55", "etat": "REPONDUE", "autorise_par": "D-55", "objet": "Ligne à cocher « Bilan à passer au 15 » juste après « Alerter le 15 » (étape bilan-15), précision « Nombre de victimes, âge, identité, état, gestes faits » (Laurent : « nombre de victimes, âge, identité… ») ; contenu d'après les informations minimales de l'alerte (RTN premiers secours citoyen p. 11) et le guide Saed de la HAS"},
+    {"decision": "D-56", "etat": "REPONDUE", "autorise_par": "D-56", "objet": "Vocabulaire médical dans tous les textes affichés (libellés, précisions, consignes) : l'appli s'adresse à des professionnels de santé ; sigles absents des sources toujours en toutes lettres (D-10)"},
+    {"decision": "D-57", "etat": "REPONDUE", "autorise_par": "D-57", "objet": "« À plusieurs : répartir » en premier, juste après « Analyser la situation » (donc avant « Se protéger ») ; remplace, pour cette étape, le placement de D-52 ; précision listant les tâches à répartir : bilan, alerte, DAE, appui (venir aider le leader ou un intervenant qui a une tâche) ; choix du médecin référent (marque portée par l'étape repartir-taches)"}
   ],
   "ordre_etapes": {
     "statut": "DEDUIT",
@@ -89,15 +107,15 @@
     "raisonnement": "L'AFGSU 2 intègre les éléments des référentiels PSC1 (arrêté AFGSU, annexe 2) ; le PSC1 s'appelle désormais PSC et son contenu technique est fixé par les références techniques nationales de juillet 2026 (fiche organisation-secours, R3 à R10 ; lien juridique à confirmer, V9 de cette fiche). La conduite à tenir PSC p. 27 donne l'ordre : ne répond pas, demander de l'aide, allonger, libérer les voies aériennes, respiration 10 s au plus, puis réanimation avec alerte. C'est l'ordre retenu par D-6 pour le moment de l'alerte ; la place de l'appel à l'aide suit la même page (D-35, provisoire). Limite de cet appui (contrôle 0.4.0, écart majeur n° 70) : le PSC prévient lui-même (p. 3) que les puces de ses procédures n'induisent pas systématiquement une hiérarchisation stricte, et son logigramme (p. 6) omet l'appel à l'aide. L'ordre des puces est donc repris fidèlement, mais la source ne l'impose pas comme un ordre strict : l'ordre reste un choix (D-6 répondue ; D-35 provisoire). L'ERC 2025 fait alerter dès l'absence de réponse : divergence maintenue.",
     "ref_fiche": "§ 2, note en tête ; § 7, Moment de l'alerte et Place de l'appel à l'aide",
     "etapes_concernees": ["liberer-voies-aeriennes", "evaluer-respiration", "criteres-arret", "respiration-anormale", "convulsions", "doute-reanimer", "duree-evaluation-pouls", "alerter", "haut-parleur", "numeros-urgence", "plan-a-plan-b", "aide-regulateur", "seul-sans-telephone"],
-    "remarque": "Les étapes de ces deux blocs portent decision « D-6 » : leur rang découle de D-6, pas leur contenu. L'étape appel-aide (et son détail appeler-collegues) porte la marque provisoire « D-35 ». L'étape allonger-dos est placée selon la conduite à tenir PSC p. 27 (CITÉ). Version 0.3.0 : statut A_VALIDER, faute de source officielle lue fixant cet ordre ; DÉDUIT en 0.4.0 par la lecture des RTN PSC (lien AFGSU → PSC à confirmer). Version 0.4.1 : les mots « conforme » et « appuyée par la source » sont retirés ; la séquence reprend les puces du PSC p. 27, qui ne fixent pas un ordre strict (p. 3). Version 0.4.7 : deux étapes insérées par D-48 (analyse-situation après securite ; repartir-taches après appel-aide) ; leur place est la décision de Laurent, pas un rang de puce du PSC."
+    "remarque": "Les étapes de ces deux blocs portent decision « D-6 » : leur rang découle de D-6, pas leur contenu. L'étape appel-aide (et son détail appeler-collegues) porte la marque provisoire « D-35 ». L'étape allonger-dos est placée selon la conduite à tenir PSC p. 27 (CITÉ). Version 0.3.0 : statut A_VALIDER, faute de source officielle lue fixant cet ordre ; DÉDUIT en 0.4.0 par la lecture des RTN PSC (lien AFGSU → PSC à confirmer). Version 0.4.1 : les mots « conforme » et « appuyée par la source » sont retirés ; la séquence reprend les puces du PSC p. 27, qui ne fixent pas un ordre strict (p. 3). Version 0.4.7 : deux étapes insérées par D-48 (analyse-situation après securite ; repartir-taches après appel-aide) ; leur place est la décision de Laurent, pas un rang de puce du PSC. Version 0.4.9 : étape bilan-15 insérée par D-55 après alerter et ses détails ; sa place est la décision de Laurent, pas un rang de puce du PSC. Ordre des étapes D-48 depuis D-52 (0.4.8) puis D-57 (0.4.11) : analyse-situation en tête, puis repartir-taches, puis securite ; ces deux places sont des décisions de Laurent, pas des rangs de puce du PSC (le PSC p. 27 et le PSE p. 138 confient alerte et défibrillateur une fois l'arrêt reconnu : fiche § 7)."
   },
   "phases_et_sections": {
     "statut": "DEDUIT",
     "objet": "Intertitres de regroupement (champ phase des étapes de premier niveau) et rangement sous la pastille Reprise (champ section). Ce ne sont pas des étapes : ils ne modifient ni l'ordre ni le contenu.",
     "phases": {
-      "Protéger": "étape securite : fiche « Protection » des RTN premiers secours citoyen (p. 10) et première question « Danger » du logigramme (p. 3) ; étape analyse-situation (0.4.7, D-48) : le logigramme « Sécuriser l'intervention » range « Observer et repérer » et « Interroger (témoins | victimes) » avec la protection (p. 4), et la fiche « Alerte » lie l'« évaluation rapide de la situation, des risques » à la mise en sécurité (PSC p. 11) ; les RTN premiers secours en équipe rangent au contraire ce temps dans le bilan (« premier regard », p. 65-66) : fiche § 7",
-      "Bilan": "étapes reconnaitre-arret, appel-aide, repartir-taches (0.4.7, D-48 : même intertitre que ses voisines, pour ne pas couper le groupe), allonger-dos, liberer-voies-aeriennes, evaluer-respiration : l'alerte se fait « après une évaluation rapide de la situation » (PSC p. 11) ; les RTN premiers secours en équipe situent la reconnaissance de l'arrêt « au tout début du bilan » (p. 136) ; le PSC lui-même dit « Examiner la victime » (p. 27) et n'emploie pas le mot « bilan »",
-      "Alerter": "étapes alerter et faire-chercher-defibrillateur : « ALERTER » (PSC p. 26) ; fiche « Alerte » (p. 11) ; le tiers alerte et ramène le défibrillateur dans la même phrase (p. 27)",
+      "Protéger": "étape repartir-taches (0.4.11, D-57 : placée entre analyse-situation et securite, elle garde l'intertitre de ses voisines pour ne pas couper le groupe ; choix d'affichage, V29) ; étape securite : fiche « Protection » des RTN premiers secours citoyen (p. 10) et première question « Danger » du logigramme (p. 3) ; étape analyse-situation (0.4.7, D-48) : le logigramme « Sécuriser l'intervention » range « Observer et repérer » et « Interroger (témoins | victimes) » avec la protection (p. 4), et la fiche « Alerte » lie l'« évaluation rapide de la situation, des risques » à la mise en sécurité (PSC p. 11) ; les RTN premiers secours en équipe rangent au contraire ce temps dans le bilan (« premier regard », p. 65-66) : fiche § 7",
+      "Bilan": "étapes reconnaitre-arret, appel-aide, allonger-dos, liberer-voies-aeriennes, evaluer-respiration : l'alerte se fait « après une évaluation rapide de la situation » (PSC p. 11) ; les RTN premiers secours en équipe situent la reconnaissance de l'arrêt « au tout début du bilan » (p. 136) ; le PSC lui-même dit « Examiner la victime » (p. 27) et n'emploie pas le mot « bilan »",
+      "Alerter": "étapes alerter, bilan-15 (0.4.9, D-55 : contenu du message d'alerte, PSC p. 11) et faire-chercher-defibrillateur : « ALERTER » (PSC p. 26) ; fiche « Alerte » (p. 11) ; le tiers alerte et ramène le défibrillateur dans la même phrase (p. 27)",
       "Secourir": "étapes compressions, insufflations, mettre-en-oeuvre-defibrillateur, cycles, causes-reversibles : chapitre 02 « Secourir une personne » du PSC (p. 14)",
       "Reprise": "étapes signes-reprise, apres-reprise, surveillance : la RPP SFMU 2024 emploie « retour à une activité circulatoire spontanée (RACS) » (champ 1) et « reprise d'une activité cardiaque spontanée » (argumentaire de R5.3) ; l'appli écrit déjà « reprise »",
       "Après": "étape apres-intervention : intertitre neutre ; l'aide cognitive HAS/SFAR 2026 range le débriefing sous « Suites à donner » (p. 2)"
@@ -216,7 +234,7 @@
       "url": "https://www.securite-civile.interieur.gouv.fr/documentation/secourisme-et-associations/secourisme-references-techniques-nationales.html",
       "consulte_le": "2026-11-15",
       "en_vigueur": "oui",
-      "lu_en_entier": "Non : p. 136 à 140 (arrêt cardiaque) lues par l'auteur dans le passage 0.4.1, sur le texte extrait (_sources/_texte/DGSCGC_RTN_PSE_2026-07.txt) ; p. 136 relue par le verificateur (contrôle 0.4.0) ; p. 65 à 70 (bilans : premier et deuxième regards) lues par l'auteur en 0.4.7",
+      "lu_en_entier": "Non : p. 136 à 140 (arrêt cardiaque) lues par l'auteur dans le passage 0.4.1, sur le texte extrait (_sources/_texte/DGSCGC_RTN_PSE_2026-07.txt) ; p. 136 relue par le verificateur (contrôle 0.4.0) ; p. 65 à 70 (bilans : premier et deuxième regards) lues par l'auteur en 0.4.7 ; p. 72 (transmission du bilan) et p. 380-381 (fiche « Alerte ») lues par l'auteur en 0.4.9, sur le même texte extrait",
       "remarque": "Annexe 3 de l'arrêté du 07/07/2026 (NOR INTE2618304A). Référentiel des secouristes en équipe, pas du citoyen : cité pour information (recherche du pouls, seuil de la respiration agonique, signes de vie, bilan), jamais seul pour fonder une étape."
     },
     "HAS-SFAR-2026-AC": {
@@ -258,6 +276,16 @@
       "en_vigueur": "oui",
       "lu_en_entier": "Fiche cadre transversal : articles et annexe 2 lus (annexe 2 lue visuellement, images du JO) ; fiche ACR : articles (JO p. 1-2) lus par l'auteur en 0.4.7 sur le texte extrait (_sources/_texte/JORF_0155_2019-07-06_arrete_AFGSU.txt) ; annexes : NON LUES (images)",
       "remarque": "Divergence C-14 entre les deux fiches sur la lecture des annexes. Cité pour l'étape de transmission (objectif B7) et pour l'intégration du PSC1 à l'AFGSU 2, d'après la fiche cadre transversal."
+    },
+    "HAS-SAED-2014": {
+      "titre": "Saed : un guide pour faciliter la communication entre professionnels de santé",
+      "organisme": "HAS",
+      "annee": 2014,
+      "url": "https://www.has-sante.fr/jcms/c_1776178/fr/saed-ca-aide-a-communiquer",
+      "consulte_le": "2026-11-14",
+      "en_vigueur": "incertain",
+      "lu_en_entier": "Non relu par l'auteur de la 0.4.9 : citation reprise de la fiche cadre transversal (docs/reco/cadre-transversal.md § 2.D, ligne D4), dont l'auteur a lu les p. 1-15 du guide le 14/11/2026 ; annexes non lues ; le PDF du guide n'a pas été rouvert (D-8)",
+      "remarque": "Validé par le Collège de la HAS le 08/10/2014, mis en ligne le 24/11/2014 ; aucune abrogation ni mise à jour constatée (fiche cadre, V18). Seule référence officielle trouvée pour la structure du mode transmission (D-9)."
     },
     "CSP-R6311-15": {
       "titre": "Code de la santé publique, art. R6311-15 (utilisation du défibrillateur automatisé externe)",
@@ -393,9 +421,9 @@
       "texte_court": "Analyser la situation",
       "precision": "Que s'est-il passé ? Combien de victimes ?",
       "consigne_guidee": "Évaluez rapidement la situation : ce qui s'est passé, les risques, le nombre de victimes.",
-      "detail": "Premiers secours citoyen : l'alerte se fait « après une évaluation rapide de la situation, des risques et une éventuelle mise en sécurité des personnes » ; le logigramme « Sécuriser l'intervention » fait observer et repérer les dangers et les personnes exposées, puis interroger témoins et victimes ; en cas de victimes multiples, leur nombre est transmis à l'alerte. Premiers secours en équipe (pour information) : le bilan commence par un « premier regard », vision globale de la situation : « Que s'est-il passé ? », dangers, « Combien y a-t-il de victimes ? », moyens suffisants. Référentiel de l'attestation de niveau 2 : identifier une situation d'urgence et la prendre en charge, seul ou en équipe. Place juste après « Se protéger » : décision D-48 du médecin référent (les deux référentiels nationaux font observer la scène avant ou en même temps que la protection).",
+      "detail": "Premiers secours citoyen : l'alerte se fait « après une évaluation rapide de la situation, des risques et une éventuelle mise en sécurité des personnes » ; le logigramme « Sécuriser l'intervention » fait observer et repérer les dangers et les personnes exposées, puis interroger témoins et victimes ; en cas de victimes multiples, leur nombre est transmis à l'alerte. Premiers secours en équipe (pour information) : le bilan commence par un « premier regard », vision globale de la situation : « Que s'est-il passé ? », dangers, « Combien y a-t-il de victimes ? », moyens suffisants. Référentiel de l'attestation de niveau 2 : identifier une situation d'urgence et la prendre en charge, seul ou en équipe. Place en tête, avant « À plusieurs : répartir » et « Se protéger » : décisions D-52 et D-57 du médecin référent (les deux référentiels nationaux font observer la scène avant ou en même temps que la protection).",
       "statut": "DEDUIT",
-      "statut_fiche": "CITÉ (évaluation rapide de la situation : PSC p. 11 ; observer, repérer, interroger : logigramme p. 4 ; premier regard : PSE p. 65-66) ; DÉDUIT (questions de la précision, transposées du premier regard) ; place et libellé : D-48",
+      "statut_fiche": "CITÉ (évaluation rapide de la situation : PSC p. 11 ; observer, repérer, interroger : logigramme p. 4 ; premier regard : PSE p. 65-66) ; DÉDUIT (questions de la précision, transposées du premier regard) ; libellé : D-48 ; place : D-52",
       "sources": [
         {"ref": "DGSCGC-PSC-2026", "localisation": "p. 11 (fiche « Alerte »)", "citation": "après une évaluation rapide de la situation, des risques"},
         {"ref": "DGSCGC-PSC-2026", "localisation": "p. 11 (informations minimales de l'alerte)", "citation": "en cas de situation à multiples victimes, préciser le nombre de victimes"},
@@ -405,7 +433,7 @@
         {"ref": "DGSCGC-PSE-2026", "localisation": "p. 66 (premier regard, tableau)", "citation": "« Combien y a-t-il de victimes ? »"},
         {"ref": "ARRETE-AFGSU-2019", "localisation": "art. 1er, 5° (nouveau premier alinéa de l'article 5 : objet de l'attestation de niveau 2), JO p. 2", "citation": "L'identification d'une situation d'urgence à caractère médical et sa prise en charge"}
       ],
-      "raisonnement": "Les références nationales de premiers secours citent l'évaluation de la situation : rapide, avec les risques, avant l'alerte (PSC p. 11) ; observer, repérer et interroger dans « Sécuriser l'intervention » (logigramme p. 4) ; premier regard du bilan en équipe (PSE p. 65-66), dont les questions « Que s'est-il passé ? » et « Combien y a-t-il de victimes ? » sont reprises telles quelles dans la précision. Le PSE est le référentiel des secouristes en équipe : il appuie la précision avec le PSC p. 11 (nombre de victimes), il ne fonde pas seul l'étape. L'étape, son libellé et sa place (après « Se protéger », intertitre Protéger) sont la décision D-48 de Laurent.",
+      "raisonnement": "Les références nationales de premiers secours citent l'évaluation de la situation : rapide, avec les risques, avant l'alerte (PSC p. 11) ; observer, repérer et interroger dans « Sécuriser l'intervention » (logigramme p. 4) ; premier regard du bilan en équipe (PSE p. 65-66), dont les questions « Que s'est-il passé ? » et « Combien y a-t-il de victimes ? » sont reprises telles quelles dans la précision. Le PSE est le référentiel des secouristes en équipe : il appuie la précision avec le PSC p. 11 (nombre de victimes), il ne fonde pas seul l'étape. L'étape et son libellé sont la décision D-48 de Laurent ; sa place (en tête, intertitre Protéger) suit D-52 (0.4.8), et « À plusieurs : répartir » la suit directement depuis D-57 (0.4.11).",
       "ref_fiche": "§ 2, étape 1 bis",
       "qui_fiche": "Tous",
       "professions": {"geste": "securite"},
@@ -417,8 +445,51 @@
       "materiel": []
     },
     {
-      "id": "securite",
+      "id": "repartir-taches",
       "ordre": 2,
+      "parent": null,
+      "phase": "Protéger",
+      "niveau": "principal",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Si plusieurs, répartir les tâches",
+      "texte_court": "À plusieurs : répartir",
+      "precision": "Bilan, alerte, DAE, appui (aider le leader ou un intervenant)",
+      "consigne_guidee": "À plusieurs, répartissez les tâches dès le début : qui fait le bilan, qui alerte, qui apporte le défibrillateur, qui vient en appui du leader ou d'un intervenant.",
+      "detail": "Tâches de la précision : décision D-57 du médecin référent (« appui » : venir aider le leader ou un intervenant qui a une tâche). Premiers secours citoyen : au tiers, « lui demander d'alerter les secours, et de ramener et installer un DAE » ; quand l'alerte est confiée à une autre personne, s'assurer avant qu'elle possède tous les éléments ; à plusieurs intervenants formés, se relayer et confier à l'un le rôle de « coach », qui guide, encourage et corrige les gestes des autres. Premiers secours en équipe (pour information, secouristes équipés) : organisation selon le nombre de secouristes ; à 3 ou plus, « les trois actions (alerte, RCP et DAE) sont réalisées simultanément » ; à plusieurs, les mesures peuvent être faites pendant qu'un autre secouriste s'occupe de l'interrogatoire et de l'examen. ERC : à plusieurs témoins, l'un est guidé vers le défibrillateur ; l'un continue la réanimation pendant que l'autre pose les électrodes ; à l'hôpital, rôles attribués à l'avance, et ignorer qui est le leader peut causer des erreurs. Aide cognitive HAS/SFAR 2026 (hôpital) : « actions simultanées » avant l'équipe de réanimation ; leader médical noté en traçabilité. Aucune source lue ne fixe une répartition nominative pour 2 ou 3 soignants libéraux (point V7). Place en tête, juste après « Analyser la situation » et avant « Se protéger » : décision D-57 du médecin référent ; les sources, elles, répartissent ces tâches une fois l'arrêt reconnu (premiers secours citoyen p. 27 ; premiers secours en équipe p. 138).",
+      "statut": "DEDUIT",
+      "statut_fiche": "CITÉ (alerte et défibrillateur confiés à un tiers : PSC p. 27, ERC BLS p. 4 et p. 18 ; tâches simultanées : PSE p. 138 ; bilan partagé : PSE p. 70 ; coach : PSC p. 28 ; pose des électrodes pendant le massage : ERC BLS p. 5 ; leader et rôles, hôpital : ERC ALS p. 6 et p. 15, HAS/SFAR) ; DÉDUIT (bilan et appui comme tâches à répartir au cabinet) ; liste et place : D-57 ; libellé : D-48 ; répartition nominative : A_VALIDER (V7)",
+      "sources": [
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 138 (« Organisation selon le nombre de secouristes » ; secouristes en équipe)", "citation": "les trois actions (alerte, RCP et DAE) sont réalisées simultanément"},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 65 (généralités sur les bilans ; pour information)", "citation": "Le bilan est la phase de recueil d'informations permettant d'évaluer une situation et l'état d'une victime"},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 70 (quatrième regard ; pour information)", "citation": "À plusieurs secouristes, la réalisation de la mesure des paramètres physiologiques"},
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 27", "citation": "lui demander d'alerter les secours, et de ramener et installer un DAE"},
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 12 (fiche « Alerte » : alerte confiée à une autre personne)", "citation": "avant l'alerte, de s'assurer qu'elle possède tous les éléments"},
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 28", "citation": "un de ces intervenants formés peut assurer le rôle de « coach »"},
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 28 (rôle du coach)", "citation": "en guidant, encourageant et corrigeant les gestes effectués par les autres"},
+        {"ref": "ERC-BLS", "localisation": "p. 4 (rôle du régulateur)", "citation": "more than one bystander is present, dispatchers should guide bystanders to the nearest AED"},
+        {"ref": "ERC-BLS", "localisation": "p. 18", "citation": "the dispatcher is able to guide a bystander to locate and retrieve an AED"},
+        {"ref": "ERC-BLS", "localisation": "p. 5 (si plus d'un sauveteur est présent)", "citation": "continue CPR while the defibrillation pads are being attached"},
+        {"ref": "ERC-ALS", "localisation": "p. 6 (recommandation, hôpital)", "citation": "for introductions and allocation of team roles"},
+        {"ref": "ERC-ALS", "localisation": "p. 15 (hôpital)", "citation": "including who is acting as team leader can lead to errors"},
+        {"ref": "HAS-SFAR-2026-AC", "localisation": "p. 1 (en-tête) et p. 2 (traçabilité : « Leader médical (Réa) »)", "citation": "ACTIONS SIMULTANEES A ENTREPRENDRE AVANT L'ARRIVEE DE L'EQUIPE DE REANIMATION"},
+        {"ref": "ARRETE-AFGSU-2019", "localisation": "art. 1er, 5° (objet de l'attestation de niveau 2), JO p. 2", "citation": "sa prise en charge, seul ou en équipe"},
+        {"ref": "SPEC", "localisation": "partie 2, D-57 (tâches à répartir, place en tête) ; partie 1, « Rôles d'équipe »"}
+      ],
+      "raisonnement": "Les sources font confier l'alerte et le défibrillateur à un tiers (PSC p. 12 et p. 27 ; ERC BLS p. 4 et p. 18), mener ces tâches en même temps à plusieurs (PSE p. 138, pour information) et partager le bilan entre secouristes (PSE p. 65 et p. 70, pour information) ; un intervenant peut guider, encourager et corriger les autres (coach, PSC p. 28), un second pose les électrodes pendant que le premier masse (ERC BLS p. 5), un leader coordonne à l'hôpital (ERC ALS p. 15 ; HAS/SFAR). La liste de la précision (bilan, alerte, DAE, appui) est la décision D-57 de Laurent : alerte et DAE sont CITÉS comme tâches confiées à un tiers ; bilan et appui sont DÉDUITS (bilan partagé, PSE p. 70 ; aide à celui qui mène une tâche, rapprochée du coach du PSC p. 28 et de la pose des électrodes pendant le massage, ERC BLS p. 5) ; le mot « appui » n'est écrit dans aucune source lue. La place en tête est la décision D-57 : aucune source lue ne l'impose ; les sources répartissent alerte, réanimation et défibrillateur une fois l'arrêt reconnu (PSC p. 27 ; PSE p. 138), mais les puces du PSC n'induisent pas une hiérarchisation stricte (p. 3) : divergence d'ordre signalée (fiche § 7), sans contradiction de contenu. Répartir n'est pas exécuter : l'alerte elle-même reste après « Respire ? » (D-6).",
+      "ref_fiche": "§ 2, étape 3 bis",
+      "qui_fiche": "Tous",
+      "professions": {"geste": "alerter_transmettre"},
+      "decision": "D-57",
+      "autorise_par": "D-57",
+      "remarque": "Étape ajoutée en 0.4.7 (D-48, après « Appeler à l'aide »), placée en 0.4.8 après « Respire ? » (D-52), puis en 0.4.11 en tête, juste après « Analyser la situation » et avant « Se protéger » (D-57, qui remplace D-52 pour cette étape). Intertitre « Protéger » : choix d'affichage DÉDUIT, pour ne pas couper le groupe Protéger entre « Analyser la situation » et « Se protéger » (l'intertitre s'affiche quand il change) ; à confirmer (V29). Précision 0.4.11 : « Chef, compressions, défibrillateur, appel » (rôles du cahier des charges) remplacée par la liste de D-57. Renvoie aux rôles d'équipe de l'appli (bloc equipe, points leader et repartition-roles ; écran « Rôles d'équipe », facultatif et jamais bloquant). Rattachement au geste alerter_transmettre : DÉDUIT (répartir, c'est d'abord confier l'alerte et l'apport du défibrillateur à un tiers, PSC p. 12 et p. 27 ; geste ouvert à toute personne) ; identifiant présent dans professions.json. Le libellé court tient en 22 caractères ; « Si plusieurs, répartir les tâches » (formule de Laurent) reste le titre de la fiche. ref_fiche inchangé (identifiant publié).",
+      "cochable": true,
+      "acronymes": [],
+      "materiel": []
+    },
+    {
+      "id": "securite",
+      "ordre": 3,
       "parent": null,
       "phase": "Protéger",
       "niveau": "principal",
@@ -453,7 +524,7 @@
     },
     {
       "id": "protection-individuelle",
-      "ordre": 3,
+      "ordre": 4,
       "parent": "securite",
       "niveau": "detail",
       "premier_ecran": false,
@@ -478,7 +549,7 @@
     },
     {
       "id": "reconnaitre-arret",
-      "ordre": 4,
+      "ordre": 5,
       "parent": null,
       "phase": "Bilan",
       "niveau": "principal",
@@ -512,7 +583,7 @@
     },
     {
       "id": "appel-aide",
-      "ordre": 5,
+      "ordre": 6,
       "parent": null,
       "phase": "Bilan",
       "niveau": "principal",
@@ -542,7 +613,7 @@
     },
     {
       "id": "appeler-collegues",
-      "ordre": 6,
+      "ordre": 7,
       "parent": "appel-aide",
       "niveau": "detail",
       "premier_ecran": false,
@@ -569,7 +640,7 @@
     },
     {
       "id": "allonger-dos",
-      "ordre": 7,
+      "ordre": 8,
       "parent": null,
       "phase": "Bilan",
       "niveau": "principal",
@@ -596,7 +667,7 @@
     },
     {
       "id": "liberer-voies-aeriennes",
-      "ordre": 8,
+      "ordre": 9,
       "parent": null,
       "phase": "Bilan",
       "niveau": "principal",
@@ -625,7 +696,7 @@
     },
     {
       "id": "evaluer-respiration",
-      "ordre": 9,
+      "ordre": 10,
       "parent": null,
       "phase": "Bilan",
       "niveau": "principal",
@@ -656,7 +727,7 @@
     },
     {
       "id": "criteres-arret",
-      "ordre": 10,
+      "ordre": 11,
       "parent": "evaluer-respiration",
       "niveau": "detail",
       "premier_ecran": false,
@@ -682,7 +753,7 @@
     },
     {
       "id": "respiration-anormale",
-      "ordre": 11,
+      "ordre": 12,
       "parent": "evaluer-respiration",
       "niveau": "detail",
       "premier_ecran": false,
@@ -708,7 +779,7 @@
     },
     {
       "id": "convulsions",
-      "ordre": 12,
+      "ordre": 13,
       "parent": "evaluer-respiration",
       "niveau": "detail",
       "premier_ecran": false,
@@ -734,7 +805,7 @@
     },
     {
       "id": "doute-reanimer",
-      "ordre": 13,
+      "ordre": 14,
       "parent": "evaluer-respiration",
       "niveau": "detail",
       "premier_ecran": false,
@@ -757,7 +828,7 @@
     },
     {
       "id": "duree-evaluation-pouls",
-      "ordre": 14,
+      "ordre": 15,
       "parent": "evaluer-respiration",
       "niveau": "detail",
       "premier_ecran": false,
@@ -784,44 +855,6 @@
       "decision": "D-6",
       "remarque": "Habilitation (revue de code L6 du 15/11/2026 : « tous » retiré). Rattachement DÉDUIT au geste constantes_non_invasives, dont le libellé nomme le pouls. La partie « durée » de l'ancienne étape est passée dans evaluer-respiration (CITÉ) ; l'identifiant est conservé pour la partie pouls. Version 0.4.1 (contrôle 0.4.0, écart majeur n° 13) : l'ancien libellé « Recherche du pouls » se lisait comme une consigne contraire aux sources ; remplacé par la formule de l'aide cognitive HAS/SFAR 2026, avec deux sources françaises désormais lues.",
       "cochable": false,
-      "acronymes": [],
-      "materiel": []
-    },
-    {
-      "id": "repartir-taches",
-      "ordre": 15,
-      "parent": null,
-      "phase": "Bilan",
-      "niveau": "principal",
-      "premier_ecran": false,
-      "critique": false,
-      "titre_fiche": "Si plusieurs, répartir les tâches",
-      "texte_court": "À plusieurs : répartir",
-      "precision": "Chef, compressions, défibrillateur, appel",
-      "consigne_guidee": "À plusieurs, répartissez les tâches : qui coordonne, qui masse, qui apporte et pose le défibrillateur, qui alerte.",
-      "detail": "Premiers secours en équipe (pour information, secouristes équipés) : organisation selon le nombre de secouristes ; à 3 ou plus, « les trois actions (alerte, RCP et DAE) sont réalisées simultanément ». Premiers secours citoyen : demander au tiers d'alerter et de ramener et installer un défibrillateur ; s'assurer que la personne qui alerte a tous les éléments ; à plusieurs intervenants formés, se relayer et confier à l'un le rôle de « coach ». ERC : à plusieurs, l'un continue la réanimation pendant que l'autre pose les électrodes ; à l'hôpital, rôles attribués à l'avance, et ignorer qui est le leader peut causer des erreurs. Aide cognitive HAS/SFAR 2026 (hôpital) : « actions simultanées » avant l'équipe de réanimation ; leader médical noté en traçabilité. Les rôles proposés par l'appli (chef, compressions, défibrillateur, appel) viennent du cahier des charges ; aucune source lue ne fixe une répartition nominative pour 2 ou 3 soignants libéraux (point V7). Étape, libellé et place (après « Appeler à l'aide ») : décision D-48 du médecin référent.",
-      "statut": "DEDUIT",
-      "statut_fiche": "CITÉ (tâches simultanées : PSE p. 138 ; tiers qui alerte et rapporte le défibrillateur : PSC p. 27 ; coach : PSC p. 28 ; ERC BLS p. 5 ; leader et rôles, hôpital : ERC ALS p. 6 et p. 15, HAS/SFAR) ; DÉDUIT (transposition à 2 ou 3 soignants ; rôles du cahier des charges) ; place et libellé : D-48 ; répartition nominative : A_VALIDER (V7)",
-      "sources": [
-        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 138 (« Organisation selon le nombre de secouristes » ; secouristes en équipe)", "citation": "les trois actions (alerte, RCP et DAE) sont réalisées simultanément"},
-        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 27", "citation": "lui demander d'alerter les secours, et de ramener et installer un DAE"},
-        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 12 (fiche « Alerte » : alerte confiée à une autre personne)", "citation": "avant l'alerte, de s'assurer qu'elle possède tous les éléments"},
-        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 28", "citation": "un de ces intervenants formés peut assurer le rôle de « coach »"},
-        {"ref": "ERC-BLS", "localisation": "p. 5 (si plus d'un sauveteur est présent)", "citation": "continue CPR while the defibrillation pads are being attached"},
-        {"ref": "ERC-ALS", "localisation": "p. 6 (recommandation, hôpital)", "citation": "for introductions and allocation of team roles"},
-        {"ref": "ERC-ALS", "localisation": "p. 15 (hôpital)", "citation": "including who is acting as team leader can lead to errors"},
-        {"ref": "HAS-SFAR-2026-AC", "localisation": "p. 1 (en-tête) et p. 2 (traçabilité : « Leader médical (Réa) »)", "citation": "ACTIONS SIMULTANEES A ENTREPRENDRE AVANT L'ARRIVEE DE L'EQUIPE DE REANIMATION"},
-        {"ref": "ARRETE-AFGSU-2019", "localisation": "art. 1er, 5° (objet de l'attestation de niveau 2), JO p. 2", "citation": "sa prise en charge, seul ou en équipe"},
-        {"ref": "SPEC", "localisation": "partie 1, « Rôles d'équipe » (chef d'intervention, compressions, défibrillateur et matériel, appel, scribe)"}
-      ],
-      "raisonnement": "Les sources font mener en même temps, à plusieurs, l'alerte, la réanimation et le défibrillateur (PSE p. 138 ; PSC p. 27 ; ERC BLS p. 5), avec un intervenant qui guide (coach, PSC p. 28) ou un leader (ERC ALS p. 15 et HAS/SFAR, contexte hospitalier). Répartir ces tâches dès que les collègues arrivent en est la transposition au cabinet. La précision reprend les rôles de l'écran « Rôles d'équipe » du cahier des charges (chef, compressions, défibrillateur, appel) : ce sont des rôles d'interface, pas une répartition sourcée ; qui prend quel rôle à 2 ou 3 soignants reste à décider (V7, V19). L'étape, son libellé et sa place sont la décision D-48 de Laurent.",
-      "ref_fiche": "§ 2, étape 3 bis",
-      "qui_fiche": "Tous",
-      "professions": {"geste": "alerter_transmettre"},
-      "decision": "D-48",
-      "autorise_par": "D-48",
-      "remarque": "Étape ajoutée en 0.4.7 (D-48). Renvoie aux rôles d'équipe de l'appli (bloc equipe, points leader et repartition-roles ; écran « Rôles d'équipe », facultatif et jamais bloquant). Rattachement au geste alerter_transmettre : DÉDUIT (répartir, c'est d'abord confier l'alerte et l'apport du défibrillateur à un tiers, PSC p. 12 et p. 27 ; geste ouvert à toute personne). L'identifiant est à ajouter à professions.json (geste alerter_transmettre, etapes_protocole), fichier tenu par le pilote. Le libellé court tient en 22 caractères ; « Si plusieurs, répartir les tâches » (formule de Laurent) reste le titre de la fiche.",
-      "cochable": true,
       "acronymes": [],
       "materiel": []
     },
@@ -1001,8 +1034,44 @@
       "materiel": []
     },
     {
-      "id": "faire-chercher-defibrillateur",
+      "id": "bilan-15",
       "ordre": 22,
+      "parent": null,
+      "phase": "Alerter",
+      "niveau": "principal",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Bilan à passer au 15",
+      "texte_court": "Bilan à passer au 15",
+      "precision": "Nombre de victimes, âge, identité, état, gestes faits",
+      "consigne_guidee": "Préparez ce que vous direz au 15 : numéro de rappel, lieu précis, nombre de victimes ; pour la victime, son identité, son âge, son état (ne répond pas, ne respire pas normalement) et les gestes déjà faits (massage, défibrillateur). Donnez d'abord l'essentiel sans retarder l'alerte, complétez ensuite. Le mode transmission de l'appli aide à le faire.",
+      "detail": "Informations minimales de l'alerte (premiers secours citoyen p. 11 ; premiers secours en équipe p. 380, pour information) : numéro de rappel, nature du problème, nombre de victimes en cas de victimes multiples, localisation la plus précise possible ; l'alerte doit être « rapide et précise ». Premiers secours en équipe (pour information, p. 72) : en cas de détresse vitale, transmettre sans délai la nature de l'intervention, le motif de la demande de renfort médical, le sexe et l'âge de la victime, puis compléter « dans les meilleurs délais » par un bilan complet (motif réel, sexe et âge, plainte principale, résultat du bilan et gestes de secours entrepris). Guide Saed de la HAS, 2014 (d'après la fiche cadre transversal § 2.D) : dans « Situation », l'identité du patient (nom, prénom, âge), sa localisation actuelle, le motif de l'appel et les faits objectifs (signes cliniques, constantes vitales). Dans l'appli : le mode transmission présente ces éléments (structure Saed, décision D-9) pour aider à les donner pendant l'appel. Libellé, place et précision (« nombre de victimes, âge, identité… ») : décision D-55 de Laurent ; la liste exacte de la précision est un choix de l'auteur, appuyé sur ces sources, à confirmer.",
+      "statut": "DEDUIT",
+      "statut_fiche": "CITÉ (informations minimales de l'alerte : PSC p. 11 ; sexe, âge, résultat du bilan, gestes entrepris : PSE p. 72, pour information ; identité : guide Saed, d'après la fiche cadre, guide non relu par l'auteur) ; DÉDUIT (liste retenue pour la précision, application au soignant libéral) ; libellé et place : D-55",
+      "sources": [
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 11 (fiche « Alerte », informations minimales à transmettre)", "citation": "en cas de situation à multiples victimes, préciser le nombre de victimes"},
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 11 (fiche « Alerte », présentation)", "citation": "Elle doit être rapide et précise"},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 380 (fiche « Alerte » ; même liste d'informations minimales ; pour information)", "citation": "la nature du problème : maladie, accident, attaque terroriste, etc."},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 72 (fiche « Transmission du bilan », la victime présente une détresse vitale ; pour information)", "citation": "le sexe et l'âge de la victime"},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 72 (fiche « Transmission du bilan », la victime présente une détresse vitale ; pour information)", "citation": "transmettre sans délai une demande de moyen médical en renfort"},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 72 (fiche « Transmission du bilan », la victime ne présente pas de détresse vitale ; pour information)", "citation": "le résultat du bilan et les gestes de secours entrepris"},
+        {"ref": "HAS-SAED-2014", "localisation": "§ 1.2, p. 9 (S : situation), cité d'après la fiche cadre transversal § 2.D, ligne D4 ; guide non relu par l'auteur", "citation": "l'identité du patient (nom, prénom, âge du patient)"},
+        {"ref": "SPEC", "localisation": "partie 1, « Module d'alerte » (mode transmission) ; partie 2, D-9 et D-55"}
+      ],
+      "raisonnement": "Le contenu minimal d'une alerte est cité : numéro de rappel, nature du problème, nombre de victimes si elles sont plusieurs, lieu (PSC p. 11 ; PSE p. 380). Le PSE p. 72 (secouristes en équipe, pour information) ajoute le sexe et l'âge, puis le résultat du bilan et les gestes entrepris, avec la consigne de transmettre sans délai l'essentiel puis de compléter. L'identité (nom, prénom, âge) vient du guide Saed de la HAS (S), cité d'après la fiche cadre ; ni le PSC ni le PSE ne la demandent pour l'alerte. La précision reprend la demande de Laurent (« nombre de victimes, âge, identité… ») et la complète de deux mots tirés du PSE p. 72 et de Saed : « état » (résultat du bilan ; signes cliniques) et « gestes faits » (gestes de secours entrepris). Le PSE et Saed s'adressent à des secouristes en équipe et à des professionnels de santé : l'application à un soignant libéral qui alerte le 15 est DÉDUITE ; aucune source lue ne dit ce qu'un soignant libéral doit transmettre au 15 (fiche cadre transversal, D15 : A_VALIDER). Libellé et place : D-55.",
+      "ref_fiche": "§ 2, étape 7 bis",
+      "qui_fiche": "Tous",
+      "professions": {"geste": "alerter_transmettre"},
+      "decision": "D-55",
+      "autorise_par": "D-55",
+      "remarque": "Étape ajoutée en 0.4.9 (D-55, remarque de Laurent en testant la version 0.2.4). Placée en premier niveau juste après « Alerter le 15 » et ses détails (haut-parleur à seul-sans-telephone), avant faire-chercher-defibrillateur ; cochage_auto « appel » reste sur l'étape alerter, la barre vitale est inchangée. Cochable, jamais bloquante (l'appli ne retarde pas l'alerte). Rattachement au geste alerter_transmettre : DÉDUIT (transmettre les informations à l'alerte) ; l'identifiant est à ajouter à professions.json (geste alerter_transmettre, etapes_protocole), fichier tenu par le pilote. « Heure de début » et ordre d'affichage du mode transmission : cahier des charges, non repris ici.",
+      "cochable": true,
+      "acronymes": ["saed"],
+      "materiel": []
+    },
+    {
+      "id": "faire-chercher-defibrillateur",
+      "ordre": 23,
       "parent": null,
       "phase": "Alerter",
       "niveau": "vital",
@@ -1047,7 +1116,7 @@
     },
     {
       "id": "compressions",
-      "ordre": 23,
+      "ordre": 24,
       "parent": null,
       "phase": "Secourir",
       "niveau": "vital",
@@ -1086,7 +1155,7 @@
     },
     {
       "id": "position-mains",
-      "ordre": 24,
+      "ordre": 25,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1111,7 +1180,7 @@
     },
     {
       "id": "bras-tendus",
-      "ordre": 25,
+      "ordre": 26,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1133,7 +1202,7 @@
     },
     {
       "id": "profondeur",
-      "ordre": 26,
+      "ordre": 27,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1158,7 +1227,7 @@
     },
     {
       "id": "frequence",
-      "ordre": 27,
+      "ordre": 28,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1183,7 +1252,7 @@
     },
     {
       "id": "relachement",
-      "ordre": 28,
+      "ordre": 29,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1205,7 +1274,7 @@
     },
     {
       "id": "plan-de-compression",
-      "ordre": 29,
+      "ordre": 30,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1232,7 +1301,7 @@
     },
     {
       "id": "patient-obese",
-      "ordre": 30,
+      "ordre": 31,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1257,7 +1326,7 @@
     },
     {
       "id": "femme-enceinte",
-      "ordre": 31,
+      "ordre": 32,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1285,7 +1354,7 @@
     },
     {
       "id": "femme-enceinte-terme",
-      "ordre": 32,
+      "ordre": 33,
       "parent": "femme-enceinte",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1312,7 +1381,7 @@
     },
     {
       "id": "insufflations",
-      "ordre": 33,
+      "ordre": 34,
       "parent": null,
       "phase": "Secourir",
       "niveau": "principal",
@@ -1340,7 +1409,7 @@
     },
     {
       "id": "technique-insufflation",
-      "ordre": 34,
+      "ordre": 35,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1362,7 +1431,7 @@
     },
     {
       "id": "pause-insufflations",
-      "ordre": 35,
+      "ordre": 36,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1389,7 +1458,7 @@
     },
     {
       "id": "echec-insufflations",
-      "ordre": 36,
+      "ordre": 37,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1411,7 +1480,7 @@
     },
     {
       "id": "compressions-continues",
-      "ordre": 37,
+      "ordre": 38,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1436,7 +1505,7 @@
     },
     {
       "id": "option-professionnels",
-      "ordre": 38,
+      "ordre": 39,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1459,7 +1528,7 @@
     },
     {
       "id": "ventilation-manuelle-masque",
-      "ordre": 39,
+      "ordre": 40,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1486,7 +1555,7 @@
     },
     {
       "id": "oxygene-pendant-reanimation",
-      "ordre": 40,
+      "ordre": 41,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1508,7 +1577,7 @@
     },
     {
       "id": "canule-oropharyngee",
-      "ordre": 41,
+      "ordre": 42,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1530,7 +1599,7 @@
     },
     {
       "id": "ventilation-passive",
-      "ordre": 42,
+      "ordre": 43,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1561,7 +1630,7 @@
     },
     {
       "id": "mettre-en-oeuvre-defibrillateur",
-      "ordre": 43,
+      "ordre": 44,
       "parent": null,
       "phase": "Secourir",
       "niveau": "vital",
@@ -1600,7 +1669,7 @@
     },
     {
       "id": "electrodes",
-      "ordre": 44,
+      "ordre": 45,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1622,15 +1691,15 @@
     },
     {
       "id": "position-antero-laterale",
-      "ordre": 45,
+      "ordre": 46,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
       "critique": false,
       "titre_fiche": "Position antéro-latérale (habituelle)",
       "texte_court": "Antéro-latérale",
-      "precision": "Habituelle : sous clavicule droite, sous aisselle gauche",
-      "consigne_guidee": "Suivez le schéma du fabricant : le plus souvent, une électrode sous la clavicule droite, l'autre sur la ligne axillaire moyenne gauche, sous l'aisselle.",
+      "precision": "Habituelle : infraclaviculaire droite, axillaire gauche",
+      "consigne_guidee": "Suivez le schéma du fabricant : le plus souvent, une électrode en position infraclaviculaire droite, l'autre sur la ligne axillaire moyenne gauche, sous l'aisselle.",
       "detail": "Suivre les consignes du fabricant ; le plus souvent : une électrode sous la clavicule droite, juste à droite du bord supérieur du sternum ; l'autre centrée sur la ligne axillaire moyenne gauche, sous l'aisselle ; éviter le tissu mammaire si possible.",
       "statut": "CITE",
       "statut_fiche": "CITÉ (reformulé)",
@@ -1648,7 +1717,7 @@
     },
     {
       "id": "position-antero-posterieure",
-      "ordre": 46,
+      "ordre": 47,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1670,7 +1739,7 @@
     },
     {
       "id": "soutien-gorge",
-      "ordre": 47,
+      "ordre": 48,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1692,7 +1761,7 @@
     },
     {
       "id": "boitier-implante",
-      "ordre": 48,
+      "ordre": 49,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1714,7 +1783,7 @@
     },
     {
       "id": "oxygene-et-choc",
-      "ordre": 49,
+      "ordre": 50,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1738,7 +1807,7 @@
     },
     {
       "id": "analyse-rythme",
-      "ordre": 50,
+      "ordre": 51,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1760,7 +1829,7 @@
     },
     {
       "id": "choc-indique",
-      "ordre": 51,
+      "ordre": 52,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1782,7 +1851,7 @@
     },
     {
       "id": "apres-choc",
-      "ordre": 52,
+      "ordre": 53,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1809,7 +1878,7 @@
     },
     {
       "id": "choc-non-indique",
-      "ordre": 53,
+      "ordre": 54,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1835,7 +1904,7 @@
     },
     {
       "id": "suivre-defibrillateur",
-      "ordre": 54,
+      "ordre": 55,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1857,7 +1926,7 @@
     },
     {
       "id": "cycles",
-      "ordre": 55,
+      "ordre": 56,
       "parent": null,
       "phase": "Secourir",
       "niveau": "principal",
@@ -1887,7 +1956,7 @@
     },
     {
       "id": "cycles-avec-defibrillateur",
-      "ordre": 56,
+      "ordre": 57,
       "parent": "cycles",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1910,7 +1979,7 @@
     },
     {
       "id": "limiter-interruptions",
-      "ordre": 57,
+      "ordre": 58,
       "parent": "cycles",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1932,7 +2001,7 @@
     },
     {
       "id": "releve-masseur",
-      "ordre": 58,
+      "ordre": 59,
       "parent": "cycles",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1961,7 +2030,7 @@
     },
     {
       "id": "causes-reversibles",
-      "ordre": 59,
+      "ordre": 60,
       "parent": null,
       "phase": "Secourir",
       "niveau": "principal",
@@ -1987,7 +2056,7 @@
     },
     {
       "id": "causes-reversibles-cabinet",
-      "ordre": 60,
+      "ordre": 61,
       "parent": "causes-reversibles",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2011,7 +2080,7 @@
     },
     {
       "id": "signes-reprise",
-      "ordre": 61,
+      "ordre": 62,
       "parent": null,
       "phase": "Reprise",
       "section": "reprise",
@@ -2041,7 +2110,7 @@
     },
     {
       "id": "signes-reprise-cabinet",
-      "ordre": 62,
+      "ordre": 63,
       "parent": "signes-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2071,7 +2140,7 @@
     },
     {
       "id": "laisser-defibrillateur",
-      "ordre": 63,
+      "ordre": 64,
       "parent": "signes-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2098,7 +2167,7 @@
     },
     {
       "id": "apres-reprise",
-      "ordre": 64,
+      "ordre": 65,
       "parent": null,
       "phase": "Reprise",
       "section": "reprise",
@@ -2126,7 +2195,7 @@
     },
     {
       "id": "oxygene-apres-reprise",
-      "ordre": 65,
+      "ordre": 66,
       "parent": "apres-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2149,7 +2218,7 @@
     },
     {
       "id": "position-laterale",
-      "ordre": 66,
+      "ordre": 67,
       "parent": "apres-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2171,7 +2240,7 @@
     },
     {
       "id": "pression-arterielle-cible",
-      "ordre": 67,
+      "ordre": 68,
       "parent": "apres-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2194,7 +2263,7 @@
     },
     {
       "id": "surveillance",
-      "ordre": 68,
+      "ordre": 69,
       "parent": null,
       "phase": "Reprise",
       "section": "reprise",
@@ -2224,7 +2293,7 @@
     },
     {
       "id": "recidive-arret",
-      "ordre": 69,
+      "ordre": 70,
       "parent": "surveillance",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2251,7 +2320,7 @@
     },
     {
       "id": "constantes-transmission",
-      "ordre": 70,
+      "ordre": 71,
       "parent": "surveillance",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2274,7 +2343,7 @@
     },
     {
       "id": "apres-intervention",
-      "ordre": 71,
+      "ordre": 72,
       "parent": null,
       "phase": "Après",
       "niveau": "principal",
@@ -2693,7 +2762,7 @@
     {
       "id": "repartition-roles",
       "point": "Répartition chef, compressions, défibrillateur, appel, scribe (prévue par le cahier des charges)",
-      "texte": "Aucune répartition nominative des rôles pour une équipe de 1 à 3 soignants hors hôpital n'a été trouvée dans les sources lues. L'appli ne propose aucune répartition nominative ; depuis la version 0.4.7, l'étape « À plusieurs : répartir » (repartir-taches, D-48) rappelle seulement les rôles à attribuer.",
+      "texte": "Aucune répartition nominative des rôles pour une équipe de 1 à 3 soignants hors hôpital n'a été trouvée dans les sources lues. L'appli ne propose aucune répartition nominative ; depuis la version 0.4.7, l'étape « À plusieurs : répartir » (repartir-taches, D-48) rappelle seulement les tâches à attribuer ; depuis la version 0.4.11, elle est en tête de la conduite à tenir et liste bilan, alerte, défibrillateur et appui (D-57), sans dire qui prend quelle tâche.",
       "statut": "A_VALIDER",
       "statut_fiche": "A_VALIDER",
       "sources": [{"ref": "SPEC", "localisation": "Rôles d'équipe"}],
@@ -2737,7 +2806,8 @@
     {"point": "Recherche du pouls", "consequence": "Absente du BLS ERC et du PSC ; aide cognitive HAS/SFAR 2026 (hôpital) : pas nécessaire ; RTN premiers secours en équipe p. 136 : non systématique, 10 s au plus, sans retarder, au choix des autorités médicales de chaque organisme. Libellé « Pouls : pas nécessaire » (HAS/SFAR) ; règle pour les soignants libéraux : décision médicale (A_VALIDER) ; position AHA non lue.", "ref_fiche": "§ 7, ligne 14"},
     {"point": "Ordre selon l'aide cognitive HAS/SFAR 2026 (hôpital)", "consequence": "Appel de la ligne d'urgence vitale juste après le constat, avant les compressions ; libération des voies aériennes plus bas, parmi des « actions simultanées ». Contexte hospitalier : information, sans effet sur D-6.", "ref_fiche": "§ 7, ligne 15"},
     {"point": "Arrêt de la réanimation", "consequence": "ERC BLS fig. 7 (grand public) : reprise certaine, consigne d'un professionnel de santé, épuisement ; PSC p. 27 : jusqu'à la demande du défibrillateur ou au relais des secours ; RPP SFMU 2024 R5.3 : évaluation médicale sur place préférable ; HAS/SFAR 2026 : « ne jamais s'arrêter ». L'étape signes-reprise-cabinet passe A_VALIDER (V27).", "ref_fiche": "§ 7, ligne 16"},
-    {"point": "Femme enceinte : place et seuil", "consequence": "ERC SC : lever la compression aorto-cave le plus tôt possible ; aide cognitive HAS/SFAR : juste sous les compressions, « si grossesse manifeste » ; ERC : 20 semaines (texte), sans seuil pour le déplacement dans le tableau 12. Étape remontée sous les compressions (choix d'affichage DÉDUIT, V28) ; seuil A_VALIDER (V18).", "ref_fiche": "§ 7, ligne 17"}
+    {"point": "Femme enceinte : place et seuil", "consequence": "ERC SC : lever la compression aorto-cave le plus tôt possible ; aide cognitive HAS/SFAR : juste sous les compressions, « si grossesse manifeste » ; ERC : 20 semaines (texte), sans seuil pour le déplacement dans le tableau 12. Étape remontée sous les compressions (choix d'affichage DÉDUIT, V28) ; seuil A_VALIDER (V18).", "ref_fiche": "§ 7, ligne 17"},
+    {"point": "Répartir les tâches : quand ? (0.4.11)", "consequence": "Premiers secours citoyen p. 27 : le tiers est chargé d'alerter et de ramener le défibrillateur une fois l'absence de respiration constatée ; premiers secours en équipe p. 138 : organisation selon le nombre de secouristes une fois l'arrêt reconnu ; premiers secours citoyen p. 11 : l'alerte suit l'évaluation de la situation et une éventuelle mise en sécurité. D-57 place « À plusieurs : répartir » en tête, juste après « Analyser la situation », avant « Se protéger ». Pas de contradiction de contenu : répartir n'est pas exécuter (l'alerte reste après « Respire ? », D-6) et les puces du PSC n'induisent pas une hiérarchisation stricte (p. 3) ; divergence d'ordre écrite, tranchée par D-57.", "decision": "D-57", "autorise_par": "D-57", "ref_fiche": "§ 7, Répartir les tâches : quand ?"}
   ],
   "points_a_valider_fiche": [
     {"id": "V1", "point": "Valeur unique du métronome dans la fourchette 100–120 /min", "decision": "décidé : 110/min (D-11) ; fourchette conforme sur l'original (D-13 fait)"},
@@ -2769,6 +2839,7 @@
     {"id": "V28", "point": "Femme enceinte rangée sous les compressions (0.4.1) au lieu de « Causes réversibles ? »", "decision": "confirmation du médecin (choix d'affichage DÉDUIT)"},
     {"id": "V29", "point": "Intertitres de phase (Protéger, Bilan, Alerter, Secourir, Reprise, Après) et section Reprise (signes de reprise, après la reprise, surveiller)", "decision": "confirmation du médecin (libellés de regroupement DÉDUITS)"},
     {"id": "V30", "point": "Portée de D-45 à plusieurs sauveteurs : défibrillateur à vue, le premier sauveteur va-t-il le chercher avant de masser, ou un collègue le rapporte-t-il pendant que le massage commence (PSC p. 27 : le tiers ramène le défibrillateur, réanimation immédiate ; ERC p. 18 : un témoin guidé vers le défibrillateur) ? La précision affichée suit la lettre de D-45, sans distinguer", "decision": "confirmation de Laurent"},
-    {"id": "V31", "point": "Placement des deux étapes D-48 (registre : « placement à confirmer ») : « Analyser la situation » après « Se protéger », alors que le logigramme PSC (p. 4) fait observer et repérer avant de protéger et que le PSE (p. 65-66) met danger et situation dans le même premier regard ; « À plusieurs : répartir » avant « Allonger » et la recherche de la respiration, alors que le PSE (p. 138) organise les tâches une fois l'arrêt reconnu", "decision": "confirmation de Laurent"}
+    {"id": "V31", "point": "Placement des deux étapes D-48 (registre : « placement à confirmer ») : « Analyser la situation » après « Se protéger », alors que le logigramme PSC (p. 4) fait observer et repérer avant de protéger et que le PSE (p. 65-66) met danger et situation dans le même premier regard ; « À plusieurs : répartir » avant « Allonger » et la recherche de la respiration, alors que le PSE (p. 138) organise les tâches une fois l'arrêt reconnu", "decision": "TRANCHÉ par D-52 (0.4.8 : « Analyser la situation » avant « Se protéger » ; « À plusieurs : répartir » après « Respire ? »), puis, pour « À plusieurs : répartir », par D-57 (0.4.11 : en tête, juste après « Analyser la situation », avant « Se protéger ») ; la divergence d'ordre avec le PSC p. 27 et le PSE p. 138 reste écrite (fiche § 7)"},
+    {"id": "V32", "point": "Ce qu'un soignant libéral doit transmettre au 15 (étape bilan-15, D-55) : liste « nombre de victimes, âge, identité, état, gestes faits » tirée des informations minimales de l'alerte du citoyen (PSC p. 11), du PSE (p. 72, p. 380) et de Saed (HAS 2014, via la fiche cadre) ; aucune source lue ne fixe le contenu du bilan donné au 15 par un soignant libéral", "decision": "confirmation de Laurent"}
   ]
 }
