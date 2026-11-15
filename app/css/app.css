@@ -3,69 +3,90 @@
    grilles portrait et paysage, retour visuel immédiat au toucher (cahier des charges 5.1 à 5.3).
    Les couleurs ne s'écrivent QU'ICI, dans les jetons : tests/unitaires/contraste.test.mjs vérifie leur contraste (WCAG AA). */
 
-/* ───────── Jetons : thème clair (par défaut) ───────── */
+/* ───────── Jetons : thème clair (par défaut) ─────────
+   Refonte R1 (D-39, 15/11/2026) : palette sobre inspirée de la maquette — fond gris très clair, cartes blanches, bleu pour l'action,
+   rouge RÉSERVÉ à l'urgence et au 15, vert pour « fait ». `--bordure` = contour d'un composant (3:1 au moins) ; `--ligne` = filet décoratif. */
 :root {
   color-scheme: light dark;
-  --fond: #ffffff;
-  --surface: #eef1f5;
-  --texte: #14181d;
-  --texte-attenue: #475060;
-  --bordure: #66707f;           /* composants d'interface : 3:1 au moins contre le fond */
-  --accent: #0b5cad;
+  --fond: #f2f5f8;
+  --surface: #ffffff;
+  --texte: #14202b;
+  --texte-attenue: #4f6173;
+  --bordure: #6a7b8c;           /* composants d'interface : 3:1 au moins contre le fond */
+  --ligne: #d3dbe3;             /* filet décoratif (cartes, séparations) : n'identifie aucun composant à lui seul */
+  --accent: #1d5fa8;
   --sur-accent: #ffffff;
-  --urgence: #b00020;
+  --accent-fond: #1d5fa8;       /* aplats (boutons, pastille active) : en clair = --accent */
+  --sur-accent-fond: #ffffff;
+  --urgence: #c8102e;
   --sur-urgence: #ffffff;
-  --avertissement: #ffd54f;
-  --sur-avertissement: #14181d;
+  --avertissement: #fff0c2;
+  --sur-avertissement: #5c3d00;
   --danger-bandeau: #8a0019;
   --sur-danger-bandeau: #ffffff;
-  --focus: #0b5cad;
+  --focus: #1d5fa8;
+  --ok: #19693f;
+  --sur-ok: #ffffff;
+  --ok-fond: #e3f3ea;
   --simulation: #5b21b6;
   --simulation-bis: #7c3aed;
   --sur-simulation: #ffffff;
 
   --cible: 3rem;                /* 48 px au corps de texte par défaut : jamais plus petit */
   --espace: 0.75rem;
-  --rayon: 0.75rem;
+  --rayon: 0.875rem;
+  --rayon-carte: 1rem;
 }
 
 /* Thème sombre : suit le réglage du téléphone, sauf bascule manuelle (data-theme). */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --fond: #0e1217;
-    --surface: #1b222b;
-    --texte: #eef1f5;
-    --texte-attenue: #aeb7c4;
-    --bordure: #8a95a5;
-    --accent: #66b2ff;
+    --fond: #0f161d;
+    --surface: #18222c;
+    --texte: #eef3f7;
+    --texte-attenue: #9db0c0;
+    --bordure: #8394a4;
+    --ligne: #2d3c4a;
+    --accent: #6ea8ec;
     --sur-accent: #06182b;
-    --urgence: #ff6b7d;
-    --sur-urgence: #1a0006;
-    --avertissement: #ffd54f;
-    --sur-avertissement: #14181d;
+    --accent-fond: #2f6cc0;
+    --sur-accent-fond: #ffffff;
+    --urgence: #d92b44;
+    --sur-urgence: #ffffff;
+    --avertissement: #3a2c0c;
+    --sur-avertissement: #ffd27a;
     --danger-bandeau: #ffb3bd;
     --sur-danger-bandeau: #260008;
-    --focus: #66b2ff;
+    --focus: #6ea8ec;
+    --ok: #5fd39a;
+    --sur-ok: #06210f;
+    --ok-fond: #143224;
     --simulation: #c4b5fd;
     --simulation-bis: #a78bfa;
     --sur-simulation: #1e0a3c;
   }
 }
 :root[data-theme="dark"] {
-  --fond: #0e1217;
-  --surface: #1b222b;
-  --texte: #eef1f5;
-  --texte-attenue: #aeb7c4;
-  --bordure: #8a95a5;
-  --accent: #66b2ff;
+  --fond: #0f161d;
+  --surface: #18222c;
+  --texte: #eef3f7;
+  --texte-attenue: #9db0c0;
+  --bordure: #8394a4;
+  --ligne: #2d3c4a;
+  --accent: #6ea8ec;
   --sur-accent: #06182b;
-  --urgence: #ff6b7d;
-  --sur-urgence: #1a0006;
-  --avertissement: #ffd54f;
-  --sur-avertissement: #14181d;
+  --accent-fond: #2f6cc0;
+  --sur-accent-fond: #ffffff;
+  --urgence: #d92b44;
+  --sur-urgence: #ffffff;
+  --avertissement: #3a2c0c;
+  --sur-avertissement: #ffd27a;
   --danger-bandeau: #ffb3bd;
   --sur-danger-bandeau: #260008;
-  --focus: #66b2ff;
+  --focus: #6ea8ec;
+  --ok: #5fd39a;
+  --sur-ok: #06210f;
+  --ok-fond: #143224;
   --simulation: #c4b5fd;
   --simulation-bis: #a78bfa;
   --sur-simulation: #1e0a3c;
@@ -96,7 +117,7 @@ button, a, input, select, textarea { font: inherit; touch-action: manipulation; 
   min-height: max(var(--cible), 48px);
   min-width: max(var(--cible), 48px);
   padding: 0.5rem 1rem;
-  border: 0.125rem solid var(--bordure);
+  border: 0.125rem solid var(--ligne);
   border-radius: var(--rayon);
   background: var(--surface);
   color: var(--texte);
@@ -105,11 +126,12 @@ button, a, input, select, textarea { font: inherit; touch-action: manipulation; 
   text-decoration: none;
   cursor: pointer;
   user-select: none; -webkit-user-select: none;
+  transition: transform 0.08s, filter 0.08s;
 }
 /* Tout toucher change visiblement l'aspect (critique 3 du benchmark) ; sur iPhone, :active exige un gestionnaire tactile (voir main.js). */
-.bouton:active { transform: scale(0.97); filter: brightness(0.85); }
+.bouton:active { transform: scale(0.97); filter: brightness(0.9); }
 .bouton[disabled], .bouton[aria-disabled="true"] { opacity: 0.55; cursor: not-allowed; }
-.bouton-accent { background: var(--accent); color: var(--sur-accent); border-color: var(--accent); }
+.bouton-accent { background: var(--accent-fond); color: var(--sur-accent-fond); border-color: var(--accent-fond); }
 .bouton-urgence { background: var(--urgence); color: var(--sur-urgence); border-color: var(--urgence); }
 .bouton-plein { width: 100%; }
 .bouton-tres-grand { min-height: 6rem; font-size: 1.75rem; }
@@ -125,7 +147,7 @@ button, a, input, select, textarea { font: inherit; touch-action: manipulation; 
 }
 .bandeau-danger { background: var(--danger-bandeau); color: var(--sur-danger-bandeau); border-color: var(--danger-bandeau); }
 .bandeau-avertissement { background: var(--avertissement); color: var(--sur-avertissement); border-color: var(--avertissement); }
-.bandeau-brouillon { text-align: center; font-size: 0.875rem; }
+.bandeau-brouillon { text-align: center; font-size: 0.75rem; font-weight: 600; padding-block: 0.25rem; color: var(--texte-attenue); background: var(--fond); border-bottom-color: var(--ligne); }
 /* l'information ne passe jamais par la couleur seule : chaque bandeau commence par un pictogramme texte */
 .bandeau-danger::before, .bandeau-avertissement::before { content: "⚠ "; }
 
@@ -134,9 +156,9 @@ button, a, input, select, textarea { font: inherit; touch-action: manipulation; 
 body[data-mode="intervention"] .bandeau-brouillon { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-block: 0.125rem; }
 body[data-mode="intervention"] #etat-preparation { display: none; }
 
-/* ───────── Gabarit commun : en-tête · contenu · barre du bas ─────────
-   Portrait : l'en-tête en haut, la barre en bas.
-   Paysage (écran bas) : la barre passe en colonne sur le bord droit, l'en-tête tient sur une ligne (4.3 bis, 5.3). */
+/* ───────── Gabarit commun : bandeaux · en-tête · contenu · barre d'outils ─────────
+   Refonte R1 : en-tête réduit au titre et au menu ; la barre du bas devient la barre d'OUTILS (Temps, Métronome, Appeler le 15, Fiche).
+   Portrait : l'en-tête en haut, la barre en bas. Paysage (écran bas) : la barre passe en colonne sur le bord droit (4.3 bis, 5.3). */
 #appli { display: grid; min-height: 100vh; min-height: 100dvh; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr auto; }
 .gabarit {
   display: grid;
@@ -151,15 +173,54 @@ body[data-mode="intervention"] #etat-preparation { display: none; }
 .gabarit > .barre { grid-area: barre; }
 
 .entete {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem var(--espace);
-  padding: 0.5rem var(--espace);
-  background: var(--surface);
-  border-bottom: 0.125rem solid var(--bordure);
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.25rem max(var(--espace), env(safe-area-inset-right, 0px)) 0.125rem max(var(--espace), env(safe-area-inset-left, 0px));
+  background: var(--fond);
 }
-/* Barre du bas : cinq boutons en un rang à 375 px ; si le texte agrandi ou un écran étroit l'exige, le rang passe sur deux lignes
-   (jamais un bouton hors écran). Libellés courts : le pictogramme et le détail sont réglés au lot L5a. */
-.barre { display: flex; flex-direction: row; flex-wrap: wrap; gap: 0.5rem; padding: 0.5rem; background: var(--surface); border-top: 0.125rem solid var(--bordure); }
-.barre .bouton { flex: 1 1 3.5rem; min-width: 48px; min-height: 48px; padding: 0.25rem 0.25rem; font-size: 0.8125rem; line-height: 1.2; }
+.entete-bloc { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.entete-temps { margin: 0; font-size: 0.8125rem; font-weight: 600; color: var(--texte-attenue); line-height: 1.2; }
+.entete-temps b { font-size: 0.9375rem; font-variant-numeric: tabular-nums; color: var(--texte); }
+.entete-titre { margin: 0; font-size: 1rem; font-weight: 800; line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.entete .bouton-menu { flex: none; min-width: 48px; padding: 0; font-size: 1.5rem; line-height: 1; border-radius: 50%; }
+
+/* Barre d'outils : quatre tuiles égales (la troisième, « Appeler le 15 », un peu plus large) ; une note d'une ligne au-dessus, seulement si elle a quelque chose à dire */
+.barre {
+  position: relative; display: flex; flex-direction: column; gap: 0.25rem;
+  padding: 0.5rem max(var(--espace), env(safe-area-inset-right, 0px)) calc(0.5rem + env(safe-area-inset-bottom, 0px)) max(var(--espace), env(safe-area-inset-left, 0px));
+  background: var(--surface); border-top: 0.0625rem solid var(--ligne); box-shadow: 0 -0.125rem 0.5rem rgba(0, 0, 0, 0.06);
+}
+.outils { display: flex; gap: 0.375rem; max-width: 40rem; width: 100%; margin: 0 auto; }
+.outil {
+  flex: 1 1 0; min-width: 0; min-height: 64px; padding: 0.25rem; border-radius: var(--rayon);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.0625rem;
+  border: 0.125rem solid var(--ligne); background: var(--fond); color: var(--texte);
+  font: inherit; font-size: 0.75rem; font-weight: 700; line-height: 1.15; text-align: center; cursor: pointer; overflow: hidden;
+}
+.outil b { display: block; font-size: 1.25rem; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.outil-masser { flex-grow: 1; }
+.outil-dae { flex-grow: 1; }
+.outil-fiche { flex-grow: 0.8; }
+.outil-etat { font-size: 0.6875rem; font-weight: 600; color: var(--texte-attenue); }
+.outils .outil-appel { flex-grow: 1.45; background: var(--urgence); color: var(--sur-urgence); border-color: var(--urgence); font-size: 0.8125rem; }
+.outils .outil-appel b { font-size: 1.625rem; line-height: 1; }
+.outils .outil-appel[aria-current="page"] { box-shadow: inset 0 0 0 0.1875rem var(--sur-urgence); }
+body[data-texte="grand"] .outil { font-size: 0.5rem; padding-inline: 0.125rem; }
+body[data-texte="grand"] .outil b { font-size: 0.5rem; }
+body[data-texte="grand"] .outil-etat { font-size: 0.4375rem; }
+body[data-texte="grand"] .outils .outil-appel { font-size: 0.5rem; }
+body[data-texte="grand"] .outils .outil-appel b { font-size: 0.75rem; }
+/* texte à 200 % en portrait : les quatre tuiles passent sur DEUX rangées de deux (rien n'est coupé, rien ne sort de l'écran) */
+@media (orientation: landscape) and (max-height: 600px) { body[data-texte="grand"] .barre { width: 260px; } body[data-texte="grand"] .outils { flex-direction: row; flex-wrap: wrap; } body[data-texte="grand"] .outil { flex: 1 1 45%; } }
+@media (orientation: portrait) { body[data-texte="grand"] .outils { flex-wrap: wrap; } body[data-texte="grand"] .outil { flex: 1 1 40%; } }
+@media (max-width: 400px) { .outil { padding-inline: 0.125rem; font-size: 0.6875rem; } .outil b { font-size: 1.125rem; } }
+.outil[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 0.125rem var(--accent); }
+.outil[aria-current="page"] { border-color: var(--accent); }
+.outil:active { transform: scale(0.97); filter: brightness(0.92); }
+.pastille-avert { flex: none; min-height: 48px; padding: 0 0.625rem; border-radius: 999px; font-size: 0.8125rem; border-color: var(--sur-avertissement); background: var(--avertissement); color: var(--sur-avertissement); white-space: nowrap; }
+.etoile { font-weight: 800; margin-left: 0.125rem; color: var(--sur-avertissement); font-size: 0.8125rem; vertical-align: super; line-height: 1; }
+.outil b .etoile { color: var(--texte-attenue); }
+.repere { display: inline-block; width: 0.625rem; height: 0.625rem; border-radius: 50%; border: 0.125rem solid var(--accent); background: transparent; vertical-align: middle; margin-left: 0.25rem; transition: background 0.05s; }
+.repere-actif { background: var(--accent); transform: scale(1.4); }
 
 @media (orientation: landscape) and (max-height: 600px) {
   .gabarit {
@@ -167,20 +228,17 @@ body[data-mode="intervention"] #etat-preparation { display: none; }
     grid-template-rows: auto auto minmax(0, 1fr);
     grid-template-areas: "bandeaux barre" "entete barre" "contenu barre";
   }
-  /* l'en-tête reste compact mais JAMAIS tronqué : un bouton caché serait pire qu'une seconde ligne (le lot L5a règle le détail) */
-  .entete { padding: 0.25rem var(--espace); gap: 0.25rem var(--espace); }
-  .barre { flex-direction: column; flex-wrap: nowrap; border-top: 0; border-left: 0.125rem solid var(--bordure); padding: 0.375rem; overflow-y: auto; }
-  /* hauteur minimale en pixels : à 200 % de texte, cinq boutons de 3 rem (96 px) ne tiendraient pas dans 360 px */
-  .barre .bouton { flex: 1 1 auto; min-height: 48px; padding: 0.25rem 0.5rem; }
+  .entete { padding-block: 0; }
+  .entete-titre { font-size: 1rem; }
+  .barre { border-top: 0; border-left: 0.0625rem solid var(--ligne); box-shadow: none; width: clamp(120px, 24vw, 160px); padding: 0.25rem; overflow-y: auto; }
+  .outils { flex-direction: column; flex: 1 1 auto; max-width: none; gap: 0.25rem; }
+  .outil { flex: 1 1 auto; min-height: 48px; padding-block: 0.125rem; }
+  .outil b { font-size: 1rem; }
 }
 
 /* ───────── Contenu courant ───────── */
 .page { padding: var(--espace); max-width: 40rem; margin: 0 auto; }
-.page h1 { font-size: 1.5rem; margin: 0 0 var(--espace); }
-.grille-tuiles { display: grid; gap: var(--espace); grid-template-columns: 1fr; }
-@media (orientation: landscape) and (max-height: 600px) {
-  .grille-tuiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
+.page h1 { font-size: 1.25rem; margin: 0 0 var(--espace); }
 
 /* ───────── Réglages (hors intervention) ───────── */
 .reglage { margin: 0 0 var(--espace); padding: var(--espace); border: 0.125rem solid var(--bordure); border-radius: var(--rayon); }
@@ -231,8 +289,8 @@ body[data-mode="intervention"] #etat-preparation { display: none; }
 }
 
 
-/* ───────── Intervention (lot L5a) ───────── */
-/* L'élément #appli devient le gabarit : bandeaux, en-tête fixe, écran courant, barre du bas (paysage : barre en colonne à droite). */
+/* ───────── Intervention : accueil, écran ACR (refonte R1) ───────── */
+/* L'élément #appli devient le gabarit : bandeaux, en-tête, écran courant, barre d'outils (paysage : barre en colonne à droite). */
 #appli.gabarit {
   height: 100vh; height: 100dvh; min-height: 0;
   grid-template-columns: minmax(0, 1fr);
@@ -247,54 +305,129 @@ body[data-mode="intervention"] #etat-preparation { display: none; }
   }
 }
 
-/* Accueil : URGENCE occupe l'essentiel de l'écran ; les lignes « en attente » ne le réduisent jamais */
-.accueil { display: flex; flex-direction: column; gap: var(--espace); padding: var(--espace); min-height: 100%; max-width: 40rem; margin: 0 auto; }
-.accueil-titre { font-size: 1.25rem; margin: 0; }
+/* Accueil : « Arrêt cardiaque adulte · DAE » en grand, les autres entrées en tuiles ; les lignes « en attente » ne le réduisent jamais */
+.accueil { display: flex; flex-direction: column; gap: var(--espace); padding: 1rem var(--espace) var(--espace); min-height: 100%; max-width: 40rem; margin: 0 auto; }
+.accueil-titre { font-size: 1.5rem; font-weight: 800; margin: 0.25rem 0 0; }
 .accueil .presentation { margin: 0; color: var(--texte-attenue); font-size: 0.875rem; }
-.bouton-urgence-geant { flex: 1 1 14rem; min-height: 14rem; font-size: 3rem; letter-spacing: 0.05em; }
-.accueil-liens { display: flex; gap: var(--espace); flex-wrap: wrap; }
-.accueil-liens .bouton { flex: 1 1 8rem; }
-.ligne-attente { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0.25rem 0; border-top: 0.0625rem solid var(--bordure); }
+.accueil-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--espace); }
+.gros {
+  flex-direction: column; gap: 0.25rem; min-height: 6rem; padding: 0.75rem; border-radius: var(--rayon-carte);
+  font-size: 1.1875rem; line-height: 1.2; box-shadow: 0 0.0625rem 0.1875rem rgba(0, 0, 0, 0.08); overflow-wrap: anywhere;
+}
+.gros small { display: block; font-size: 0.875rem; font-weight: 500; color: var(--texte-attenue); }
+.gros-urgence { grid-column: 1 / -1; min-height: max(9.5rem, 31vh); font-size: 1.75rem; letter-spacing: 0.01em; box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.18); }
+.gros-urgence small { color: inherit; opacity: 1; font-size: 1.0625rem; }
+.confirmation:empty, .en-attente:empty { display: none; }
+.accueil-liens { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem var(--espace); }
+.accueil-liens .gros { min-height: 48px; flex: 0 1 auto; padding: 0 0.75rem; border: 0; background: transparent; box-shadow: none; font-size: 0.9375rem; color: var(--texte-attenue); text-decoration: underline; }
+.ligne-attente { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 0.0625rem solid var(--ligne); border-radius: var(--rayon); background: var(--surface); }
 .ligne-attente-titre { flex: 1 1 10rem; font-weight: 700; }
 @media (orientation: landscape) and (max-height: 600px) {
-  .bouton-urgence-geant { min-height: 8rem; font-size: 2rem; }
+  .accueil { padding-block: 0.5rem; gap: 0.5rem; }
+  .accueil-titre { font-size: 1.125rem; margin: 0; }
+  .accueil .presentation { display: none; }
+  .accueil-grille { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+  .gros { min-height: 4rem; }
+  .gros-urgence { min-height: min(6rem, 36vh); font-size: 1.375rem; }
 }
+body[data-texte="grand"] .accueil .gros { font-size: 0.75rem; min-height: 3rem; }
+body[data-texte="grand"] .accueil .gros small { font-size: 0.625rem; }
+body[data-texte="grand"] .accueil .gros-urgence { font-size: 1rem; min-height: min(8rem, 38vh); }
+body[data-texte="grand"] .accueil .presentation { display: none; }
 
-/* En-tête d'intervention */
-.entete .chrono-global { font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
-.entete .chrono-cycle { font-weight: 700; font-variant-numeric: tabular-nums; }
-.entete .metronome { display: inline-flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; font-weight: 700; }
-.entete .metronome .bouton { min-height: 48px; min-width: 48px; padding: 0.25rem 0.75rem; }
-.repere { display: inline-block; width: 1.5rem; height: 1.5rem; border-radius: 50%; border: 0.1875rem solid var(--accent); background: transparent; transition: background 0.05s; }
-.repere-actif { background: var(--accent); transform: scale(1.25); }
-.avertissement-son { flex-basis: 100%; font-size: 0.75rem; color: var(--texte-attenue); }
-
-/* Choix de situation */
+/* Choix de situation (menu « Changer de situation ») */
 .choix-situation { display: flex; flex-direction: column; gap: var(--espace); padding: var(--espace); }
-.choix-situation .bouton-tres-grand { min-height: 8rem; }
+.choix-situation .bouton-tres-grand { min-height: 6rem; }
 
-/* Écran ACR : zone « cycle » au-dessus des tuiles (portrait) ; deux colonnes en paysage */
-.ecran-acr { display: flex; flex-direction: column; gap: var(--espace); padding: var(--espace); }
-.zone-cycle { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem; border: 0.125rem solid var(--bordure); border-radius: var(--rayon); }
-.cycle-haut { display: contents; }
-.cycle-decompte { margin: 0; font-size: 3rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
-.cycle-statut, .cycle-note { margin: 0; font-weight: 700; }
-.bouton-relance { min-height: 72px; font-size: 1.25rem; }
-.evenements { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.evenements .bouton { flex: 1 1 8rem; }
+/* Écran ACR : pastilles de sections, liste « conduite à tenir » en trois mots, précision dépliable, cycle collé en haut */
+.ecran-acr { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem var(--espace) 1rem; max-width: 40rem; margin: 0 auto; }
+.pastilles { display: grid; grid-template-columns: 1.7fr 1fr 1fr 1fr; gap: 0.375rem; }
+body[data-texte="grand"] .pastilles { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pastilles::-webkit-scrollbar { display: none; }
+.pastille { min-height: 48px; min-width: 0; padding: 0 0.375rem; border-radius: 999px; font-size: 0.875rem; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pastille[aria-pressed="true"] { font-weight: 800; background: var(--accent-fond); color: var(--sur-accent-fond); border-color: var(--accent-fond); }
+.equipe { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: stretch; }
+.equipe .bouton { min-height: 48px; padding: 0.25rem 0.75rem; font-size: 0.875rem; font-weight: 600; border-radius: 999px; background: transparent; color: var(--texte-attenue); min-width: 0; max-width: 100%; }
+.equipe .bouton span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.equipe .roles-court { display: none; }
+.equipe .puce { flex: 0 1 auto; }
+.equipe .puce[data-regle="non"]::before { content: "⚠ "; }
+.equipe .bandeau-roles { flex: 1 1 8rem; justify-content: flex-start; }
+body[data-texte="grand"] .equipe .roles-long { display: none; }
+body[data-texte="grand"] .equipe .roles-court { display: inline; }
+.equipe .puce[data-regle="non"] { border-color: var(--sur-avertissement); background: var(--avertissement); color: var(--sur-avertissement); border-radius: var(--rayon); }
+.annuler-demarrage { align-self: flex-start; min-height: 48px; padding: 0 0.25rem; border: 0; background: transparent; color: var(--texte-attenue); font-size: 0.875rem; font-weight: 600; text-decoration: underline; }
+.avertissement-checklist { margin: 0; padding: 0.5rem 0.75rem; border-radius: var(--rayon); background: var(--avertissement); color: var(--sur-avertissement); font-weight: 600; }
+.avertissement-checklist::before { content: "⚠ "; }
+
+.checklist-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.25rem; }
+.phase { margin: 0.125rem 0 -0.25rem; font-size: 0.6875rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texte-attenue); }
+.etape {
+  display: grid; grid-template-columns: 3.25rem minmax(0, 1fr) auto; align-items: center; min-height: 58px;
+  background: var(--surface); border: 0.125rem solid var(--ligne); border-radius: var(--rayon); overflow: hidden;
+}
+.etape[data-etat="faite"] { border-color: var(--ok); background: var(--ok-fond); }
+.etape[data-vitale="oui"] { box-shadow: inset 0.25rem 0 0 var(--texte); }
+.etape[data-vitale="oui"] .etape-texte { font-weight: 800; }
+.case {
+  width: 48px; height: 48px; min-width: 48px; min-height: 48px; padding: 0; margin: 0.25rem 0 0.25rem 0.375rem; border-radius: 0.75rem;
+  border: 0.125rem solid var(--bordure); background: var(--surface); color: var(--texte-attenue); font-size: 1.375rem; line-height: 1;
+}
+.etape[data-etat="faite"] .case { background: var(--ok); border-color: var(--ok); color: var(--sur-ok); }
+.case[disabled] { opacity: 0.45; }
+.etape-info { text-align: center; color: var(--texte-attenue); font-size: 1.125rem; }
+.etape-texte { display: block; padding: 0.5rem 0.25rem; font-size: 1.1875rem; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+.etape-titre { grid-column: 2 / 4; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; min-height: 54px; padding: 0; border: 0; border-radius: 0; background: transparent; justify-content: stretch; text-align: left; font-weight: 400; }
+.etape-titre.sans-precision { grid-column: 2 / 4; cursor: default; }
+/* chevron dessiné en CSS (aucun glyphe de police : il s'affichait comme un « v ») ; il pivote quand la ligne est dépliée */
+.etape-fleche { box-sizing: content-box; width: 0.5rem; height: 0.5rem; margin: 0 1.25rem 0.25rem 1rem; border-right: 0.1875rem solid var(--texte-attenue); border-bottom: 0.1875rem solid var(--texte-attenue); transform: rotate(45deg); transition: transform 0.12s; }
+.etape-fleche[data-ouverte="true"] { transform: rotate(-135deg); margin-bottom: -0.25rem; }
+.etape-habilitation { font-size: 0.8125rem; color: var(--texte-attenue); }
+.etape-marques { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; padding: 0 0.75rem 0.5rem 0.25rem; }
+.etape-marques:empty { display: none; }
+.etape-fait { font-size: 0.8125rem; font-weight: 700; color: var(--ok); }
+.etape-notee { font-size: 0.8125rem; font-weight: 700; color: var(--texte-attenue); }
+.marque { font-weight: 600; font-size: 0.8125rem; }
+.marque-a-valider, .marque-provisoire, .marque-habilitation {
+  padding: 0.0625rem 0.5rem; border-radius: 0.5rem; background: var(--avertissement); color: var(--sur-avertissement); font-size: 0.75rem; font-weight: 700;
+}
+.etape-precision { grid-column: 2 / -1; margin: 0; padding: 0 0.75rem 0.75rem 0.25rem; color: var(--texte-attenue); font-size: 1rem; line-height: 1.35; }
+.etape .noter, .etape .noter-formulaire { grid-column: 2 / -1; margin: 0 0.75rem 0.5rem 0.25rem; }
+.noter { min-height: 48px; font-size: 0.875rem; font-weight: 600; background: transparent; justify-self: start; }
+.noter-formulaire { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.noter-formulaire input { min-height: 48px; font-size: 1rem; padding: 0 0.5rem; background: var(--fond); color: var(--texte); border: 0.125rem solid var(--bordure); border-radius: 0.5rem; }
+.noter-erreur { flex-basis: 100%; margin: 0; font-weight: 700; }
+
+/* Sources (détail d'une étape : texte, sources, statut, habilitations, acronymes) et blocs Matériel / Reprise */
+.bloc-section { background: var(--surface); border: 0.125rem solid var(--ligne); border-radius: var(--rayon); padding: 0.75rem 1rem; }
+.bloc-section h2 { font-size: 1.0625rem; margin: 0 0 0.5rem; }
+.sources-etape { padding: 0.75rem 0; border-top: 0.0625rem solid var(--ligne); }
+.sources-etape:first-of-type { border-top: 0; }
+.sources-etape h3 { font-size: 1rem; margin: 0 0 0.25rem; }
+.sources-etape p, .sources-etape ul { margin: 0.25rem 0; font-size: 0.9375rem; overflow-wrap: anywhere; }
+.etape-detail ul { margin: 0.25rem 0; padding-left: 1.25rem; }
+.acronyme { min-height: 48px; }
+
+/* Zone « cycle » : UNE rangée d'environ 56 px collée en haut une fois le cycle démarré — statut et décompte à gauche, « Relancer » et le bouton des événements à droite ;
+   la jupe (ombre pleine de la couleur du fond) empêche les cartes de dépasser derrière ses coins arrondis (relecture design D5) */
+.zone-cycle {
+  position: sticky; top: 0; z-index: 3; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 0.25rem 0.5rem;
+  padding: 0.25rem 0.5rem 0.25rem 0.75rem; background: var(--surface); border: 0.125rem solid var(--accent); border-radius: var(--rayon-carte);
+  box-shadow: 0 -0.5rem 0 0.5rem var(--fond), 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+.cycle-haut { display: flex; flex-direction: column; min-width: 0; }
+.cycle-statut { margin: 0; font-size: 0.75rem; font-weight: 700; color: var(--texte-attenue); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cycle-decompte { margin: 0; font-size: 1.75rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; color: var(--accent); }
+.cycle-note { margin: 0; font-weight: 500; font-size: 0.875rem; color: var(--texte-attenue); flex-basis: 100%; }
+.bouton-relance { min-height: 48px; padding: 0 1rem; font-size: 1rem; }
+.bouton-evenements { min-width: 48px; padding: 0; font-size: 1.125rem; }
+.evenements { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.evenements .bouton { flex: 1 1 8rem; min-width: 0; max-width: 100%; text-align: center; overflow-wrap: anywhere; }
+.rappels { grid-column: 1 / -1; }
 .rappel { margin: 0; padding: 0.5rem; background: var(--avertissement); color: var(--sur-avertissement); font-weight: 700; border-radius: 0.5rem; }
-.tuiles { display: grid; gap: var(--espace); }
-.tuile { justify-content: flex-start; min-height: 5.5rem; font-size: 1.375rem; text-align: left; }
-.tuile[aria-pressed="true"] { border-color: var(--accent); }
-.tuile-etat { font-size: 1.75rem; width: 2rem; text-align: center; }
-.tuile-fait { font-size: 0.875rem; font-weight: 600; margin-left: auto; }
 @media (orientation: landscape) and (max-height: 600px) {
-  .ecran-acr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; padding: 0.5rem; gap: 0.5rem; }
-  .zone-cycle { grid-column: 1; grid-row: 1; padding: 0.25rem 0.5rem; }
-  .tuiles { grid-column: 2; grid-row: 1; gap: 0.5rem; }
-  .cycle-decompte { font-size: 2rem; }
-  .tuile { min-height: 3.5rem; font-size: 1.125rem; }
-  .bouton-relance { min-height: 48px; }
+  .ecran-acr { padding: 0.25rem 0.5rem 0.5rem; gap: 0.5rem; }
+  .etape { min-height: 56px; }
 }
 
 /* Panneau d'alerte : « Appeler le 15 » tout en haut, jamais sous un autre élément */
@@ -323,7 +456,6 @@ body[data-mode="intervention"] #etat-preparation { display: none; }
 .simulation-mot { padding: 0.25rem 0.75rem; border-radius: 0.5rem; background: var(--sur-simulation); color: var(--simulation); font-weight: 800; letter-spacing: 0.1em; }
 .bandeau-simulation .bouton { min-height: 48px; padding: 0.25rem 0.75rem; }
 
-
 /* ───────── Texte très agrandi (≥ 200 % : racine ≥ 22 px, posé par interface-intervention.js) ─────────
    Le texte agrandi ne doit coûter aucune fonction : l'en-tête et les bandeaux se resserrent (une ligne chacun, détail à l'attribut title),
    les boutons gardent leurs 48 px, et seule la zone centrale peut défiler ; ALERTER reste toujours visible dans la barre (4.3 bis, 5.3). */
@@ -335,43 +467,19 @@ body[data-mode="intervention"][data-texte="grand"] .bandeau .bouton { min-height
 body[data-mode="intervention"][data-texte="grand"] .bandeau-simulation { flex-wrap: nowrap; padding-block: 0.125rem; gap: 0.25rem; }
 body[data-mode="intervention"][data-texte="grand"] .bandeau-simulation .bouton { font-size: 0.6875rem; padding-inline: 0.375rem; }
 body[data-mode="intervention"][data-texte="grand"] .simulation-mot { padding: 0.125rem 0.375rem; font-size: 0.6875rem; letter-spacing: 0.04em; }
-body[data-mode="intervention"][data-texte="grand"] .entete { flex-wrap: wrap; gap: 0.125rem 0.5rem; padding-block: 0.125rem; }
-body[data-mode="intervention"][data-texte="grand"] .entete .chrono-global { font-size: 1rem; }
-body[data-mode="intervention"][data-texte="grand"] .entete .chrono-cycle,
-body[data-mode="intervention"][data-texte="grand"] .entete .metronome { font-size: 0.6875rem; gap: 0.25rem; }
-body[data-mode="intervention"][data-texte="grand"] .entete .metronome .bouton { font-size: 0.6875rem; padding-inline: 0.5rem; }
-body[data-mode="intervention"][data-texte="grand"] .avertissement-son { display: none; }
-body[data-mode="intervention"][data-texte="grand"] .barre .bouton { font-size: 0.6875rem; }
-body[data-mode="intervention"][data-texte="grand"] .tuile { font-size: 1rem; min-height: 4rem; }
-body[data-mode="intervention"][data-texte="grand"] .cycle-decompte { font-size: 1.75rem; }
 
 /* Paysage (écran bas) : les bandeaux tiennent sur UNE ligne chacun (détail à l'attribut title), la ligne d'avertissement du son se replie. */
 @media (orientation: landscape) and (max-height: 600px) {
   body[data-mode="intervention"] .bandeau { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-block: 0.125rem; font-size: 0.75rem; }
   body[data-mode="intervention"] .bandeau .bouton { min-height: 48px; padding-block: 0; }
-  body[data-mode="intervention"] .avertissement-son { display: none; }
+  
 }
-
 
 /* ───────── Rôles et profession (lot L5b) ───────── */
 /* Puce profession : dans l'en-tête ; « non réglée » bien visible (cadre épais + pictogramme, jamais la couleur seule) */
-.place-profession { display: inline-flex; }
-.puce { min-height: 48px; padding: 0.25rem 0.75rem; font-weight: 700; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.puce[data-regle="non"] { border-width: 0.25rem; border-style: dashed; }
-.puce[data-regle="non"]::before { content: "⚠ "; }
+
 /* Bandeau des rôles : une ligne, touchable, sous l'en-tête ; version courte en paysage ou texte agrandi */
-.bandeau-roles { flex: 1 0 100%; min-height: 48px; justify-content: flex-start; padding: 0.25rem 0.75rem; font-weight: 600; overflow: hidden; }
-.roles-long { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.roles-court { display: none; white-space: nowrap; }
-@media (orientation: landscape) and (max-height: 600px) {
-  .bandeau-roles { flex: 0 0 auto; }
-  .roles-long { display: none; }
-  .roles-court { display: inline; }
-}
-body[data-mode="intervention"][data-texte="grand"] .bandeau-roles { flex: 0 0 auto; font-size: 0.6875rem; }
-body[data-mode="intervention"][data-texte="grand"] .roles-long { display: none; }
-body[data-mode="intervention"][data-texte="grand"] .roles-court { display: inline; }
-body[data-mode="intervention"][data-texte="grand"] .puce { font-size: 0.6875rem; padding-inline: 0.375rem; max-width: 9rem; }
+
 /* Écrans des rôles et de la profession */
 .ecran-roles, .ecran-profession { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem var(--espace); }
 .ecran-roles h1, .ecran-profession h1 { font-size: 1.25rem; margin: 0; }
@@ -384,44 +492,18 @@ body[data-mode="intervention"][data-texte="grand"] .puce { font-size: 0.6875rem;
 .role-saisie-ligne { display: flex; gap: 0.5rem; }
 .role-saisie-ligne input { flex: 1 1 8rem; min-width: 0; min-height: 48px; font-size: 1rem; padding: 0 0.5rem; background: var(--fond); color: var(--texte); border: 0.125rem solid var(--bordure); border-radius: 0.5rem; }
 .option-profession { justify-content: space-between; }
-.tuile .marque { display: block; flex-basis: 100%; font-size: 0.8125rem; margin-top: 0.125rem; }
-.tuile { flex-wrap: wrap; }
 
 /* En-tête resserré (texte très agrandi ou paysage bas) : la puce profession se partage la ligne avec le bandeau des rôles (qui se replie en
    pictogramme court) ; le libellé complet reste à l'attribut aria-label. Rien ne sort de l'écran, rien n'est caché sans moyen de l'atteindre. */
-body[data-mode="intervention"][data-texte="grand"] .place-profession { flex: 1 1 0; min-width: 0; }
-body[data-mode="intervention"][data-texte="grand"] .puce { flex: 1 1 0; min-width: 0; max-width: none; }
-body[data-mode="intervention"][data-texte="grand"] .barre .bouton { flex: 1 1 56px; }
+
 body[data-mode="intervention"][data-texte="grand"] .bouton-appel { font-size: 1.125rem; padding-block: 0.25rem; min-height: 56px; }
 body[data-mode="intervention"][data-texte="grand"] .panneau-alerte { gap: 0.25rem; padding-block: 0.25rem; }
-@media (orientation: landscape) and (max-height: 600px) {
-  body[data-mode="intervention"] .place-profession { flex: 1 1 0; min-width: 0; }
-  body[data-mode="intervention"] .puce { flex: 1 1 0; min-width: 0; max-width: none; }
-}
 
 /* Texte très agrandi : le groupe métronome tient sur UNE ligne (repère réduit, texte secondaire plus petit, bouton à 48 px), pour que l'en-tête
    ne dévore pas l'écran. En paysage bas ET texte agrandi, le décompte du cycle (déjà affiché en grand sur l'écran ACR) quitte l'en-tête. */
-body[data-mode="intervention"][data-texte="grand"] .entete .metronome { flex: 1 1 0; min-width: 0; flex-wrap: nowrap; }
-body[data-mode="intervention"][data-texte="grand"] .repere { width: 0.875rem; height: 0.875rem; border-width: 0.125rem; flex: none; }
-body[data-mode="intervention"][data-texte="grand"] #frequence { font-size: 0.5rem; line-height: 1.1; min-width: 0; flex: 1 1 0; }
-body[data-mode="intervention"][data-texte="grand"] .entete .metronome .bouton { flex: none; }
-@media (orientation: landscape) and (max-height: 600px) {
-  body[data-mode="intervention"][data-texte="grand"] .chrono-cycle { display: none; }
-  body[data-mode="intervention"] .entete .metronome { flex: 1 1 0; min-width: 0; flex-wrap: nowrap; }
-  body[data-mode="intervention"] #frequence { font-size: 0.6875rem; min-width: 0; flex: 1 1 0; }
-}
 
 /* Très petit écran (≤ 340 px) : mêmes économies qu'en paysage — rôles en version courte sur la ligne de la puce, métronome sur une ligne. */
-@media (max-width: 340px) {
-  body[data-mode="intervention"] .bandeau-roles { flex: 0 0 auto; }
-  body[data-mode="intervention"] .roles-long { display: none; }
-  body[data-mode="intervention"] .roles-court { display: inline; }
-  /* le bouton du métronome ne se laisse jamais écraser ni sortir de l'écran (libellé de profession long, lot L6) : la puce passe à la ligne plutôt que de se réduire à rien */
-  body[data-mode="intervention"] .place-profession { flex: 1 1 6rem; min-width: 6rem; }
-  body[data-mode="intervention"] .puce { flex: 1 1 0; min-width: 0; max-width: none; }
-  body[data-mode="intervention"] .entete .metronome { flex: 1 1 0; min-width: 5rem; flex-wrap: nowrap; }
-  body[data-mode="intervention"] #frequence { font-size: 0.6875rem; min-width: 0; flex: 1 1 0; }
-}
+
 /* Texte agrandi : « Fermer » et les boutons de titre gardent 48 px (pas 3 rem = 96 px) */
 body[data-mode="intervention"][data-texte="grand"] .panneau-titre .bouton { min-height: 48px; padding-block: 0; font-size: 0.75rem; }
 
@@ -429,40 +511,24 @@ body[data-mode="intervention"][data-texte="grand"] .panneau-titre .bouton { min-
   * { animation: none !important; transition: none !important; }
 }
 
-
 /* ───────── Checklist et glossaire (lot L6) ─────────
    Couleurs : jetons seulement. L'information ne passe jamais par la couleur seule : chaque état porte un pictogramme ET un texte.
    Cibles de 48 px EN PIXELS (à 200 % de texte, 3 rem vaudraient 96 px et la liste deviendrait inutilisable). */
-.ecran-checklist, .ecran-glossaire { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem var(--espace); max-width: 40rem; margin: 0 auto; }
-.ecran-checklist .bouton, .ecran-glossaire .bouton { min-height: 48px; min-width: 48px; }
-.checklist-entete { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; }
-.checklist-entete h1, .ecran-glossaire h1 { font-size: 1.25rem; margin: 0; }
-.checklist-critiques { border: 0.1875rem solid var(--bordure); border-radius: var(--rayon); padding: 0.25rem 0.5rem 0.5rem; }
-.checklist-critiques h2 { font-size: 1rem; margin: 0.25rem 0; }
-.checklist-liste, .etape-enfants, .glossaire-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
-.etape { border-top: 0.0625rem solid var(--bordure); padding-top: 0.5rem; }
-.etape-enfants { margin: 0.5rem 0 0 0.75rem; padding-left: 0.5rem; border-left: 0.1875rem solid var(--bordure); }
-.etape-ligne { display: flex; align-items: stretch; gap: 0.5rem; }
-.case { flex: none; width: 48px; padding: 0; font-size: 1.25rem; }
-.case[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--sur-accent); }
-.etape-info { flex: none; width: 48px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; color: var(--texte-attenue); }
-.etape-titre { flex: 1 1 0; min-width: 0; justify-content: space-between; text-align: left; font-weight: 600; }
-.etape-texte { flex: 1 1 auto; }
-.etape-marques { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; margin: 0.25rem 0 0 56px; }
-.etape-marques:empty { display: none; }
-.etape-fait, .etape-notee { font-size: 0.875rem; font-weight: 700; }
-/* « non faite » : cadre plein + fond d'avertissement + pictogramme + texte (jamais la couleur seule) */
-.marque-non-faite { padding: 0.125rem 0.5rem; border-radius: 0.5rem; border: 0.125rem solid var(--sur-avertissement); background: var(--avertissement); color: var(--sur-avertissement); font-weight: 800; }
+.ecran-glossaire { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem var(--espace); max-width: 40rem; margin: 0 auto; }
+.ecran-glossaire .bouton { min-height: 48px; min-width: 48px; }
+
+.ecran-glossaire h1 { font-size: 1.25rem; margin: 0; }
+
+.glossaire-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+
+/* « non faite » : le mot, précédé de ○ (jamais la couleur seule, ni cadre : une carte garde sa hauteur) */
+.marque-non-faite { font-size: 0.8125rem; font-weight: 800; color: var(--texte); }
 .marque-a-valider, .marque-habilitation { padding: 0.0625rem 0.375rem; border: 0.125rem dashed var(--bordure); border-radius: 0.5rem; }
 .marque-habilitation { font-weight: 700; }
 .marque-provisoire { padding: 0.0625rem 0.375rem; border: 0.125rem dotted var(--bordure); border-radius: 0.5rem; }
-.noter { margin: 0.25rem 0 0 56px; }
-.noter-formulaire { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0.25rem 0 0 56px; }
-.noter-formulaire input { min-height: 48px; font-size: 1rem; padding: 0 0.5rem; background: var(--fond); color: var(--texte); border: 0.125rem solid var(--bordure); border-radius: 0.5rem; }
-.noter-erreur { flex-basis: 100%; margin: 0; font-weight: 700; }
-.noter-erreur::before { content: "⚠ "; }
-.etape-detail, .definition { margin: 0.5rem 0 0 56px; padding: 0.5rem; background: var(--surface); border-radius: 0.5rem; }
-.etape-detail p, .definition p { margin: 0.25rem 0; }
+
+.definition { margin: 0.5rem 0 0 56px; padding: 0.5rem; background: var(--surface); border-radius: 0.5rem; }
+.definition p { margin: 0.25rem 0; }
 .definition { margin-left: 0; margin-top: 0.25rem; }
 .definition-etiquette { font-weight: 700; }
 .definition-sources { margin: 0.125rem 0; padding-left: 1.25rem; }
@@ -471,34 +537,29 @@ body[data-mode="intervention"][data-texte="grand"] .panneau-titre .bouton { min-
 .acronyme { font-weight: 700; }
 .acronyme-definition { flex-basis: 100%; }
 /* mode guidé : une consigne à la fois, en grand */
-.guide-nonfaites { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 0.1875rem solid var(--sur-avertissement); border-radius: var(--rayon); background: var(--avertissement); color: var(--sur-avertissement); font-weight: 800; }
-.guide-carte { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem; border: 0.125rem solid var(--bordure); border-radius: var(--rayon); }
-.guide-progression { font-size: 0.875rem; font-weight: 700; color: var(--texte-attenue); }
-.guide-consigne { margin: 0; font-size: 1.5rem; font-weight: 800; line-height: 1.25; }
-.guide-carte .etape-marques, .guide-carte .noter-formulaire { margin-left: 0; }
-.guide-carte .etape-detail { margin-left: 0; }
-.guide-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
 .bouton-grand { flex: 1 1 8rem; min-height: 72px; font-size: 1.25rem; }
-.ecran-checklist .bouton-grand { min-height: 72px; }
-.guide-termine { margin: 0; font-weight: 700; }
+
 /* glossaire */
 .entree-titre { justify-content: flex-start; text-align: left; }
 .entree-definition { padding: 0 0 0.5rem 0.5rem; }
 @media (orientation: landscape) and (max-height: 600px) {
-  .ecran-checklist, .ecran-glossaire { padding: 0.25rem 0.5rem; gap: 0.25rem; }
-  .guide-consigne { font-size: 1.25rem; }
-  .ecran-checklist .bouton-grand { min-height: 56px; }
+  .ecran-glossaire { padding: 0.25rem 0.5rem; gap: 0.25rem; }
+  
 }
-body[data-mode="intervention"][data-texte="grand"] .guide-consigne { font-size: 0.75rem; }
-body[data-mode="intervention"][data-texte="grand"] .ecran-checklist, body[data-mode="intervention"][data-texte="grand"] .ecran-glossaire { font-size: 0.6875rem; }
-body[data-mode="intervention"][data-texte="grand"] .ecran-checklist .bouton, body[data-mode="intervention"][data-texte="grand"] .ecran-glossaire .bouton { font-size: 0.6875rem; padding-block: 0.125rem; }
-body[data-mode="intervention"][data-texte="grand"] .ecran-checklist .bouton-grand { min-height: 56px; }
+
+body[data-mode="intervention"][data-texte="grand"] .ecran-glossaire { font-size: 0.6875rem; }
+body[data-mode="intervention"][data-texte="grand"] .ecran-glossaire .bouton { font-size: 0.6875rem; padding-block: 0.125rem; }
 
 /* Menu de l'intervention : deux colonnes (chaque lot y ajoute des lignes ; en une colonne, « Terminer » passait sous la barre du bas dès qu'un bandeau
    s'ajoutait). Texte très agrandi : une colonne, la zone centrale défile. Les lignes longues (confirmation, message de test) prennent toute la largeur. */
 .menu-intervention { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; }
 .menu-intervention .bouton-plein { width: auto; min-width: 0; }
-.menu-intervention > p, .menu-intervention > #menu-terminer-confirme { grid-column: 1 / -1; }
+.menu-intervention > p, .menu-intervention > #menu-terminer-confirme, .menu-intervention > .phase, .menu-intervention > .bouton-terminer { grid-column: 1 / -1; }
+.menu-intervention > .phase { margin: 0.5rem 0 0; }
+.bouton-terminer { border-color: var(--texte); }
+.menu-sous { display: block; font-size: 0.75rem; font-weight: 500; color: var(--texte-attenue); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.menu-intervention .bouton:has(.menu-sous) { flex-direction: column; gap: 0; }
 body[data-mode="intervention"][data-texte="grand"] .menu-intervention { grid-template-columns: minmax(0, 1fr); }
 
 /* ───────── Lot L6c, constat M3 de la revue du 15/11/2026 : l'écran reste utilisable quand les bandeaux s'empilent ─────────
@@ -506,33 +567,13 @@ body[data-mode="intervention"][data-texte="grand"] .menu-intervention { grid-tem
    tient sur UNE ligne en portrait aussi (texte tronqué, détail à l'attribut title) et l'en-tête se resserre (la ligne des rôles reste complète en portrait, 4.4) : la zone centrale garde la place des tuiles, de la relance du cycle et de « Appeler le 15 ». */
 body[data-mode="intervention"] .bandeau { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-block: 0.125rem; font-size: 0.75rem; }
 body[data-mode="intervention"] .bandeau .bouton { min-height: 48px; padding-block: 0; font-size: 0.75rem; vertical-align: middle; }
-@media (max-width: 480px) {
-  body[data-mode="intervention"] .entete { gap: 0.25rem var(--espace); padding-block: 0.25rem; }
-}
+
 /* Écran de hauteur limitée (petit téléphone en portrait, 4.3 bis) : la zone « cycle » se compacte — décompte, statut et note sur les mêmes lignes,
    relance et événements pleine largeur — pour que « Relancer le cycle » reste visible sans défilement. */
-@media (max-height: 700px) and (orientation: portrait) {
-  .zone-cycle { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 0.125rem 0.75rem; padding: 0.25rem 0.5rem; }
-  .cycle-decompte { font-size: 2rem; }
-  .zone-cycle .bouton-relance, .zone-cycle .evenements, .zone-cycle .rappels { flex: 1 1 100%; }
-  .bouton-relance { min-height: 56px; font-size: 1.125rem; }
-}
 
 /* Checklist : avertissement qui reste lisible en entier (revue L6 m2) — pas un bandeau d'en-tête, qui tronque son texte sur une ligne */
-.avertissement-checklist { margin: 0; padding: 0.375rem 0.5rem; border: 0.125rem solid var(--sur-avertissement); border-radius: 0.5rem; background: var(--avertissement); color: var(--sur-avertissement); font-weight: 700; font-size: 0.875rem; }
-.avertissement-checklist::before { content: "⚠ "; }
-.guide-sousetapes { list-style: none; margin: 0; padding: 0 0 0 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; }
-.guide-carte .etape-marques { margin-left: 0; font-size: 0.8125rem; }
+
 /* Mode guidé en paysage bas : marques puis consigne à gauche, « Fait » et « Passer » à droite — les marques A_VALIDER / « provisoire » restent dans la fenêtre (revue L6 M2) */
-@media (orientation: landscape) and (max-height: 600px) {
-  .guide-carte { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); grid-template-rows: auto auto 1fr; gap: 0.25rem 0.5rem; align-items: start; }
-  .guide-carte > * { grid-column: 1 / -1; }
-  .guide-carte > .guide-consigne { grid-column: 1; grid-row: 2; }
-  .guide-carte > .etape-marques { grid-column: 1; grid-row: 1; }   /* en paysage bas, les marques passent AVANT la consigne : elles ne descendent jamais sous la fenêtre */
-  .guide-carte > .guide-actions { grid-column: 2; grid-row: 1 / span 3; flex-direction: column; flex-wrap: nowrap; }
-  .guide-actions .bouton-grand { flex: 0 0 auto; }
-  .guide-carte > .guide-consigne { font-size: 1.0625rem; line-height: 1.2; }
-}
 
 /* ───────── Fiche bilan, mode transmission, journal (lot L7) ─────────
    Couleurs : jetons seulement. Aucune couleur, aucune icône ne dépend d'une valeur saisie (D-19). Cibles de 48 px en pixels. */
@@ -542,21 +583,21 @@ body[data-mode="intervention"] .bandeau .bouton { min-height: 48px; padding-bloc
 .ecran-fiche .bouton, .ecran-journal .bouton, .ecran-transmission .bouton { min-height: 48px; min-width: 48px; }
 /* L7c : le bloc fixé en tête contient la rangée ET le formulaire d'ajout (qui la remplace tant qu'il est ouvert) : la case de saisie n'est jamais cachée dessous */
 .zone-ajout { position: sticky; top: 0; z-index: 2; background: var(--fond); }
-.rangee-ajout { display: flex; flex-wrap: wrap; gap: 0.25rem; padding: 0.25rem 0; background: var(--fond); border-bottom: 0.125rem solid var(--bordure); }
-.rangee-ajout .bouton { flex: 1 1 7rem; font-size: 0.8125rem; padding: 0.25rem 0.5rem; }
-.ajout-formulaire { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 0.125rem solid var(--bordure); border-radius: var(--rayon); }
+.rangee-ajout { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.375rem; padding: 0.25rem 0; background: var(--fond); }
+.rangee-ajout .bouton { min-width: 0; font-size: 0.9375rem; padding: 0.25rem; }
+.ajout-formulaire { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--surface); border: 0.0625rem solid var(--ligne); border-radius: var(--rayon-carte); }
 .ajout-titre { flex-basis: 100%; margin: 0; font-weight: 800; }
 .ajout-unite { flex: 0 0 auto; font-weight: 700; }   /* unité usuelle (D-26) : couleur du texte, jamais un état */
 .ajout-formulaire input, .champ-fiche input, .champ-fiche textarea, .transmission-saisie, .journal-saisie, .naissance-champ { min-height: 48px; font-size: 1rem; padding: 0.25rem 0.5rem; background: var(--fond); color: var(--texte); border: 0.125rem solid var(--bordure); border-radius: 0.5rem; max-width: 100%; }
 .ajout-formulaire input[type="text"] { flex: 1 1 8rem; min-width: 0; }
-.section-fiche { margin: 0; padding: 0.5rem; border: 0.125rem solid var(--bordure); border-radius: var(--rayon); display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
+.section-fiche { margin: 0; padding: 0.625rem 0.75rem; background: var(--surface); border: 0.0625rem solid var(--ligne); border-radius: var(--rayon-carte); display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
 .section-fiche legend { font-weight: 800; padding: 0 0.25rem; }
 .champ-fiche { display: flex; flex-direction: column; gap: 0.125rem; }
 .champ-libelle { font-weight: 700; font-size: 0.875rem; }
 .champ-fiche textarea, .transmission-saisie, .journal-saisie { width: 100%; resize: vertical; }
 .choix-rapides { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .choix-rapides .bouton { flex: 1 1 4rem; }
-.choix-rapides .bouton[aria-pressed="true"], .rangee-ajout .bouton[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--sur-accent); }
+.choix-rapides .bouton[aria-pressed="true"], .rangee-ajout .bouton[aria-pressed="true"] { border-color: var(--accent-fond); background: var(--accent-fond); color: var(--sur-accent-fond); }
 .naissance { display: flex; gap: 0.5rem; }
 .naissance-champ { flex: 1 1 0; min-width: 0; text-align: center; }
 .constante-ligne, .geste-ligne { margin: 0.125rem 0; }
@@ -571,7 +612,8 @@ body[data-mode="intervention"] .bandeau .bouton { min-height: 48px; padding-bloc
 .transmission-nav .bouton[disabled] { opacity: 0.4; }
 body[data-mode="intervention"][data-texte="grand"] .transmission-ligne { font-size: 0.75rem; }
 body[data-mode="intervention"][data-texte="grand"] .transmission-adresse, body[data-mode="intervention"][data-texte="grand"] .transmission-titre { font-size: 0.6875rem; }
-body[data-mode="intervention"][data-texte="grand"] .rangee-ajout .bouton { font-size: 0.6875rem; }
+body[data-mode="intervention"][data-texte="grand"] .rangee-ajout .bouton { font-size: 0.5rem; padding: 0.125rem; }
+body[data-texte="grand"] .ecran-fiche h1 { font-size: 0.75rem; }
 body[data-mode="intervention"][data-texte="grand"] .ecran-fiche .bouton, body[data-mode="intervention"][data-texte="grand"] .ecran-journal .bouton { font-size: 0.6875rem; padding-block: 0.125rem; }
 /* journal */
 .journal-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
@@ -593,7 +635,7 @@ body[data-mode="intervention"][data-texte="grand"] .ecran-fiche .bouton, body[da
 /* Très petit écran (≤ 340 px) : les cinq boutons de la barre tiennent sur UNE rangée (sinon la barre prend deux rangées et mange la zone centrale) */
 @media (max-width: 340px) and (orientation: portrait) {
   body[data-mode="intervention"]:not([data-texte="grand"]) .barre { gap: 0.125rem; padding: 0.25rem; flex-wrap: nowrap; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .barre .bouton { flex: 1 1 0; min-width: 0; padding-inline: 0; font-size: 0.625rem; letter-spacing: -0.01em; overflow: hidden; }
+  
 }
 /* La rangée d'ajout n'est « fixée en tête » que si la place le permet : à 200 % de texte ou en paysage bas, huit boutons fixes mangeraient l'écran → elle défile avec la fiche */
 body[data-mode="intervention"][data-texte="grand"] .zone-ajout { position: static; }
@@ -647,10 +689,7 @@ body[data-mode="intervention"][data-texte="grand"] .cloture-avertissement { font
 
 /* L7c (revue L7, hors lot) : à 200 % de texte en portrait, le libellé ALERTER débordait de son bouton et chevauchait CHECKLIST (scrollWidth 79 pour 66 px).
    Les boutons de la barre perdent leur marge latérale et un peu de corps : chaque libellé tient dans sa cible. */
-@media (orientation: portrait) {
-  /* largeur selon le LIBELLÉ (flex auto) et non en parts égales : « CHECKLIST » et « ALERTER » ne sont plus coupés ; ce qui ne tient pas passe à la rangée suivante */
-  body[data-mode="intervention"][data-texte="grand"] .barre .bouton { font-size: 0.5625rem; padding-inline: 0.125rem; letter-spacing: -0.02em; flex: 1 1 auto; min-width: 0; }
-}
+
 /* L7c (revue L7 M3) : texte à 200 % — le formulaire d'ajout d'une constante tient dans la place qui reste (paysage : environ 150 px sous l'en-tête) */
 body[data-mode="intervention"][data-texte="grand"] .ajout-formulaire { padding: 0.125rem 0.25rem; gap: 0.125rem 0.25rem; }
 body[data-mode="intervention"][data-texte="grand"] .ajout-titre { font-size: 0.6875rem; flex: 0 0 auto; }   /* le titre partage la première ligne avec la case de saisie */
@@ -665,9 +704,6 @@ body:not([data-texte="grand"]) .menu-intervention { gap: 0.25rem 0.5rem; padding
 body:not([data-texte="grand"]) .menu-intervention .bouton { font-size: 0.875rem; line-height: 1.2; padding-block: 0.25rem; }
 
 /* Barre du bas à 360 px (portrait, texte normal) : « TRANSM. » débordait d'un pixel, « CHECKLIST » de 5 (relecture L7, mineur 9) — marge latérale réduite de moitié */
-@media (max-width: 400px) and (orientation: portrait) {
-  body[data-mode="intervention"]:not([data-texte="grand"]) .barre .bouton { padding-inline: 0.25rem; flex: 1 1 auto; min-width: 0; }   /* largeur selon le libellé (et non en parts égales) */
-}
 
 /* ───────── Lot L9 : écrans Matériel et À propos ───────── */
 .ecran-info { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.5rem var(--espace); max-width: 40rem; margin: 0 auto; }
@@ -688,173 +724,46 @@ body[data-mode="intervention"][data-texte="grand"] .ecran-info .bouton { font-si
 /* couleur jamais seule : un choix rapide « appuyé » porte aussi une coche (sexe, AVPU) */
 .choix-rapides .bouton[aria-pressed="true"]::before { content: "✓ "; }
 /* accueil : URGENCE reste ENTIÈREMENT visible sans défilement en paysage bas et à 200 % — il passe AVANT le titre et prend une hauteur bornée par celle de la fenêtre */
-@media (orientation: landscape) and (max-height: 600px) {
-  .accueil .bouton-urgence-geant { order: -1; flex: 0 0 auto; min-height: min(8rem, 45vh); }
-}
-body[data-texte="grand"] .accueil .bouton-urgence-geant { order: -1; flex: 0 0 auto; min-height: min(14rem, 45vh); }
+
 /* écran ACR à 200 % : les boutons d'événement (analyse, choc, relève…) passent à la ligne au lieu de déborder */
-.evenements .bouton { min-width: 0; max-width: 100%; flex-wrap: wrap; text-align: center; overflow-wrap: anywhere; }
-body[data-mode="intervention"][data-texte="grand"] .evenements .bouton { flex: 1 1 100%; }
+
 /* bandeau SIMULATION à 200 % : une seule rangée compacte, sans déborder (portrait) ni manger l'écran (paysage) */
 body[data-mode="intervention"][data-texte="grand"] .bandeau-simulation .bouton, body[data-mode="intervention"][data-texte="grand"] .simulation-mot { font-size: 0.5625rem; letter-spacing: 0; }
 body[data-mode="intervention"][data-texte="grand"] .bandeau-simulation .bouton { padding-inline: 0.125rem; min-width: 0; }
 body[data-mode="intervention"][data-texte="grand"] .bandeau-simulation { flex-wrap: wrap; row-gap: 0; }
 /* URGENCE ne déborde jamais de son bouton (« URGENCE » à 96 px dépassait 375 px à 200 %) : corps borné par la largeur de la fenêtre */
-.accueil .bouton-urgence-geant { font-size: min(3rem, 14vw); }
-@media (orientation: landscape) and (max-height: 600px) { .accueil .bouton-urgence-geant { font-size: min(2rem, 14vw); } }
 
 /* ───────── Lot L9c (relecture aval, M1/M2) : l'écran ACR avec le VRAI protocole tient dans un petit écran ─────────
    Mesuré avec les vrais fichiers : en-tête de 305 px à 375×667 (marque du métronome sur trois lignes, puce, rôles, avertissement du son), tuile « Compressions » coupée,
    4e tuile hors de l'écran, zone « cycle » qui repoussait toutes les tuiles. Portrait : en-tête compact (le métronome sur UNE rangée, puce et rôles côte à côte),
    tuiles en grille 2×2, zone « cycle » compacte et collée en BAS de la zone centrale (les tuiles restent en place, la relance ne défile jamais — 4.3 bis). */
-@media (orientation: portrait) {
-  body[data-mode="intervention"]:not([data-texte="grand"]) .entete { gap: 0.125rem 0.5rem; padding-block: 0.25rem; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .entete .chrono-global { font-size: 1.25rem; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .entete .chrono-cycle { font-size: 0.875rem; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .entete .metronome { flex: 1 1 100%; flex-wrap: nowrap; gap: 0.5rem; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .entete #frequence { flex: 1 1 0; min-width: 0; font-size: 0.75rem; line-height: 1.15; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .entete .metronome .bouton { flex: none; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .place-profession { flex: 1 1 40%; min-width: 0; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .bandeau-roles { flex: 1 1 40%; min-width: 0; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .avertissement-son { font-size: 0.6875rem; line-height: 1.1; }
-  body[data-mode="intervention"] .ecran-acr { padding: 0.5rem; gap: 0.5rem; min-height: 100%; }
-  body[data-mode="intervention"] .zone-cycle {
-    flex-direction: row; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.5rem; padding: 0.25rem 0.5rem;
-  }
-  body[data-mode="intervention"] .cycle-decompte { font-size: 2rem; flex: none; }
-  body[data-mode="intervention"] .cycle-statut { flex: 1 1 0; min-width: 0; font-size: 0.875rem; }
-  body[data-mode="intervention"] .cycle-note { flex: 1 1 100%; font-size: 0.75rem; }
-  body[data-mode="intervention"] .zone-cycle .bouton-relance { flex: 1 1 100%; min-height: 48px; font-size: 1.0625rem; }
-  body[data-mode="intervention"] .zone-cycle .evenements { flex: 1 1 100%; gap: 0.25rem; }
-  body[data-mode="intervention"] .zone-cycle .evenements .bouton { flex: 1 1 30%; min-height: 48px; font-size: 0.8125rem; padding: 0.125rem 0.25rem; }
-  body[data-mode="intervention"] .zone-cycle .rappels { flex: 1 1 100%; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .tuiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .tuile { min-height: 4.5rem; font-size: 1.0625rem; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .tuile-etat { font-size: 1.25rem; width: 1.5rem; }
-}
+
 /* L9c : les lignes de tuiles ne s'étirent pas (elles se partageaient toute la hauteur libre : 150 px chacune) ; boutons d'événement à deux ou trois lignes de texte au plus */
-@media (orientation: portrait) {
-  body[data-mode="intervention"] .tuiles { align-content: start; }
-  body[data-mode="intervention"] .zone-cycle .evenements .bouton { font-size: 0.75rem; line-height: 1.1; min-height: 48px; }
-}
-@media (orientation: portrait) {
-  body[data-mode="intervention"]:not([data-texte="grand"]) .tuile { padding: 0.25rem 0.5rem; font-size: 0.9375rem; line-height: 1.15; gap: 0.25rem; min-height: 4rem; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .tuile .marque { font-size: 0.6875rem; line-height: 1.1; margin-top: 0; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .tuile-fait { font-size: 0.75rem; margin-left: 0; flex-basis: 100%; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .tuile-etat { font-size: 1.125rem; width: 1.25rem; }
-}
-@media (orientation: portrait) {
-  body[data-mode="intervention"]:not([data-texte="grand"]) .zone-cycle .bouton-relance { font-size: 0.9375rem; line-height: 1.15; padding-block: 0.125rem; min-height: 48px; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .zone-cycle .evenements .bouton { font-size: 0.6875rem; padding: 0.125rem; gap: 0.125rem; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .zone-cycle .evenements .bouton .marque { font-size: 0.625rem; }
-}
+
 /* la zone « cycle » collée en bas ne doit jamais recouvrir une tuile amenée à l'écran par défilement */
 
-
 /* rôles en version courte en portrait étroit : la puce et les rôles partagent une rangée (L9c) */
-@media (orientation: portrait) and (max-width: 430px) {
-  body[data-mode="intervention"] .roles-long { display: none; }
-  body[data-mode="intervention"] .roles-court { display: inline; }
-}
 
 /* Fenêtre assez haute (≥ 640 px) : la zone « cycle » passe SOUS les tuiles et reste collée en bas (les tuiles restent en place, la relance ne défile jamais — 4.3 bis). Plus bas
    (petit écran 320×568), elle reste au-dessus des tuiles : collée en bas elle recouvrirait toute la zone centrale. */
-@media (orientation: portrait) and (min-height: 640px) {
-  body[data-mode="intervention"] .tuiles { order: 1; }
-  body[data-mode="intervention"] .zone-cycle { order: 2; position: sticky; bottom: 0; z-index: 1; background: var(--fond); }
-  body[data-mode="intervention"] .contenu:has(.ecran-acr) { scroll-padding-bottom: 12rem; }   /* seulement sur l'écran ACR : ailleurs il déplacerait les champs saisis */
-}
 
 /* ───────── Lot L9c, étape 2 (M1 paysage, M2, M3, M4) : en-tête compact en grille ─────────
    Paysage bas, texte à 200 % et panneau d'alerte partagent UNE disposition : rangée 1 = chrono · repère · pause · puce profession · rôles (jamais l'un sur l'autre :
    chaque élément a sa colonne), rangée 2 = chrono du cycle · fréquence du métronome avec sa marque « provisoire » (le texte passe à la ligne, il n'est jamais coupé).
    `.metronome` devient transparent (display: contents) : repère, fréquence et pause deviennent des cases de la grille. */
-@media (orientation: landscape) and (max-height: 600px) {
-  body[data-mode="intervention"] .entete { display: grid; grid-template-columns: auto auto auto minmax(0, 1fr) auto; grid-template-areas: "g r p u o" "c c c f f"; align-items: center; gap: 0.125rem 0.5rem; padding: 0.25rem var(--espace); }
-  body[data-mode="intervention"] .entete .metronome { display: contents; }
-  body[data-mode="intervention"] .entete .metronome[hidden] { display: none; }
-  body[data-mode="intervention"] .entete .chrono-global { grid-area: g; font-size: 1.25rem; }
-  body[data-mode="intervention"] .entete .chrono-cycle { grid-area: c; font-size: 0.75rem; }
-  body[data-mode="intervention"] .entete .repere { grid-area: r; width: 1.25rem; height: 1.25rem; }
-  body[data-mode="intervention"] .entete #pause-metronome { grid-area: p; }
-  body[data-mode="intervention"] .entete #frequence { grid-area: f; display: block; min-width: 0; font-size: 0.6875rem; line-height: 1.15; overflow-wrap: anywhere; }
-  body[data-mode="intervention"] .entete .place-profession { grid-area: u; min-width: 0; display: flex; }
-  body[data-mode="intervention"] .entete .puce { flex: 1 1 0; min-width: 0; max-width: none; }
-  body[data-mode="intervention"] .entete .bandeau-roles { grid-area: o; min-width: 0; }
-}
-body[data-mode="intervention"][data-texte="grand"] .entete,
-body[data-mode="intervention"][data-panneau="alerte"] .entete { display: grid; grid-template-columns: auto auto auto minmax(0, 1fr) auto; grid-template-areas: "g r p u o" "c c c f f"; align-items: center; gap: 0.125rem 0.375rem; padding: 0.25rem 0.5rem; }
-body[data-mode="intervention"][data-texte="grand"] .entete .metronome,
-body[data-mode="intervention"][data-panneau="alerte"] .entete .metronome { display: contents; }
-body[data-mode="intervention"][data-texte="grand"] .entete .metronome[hidden],
-body[data-mode="intervention"][data-panneau="alerte"] .entete .metronome[hidden] { display: none; }
-body[data-mode="intervention"][data-texte="grand"] .entete .chrono-global { grid-area: g; font-size: 0.625rem; }
-body[data-mode="intervention"][data-texte="grand"] .entete .chrono-cycle { grid-area: c; font-size: 0.5rem; }
-body[data-mode="intervention"][data-texte="grand"] .entete .repere { grid-area: r; width: 0.625rem; height: 0.625rem; border-width: 0.125rem; }
-body[data-mode="intervention"][data-texte="grand"] .entete #pause-metronome { grid-area: p; font-size: 0.5rem; padding-inline: 0.375rem; }
-body[data-mode="intervention"][data-texte="grand"] .entete #frequence { grid-area: f; display: block; min-width: 0; font-size: 0.5rem; line-height: 1.1; overflow-wrap: anywhere; }
-body[data-mode="intervention"][data-texte="grand"] .entete .place-profession { grid-area: u; min-width: 0; display: flex; }
-body[data-mode="intervention"][data-texte="grand"] .entete .puce { flex: 1 1 0; min-width: 0; max-width: none; font-size: 0.5rem; padding-inline: 0.25rem; }
-body[data-mode="intervention"][data-texte="grand"] .entete .bandeau-roles { grid-area: o; min-width: 0; font-size: 0.5rem; padding-inline: 0.375rem; }
+
 /* portrait à 200 % : trois rangées (chrono et cycle · pause, puce et rôles · fréquence) ; la puce a de la place et son texte commence à gauche (ellipsis, jamais centré-coupé) */
-@media (orientation: portrait) {
-  body[data-mode="intervention"][data-texte="grand"] .entete { grid-template-areas: "g c c c c" "r p u u o" "f f f f f"; }
-}
-body[data-mode="intervention"] .entete .puce { text-align: left; }
-body[data-mode="intervention"][data-texte="grand"] .entete .puce,
-body[data-mode="intervention"][data-panneau="alerte"] .entete .puce { display: block; line-height: 44px; padding-block: 0; }
-@media (orientation: landscape) and (max-height: 600px) { body[data-mode="intervention"] .entete .puce { display: block; line-height: 44px; padding-block: 0; } }
+
 /* pendant l'appel : une seule rangée, quel que soit le corps du texte */
-body[data-mode="intervention"][data-panneau="alerte"] .entete { grid-template-areas: "g r p u o"; }
-body[data-mode="intervention"][data-panneau="alerte"] .entete .chrono-global { grid-area: g; }
-body[data-mode="intervention"][data-panneau="alerte"] .entete .repere { grid-area: r; }
-body[data-mode="intervention"][data-panneau="alerte"] .entete #pause-metronome { grid-area: p; }
-body[data-mode="intervention"][data-panneau="alerte"] .entete .place-profession { grid-area: u; min-width: 0; display: flex; }
-body[data-mode="intervention"][data-panneau="alerte"] .entete .puce { flex: 1 1 0; min-width: 0; max-width: none; }
-body[data-mode="intervention"][data-panneau="alerte"] .entete .bandeau-roles { grid-area: o; min-width: 0; }
+
 /* pendant l'appel, la fréquence, le cycle et l'avertissement du son laissent la place au panneau d'alerte (la rangée 1 reste : chrono, pause, profession, rôles) */
-body[data-mode="intervention"][data-panneau="alerte"] .entete #frequence,
-body[data-mode="intervention"][data-panneau="alerte"] .entete .chrono-cycle,
-body[data-mode="intervention"][data-panneau="alerte"] .entete .avertissement-son { display: none; }
-body[data-mode="intervention"][data-panneau="alerte"] .roles-long { display: none; }
-body[data-mode="intervention"][data-panneau="alerte"] .roles-court { display: inline; }
-body[data-mode="intervention"][data-texte="grand"] .entete .avertissement-son { display: none; }
-@media (orientation: landscape) and (max-height: 600px) {
-  body[data-mode="intervention"][data-texte="grand"] .entete .chrono-cycle { display: none; }
-  body[data-mode="intervention"][data-texte="grand"] .entete { grid-template-areas: "g r p u o" "f f f f f"; }
-}
 
 /* Paysage bas, écran ACR : la zone « cycle » (colonne de gauche) reste COLLÉE EN HAUT de la zone centrale — quand on fait défiler les tuiles (colonne de droite),
    décompte et bouton de relance restent sous les yeux (4.3 bis, critère : relance visible sans défilement). Le bouton de relance précède les événements dans le code :
    si la zone dépasse la fenêtre, ce sont les événements qui se joignent par défilement, jamais la relance. */
-@media (orientation: landscape) and (max-height: 600px) {
-  body[data-mode="intervention"] .ecran-acr { align-items: start; }
-  /* la zone s'étire sur toute la hauteur des tuiles (sans cadre propre : le cadre est celui de « haut ») : le bloc collant reste ainsi dans sa case pendant tout le défilement */
-  body[data-mode="intervention"] .zone-cycle { align-self: stretch; flex-direction: row; flex-wrap: wrap; align-content: flex-start; align-items: center; gap: 0.25rem 0.5rem; border: 0; padding: 0; }
-  body[data-mode="intervention"] .cycle-haut { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.5rem; flex: 1 1 100%; position: sticky; top: 0; z-index: 1; background: var(--fond); padding: 0.25rem 0.5rem; border: 0.125rem solid var(--bordure); border-radius: var(--rayon); }
-  body[data-mode="intervention"] .zone-cycle .evenements, body[data-mode="intervention"] .zone-cycle .rappels { padding-inline: 0.125rem; }
-  body[data-mode="intervention"] .cycle-decompte { font-size: 1.75rem; flex: none; }
-  body[data-mode="intervention"] .cycle-statut { flex: 1 1 0; min-width: 0; font-size: 0.8125rem; }
-  body[data-mode="intervention"] .cycle-note { flex: 1 1 100%; font-size: 0.6875rem; }
-  body[data-mode="intervention"] .zone-cycle .bouton-relance { flex: 1 1 100%; min-height: 48px; font-size: 0.8125rem; line-height: 1.15; padding-block: 0.125rem; }
-  body[data-mode="intervention"] .zone-cycle .evenements { flex: 1 1 100%; gap: 0.25rem; }
-  body[data-mode="intervention"]:not([data-texte="grand"]) .zone-cycle .evenements .bouton { flex: 1 1 30%; min-height: 48px; font-size: 0.6875rem; line-height: 1.1; padding: 0.125rem; }
-  body[data-mode="intervention"] .zone-cycle .rappels { flex: 1 1 100%; }
-  body[data-mode="intervention"][data-texte="grand"] .ecran-acr { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }   /* colonne des tuiles plus étroite : leur texte réduit y tient, le bouton de relance gagne en largeur (donc en hauteur utile) */
-  body[data-mode="intervention"][data-texte="grand"] .cycle-decompte { font-size: 1rem; }
-  body[data-mode="intervention"][data-texte="grand"] .cycle-statut { font-size: 0.5rem; }
-  body[data-mode="intervention"][data-texte="grand"] .cycle-note { font-size: 0.4375rem; }
-  body[data-mode="intervention"][data-texte="grand"] .zone-cycle .bouton-relance { font-size: 0.4375rem; padding-inline: 0.25rem; }
-  body[data-mode="intervention"][data-texte="grand"] .zone-cycle .evenements .bouton { font-size: 0.5rem; padding-block: 0.125rem; }
-}
+
 /* Paysage bas, texte à 200 % : les tuiles se réduisent à une taille qui tient dans la demi-largeur (sinon la zone centrale défilait en largeur et cachait la colonne de gauche) */
-@media (orientation: landscape) and (max-height: 600px) {
-  body[data-mode="intervention"] .ecran-acr, body[data-mode="intervention"] .tuiles, body[data-mode="intervention"] .zone-cycle { min-width: 0; }
-  body[data-mode="intervention"] .tuile { min-width: 0; overflow-wrap: anywhere; }
-  body[data-mode="intervention"][data-texte="grand"] .tuile { font-size: 0.5rem; min-height: 48px; padding: 0.125rem 0.375rem; gap: 0.25rem; }
-  body[data-mode="intervention"][data-texte="grand"] .tuile-etat { font-size: 0.625rem; width: 0.75rem; }
-  body[data-mode="intervention"][data-texte="grand"] .tuile-fait, body[data-mode="intervention"][data-texte="grand"] .tuile .marque { font-size: 0.4375rem; }
-}
+
 /* Paysage bas, texte à 200 % : les bandeaux d'avertissement (BROUILLON, Écran…) se resserrent d'un cran de plus ; le détail reste à l'attribut title */
 @media (orientation: landscape) and (max-height: 600px) {
   body[data-mode="intervention"][data-texte="grand"] .bandeau { font-size: 0.5rem; padding-block: 0.0625rem; }
@@ -875,15 +784,17 @@ body[data-mode="intervention"]:not([data-texte="grand"]) .panneau-alerte .plan-i
 
 /* Menu en paysage bas : trois colonnes (les dix fonctions du tableau 4.0 tiennent sans défilement à 640×360 ; Rôles et À propos, hors tableau, peuvent défiler) */
 @media (orientation: landscape) and (max-height: 600px) {
-  body[data-mode="intervention"]:not([data-texte="grand"]) .menu-intervention { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  body[data-mode="intervention"]:not([data-texte="grand"]) .menu-intervention { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  body:not([data-texte="grand"]) .menu-intervention > .phase, body:not([data-texte="grand"]) .menu-sous { display: none; }
+  body:not([data-texte="grand"]) .menu-intervention > .bouton-terminer { grid-column: span 2; }
 }
 /* petit écran (≤ 340 px de large) : la ligne unique de l'en-tête pendant l'appel se resserre encore, les libellés des autres numéros (114 : quatre lignes) prennent un corps plus petit */
 @media (max-width: 340px) {
-  body[data-mode="intervention"][data-panneau="alerte"]:not([data-texte="grand"]) .entete { gap: 0.125rem 0.25rem; padding-inline: 0.375rem; }
-  body[data-mode="intervention"][data-panneau="alerte"]:not([data-texte="grand"]) .entete .chrono-global { font-size: 1rem; }
-  body[data-mode="intervention"][data-panneau="alerte"]:not([data-texte="grand"]) .entete .repere { width: 1rem; height: 1rem; }
-  body[data-mode="intervention"][data-panneau="alerte"]:not([data-texte="grand"]) .entete .metronome .bouton { padding-inline: 0.5rem; }
-  body[data-mode="intervention"][data-panneau="alerte"]:not([data-texte="grand"]) .entete .bandeau-roles { padding-inline: 0.375rem; font-size: 0.8125rem; }
+  
+  
+  
+  
+  
   body[data-mode="intervention"]:not([data-texte="grand"]) .autres-numeros .bouton { font-size: 0.75rem; line-height: 1.1; padding: 0.125rem 0.25rem; }
 }
 @media (max-width: 340px) {
@@ -903,3 +814,53 @@ body[data-mode="intervention"] .bandeau-reprise .bouton { flex: none; padding-in
 /* ───────── Lot L9c, étape 2 (M5) : préparation du téléphone depuis l'accueil ───────── */
 #resultat-test:empty { display: none; }
 #etat-preparation .etat-note { margin: 0; padding: 0 var(--espace) 0.5rem; font-size: 0.875rem; }
+/* texte à 200 % : colonnes en pixels (le rem doublerait la case et le chevron), libellé réduit */
+body[data-texte="grand"] .etape { grid-template-columns: 56px minmax(0, 1fr) auto; }
+body[data-texte="grand"] .etape-texte { font-size: 0.75rem; }
+body[data-texte="grand"] .etape-fleche { margin: 0 12px 4px 8px; }
+
+/* ───────── Refonte R2 : alerte, matériel, transmission ───────── */
+/* le 112 est un bouton SECONDAIRE (contour, 48 px) : le 15 reste le seul choix évident */
+.bouton-appel.bouton-secondaire { min-height: 48px; font-size: 1.0625rem; background: var(--surface); color: var(--texte); border-color: var(--bordure); }
+.infos-utiles { border: 0.0625rem solid var(--ligne); border-radius: var(--rayon); background: var(--surface); padding: 0 0.75rem; }
+.infos-utiles summary { min-height: 48px; display: flex; align-items: center; font-weight: 700; cursor: pointer; }
+.infos-utiles .plan-aide { margin: 0.25rem 0 0.5rem; }
+.lieu-resume { padding: 0.5rem 0.75rem; background: var(--surface); border: 0.0625rem solid var(--ligne); border-radius: var(--rayon); }
+.panneau-alerte .panneau-titre .bouton { border-radius: 999px; }
+/* matériel : une ligne par objet, pas de filet en tête, une seule marge intérieure */
+.bloc-section .ecran-info { padding: 0; max-width: none; }
+.ecran-info .info-liste { gap: 0; }
+.ecran-info .info-ligne { padding: 0.5rem 0; border-top: 0.0625rem solid var(--ligne); }
+.ecran-info .info-liste > .info-ligne:first-child { border-top: 0; }
+.transmission-adresse { background: var(--surface); border: 0.0625rem solid var(--ligne); border-radius: var(--rayon); }
+/* R2 : champs à contour fin (1 px, --bordure : le contraste 3:1 est gardé), coins adoucis */
+.ajout-formulaire input, .champ-fiche input, .champ-fiche textarea, .transmission-saisie, .journal-saisie, .naissance-champ { border-width: 0.0625rem; border-radius: 0.625rem; }
+
+/* ───────── Refonte R3 : réglages, clôture, à propos ───────── */
+.reglage { background: var(--surface); border: 0.0625rem solid var(--ligne); border-radius: var(--rayon-carte); }
+.reglage legend { padding: 0 0.375rem; }
+.reglage-choix { flex-wrap: nowrap; gap: 0.75rem; }
+.reglage-choix input[type="radio"] { flex: none; }
+.cloture-avertissement { border: 0; background: var(--avertissement); color: var(--sur-avertissement); border-radius: var(--rayon); font-weight: 600; font-size: 0.875rem; }
+.sources-sous { list-style: none; margin: 0.25rem 0; padding: 0 0 0 0.5rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.etape-sous { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.5rem; }
+
+/* ───────── Lot correctif R1c : sous-étapes dans Sources, indice « noter », barre des actions vitales ───────── */
+.sources-sous { display: flex; flex-direction: column; gap: 0.25rem; margin: 0.25rem 0 0.25rem 0.5rem; }
+.sources-sous-etape { border-left: 0.1875rem solid var(--ligne); padding-left: 0.5rem; }
+.sources-sous-titre { min-height: 44px; display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.5rem; cursor: pointer; }
+.sources-sous-titre .etape-texte { padding: 0; font-size: 1rem; display: inline; }
+.etape-noter-indice { font-weight: 400; color: var(--texte-attenue); }
+
+/* ───────── Lot correctif R1c (suite) ───────── */
+.infos-utiles summary { justify-content: space-between; list-style: none; }
+.infos-utiles summary::-webkit-details-marker { display: none; }
+.infos-utiles .etape-fleche { margin: 0 0.25rem 0.25rem 1rem; }
+.infos-utiles[open] .etape-fleche { transform: rotate(-135deg); margin-bottom: -0.25rem; }
+.reglage-choix input[type="radio"] { accent-color: var(--accent-fond); }
+.rangee-ajout .bouton { font-size: 0.8125rem; line-height: 1.1; overflow-wrap: anywhere; }
+.materiel-groupes { display: flex; flex-direction: column; gap: 0.25rem; }
+.materiel-groupes .phase { margin-top: 0.5rem; }
+.info-emplacement { color: var(--texte-attenue); font-size: 0.875rem; }
+/* ligne d'état de préparation : une carte arrondie (comme le reste), plus une dalle collée au bord */
+#etat-preparation { margin: 0 var(--espace) var(--espace); border: 0.0625rem solid var(--ligne); border-radius: var(--rayon-carte); background: var(--surface); overflow: hidden; }

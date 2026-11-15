@@ -13,7 +13,7 @@ const maintenantHHMM = () => heureLocale(Date.now());
 export function afficherFiche(conteneur, { intervention, etat }) {
   const fiche = intervention.fiche;
   const page = creer('section', 'ecran-fiche', '', { 'aria-label': 'Fiche bilan' });
-  // ───── rangée d'ajout rapide, EN TÊTE de l'écran (avant le titre et l'aide : à 200 % elle était hors écran, revue L7 M4) et fixée quand la place le permet (4.0, fonctions 13 et 14) ─────
+  // ───── rangée d'ajout rapide, juste sous le titre (grille 4 × 2, tient dans les 5 dispositions) et fixée quand la place le permet (4.0, fonctions 13 et 14) ─────
   // Le formulaire d'ajout est DANS le bloc fixé, et il remplace la rangée tant qu'il est ouvert : la case de saisie n'est jamais cachée dessous (revue L7 M3).
   const zoneAjout = creer('div', 'zone-ajout', '', { id: 'zone-ajout' });
   const rangee = creer('div', 'rangee-ajout', '', { id: 'rangee-ajout' });
@@ -23,10 +23,11 @@ export function afficherFiche(conteneur, { intervention, etat }) {
     etat.ajout = { genre, type, valeur: '', heure: null };
     montrerAjout();
   };
-  for (const t of TYPES_CONSTANTE) rangee.append(bouton(`+ ${t.libelle}`, 'bouton', () => ouvrirAjout('constante', t.id), { 'data-ajout': t.id }));
+  // libellés EN TOUTES LETTRES (D-10 : PA, FC, FR, T° sont absents des sources autorisées) ; le nom accessible est le texte visible (WCAG 2.5.3, commande vocale)
+  for (const t of TYPES_CONSTANTE) rangee.append(bouton(t.libelle, 'bouton', () => ouvrirAjout('constante', t.id), { 'data-ajout': t.id }));
   rangee.append(bouton('+ Geste', 'bouton', () => ouvrirAjout('geste', null), { 'data-ajout': 'geste' }));
   zoneAjout.append(rangee, formulaire);
-  page.append(zoneAjout, creer('h1', null, 'Fiche bilan'), creer('p', 'plan-aide', "Rien n'est obligatoire : remplissez ce que vous savez, quand vous pouvez. Tout est enregistré à chaque frappe, sur cet appareil seulement."));
+  page.append(creer('h1', null, 'Fiche bilan'), zoneAjout, creer('p', 'plan-aide', "Rien n'est obligatoire. Tout est enregistré à chaque frappe, sur cet appareil seulement."));
 
   function montrerAjout() {
     formulaire.replaceChildren();
@@ -65,7 +66,7 @@ export function afficherFiche(conteneur, { intervention, etat }) {
   function majTableaux() {
     blocConstantes.replaceChildren(creer('h2', null, 'Constantes'));
     const tableau = tableauConstantes(fiche.constantes, fiche);
-    if (tableau.length === 0) blocConstantes.append(creer('p', 'plan-aide', 'Aucune constante notée. Touchez « + » ci-dessus.'));
+    if (tableau.length === 0) blocConstantes.append(creer('p', 'plan-aide', 'Aucune constante notée. Touchez un bouton ci-dessus.'));
     for (const l of tableau) {
       const p = creer('p', 'constante-ligne', '', { 'data-constante': l.type });
       p.append(creer('strong', null, `${l.libelle} : `));

@@ -41,6 +41,7 @@ const app = { son: new Son(), ecran: new EcranAllume(), intervention: null, inte
 function montrerAccueil() {
   app.accueilUI = afficherEcranAccueil(document.getElementById('contenu'), {
     auUrgence: () => demarrerUrgence('reel'),
+    auAutre: () => demarrerUrgence('reel', 'autre'),
     auSimulation: () => demarrerUrgence('simulation'),
     auxReglages: ouvrirReglages,
     auGlossaire: ouvrirGlossaire,
@@ -106,11 +107,15 @@ async function ouvrirCloture(resume) {
 
 // ───────── Intervention ─────────
 
-/** Toucher URGENCE (ou « Simulation ») : SYNCHRONE — la fiche, le son et le verrou d'écran sont lancés dans le geste, l'écran suivant s'affiche à l'instant. */
-function demarrerUrgence(mode) {
+/**
+ * Toucher « Arrêt cardiaque » (ou « Autre urgence », « Simulation ») : SYNCHRONE — la fiche, le son et le verrou d'écran sont lancés dans le geste, la situation est posée
+ * dans le même geste (refonte R1 : plus d'écran de choix avant la conduite à tenir) et l'écran suivant s'affiche à l'instant ; le protocole arrive en parallèle.
+ */
+function demarrerUrgence(mode, situation = 'acr') {
   app.accueilTouche = true;
   const i = nouvelleIntervention();
   i.demarrer(mode);
+  if (situation === 'autre') i.choisirAutre(); else i.choisirAcr().catch(() => {});
   ouvrirInterface(i);
 }
 
@@ -169,7 +174,8 @@ async function lancerReprise() {
 }
 
 function poserBandeauBrouillon() {
-  document.getElementById('bandeaux').append(creer('div', 'bandeau bandeau-brouillon', TEXTE_BROUILLON_DOCUMENT));
+  // légende du signe ✱ des étapes (relecture design D4) : l'information « provisoire » reste lisible sans badge sur chaque ligne
+  document.getElementById('bandeaux').append(creer('div', 'bandeau bandeau-brouillon', `✱ provisoire ou à valider · ${TEXTE_BROUILLON_DOCUMENT}`));
 }
 
 /** Contexte partagé, rempli au fil des chargements (la page ne les attend jamais). */
@@ -209,7 +215,7 @@ function ouvrirAPropos() {
   contenu.focus({ preventScroll: true }); window.scrollTo(0, 0);   // m1 (revue aval) : le nouvel écran s'ouvre en haut de page, sinon le bandeau BROUILLON sort de la vue
 }
 
-const NOTE_NON_TESTE = "Son et écran : pas encore testés sur ce téléphone (bouton « Tester le son et l'écran » de l'accueil).";
+const NOTE_NON_TESTE = "Son et écran : pas encore testés sur ce téléphone (tuile « Préparer ce téléphone » de l'accueil).";
 let testEnCours = false;
 
 /** M5 : le résultat du test alimente la ligne d'état (points « son », « écran », « stockage persistant ») ; la note « pas encore testés » disparaît. */
@@ -220,7 +226,7 @@ function appliquerResultatTest(r) {
 }
 
 /**
- * « Tester le son et l'écran » depuis l'accueil (M5, cahier 2.5, 2.6, 2.8) : UN geste de l'utilisateur pour essayer le son (bip d'alerte), demander le verrou d'écran d'essai
+ * « Préparer ce téléphone » (test du son et de l'écran) depuis l'accueil (M5, cahier 2.5, 2.6, 2.8) : UN geste de l'utilisateur pour essayer le son (bip d'alerte), demander le verrou d'écran d'essai
  * et la persistance du stockage — sans lancer d'intervention. Jamais bloquant ; le résultat est dit sur l'accueil et dans la ligne d'état.
  */
 async function testerLaPreparation() {
@@ -231,7 +237,7 @@ async function testerLaPreparation() {
   try {
     const r = await testerSonEtEcran({ son: app.son, ecran: app.ecran });
     appliquerResultatTest(r);
-    if (ui === app.accueilUI) ui.afficherTest(phraseDuTest(r));
+    if (ui === app.accueilUI) { ui.afficherTest(phraseDuTest(r)); if (r.son.contexte === 'running' && r.son.canal !== 'aucun') ui.demanderConfirmationSon(); }   // r1 : pas de « Avez-vous entendu ? » quand le test dit qu'aucun son n'a pu partir
   } catch {
     if (ui === app.accueilUI) ui.afficherTest("Le test n'a pas pu se faire sur ce téléphone : touchez à nouveau le bouton.");
   } finally { testEnCours = false; }

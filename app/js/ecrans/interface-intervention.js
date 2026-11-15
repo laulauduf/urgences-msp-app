@@ -1,7 +1,8 @@
 // Interface d'une intervention : en-tête fixe, barre du bas, bandeaux, et l'écran courant (choix de situation, écran ACR, panneau d'alerte,
 // lieu, menu, secours). Cahier des charges 4.0 à 4.3 bis, 4.7, 4.11, 5.1 à 5.3.
-// RÈGLES : rien ne recouvre l'en-tête, la barre du bas ni les tuiles vitales ; aucun bouton n'attend le stockage ; la barre n'affiche que les
-// écrans DÉJÀ LIVRÉS (aucun lien vers un écran pas encore écrit) ; aucun ordre ni texte médical en dur — tout vient du protocole.
+// RÈGLES : rien ne recouvre l'en-tête, la barre d'outils ni la conduite à tenir ; aucun bouton n'attend le stockage ;
+// aucun ordre ni texte médical en dur — tout vient du protocole. Refonte R1 (D-39) : l'ancienne barre à cinq boutons, les tuiles vitales et la checklist
+// sont réunies dans l'écran ACR (ecrans/acr.js) ; le menu « ⋯ » est dans l'en-tête.
 import { creer, bouton, heureLocale } from '../dom.js';
 import { formaterDuree, texteDepassement, MARQUE_PROVISOIRE, MARQUE_A_VALIDER } from '../horloge.js';
 
@@ -17,10 +18,11 @@ function suffixeMarques(c, { note = c.note } = {}) {
 import { afficherSecours } from './secours.js';
 import { afficherAlerte } from './alerte.js';
 import { afficherLieu } from './lieu.js';
-import { testerSonEtEcran, phraseDuTest } from '../test-appareil.js';
+import { testerSonEtEcran, phraseDuTest, etatTest, confirmerSon } from '../test-appareil.js';
+import { actionsVitales, libelleBarre } from '../barre-vitale.js';
 import { afficherRoles } from './roles.js';
 import { afficherProfession } from './profession.js';
-import { afficherChecklist, etatChecklistInitial } from './checklist.js';
+import { afficherAcr, etatAcrInitial } from './acr.js';
 import { afficherGlossaire } from './glossaire.js';
 import { afficherFiche } from './fiche.js';
 import { afficherTransmission } from './transmission.js';
@@ -30,25 +32,26 @@ import { afficherMateriel } from './materiel.js';
 import { afficherAPropos } from './a-propos.js';
 import { construireMateriel } from '../materiel.js';
 import { construireTransmission } from '../bilan.js';
-import { texteBandeau, texteBandeauCourt } from '../roles.js';
+import { texteBandeau, texteBandeauCourt, texteBandeauRempli } from '../roles.js';
 import { ACR, AUTRE } from '../intervention.js';
 
 /**
  * ÉCRANS DE SAISIE : liste UNIQUE des panneaux où l'on tape. Ils ne sont JAMAIS reconstruits sur l'événement « changement » : sinon la
  * frappe en cours serait effacée à chaque événement (bug silencieux, sans erreur). Tout nouvel écran avec un champ de saisie doit être
- * ajouté ici ; un test (tests/unitaires/protections-surete.test.mjs) échoue s'il manque. Exception voulue : « checklist » se redessine
- * mais garde sa saisie dans `this.cl`.
+ * ajouté ici ; un test (tests/unitaires/protections-surete.test.mjs) échoue s'il manque. Exception voulue : l'écran ACR (écran principal, pas un panneau) se redessine
+ * mais garde sa saisie de l'heure dans `this.cl`.
  */
 export const ECRANS_DE_SAISIE = ['lieu', 'roles', 'profession', 'fiche', 'transmission', 'journal', 'cloture', 'apropos'];
 
-/** Boutons de la barre du bas. Tous les écrans sont livrés : `disponible` est vrai partout (le champ reste pour masquer un bouton si un écran était un jour retiré). */
-export const BARRE = [
-  { id: 'acr', libelle: 'ACR', disponible: true },
-  { id: 'alerter', libelle: 'ALERTER', disponible: true },
-  { id: 'checklist', libelle: 'CHECKLIST', disponible: true },    // lot L6 (visible seulement dans une fiche ACR : voir majBarre)
-  { id: 'transmission', libelle: 'TRANSM.', disponible: true, nom: 'Transmission' }, // lot L7 : à la place de CHECKLIST hors d'une fiche ACR (4.0)
-  { id: 'fiche', libelle: 'FICHE', disponible: true },             // lot L7
-  { id: 'menu', libelle: '⋯', disponible: true, nom: 'Menu' },
+/**
+ * Barre d'OUTILS du bas (refonte R1, D-39) : Temps · Métronome · Appeler le 15 · Fiche — dans cet ordre, comme la maquette. Le menu « ⋯ » est dans l'en-tête.
+ * « Appeler le 15 » ouvre le panneau d'alerte (l'ancien bouton ALERTER) ; « Fiche » ouvre la fiche bilan (un second toucher revient à la conduite à tenir).
+ */
+export const OUTILS = [
+  { id: 'temps', libelle: 'Temps' },
+  { id: 'metronome', libelle: 'Métronome' },
+  { id: 'alerter', libelle: 'Appeler le 15' },
+  { id: 'fiche', libelle: 'Fiche' },
 ];
 
 export class InterfaceIntervention {
@@ -58,14 +61,13 @@ export class InterfaceIntervention {
    */
   constructor({ intervention, son, ecran, numeros, structure, groupes = () => [], actions }) {
     Object.assign(this, { intervention, son, ecran, numerosFn: numeros, structureFn: structure, groupesFn: groupes, actions });
-    this.panneau = null;            // null | 'alerte' | 'lieu' | 'menu' | 'situation' | 'roles' | 'profession' | 'checklist' | 'glossaire' | 'fiche' | 'transmission' | 'journal' | 'cloture' | 'materiel' | 'apropos'
+    this.panneau = null;            // null (écran principal : conduite à tenir) | 'alerte' | 'lieu' | 'menu' | 'situation' | 'roles' | 'profession' | 'glossaire' | 'fiche' | 'transmission' | 'journal' | 'cloture' | 'materiel' | 'apropos'
     this.repriseRepliee = false; this.versionVue = false;   // bandeaux « Fiche reprise » (replié au premier toucher) et « Appli mise à jour » (acquitté)
-    this.retourA = null;            // écran d'où l'on vient (null = l'écran principal) : « Fermer » y revient — aujourd'hui seulement la checklist
     this.fb = { ajout: null };                 // fiche bilan : formulaire d'ajout ouvert
     this.tr = { page: 0, edition: false };     // mode transmission : page courante, saisie E / D ouverte
     this.jr = { corrige: null, texte: '', erreur: null };   // journal : entrée en cours de correction
     this.cloture = null;                       // écran « Clôture et export » (L8) : il a son propre état et se redessine lui-même
-    this.cl = etatChecklistInitial();   // étapes dépliées, saisie de l'heure : survit au redessin de la checklist
+    this.cl = etatAcrInitial();   // précisions dépliées, saisie de l'heure, pastille courante : survit au redessin de l'écran ACR
     this.secours = null; this.minuteur = null; this.debranchements = []; this.messageTest = null; this.echeances = new Map();
     this.zone = { entete: document.getElementById('entete'), barre: document.getElementById('barre'), contenu: document.getElementById('contenu'), bandeaux: document.getElementById('bandeaux'), appli: document.getElementById('appli') };
   }
@@ -127,8 +129,8 @@ export class InterfaceIntervention {
       this.intervention.appelEnAttente = false; this.intervention.appelParti = false;
       if (parti) this.ouvrirPanneau('transmission');
     }
-    // la checklist dépend de la profession et des habilitations lues : elle se redessine quand l'une ou l'autre arrive ou change
-    if ((e.type === 'reglages' || e.type === 'habilitations') && this.panneau === 'checklist') this.rendre();
+    // la conduite à tenir dépend de la profession et des habilitations lues : elle se redessine quand l'une ou l'autre arrive ou change
+    if ((e.type === 'reglages' || e.type === 'habilitations') && this.panneau === null) this.rendre();
     if (e.type === 'roles' || e.type === 'reglages') this.majPuceEtRoles();
     if (e.type === 'echeance') this.afficherEcheance(e);
     if (e.type === 'rattrapage') this.afficherRattrapage(e);
@@ -139,24 +141,49 @@ export class InterfaceIntervention {
   construireEntete() {
     const { entete } = this.zone;
     entete.replaceChildren();
-    const global = creer('span', 'chrono-global', '00:00', { id: 'chrono-global', 'aria-label': "Temps depuis URGENCE" });
-    entete.append(global);
-    entete.append(creer('span', 'chrono-cycle', '', { id: 'chrono-cycle', hidden: '' }));
-    const metronome = creer('span', 'metronome');
-    metronome.append(creer('span', 'repere', '', { id: 'repere', 'aria-hidden': 'true' }));
-    metronome.append(creer('span', 'frequence', '', { id: 'frequence' }));
-    metronome.append(bouton('Démarrer', 'bouton', () => this.intervention.basculerMetronome(), { id: 'pause-metronome' }));
-    metronome.hidden = true; metronome.id = 'bloc-metronome';
-    entete.append(metronome);
-    // puce profession (4.13) : UN toucher ouvre la liste des groupes, UN second choisit ; « Profession non réglée » bien visible
-    const place = creer('span', 'place-profession', '', { 'data-place': 'profession' });
-    place.append(bouton('', 'bouton puce', () => this.ouvrirPanneau('profession'), { id: 'puce-profession' }));
-    entete.append(place);
-    // bandeau des rôles (4.4) : une ligne, touchable ; replié en pictogramme court quand la place manque (paysage, texte agrandi)
-    const roles = bouton('', 'bouton bandeau-roles', () => this.ouvrirPanneau('roles'), { id: 'bandeau-roles' });
-    roles.append(creer('span', 'roles-long', ''), creer('span', 'roles-court', ''));
-    entete.append(roles);
-    entete.append(creer('span', 'avertissement-son', '', { id: 'avertissement-son' }));
+    // en-tête réduit à l'essentiel : le titre avec le TEMPS écoulé dessous (le chronomètre global ne prend plus de tuile), UNE pastille d'avertissement (son · écran, seulement tant
+    // qu'une parade manque) et le menu
+    const bloc = creer('div', 'entete-bloc');
+    bloc.append(creer('h1', 'entete-titre', '', { id: 'entete-titre' }));
+    const temps = creer('p', 'entete-temps', '', { id: 'barre-temps', role: 'group', 'aria-label': 'Temps depuis URGENCE' });
+    temps.append(creer('span', null, 'Temps '), creer('b', null, '00:00', { id: 'chrono-global' }));
+    bloc.append(temps);
+    entete.append(bloc);
+    entete.append(bouton('', 'bouton pastille-avert', () => this.ouvrirPanneau('telephone'), { id: 'pastille-avert', hidden: '' }));
+    entete.append(bouton('⋯', 'bouton bouton-menu', () => this.ouvrirPanneau(this.panneau === 'menu' ? null : 'menu'), { id: 'barre-menu', 'aria-label': 'Menu' }));
+  }
+
+  /** Pastille « ⚠ Son · Écran » : l'information ne disparaît QUE quand la parade est faite — bip ENTENDU et confirmé par l'utilisateur (revue R1, M1), veille d'écran obtenue (le blocage de la veille sur iPhone installé reste SUPPOSÉ). */
+  etatAvertissements() {
+    if (this.son.etat().bandeau) confirmerSon(false);   // r1 : si le son s'arrête (contexte hors « running »), la confirmation tombe
+    const son = !etatTest.son;
+    const veille = Boolean(this.ecran.etat().avertissement);
+    return { son, veille, texte: son && veille ? '⚠ Son · Écran' : son ? '⚠ Son' : veille ? '⚠ Écran' : '' };
+  }
+
+  /** Titre de l'en-tête : la situation en cours (le titre du protocole, jamais écrit en dur ici). */
+  majTitre() {
+    const i = this.intervention;
+    const el = document.getElementById('entete-titre');
+    if (!el) return;
+    el.textContent = i.situation === ACR ? (i.protocole?.titre_court ?? i.protocole?.titre ?? 'Urgence') : i.situation === AUTRE ? 'Autre situation' : 'Urgence';
+  }
+
+  /**
+   * Lignes en tête de la conduite à tenir, seulement quand elles ont quelque chose à dire (relecture design D1) : « ⚠ Profession non réglée — régler » tant que la profession n'est pas réglée
+   * ou pas reconnue (elle conditionne les habilitations) ; les rôles dès que l'un est attribué. Sinon rien : profession et rôles sont dans le menu.
+   * (CHOIX PROVISOIRE : SPEC partie 1 dit « les rôles restent visibles dans un bandeau » ; ici ils le sont dès qu'il y a quelque chose à voir.)
+   */
+  construireEquipe() {
+    const i = this.intervention;
+    const equipe = creer('div', 'equipe');
+    if (i.profession === null || !i.professionReconnue) equipe.append(bouton('', 'bouton puce', () => this.ouvrirPanneau('profession'), { id: 'puce-profession' }));
+    if (i.roles.length > 0) {
+      const roles = bouton('', 'bouton bandeau-roles', () => this.ouvrirPanneau('roles'), { id: 'bandeau-roles' });
+      roles.append(creer('span', 'roles-long', ''), creer('span', 'roles-court', ''));   // le long ne montre que les rôles attribués
+      equipe.append(roles);
+    }
+    return equipe;
   }
 
   pulser() {
@@ -179,46 +206,72 @@ export class InterfaceIntervention {
     i.tick();
     const global = document.getElementById('chrono-global');
     if (global) global.textContent = i.texteGlobal();
-    const cycle = i.chronoCycle;
-    const elCycle = document.getElementById('chrono-cycle');
-    if (elCycle) {
-      const l = cycle && i.gestion?.trouver(cycle.id) ? i.gestion.lire(cycle.id) : null;
-      elCycle.hidden = !cycle;
-      if (cycle) elCycle.textContent = l ? `cycle ${l.cycle} — ${l.restantMs >= 0 ? formaterDuree(l.restantMs) : texteDepassement(l.depassementMs)}` : 'cycle — non démarré';
-    }
-    // métronome : fréquence, marque « provisoire », bouton Démarrer / Pause / Reprise
-    const m = i.metronome;
-    const blocM = document.getElementById('bloc-metronome');
-    if (blocM) {
-      blocM.hidden = !m;
-      if (m) {
-        const e = this.son.etat().metronome;
-        document.getElementById('frequence').textContent = `${m.frequence}/min${m.marque ? ` — ${m.marque}` : ''}${m.modeMarque ? ` · mode ${m.mode} — ${m.modeMarque}` : ''}${e.mention ? ` · ${e.mention}` : ''}`;
-        document.getElementById('pause-metronome').textContent = e.actif ? 'Pause' : (e.frequence === null ? 'Démarrer' : 'Reprise');
-      }
-    }
+    this.majBarreVitale();
+    // pastille d'avertissement (son · écran) dans la rangée du titre
+    const pastille = document.getElementById('pastille-avert');
+    if (pastille) { const a = this.etatAvertissements(); pastille.hidden = a.texte === ''; pastille.textContent = a.texte; pastille.setAttribute('aria-label', `${a.texte.replace('⚠ ', 'Attention : ')}. Détails`); }
     this.majPuceEtRoles();
-    const av = document.getElementById('avertissement-son');
-    if (av) av.textContent = this.son.etat().avertissement;
     this.majZoneCycle();
   }
 
-  /** Puce profession (libellé du groupe, ou « Profession non réglée ») et bandeau des rôles. */
+  /** Numéro du plan A (numeros.json) : il n'est pas écrit en dur ; 15 par défaut tant que le fichier n'est pas lu. */
+  numeroAppel() {
+    const n = this.numerosFn()?.numeros ?? [];
+    return String((n.find((x) => x.plan === 'A') ?? n[0])?.numero ?? '15');
+  }
+
+  /** Barre d'outils : « Masser » (métronome), « Appeler », « DAE » (cycle), « Fiche » — libellés pris dans le protocole ; masquées tant que le protocole n'est pas lu ou hors ACR. */
+  majBarreVitale() {
+    const i = this.intervention;
+    const { masser, dae } = actionsVitales(i.situation === ACR && i.protocoleEtat === 'ok' ? i.etapesPremierEcran() : []);
+    const appel = document.getElementById('barre-alerter');
+    if (appel) { document.getElementById('appel-numero').textContent = this.numeroAppel(); appel.setAttribute('aria-label', `Appeler le ${this.numeroAppel()}`); }
+    const tuileMasser = document.getElementById('barre-masser');
+    if (tuileMasser) {
+      const m = i.metronome;
+      tuileMasser.hidden = !masser;
+      if (masser) {
+        const e = this.son.etat().metronome;
+        document.getElementById('masser-libelle').textContent = libelleBarre(masser);
+        document.getElementById('metronome-valeur').textContent = m ? String(m.frequence) : '';
+        document.getElementById('metronome-etoile').hidden = !(m && (m.marque || m.modeMarque));
+        const etat = !i.estCochee(masser.id) ? 'démarrer' : e.actif ? (e.mention ? 'visuel seul' : 'en cours') : 'en pause';   // « visuel seul » : le son s'est arrêté, le repère continue
+        document.getElementById('metronome-etat').textContent = etat;
+        tuileMasser.setAttribute('aria-pressed', String(e.actif));
+        tuileMasser.setAttribute('aria-label', `${libelleBarre(masser)}${m ? `, métronome ${m.frequence} par minute${m.marque ? ' (provisoire, non validé)' : ''}` : ''} : ${etat}`);
+      }
+    }
+    const tuileDae = document.getElementById('barre-dae');
+    if (tuileDae) {
+      tuileDae.hidden = !dae;
+      if (dae) {
+        const c = i.chronoCycle; const l = c && i.gestion?.trouver(c.id) ? i.gestion.lire(c.id) : null;
+        document.getElementById('dae-libelle').textContent = libelleBarre(dae);
+        document.getElementById('dae-etat').textContent = l ? `cycle ${l.cycle}` : (i.estCochee(dae.id) ? 'fait' : '');
+        tuileDae.setAttribute('aria-label', `${libelleBarre(dae)}${c ? ' : lance ou relance le cycle' : ''}`);
+      }
+    }
+  }
+
+  /** Libellé de la profession réglée, ou « non réglée » / « non reconnue ». */
+  nomProfession() {
+    const i = this.intervention;
+    const groupe = this.groupesFn().find((g) => g.id === i.profession);
+    return i.profession === null ? 'non réglée' : i.professionReconnue ? (groupe ? groupe.libelle : i.profession) : 'non reconnue';
+  }
+
+  /** Ligne « profession non réglée — régler » et ligne des rôles (présentes seulement dans ces cas). */
   majPuceEtRoles() {
     const i = this.intervention;
     const puce = document.getElementById('puce-profession');
     if (puce) {
-      const groupe = this.groupesFn().find((g) => g.id === i.profession);
-      // « non reconnue » : réglée sur un groupe qui n'existe plus dans les données → le groupe le plus restreint s'applique, et la puce le dit (revue L6 m7)
-      const regle = i.profession !== null && i.professionReconnue;
-      const nom = i.profession === null ? 'Profession non réglée' : i.professionReconnue ? (groupe ? groupe.libelle : i.profession) : 'Profession non reconnue';
-      puce.textContent = `${nom} ▾`;
-      puce.dataset.regle = regle ? 'oui' : 'non';
-      puce.setAttribute('aria-label', regle ? `Profession : ${nom}. Changer` : `${nom}. Choisir`);
+      puce.textContent = `⚠ Profession ${this.nomProfession()} — régler`;
+      puce.dataset.regle = 'non';
+      puce.setAttribute('aria-label', `Profession ${this.nomProfession()}. Choisir`);
     }
     const bandeau = document.getElementById('bandeau-roles');
     if (bandeau) {
-      bandeau.querySelector('.roles-long').textContent = texteBandeau(i.roles);
+      bandeau.querySelector('.roles-long').textContent = i.roles.length > 0 ? texteBandeauRempli(i.roles) : texteBandeau(i.roles);
       bandeau.querySelector('.roles-court').textContent = texteBandeauCourt(i.roles);
       bandeau.setAttribute('aria-label', `Rôles : ${texteBandeau(i.roles)}`);
     }
@@ -231,7 +284,6 @@ export class InterfaceIntervention {
       if (texte) { const b = creer('div', 'bandeau bandeau-avertissement', texte, { 'data-bandeau': cle, title: texte }); zone.append(b); }
     };
     poser('son', this.son.etat().bandeau);
-    poser('ecran', this.ecran.etat().avertissement);
   }
 
   afficherEcheance({ id, alerte, depassementMs }) {
@@ -260,39 +312,62 @@ export class InterfaceIntervention {
   construireBarre() {
     const { barre } = this.zone;
     barre.replaceChildren();
-    barre.setAttribute('aria-label', "Barre d'intervention");
-    for (const b of BARRE.filter((x) => x.disponible)) {
-      const el = bouton(b.libelle, b.id === 'alerter' ? 'bouton bouton-urgence' : 'bouton', () => this.surBarre(b.id), { id: `barre-${b.id}`, 'aria-label': b.nom ?? b.libelle });
-      barre.append(el);
-    }
+    barre.setAttribute('aria-label', "Barre d'outils");
+    const rang = creer('div', 'outils');
+    // Masser : un premier toucher coche l'étape et démarre le métronome ; ensuite il met en pause / reprend. Le repère visuel bat avec le son (iPhone muet, sourd : jamais le son seul).
+    const masser = bouton('', 'outil outil-masser', () => this.surBarre('masser'), { id: 'barre-masser', 'aria-pressed': 'false', hidden: '' });
+    const valeur = creer('b', null, '', {});
+    valeur.append(creer('span', null, '', { id: 'metronome-valeur' }), creer('span', 'etoile', '✱', { id: 'metronome-etoile', hidden: '', 'aria-hidden': 'true' }), creer('span', 'repere', '', { id: 'repere', 'aria-hidden': 'true' }));
+    masser.append(creer('span', null, '', { id: 'masser-libelle' }), valeur, creer('span', 'outil-etat', '', { id: 'metronome-etat' }));
+    const appel = bouton('', 'outil outil-appel', () => this.surBarre('alerter'), { id: 'barre-alerter', 'aria-label': `Appeler le ${this.numeroAppel()}` });
+    appel.append(creer('span', null, 'Appeler'), creer('b', null, this.numeroAppel(), { id: 'appel-numero' }));   // petit libellé + GROS chiffre : le plus lisible de la barre
+    // DAE : coche l'étape (une fois) et lance — ou relance — le cycle où l'on note analyses et chocs
+    const dae = bouton('', 'outil outil-dae', () => this.surBarre('dae'), { id: 'barre-dae', hidden: '' });
+    dae.append(creer('span', null, '', { id: 'dae-libelle' }), creer('span', 'outil-etat', '', { id: 'dae-etat' }));
+    const fiche = bouton('', 'outil outil-fiche', () => this.surBarre('fiche'), { id: 'barre-fiche', 'aria-label': 'Fiche bilan' });
+    fiche.append(creer('span', null, 'Fiche'), creer('b', null, '✎', { 'aria-hidden': 'true' }));
+    rang.append(masser, appel, dae, fiche);
+    barre.append(rang);
+  }
+
+  /** ANNULER LE DÉMARRAGE (revue R1, C1) : seulement dans les 60 premières secondes et tant que rien n'a été fait ; la vérification est refaite au toucher (le menu ne rafraîchit pas). */
+  async annulerDemarrage() {
+    const effacee = await this.intervention.annulerDemarrage();
+    if (!effacee) { this.rendre(); return; }   // plus annulable (délai dépassé, saisie faite) : on reste dans l'intervention, rien n'a été effacé
+    this.actions.accueil({ dejaDetruite: true });
   }
 
   surBarre(id) {
     const i = this.intervention;
     if (id === 'alerter') { this.ouvrirPanneau('alerte'); return; }
-    if (id === 'menu') { this.ouvrirPanneau(this.panneau === 'menu' ? null : 'menu'); return; }
-    if (id === 'checklist' || id === 'fiche' || id === 'transmission') { this.ouvrirPanneau(id); return; }
-    if (id === 'acr') {
-      this.versPrincipal();
-      if (i.situation !== ACR) i.choisirAcr(); // « Autre situation » → ACR en UN toucher (journalisé, la fiche est conservée)
-      else this.rendre();
+    if (id === 'fiche') { this.ouvrirPanneau(this.panneau === 'fiche' ? null : 'fiche'); return; }   // un second toucher revient à la conduite à tenir
+    const { masser, dae } = actionsVitales(i.etapesPremierEcran());
+    // N2 (revue des correctifs R1c) : un second toucher involontaire (double toucher, retouche « pour confirmer ») dans les 1,5 s est ignoré
+    const maintenant = performance.now();
+    this.dernierToucher ??= {};
+    if (id === 'masser' || id === 'dae') { if (maintenant - (this.dernierToucher[id] ?? -Infinity) < 1500) return; this.dernierToucher[id] = maintenant; }
+    if (id === 'masser' && masser) {
+      if (!i.estCochee(masser.id)) i.toucherTuile(masser.id);   // coche, journalise, démarre métronome et chronomètre (déclencheur du protocole)
+      else i.basculerMetronome();
+      this.majBarreVitale();
+    }
+    if (id === 'dae' && dae) {
+      if (!i.estCochee(dae.id)) i.toucherTuile(dae.id);
+      // CHOIX PROVISOIRE (D-44) : la barre LANCE le cycle (une seule fois) ; la relance se fait par « Relancer » de la carte du cycle (un toucher involontaire ne décale plus l'échéance)
+      const c = i.chronoCycle;
+      if (c && !i.gestion?.trouver(c.id)) i.relancerCycle();
+      this.majBarreVitale();
     }
   }
 
-  /**
-   * Ouvre un écran. `null` = « fermer » : retour à l'écran d'où l'on vient (la checklist si l'on en venait), sinon l'écran principal.
-   * Seule la checklist se rouvre ainsi : on ne perd pas sa place pour un appel, un rôle, une profession ou le glossaire.
-   */
+  /** Ouvre un écran. `null` = « fermer » : retour à l'écran principal (la conduite à tenir en ACR). */
   ouvrirPanneau(nom) {
-    const PRINCIPAUX = ['checklist', 'fiche', 'transmission'];
-    if (nom === null) { nom = this.retourA; this.retourA = null; }
-    else if (PRINCIPAUX.includes(nom)) { if (!['menu', 'alerte'].includes(this.panneau)) this.retourA = null; }   // depuis le menu ou l'alerte, on garde l'écran d'origine
-    else if (PRINCIPAUX.includes(this.panneau)) this.retourA = this.panneau;
     this.panneau = nom; this.messageTest = null; this.rendre();
   }
 
-  /** Retour à l'écran principal (ACR, choix de situation…) sans aucun écran de retour en mémoire. */
-  versPrincipal() { this.panneau = null; this.retourA = null; }
+  /** Retour à l'écran principal (ACR, choix de situation…). */
+  versPrincipal() { this.panneau = null; }
+
 
   // ───────── Bandeaux d'état : simulation, reprise ─────────
 
@@ -358,7 +433,6 @@ export class InterfaceIntervention {
     document.body.dataset.panneau = this.panneau ?? '';   // l'en-tête se compacte pendant l'appel (app.css, L9c étape 2, M4)
     this.majBandeauxFixes();
     this.majBandeauxSon();
-    if (this.panneau === 'checklist' && i.situation !== ACR) this.versPrincipal();   // pas de checklist hors d'une fiche ACR
     this.majBarre();
     if (this.panneau !== 'cloture' && this.cloture) { this.cloture.demonter(); this.cloture = null; }   // quitter l'écran retire aussi le document d'impression de la page
     if (this.panneau === 'cloture') {
@@ -383,9 +457,8 @@ export class InterfaceIntervention {
       afficherTransmission(contenu, { pages, etat: this.tr, intervention: i, auFermer: () => this.ouvrirPanneau(null), auRendre: () => this.rendre() });
     } else if (this.panneau === 'journal') {
       afficherJournal(contenu, { intervention: i, etat: this.jr, auFermer: () => this.ouvrirPanneau(null), auRendre: () => this.rendre() });
-    } else if (this.panneau === 'checklist') {
-      if (i.protocoleEtat === 'ok') afficherChecklist(contenu, { intervention: i, etat: this.cl, auAlerte: () => this.ouvrirPanneau('alerte'), auRendre: () => this.rendre() });
-      else contenu.replaceChildren(creer('p', 'page', i.protocoleEtat === 'secours' ? 'Checklist indisponible : le protocole est illisible. Masser, alerter, DAE : voir l\'écran ACR.' : 'Chargement du protocole…', { role: 'status' }));
+    } else if (this.panneau === 'telephone') {
+      this.afficherTelephone();
     } else if (this.panneau === 'glossaire') {
       afficherGlossaire(contenu, { glossaire: i.glossaire, auFermer: () => this.ouvrirPanneau(null) });
     } else if (this.panneau === 'alerte') {
@@ -416,22 +489,13 @@ export class InterfaceIntervention {
   }
 
   majBarre() {
-    const i = this.intervention;
-    const acr = document.getElementById('barre-acr');
-    if (acr) acr.setAttribute('aria-current', this.panneau === null && i.situation === ACR ? 'page' : 'false');
-    // CHECKLIST : seulement dans une fiche ACR (ailleurs, cet emplacement est TRANSMISSION, 4.0)
-    const transmission = document.getElementById('barre-transmission');
-    if (transmission) {
-      transmission.hidden = i.situation === ACR;   // dans une fiche ACR, la transmission est dans le panneau d'alerte et le menu (4.0)
-      transmission.setAttribute('aria-current', this.panneau === 'transmission' ? 'page' : 'false');
-    }
+    const alerte = document.getElementById('barre-alerter');
+    if (alerte) alerte.setAttribute('aria-current', this.panneau === 'alerte' ? 'page' : 'false');
     const fiche = document.getElementById('barre-fiche');
     if (fiche) fiche.setAttribute('aria-current', this.panneau === 'fiche' ? 'page' : 'false');
-    const checklist = document.getElementById('barre-checklist');
-    if (checklist) {
-      checklist.hidden = i.situation !== ACR;
-      checklist.setAttribute('aria-current', this.panneau === 'checklist' ? 'page' : 'false');
-    }
+    const menu = document.getElementById('barre-menu');
+    if (menu) { const ouvert = this.panneau === 'menu'; menu.setAttribute('aria-expanded', String(ouvert)); menu.textContent = ouvert ? '✕' : '⋯'; menu.setAttribute('aria-label', ouvert ? 'Fermer le menu' : 'Menu'); }
+    this.majTitre();
   }
 
   afficherChoix() {
@@ -442,7 +506,6 @@ export class InterfaceIntervention {
     page.append(bouton('ACR adulte', 'bouton bouton-accent bouton-tres-grand bouton-plein', async () => { this.versPrincipal(); const p = i.choisirAcr(); this.rendre(); await p; this.rendre(); }, { id: 'choix-acr' }));
     page.append(bouton('Autre situation', 'bouton bouton-plein', () => { this.versPrincipal(); i.choisirAutre(); this.rendre(); }, { id: 'choix-autre' }));
     // « Annuler (démarrage par erreur) » : seulement sur CET écran, tant que la fiche ne contient rien d'autre que l'entrée « urgence »
-    if (i.annulable) page.append(bouton('Annuler (démarrage par erreur)', 'bouton', async () => { await i.annulerDemarrage(); this.actions.accueil({ dejaDetruite: true }); }, { id: 'annuler-demarrage' }));
     this.zone.contenu.replaceChildren(page);
   }
 
@@ -456,24 +519,77 @@ export class InterfaceIntervention {
 
   afficherAcr() {
     const i = this.intervention;
-    const ecran = creer('section', 'ecran-acr');
-    ecran.setAttribute('aria-label', i.protocole.titre_court ?? 'ACR');
+    const avant = [];
+    const equipe = this.construireEquipe();
+    if (equipe.childElementCount > 0) avant.push(equipe);
+    afficherAcr(this.zone.contenu, {
+      intervention: i, etat: this.cl, structure: this.structure, avantEcran: avant, zoneCycle: this.construireZoneCycle(),
+      auAlerte: () => this.ouvrirPanneau('alerte'), auRendre: () => this.rendre(),
+    });
+    this.majPuceEtRoles();
+    this.majZoneCycle();
+  }
 
-    // zone « cycle » : apparaît au premier toucher d'une tuile vitale ; les tuiles restent en place
-    const cycle = creer('div', 'zone-cycle', '', { id: 'zone-cycle' });
-    cycle.hidden = !i.tuileTouchee;
-    // « haut » = décompte, statut, note et bouton de relance : en portrait il est transparent (display: contents) ; en paysage il reste collé en haut de la zone
-    // centrale quand on fait défiler les tuiles (app.css, L9c étape 2, M1 paysage) ; les événements et les rappels, eux, défilent.
-    const haut = creer('div', 'cycle-haut');
-    haut.append(creer('p', 'cycle-decompte', '--:--', { id: 'cycle-decompte' }));
-    haut.append(creer('p', 'cycle-statut', '', { id: 'cycle-statut' }));
-    if (i.chronoCycle) {
-      const note = i.chronoCycle.note;
-      if (note) haut.append(creer('p', 'cycle-note', `${note}${suffixeMarques(i.chronoCycle, { note })}`, { id: 'cycle-note' }));
-      haut.append(bouton(i.libelleRelance, 'bouton bouton-accent bouton-plein bouton-relance', () => i.relancerCycle(), { id: 'relance-cycle' }));
+  /** Panneau de la pastille : ce qui manque (son à tester et à CONFIRMER, veille de l'écran), la parade, et le détail du métronome (marque « provisoire »). */
+  afficherTelephone() {
+    const i = this.intervention;
+    const page = creer('section', 'ecran-info ecran-telephone', '', { 'aria-label': 'Son et écran' });
+    const titre = creer('div', 'panneau-titre');
+    titre.append(creer('h1', 'info-titre', 'Son et écran'), bouton('Fermer', 'bouton', () => this.ouvrirPanneau(null), { id: 'fermer-telephone' }));
+    page.append(titre);
+    const a = this.etatAvertissements();
+    if (!a.son && !a.veille) page.append(creer('p', null, 'Bip entendu et écran maintenu allumé : rien à signaler.', { role: 'status' }));
+    if (a.son) page.append(creer('p', null, this.son.etat().avertissement));
+    if (a.veille) page.append(creer('p', null, this.ecran.etat().avertissement));
+    page.append(bouton('Tester maintenant', 'bouton bouton-accent bouton-plein', async () => {
+      this.messageTest = 'Test en cours…'; this.rendre();
+      const r = await testerSonEtEcran({ son: this.son, ecran: this.ecran });
+      this.messageTest = phraseDuTest(r);
+      this.testASonConfirmer = true;
+      this.actions.testeFait?.(r);
+      this.rendre();
+    }, { id: 'telephone-tester' }));
+    if (this.messageTest) page.append(creer('p', 'plan-aide', this.messageTest, { role: 'status' }));
+    // le son n'est « vérifié » que si l'utilisateur dit l'avoir ENTENDU (le contexte audio « running » ne prouve pas que le son sort : cahier 2.6)
+    if (this.testASonConfirmer && !etatTest.son) {
+      page.append(creer('p', null, 'Avez-vous entendu le bip ?'));
+      page.append(bouton("Oui, j'ai entendu", 'bouton bouton-plein', () => { confirmerSon(true); this.testASonConfirmer = false; this.rendre(); }, { id: 'telephone-entendu' }));
+      page.append(bouton("Non, pas entendu", 'bouton bouton-plein', () => { confirmerSon(false); this.testASonConfirmer = false; this.messageTest = 'Bip non entendu : vérifiez le mode silencieux et le volume média, puis testez de nouveau.'; this.rendre(); }, { id: 'telephone-pas-entendu' }));
     }
+    const m = i.metronome;
+    if (m && (m.marque || m.modeMarque)) {
+      const detail = `${m.frequence}/min${m.marque ? ` — ${m.marque}` : ''}${m.modeMarque ? ` · mode ${m.mode} — ${m.modeMarque}` : ''}`;
+      page.append(creer('p', 'plan-aide', `✱ Métronome : ${detail}`, { id: 'frequence' }));
+    }
+    this.zone.contenu.replaceChildren(page);
+  }
+
+  /** La carte du cycle apparaît dès le PREMIER TOUCHER d'une action vitale (revue R1, M2) — même si l'étape « Cycles » n'est pas cochable (profession, fichier illisible) — ou dès que le cycle tourne. */
+  cycleMasque() {
+    const i = this.intervention;
+    const c = i.chronoCycle;
+    return !i.tuileTouchee && !(c && i.gestion?.trouver(c.id));
+  }
+
+  /**
+   * Carte du cycle, collée en haut de l'écran ACR une fois le cycle démarré, sur UNE rangée : statut et décompte à gauche, « Relancer » et le bouton des événements à droite
+   * (analyse, choc, relève… viennent du protocole ; la note du chronomètre et les rappels échus s'ouvrent avec eux).
+   */
+  construireZoneCycle() {
+    const i = this.intervention;
+    const cycle = creer('div', 'zone-cycle', '', { id: 'zone-cycle' });
+    cycle.hidden = this.cycleMasque();
+    const haut = creer('div', 'cycle-haut');
+    haut.append(creer('p', 'cycle-statut', '', { id: 'cycle-statut' }));
+    haut.append(creer('p', 'cycle-decompte', '--:--', { id: 'cycle-decompte' }));
     cycle.append(haut);
-    const evenements = creer('div', 'evenements', '', { id: 'evenements' });
+    if (i.chronoCycle) cycle.append(bouton('Relancer', 'bouton bouton-accent bouton-relance', () => i.relancerCycle(), { id: 'relance-cycle', 'aria-label': `Relancer le cycle : ${i.libelleRelance}` }));
+    if (i.evenements.length > 0 || i.chronoCycle?.note) {
+      const ouverts = this.cl.evenements;
+      cycle.append(bouton(ouverts ? '▴' : '▾', 'bouton bouton-evenements', () => { this.cl.evenements = !this.cl.evenements; this.rendre(); }, { id: 'evenements-bascule', 'aria-expanded': String(ouverts), 'aria-label': 'Événements et précisions du cycle' }));
+    }
+    const evenements = creer('div', 'evenements', '', { id: 'evenements', hidden: this.cl.evenements ? null : '' });
+    if (i.chronoCycle?.note) evenements.append(creer('p', 'cycle-note', `${i.chronoCycle.note}${suffixeMarques(i.chronoCycle, { note: i.chronoCycle.note })}`, { id: 'cycle-note' }));
     for (const ev of i.evenements) {
       const b = bouton('', 'bouton', () => { i.noterEvenement(ev.id); }, { 'data-evenement': ev.id });
       b.append(creer('span', null, ev.libelle), creer('span', 'compte', ` (${i.compteEvenement(ev.id)})`));
@@ -482,27 +598,7 @@ export class InterfaceIntervention {
     }
     cycle.append(evenements);
     cycle.append(creer('div', 'rappels', '', { id: 'rappels' }));
-    ecran.append(cycle);
-
-    // tuiles vitales : les étapes `premier_ecran` DANS L'ORDRE DU PROTOCOLE
-    const tuiles = creer('div', 'tuiles');
-    for (const e of i.etapesPremierEcran()) {
-      const cochee = i.estCochee(e.id);
-      const t = bouton('', 'bouton tuile', () => this.toucherTuile(e.id), { 'data-etape': e.id, 'aria-pressed': String(cochee) });
-      t.append(creer('span', 'tuile-etat', cochee ? '✓' : '○', { 'aria-hidden': 'true' }), creer('span', 'tuile-texte', e.texte_court));
-      if (typeof e.provisoire === 'string') t.append(creer('span', 'marque', MARQUE_PROVISOIRE)); // choix provisoire : marque visible, jamais attribué au médecin référent (R15)
-      if (cochee) t.append(creer('span', 'tuile-fait', ` fait à T+${formaterDuree((i.fiche.checklist[e.id].coche_le - i.fiche.journal[0].t))}`));
-      tuiles.append(t);
-    }
-    ecran.append(tuiles);
-    this.zone.contenu.replaceChildren(ecran);
-    this.majZoneCycle();
-  }
-
-  toucherTuile(id) {
-    const r = this.intervention.toucherTuile(id);
-    if (r.ouvrirAlerte) this.ouvrirPanneau('alerte');
-    else this.rendre();
+    return cycle;
   }
 
   /** Décompte du cycle, statut en TEXTE + pictogramme (jamais la couleur seule), rappels échus. */
@@ -510,13 +606,15 @@ export class InterfaceIntervention {
     const i = this.intervention;
     const zone = document.getElementById('zone-cycle');
     if (!zone || !i.gestion) return;
-    zone.hidden = !i.tuileTouchee && !i.gestion.trouver(i.chronoCycle?.id);
+    zone.hidden = this.cycleMasque();
     const c = i.chronoCycle;
     if (c) {
       const l = i.gestion.trouver(c.id) ? i.gestion.lire(c.id) : null;
       document.getElementById('cycle-decompte').textContent = l ? (l.restantMs >= 0 ? formaterDuree(l.restantMs) : `+${formaterDuree(l.depassementMs)}`) : '--:--';
       const libelle = { en_cours: '▶ en cours', proche: '⚠ échéance proche', echeance: '⏰ échéance', arrete: '■ arrêté' };
       document.getElementById('cycle-statut').textContent = l ? `cycle ${l.cycle} — ${libelle[l.statut]}` : 'cycle non démarré';
+      const relance = document.getElementById('relance-cycle');
+      if (relance) relance.textContent = l ? 'Relancer' : 'Démarrer le cycle';
     }
     const rappels = document.getElementById('rappels');
     if (rappels) {
@@ -535,31 +633,44 @@ export class InterfaceIntervention {
     const i = this.intervention;
     const page = creer('section', 'menu-intervention');
     page.setAttribute('aria-label', 'Menu');
-    const ligne = (libelle, action, id) => page.append(bouton(libelle, 'bouton bouton-plein', action, { id }));
-    // « le plus utile d'abord » ; chaque lot n'ajoute que les écrans qu'il livre
+    const rubrique = (titre) => page.append(creer('h2', 'phase', titre));
+    // `sous` : valeur courante en petit sous le libellé (masquée en paysage bas : la place y est comptée)
+    const ligne = (libelle, action, id, classe = 'bouton bouton-plein', sous = null) => {
+      const b = bouton(libelle, classe, action, { id });
+      if (sous) b.append(creer('small', 'menu-sous', sous));
+      page.append(b);
+    };
+    // trois rubriques (relecture design D8) : Pendant l'intervention · Outils · Fin
+    // ANNULER LE DÉMARRAGE (revue R1, C1) : proposé EN TÊTE du menu (toujours visible) seulement dans les 60 premières secondes et tant que rien n'a été fait ; un SECOND toucher, qui dit ce qui sera effacé, l'exécute
+    if (i.annulable) {
+      const annuler = bouton('Annuler le démarrage', 'bouton bouton-plein', () => {
+        const confirmer = bouton('Confirmer : effacer cette fiche vide', 'bouton bouton-urgence bouton-plein', () => this.annulerDemarrage(), { id: 'menu-annuler-confirme', title: `Fiche démarrée à ${heureLocale(i.fiche.journal[0].t)}, aucune saisie : elle sera effacée`, disabled: '' });
+        annuler.replaceWith(confirmer);
+        // N1 : désactivée pendant 1 s (un double toucher sur « Annuler le démarrage » ne l'actionne pas), puis retirée au bout de 6 s
+        setTimeout(() => { if (confirmer.isConnected) confirmer.disabled = false; }, 1000);
+        setTimeout(() => { if (confirmer.isConnected) confirmer.replaceWith(annuler); }, 6000);
+      }, { id: 'menu-annuler' });
+      page.append(annuler);
+    }
+    rubrique('Pendant');
     ligne('Mode transmission', () => this.ouvrirPanneau('transmission'), 'menu-transmission');
-    ligne('Nouvelle urgence', () => this.actions.nouvelleUrgence(), 'menu-nouvelle-urgence');
-    ligne('Accueil', () => this.actions.accueil(), 'menu-accueil');
-    ligne('Changer de situation', () => this.ouvrirPanneau('situation'), 'menu-situation');
     ligne('Journal', () => this.ouvrirPanneau('journal'), 'menu-journal');
-    ligne('Matériel du protocole', () => this.ouvrirPanneau('materiel'), 'menu-materiel');
+    ligne('Rôles', () => this.ouvrirPanneau('roles'), 'menu-roles', 'bouton bouton-plein', i.roles.length > 0 ? texteBandeauCourt(i.roles) : 'non attribués');
+    ligne('Matériel', () => this.ouvrirPanneau('materiel'), 'menu-materiel');
+    rubrique('Outils');
     ligne('Glossaire', () => this.ouvrirPanneau('glossaire'), 'menu-glossaire');
-    ligne('Tester le son et l\'écran', async () => {
-      this.messageTest = 'Test en cours…'; this.rendre();
-      const r = await testerSonEtEcran({ son: this.son, ecran: this.ecran });
-      this.messageTest = phraseDuTest(r);
-      this.actions.testeFait?.(r);   // M5 : le résultat alimente aussi la ligne d'état de l'accueil
-      this.rendre();
-    }, 'menu-tester');
-    if (this.messageTest) page.append(creer('p', 'plan-aide', this.messageTest, { role: 'status' }));
-    const terminer = bouton("Terminer l'intervention", 'bouton bouton-plein', () => {
+    ligne('Préparer ce téléphone', () => this.ouvrirPanneau('telephone'), 'menu-tester');
+    ligne('Profession', () => this.ouvrirPanneau('profession'), 'menu-profession', 'bouton bouton-plein', this.nomProfession());
+    ligne('À propos', () => this.ouvrirPanneau('apropos'), 'menu-apropos');
+    rubrique('Fin');
+    const terminer = bouton("Terminer l'intervention", 'bouton bouton-plein bouton-terminer', () => {
       terminer.replaceWith(bouton("Confirmer : terminer l'intervention", 'bouton bouton-urgence bouton-plein', () => { i.terminer(); this.actions.terminee(); }, { id: 'menu-terminer-confirme' }));
     }, { id: 'menu-terminer' });
     page.append(terminer);
     ligne('Clôture et export', () => this.ouvrirPanneau('cloture'), 'menu-cloture');   // fonction 25 de 4.0 : exporter, clôturer
-    // hors du tableau des deux touchers (le bandeau des rôles les ouvre en un toucher ; « À propos » est une exception assumée) : en dernier, ils peuvent défiler
-    ligne('Rôles', () => this.ouvrirPanneau('roles'), 'menu-roles');
-    ligne('À propos', () => this.ouvrirPanneau('apropos'), 'menu-apropos');
+    ligne('Changer de situation', () => this.ouvrirPanneau('situation'), 'menu-situation');
+    ligne('Nouvelle urgence', () => this.actions.nouvelleUrgence(), 'menu-nouvelle-urgence');
+    ligne('Accueil', () => this.actions.accueil(), 'menu-accueil');
     this.zone.contenu.replaceChildren(page);
   }
 }

@@ -42,6 +42,9 @@ export function resumeRoles(roles) {
 /** Une ligne pour le bandeau : « Chef : Dr A · Compressions : — · … ». */
 export function texteBandeau(roles) { return resumeRoles(roles).map((r) => `${r.court} : ${r.affiche}`).join(' · '); }
 
+/** Seulement les rôles ATTRIBUÉS (« Chef : Dr A · DAE : Marie ») : la ligne ne montre plus des tirets pour les rôles vides (relecture design D1). */
+export function texteBandeauRempli(roles) { return resumeRoles(roles).filter((r) => r.personne !== null).map((r) => `${r.court} : ${r.personne}`).join(' · '); }
+
 /** Version courte (paysage, texte agrandi) : « Rôles 2/5 ». */
 export function texteBandeauCourt(roles) { return `Rôles ${roles.filter((r) => ROLES.some((x) => x.id === r.role)).length}/${ROLES.length}`; }
 

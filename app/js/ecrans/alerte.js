@@ -7,6 +7,8 @@ import { lienDe } from '../numeros.js';
 export const TEXTE_EQUIPIER = 'Un équipier peut appeler depuis le fixe ou son téléphone : numéros ci-dessus ; la fiche reste affichée ici.';
 export const TEXTE_MASQUEE = "L'appli sera masquée pendant l'appel : le métronome s'arrête, l'heure reste exacte.";
 export const MARQUE_A_VALIDER = 'à valider';
+/** Rappels de numeros.json qui restent TOUJOURS visibles (par identifiant, jamais par le texte : revue R2-R3, m2). */
+export const RAPPELS_TOUJOURS_VISIBLES = ['haut-parleur', 'ne-raccrochez-pas'];
 
 /**
  * @param {HTMLElement} conteneur
@@ -47,14 +49,14 @@ export function afficherAlerte(conteneur, { intervention, numeros, structure, au
   if (planA) {
     const blocA = creer('div', 'plan plan-a');
     blocA.append(appel(planA, 'bouton bouton-urgence bouton-appel bouton-plein', `Appeler le ${planA.numero}`));
-    const hautParleur = numeros.rappels.find((r) => /haut-parleur/i.test(r.texte));
+    const hautParleur = numeros.rappels.find((r) => r.id === 'haut-parleur');
     if (hautParleur) blocA.append(creer('p', 'plan-aide', hautParleur.texte));
     panneau.append(blocA);
   }
   // Plan B — juste dessous, non replié
   if (planB) {
     const blocB = creer('div', 'plan plan-b');
-    blocB.append(appel(planB, 'bouton bouton-appel bouton-plein', `Appeler le ${planB.numero}`));
+    blocB.append(appel(planB, 'bouton bouton-appel bouton-secondaire bouton-plein', `Appeler le ${planB.numero}`));   // le 15 reste LE choix évident : le 112 est secondaire
     if (planB.bascule) { const p = creer('p', 'plan-aide', planB.bascule); if (planB.marqueBascule) p.append(marque(MARQUE_A_VALIDER)); blocB.append(p); }
     panneau.append(blocB);
   }
@@ -87,21 +89,32 @@ export function afficherAlerte(conteneur, { intervention, numeros, structure, au
     panneau.append(bloc);
   }
 
+  // Lignes d'information du cahier 4.7 et 2.10 : VISIBLES, jamais repliées (revue R2-R3, M1) — la procédure nominale (« un équipier appelle ») et la parade du soignant seul (« l'appli sera masquée ») ;
+  // placées APRÈS les numéros et le plan interne (tableau 4.0, fonction 3 : le plan interne reste atteint sans défiler à 320 × 568)
+  panneau.append(creer('p', 'plan-aide', TEXTE_EQUIPIER));
+  if (!simulation) panneau.append(creer('p', 'plan-aide', TEXTE_MASQUEE));
+
+  // Infos utiles : repliées (relecture design D7) — « Ne raccrochez pas en premier » et tout rappel qui le dit restent VISIBLES
+  const infos = creer('details', 'infos-utiles', '', { id: 'infos-utiles' });
+  const resume = creer('summary', null, 'Infos utiles');
+  resume.append(creer('span', 'etape-fleche', '', { 'aria-hidden': 'true' }));
+  infos.append(resume);
+  const visibles = [];
   // Autres moyens d'un numéro (ex. 114 : application, visio, tchat), tels que le fichier les donne ; avec les lignes d'information, sous les numéros (m2, revue aval)
   for (const n of reste.filter((x) => x.autresMoyens)) {
     const p = creer('p', 'plan-aide autres-moyens', `${n.numero} : ${n.autresMoyens}`);
     if (n.marqueAutresMoyens) p.append(marque(MARQUE_A_VALIDER));
-    panneau.append(p);
+    infos.append(p);
   }
 
-  // Information (une ligne, pas un choix préalable)
-  panneau.append(creer('p', 'plan-aide', TEXTE_EQUIPIER));
-  if (!simulation) panneau.append(creer('p', 'plan-aide', TEXTE_MASQUEE));
-  for (const r of numeros.rappels.filter((x) => !/haut-parleur/i.test(x.texte))) {
+  // Rappels du fichier : ceux de RAPPELS_TOUJOURS_VISIBLES restent visibles, les autres vont sous « Infos utiles »
+  for (const r of numeros.rappels.filter((x) => x.id !== 'haut-parleur')) {
     const p = creer('p', 'plan-aide', r.texte);
     if (r.marque) p.append(marque(MARQUE_A_VALIDER));
-    panneau.append(p);
+    if (RAPPELS_TOUJOURS_VISIBLES.includes(r.id)) visibles.push(p); else infos.append(p);
   }
+  for (const p of visibles) panneau.append(p);
+  if (infos.childElementCount > 1) panneau.append(infos);   // « Infos utiles » n'existe que s'il y a quelque chose dessous
 
   // Lieu (résumé seulement) + lien vers l'unique écran de saisie
   const lieu = creer('div', 'lieu-resume');

@@ -17,7 +17,7 @@ export function estVitale(etape) { return etape?.niveau === 'vital' || etape?.pr
 
 /**
  * @param {{etapes: object[], checklist: Record<string, {coche_le: number}>, journal: object[], habilitations: object|null, profession: string|null}} p
- * @returns {{racines: object[], plat: object[], critiques: object[], nonFaites: object[], sequenceGuidee: object[]}}
+ * @returns {{racines: object[], plat: object[], critiques: object[], nonFaites: object[]}}
  *   Chaque item : { id, etape, enfants, habilitation, exempte, cochable, cochableProtocole, restreint, cochee, coche_le, notee, nonFaite }
  */
 export function construireVue({ etapes, checklist, journal, habilitations, profession }) {
@@ -49,7 +49,6 @@ export function construireVue({ etapes, checklist, journal, habilitations, profe
     racines, plat: items, parId,
     critiques: items.filter((i) => i.etape.critique === true),
     nonFaites: items.filter((i) => i.nonFaite),
-    sequenceGuidee: items.filter((i) => i.cochableProtocole),
   };
 }
 
@@ -64,15 +63,6 @@ function derniereNote(journal, id) {
   let note = null;
   for (const e of Array.isArray(journal) ? journal : []) if (e?.type === 'geste' && e.donnees?.id === id) note = { t: e.t };
   return note;
-}
-
-/**
- * Étape à montrer en mode guidé : celle demandée explicitement (`forcee`), sinon la première de la séquence ni faite, ni notée, ni passée.
- * @returns {object|null} null quand plus rien n'est à faire
- */
-export function etapeGuidee(vue, passees, forcee = null) {
-  if (forcee !== null) { const f = vue.sequenceGuidee.find((i) => i.id === forcee); if (f) return f; }
-  return vue.sequenceGuidee.find((i) => !i.cochee && !i.notee && !passees.has(i.id)) ?? null;
 }
 
 /**

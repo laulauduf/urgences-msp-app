@@ -11,6 +11,8 @@ import { chargerUnites, lireUnites } from './unites.js';
 import { TYPES_CONSTANTE } from './bilan.js';
 
 export const ACR = 'acr';
+/** Délai maximal d'annulation du démarrage (CHOIX PROVISOIRE, revue R1 : 60 s, à faire trancher par Laurent). */
+export const ANNULATION_MAX_MS = 60000;
 export const AUTRE = 'autre';
 
 /** Entrées que l'appli écrit TOUTE SEULE (case « Alerter » cochée par l'appel, chronomètres, échéances, version, horloge) : elles ne comptent pas comme une action de l'équipe. */
@@ -41,7 +43,6 @@ export class Intervention {
     // checklist (L6) : habilitations par profession (null tant que non lues ou illisibles : tout est alors restrictif), glossaire, mode et étapes passées
     this.habilitations = null; this.habilitationsEtat = 'chargement'; this.glossaire = lireGlossaire(null);
     this.unites = lireUnites(null);   // unités des constantes (D-26), lues de protocoles/_commun/unites.json ; aucune tant que non lues
-    this.modeChecklist = 'expert'; this.modeChoisi = false; this.passees = new Set();
     this.fiche = null; this.mode = 'reel';
     this.protocole = null; this.protocoleEtat = null; this.raisons = [];   // protocoleEtat : null | 'chargement' | 'ok' | 'secours'
     this.situation = null;                                                 // null (choix en cours) | ACR | AUTRE
@@ -73,9 +74,15 @@ export class Intervention {
    */
   demarrer(mode) {
     this.mode = mode;
+    this.debutPerf = performance.now();   // horloge monotone : l'annulation du démarrage se borne dans le temps sans dépendre de Date.now() (revue R1, C1)
+    this.commencee = false;               // vrai dès qu'une saisie de la fiche bilan ou du lieu a eu lieu : la fiche n'est plus « vide »
     this.fiche = this.stockage.nouvelleFiche(mode);
     this.stockage.definirAffichee(this.fiche.id);
     this.initialiserTemps();
+    // N1 (revue des correctifs R1c) : l'horloge monotone peut s'arrêter pendant la veille de l'appareil ; passer en arrière-plan = l'intervention a commencé (plus d'annulation)
+    const surVisibilite = () => { if (document.visibilityState === 'hidden') this.commencee = true; };
+    document.addEventListener('visibilitychange', surVisibilite);
+    this.debranchements.push(() => document.removeEventListener('visibilitychange', surVisibilite));
     this.son.debloquer();
     this.ecran.demander(); // jamais attendu
     this.prefetch = this.chargerProtocoleFn(this.protocoleId);
@@ -177,10 +184,20 @@ export class Intervention {
     this.emettre('changement');
   }
 
-  /** Le bouton « Annuler (démarrage par erreur) » n'existe que tant que la fiche ne contient rien d'autre que l'entrée `urgence` (4.1). */
+  /**
+   * ANNULER LE DÉMARRAGE (revue R1, C1 CRITIQUE) : jamais une intervention en cours ne doit pouvoir s'effacer d'un toucher. Offerte SEULEMENT dans les ANNULATION_MAX_MS premières
+   * millisecondes (horloge monotone) ET tant que RIEN n'a été fait ni saisi : le journal ne contient que « urgence » et le choix de situation, ni case, ni rôle, ni chronomètre,
+   * ni événement, ni saisie de la fiche bilan ou du lieu (drapeau `commencee`). Une fiche reprise après un rechargement ne l'est jamais (pas de `debutPerf`).
+   */
   get annulable() {
     const f = this.fiche;
-    return Boolean(f) && this.situation === null && f.journal.length === 1 && f.roles.length === 0 && Object.keys(f.checklist).length === 0 && f.situations.length === 0;
+    if (!f || this.debutPerf === undefined || this.commencee) return false;
+    if (performance.now() - this.debutPerf > ANNULATION_MAX_MS) return false;
+    const ecoule = Date.now() - f.journal[0].t;   // l'heure du téléphone borne aussi : une veille ne fait pas avancer l'horloge monotone
+    if (!(ecoule >= 0 && ecoule <= ANNULATION_MAX_MS)) return false;
+    if (document.visibilityState === 'hidden') return false;
+    return f.journal.every((e) => e.type === 'urgence' || e.type === 'situation') && f.roles.length === 0 && Object.keys(f.checklist).length === 0
+      && f.chronometres.length === 0 && f.situations.length <= 1 && !this.tuileTouchee;
   }
 
   async annulerDemarrage() {
@@ -225,13 +242,6 @@ export class Intervention {
     return construireVue({ etapes: this.protocole?.etapes ?? [], checklist: this.fiche.checklist, journal: this.fiche.journal, habilitations: this.habilitations, profession: this.profession });
   }
 
-  /** Bascule expert / guidé pour CETTE intervention ; le réglage par défaut (Réglages) ne change pas. */
-  definirModeChecklist(mode) {
-    if (!['expert', 'guide'].includes(mode) || mode === this.modeChecklist) return false;
-    this.modeChecklist = mode; this.modeChoisi = true;
-    return true;
-  }
-
   /**
    * Toucher de la case d'une étape dans la checklist. Même objet que les tuiles : `fiche.checklist[id]`.
    * - étape cochée : décochée (journalisée) ; - étape non cochable pour cette profession : refusée (jamais cochée) ;
@@ -245,7 +255,6 @@ export class Intervention {
     if (item.cochee) { this.decocher(id); return { ouvrirAlerte: false }; }
     if (!item.cochable) return { ouvrirAlerte: false, refuse: true };
     const e = item.etape;
-    this.passees.delete(id);
     if (estVitale(e)) return this.toucherTuile(id, { prudent: true });   // une seule définition d'« étape vitale » (revue L6 m10)
     if (e.cochage_auto === 'appel') { this.emettre('changement'); return { ouvrirAlerte: true }; }
     if (this.cocher(id)) this.declencher(e, { prudent: true });
@@ -272,14 +281,10 @@ export class Intervention {
     const t = heureVersTimestamp(heure);
     if (t === null) return { ok: false, raison: 'heure invalide : écrire hh:mm, par exemple 14:32' };
     this.journaliser('geste', { id, libelle: item.etape.texte_court }, { maintenant: t });
-    this.passees.delete(id);
     this.ecrire();
     this.emettre('changement');
     return { ok: true };
   }
-
-  /** Mode guidé : « Passer » laisse l'étape non faite (une critique passée est signalée « non faite » dès qu'une suivante est cochée). */
-  passerEtape(id) { this.passees.add(id); this.emettre('changement'); }
 
   /**
    * Toucher d'une tuile vitale. « Alerter » (cochage_auto: appel) n'est PAS coché à l'ouverture du panneau (ouvrir n'est pas alerter) : elle
@@ -428,6 +433,7 @@ export class Intervention {
 
   /** Écrit un champ de la fiche (`bloc` : « identite », « circonstances », « bilan_vital » ou null pour un champ de premier niveau). N'émet RIEN : l'écran de saisie ne se redessine pas. */
   definirChamp(bloc, cle, valeur) {
+    this.commencee = true;
     this.stockage.modifier(this.fiche, (f) => {
       if (bloc) f[bloc] = { ...(f[bloc] ?? {}), [cle]: valeur }; else f[cle] = valeur;
     });
@@ -435,6 +441,7 @@ export class Intervention {
 
   /** Date de naissance en trois champs : `partie` = jour, mois ou annee. */
   definirNaissance(partie, valeur) {
+    this.commencee = true;
     this.stockage.modifier(this.fiche, (f) => {
       const n = { ...(f.identite?.date_naissance ?? {}), [partie]: valeur };
       f.identite = { ...(f.identite ?? {}), date_naissance: n };
@@ -491,7 +498,6 @@ export class Intervention {
     const reglages = await this.stockage.lireReglages();
     if (this.detruite) return;
     this.profession = reglages.profession; this.personnes = reglages.personnes; this.champsSensibles = reglages.champs_sensibles ?? {};
-    if (!this.modeChoisi) this.modeChecklist = reglages.mode_affichage;   // réglage par défaut, sauf si l'équipe a déjà basculé
     this.emettre('reglages');
   }
 
@@ -532,6 +538,7 @@ export class Intervention {
   // ───────── Lieu ─────────
 
   definirLieu(partiel) {
+    this.commencee = true;
     this.stockage.modifier(this.fiche, (f) => { f.lieu = { ...f.lieu, ...partiel }; });
     this.emettre('changement');
   }

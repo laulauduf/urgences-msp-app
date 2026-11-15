@@ -23,7 +23,6 @@ export const REGLAGES_PAR_DEFAUT = Object.freeze({
   profession: null,
   delai_effacement_h: DELAI_DEFAUT_H,
   theme: 'auto',
-  mode_affichage: 'expert',
   champs_sensibles: {},
   personnes: [],           // prénoms ou fonctions de l'équipe, saisis une fois et réutilisables (rôles, 4.4) : aucune donnée patient
 });
@@ -124,7 +123,6 @@ export function creerStockage({
     if (brut && brut.profession === null) r.profession = null;
     if (typeof r.profession !== 'string' && r.profession !== null) r.profession = null;
     if (!['auto', 'clair', 'sombre'].includes(r.theme)) r.theme = 'auto';
-    if (!['expert', 'guide'].includes(r.mode_affichage)) r.mode_affichage = 'expert';
     if (r.champs_sensibles === null || typeof r.champs_sensibles !== 'object' || Array.isArray(r.champs_sensibles)) r.champs_sensibles = {};
     r.personnes = normaliserPersonnes(r.personnes);
     r.delai_effacement_h = delaiEffectif(Number(r.delai_effacement_h), { plancherH: config.plancherH });

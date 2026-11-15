@@ -7,8 +7,17 @@
  * @param {{son: import('./son.js').Son, ecran: import('./ecran-allume.js').EcranAllume, stockageNavigateur?: StorageManager}} options
  * @returns {Promise<{son: object, ecran: object, persistance: {prise_en_charge: boolean, persistant: boolean|null}}>}
  */
+/**
+ * Le bip a-t-il été ENTENDU et confirmé par l'utilisateur dans cette session ? (revue R1, M1) : le contexte audio « running » ne prouve PAS que le son sort (bug WebKit, mode silencieux de
+ * l'iPhone : cahier 2.6) ; seule la réponse « Oui, j'ai entendu » lève l'avertissement « Son » de l'intervention.
+ */
+export const etatTest = { son: false };
+/** Réponse de l'utilisateur à « Avez-vous entendu le bip ? ». */
+export function confirmerSon(entendu) { etatTest.son = entendu === true; }
+
 export async function testerSonEtEcran({ son, ecran, stockageNavigateur = globalThis.navigator?.storage }) {
   const resultatSon = son.tester();
+  etatTest.son = false;   // un nouveau test remet la confirmation à faire
   const resultatEcran = await ecran.controler();
   let persistance = { prise_en_charge: false, persistant: null };
   try {

@@ -33,8 +33,8 @@ export function afficherGlossaire(conteneur, { glossaire, auFermer }) {
   const page = creer('section', 'ecran-glossaire');
   page.setAttribute('aria-label', 'Glossaire');
   const titre = creer('div', 'panneau-titre');
-  titre.append(bouton('Fermer', 'bouton', auFermer, { id: 'fermer-glossaire' }));
-  page.append(titre, creer('h1', null, 'Glossaire'));
+  titre.append(creer('h1', 'info-titre', 'Glossaire'), bouton('Fermer', 'bouton', auFermer, { id: 'fermer-glossaire' }));
+  page.append(titre);
   const entrees = [...glossaire.liste].sort((a, b) => String(a.forme_courte ?? a.id).localeCompare(String(b.forme_courte ?? b.id), 'fr', { sensitivity: 'base' }));
   if (entrees.length === 0) page.append(creer('p', 'plan-aide', 'Glossaire indisponible (fichier absent ou illisible).', { role: 'status' }));
   const liste = creer('ul', 'glossaire-liste');
