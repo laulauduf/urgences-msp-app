@@ -655,3 +655,14 @@ body[data-mode="intervention"][data-texte="grand"] .ajout-titre { font-size: 0.6
 body[data-mode="intervention"][data-texte="grand"] .ajout-formulaire input[type="text"] { flex: 1 1 4rem; }
 body[data-mode="intervention"][data-texte="grand"] .ajout-formulaire input, body[data-mode="intervention"][data-texte="grand"] .ajout-formulaire label { font-size: 0.6875rem; }
 body[data-mode="intervention"][data-texte="grand"] .ajout-formulaire .bouton { font-size: 0.6875rem; padding-block: 0.125rem; }
+
+/* Menu compact (cause réelle du test de menu instable) : une fois le métronome et le décompte du cycle affichés (environ 250 ms après l'écran ACR), l'en-tête
+   de 375×667 mesure ~250 px et la zone centrale ~300 px. Avec des boutons à deux lignes de 65 px, la cinquième rangée (Terminer, Clôture et export) passait SOUS
+   la barre : le test ne la voyait « visible » que s'il mesurait avant que l'en-tête ait fini de grandir. Boutons à 48 px : les cinq rangées tiennent. */
+body:not([data-texte="grand"]) .menu-intervention { gap: 0.25rem 0.5rem; padding-block: 0.25rem; }
+body:not([data-texte="grand"]) .menu-intervention .bouton { font-size: 0.875rem; line-height: 1.2; padding-block: 0.25rem; }
+
+/* Barre du bas à 360 px (portrait, texte normal) : « TRANSM. » débordait d'un pixel, « CHECKLIST » de 5 (relecture L7, mineur 9) — marge latérale réduite de moitié */
+@media (max-width: 400px) and (orientation: portrait) {
+  body[data-mode="intervention"]:not([data-texte="grand"]) .barre .bouton { padding-inline: 0.25rem; flex: 1 1 auto; min-width: 0; }   /* largeur selon le libellé (et non en parts égales) */
+}

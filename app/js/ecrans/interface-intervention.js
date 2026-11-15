@@ -35,7 +35,7 @@ export const BARRE = [
   { id: 'acr', libelle: 'ACR', disponible: true },
   { id: 'alerter', libelle: 'ALERTER', disponible: true },
   { id: 'checklist', libelle: 'CHECKLIST', disponible: true },    // lot L6 (visible seulement dans une fiche ACR : voir majBarre)
-  { id: 'transmission', libelle: 'TRANSMISSION', disponible: true }, // lot L7 : à la place de CHECKLIST hors d'une fiche ACR (4.0)
+  { id: 'transmission', libelle: 'TRANSM.', disponible: true, nom: 'Transmission' }, // lot L7 : à la place de CHECKLIST hors d'une fiche ACR (4.0)
   { id: 'fiche', libelle: 'FICHE', disponible: true },             // lot L7
   { id: 'menu', libelle: '⋯', disponible: true, nom: 'Menu' },
 ];
