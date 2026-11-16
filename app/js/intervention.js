@@ -67,6 +67,9 @@ export class Intervention {
     this.fiche = null; this.mode = 'reel';
     this.protocole = null; this.protocoleEtat = null; this.raisons = [];   // protocoleEtat : null | 'chargement' | 'ok' | 'secours'
     this.situation = null;                                                 // null (choix en cours) | ACR | AUTRE
+    this.questionMetronome = null;                                         // D-80 : null | 'question' (sortie de l'ACR métronome en marche, pas de réponse) | 'continue' (« Continuer » touché)
+    // D-82 : le signal sonore « 2 insufflations » n'a de sens qu'en arrêt cardiaque (hors ACR le métronome peut battre encore, sans signal)
+    if (this.son) this.son.signalInsufflationsPermis = () => this.situation === ACR;
     this.definitions = []; this.metronome = null; this.gestion = null; this.horloge = null;
     this.auditeurs = new Set(); this.debranchements = []; this.prefetch = null; this.dernierGlobal = 0;
     this.repriseDe = null; this.versionDifferente = null; this.champsSensibles = {}; this.appelEnAttente = false; this.appelParti = false; this.transmissionAuRetour = false; this.detruite = false; this.tuileTouchee = false;
@@ -132,8 +135,10 @@ export class Intervention {
     if (this.situation === ACR) {
       const copie = fiche.protocoles_utilises?.[this.protocoleActifId];
       const { verifierProtocole } = await import('./protocole.js');
-      if (copie && verifierProtocole(copie).length === 0) this.adopterProtocole(copie, { journaliserSituation: false });
-      else { // pas de copie exploitable : on retombe sur le fichier courant, ou sur l'écran de secours
+      if (copie && verifierProtocole(copie).length === 0) {
+        this.adopterProtocole(copie, { journaliserSituation: false });
+        await this.completerRapportInsufflations();
+      } else { // pas de copie exploitable : on retombe sur le fichier courant, ou sur l'écran de secours
         this.protocoleEtat = 'chargement'; this.emettre('changement');
         const r = await this.chargerProtocoleFn(this.protocoleActifId);
         if (r.ok) this.adopterProtocole(r.protocole, { journaliserSituation: false });
@@ -157,7 +162,22 @@ export class Intervention {
     this.emettre('changement');
   }
 
+  /**
+   * m-1 (revue du lot I) : une intervention ouverte AVANT la 0.2.14 porte une copie de protocole sans `battements_avant_insufflations` ; on prend alors le rapport du protocole PUBLIÉ du même
+   * identifiant (30 adulte, 15 enfant : jamais écrits dans le code). Fichier illisible ou muet : on garde la valeur par défaut, la reprise n'échoue jamais pour cela.
+   */
+  async completerRapportInsufflations() {
+    if (!this.metronome || this.metronome.battementsAvantInsufflations !== null) return;
+    try {
+      const r = await this.chargerProtocoleFn(this.protocoleActifId);
+      const n = r?.ok ? lireMetronome(r.protocole)?.battementsAvantInsufflations : null;
+      if (Number.isInteger(n) && n > 0) { this.metronome = { ...this.metronome, battementsAvantInsufflations: n }; this.son.reglerInsufflations?.(n); }
+    } catch { /* hors ligne ou illisible : valeur par défaut */ }
+  }
+
   adopterProtocole(protocole, { journaliserSituation = true } = {}) {
+    // m-2 : passer d'un ACR à un autre (adulte → enfant) remet le comptage de « 2 insufflations » à zéro ; le métronome continue
+    if (journaliserSituation && this.protocole && this.protocole.id !== protocole.id) this.son.remettreAZeroInsufflations?.();
     this.protocole = protocole; this.protocoleEtat = 'ok'; this.raisons = [];
     this.definitions = lireChronometres(protocole);
     this.metronome = lireMetronome(protocole);
@@ -210,6 +230,7 @@ export class Intervention {
     // P4d (m3) : CHANGEMENT d'ACR (un ACR est déjà adopté et affiché) : il reste affiché, avec sa barre « Masser · DAE », jusqu'à l'arrivée du nouveau ; jamais d'écran « Chargement » qui masquerait un massage en cours
     const garde = this.situation === ACR && this.protocoleEtat === 'ok';
     this.situation = ACR; this.echecAcr = null;
+    this.questionMetronome = null;   // D-80 : de retour en ACR, rien à demander
     if (!garde) { this.protocoleActifId = id; this.protocoleEtat = 'chargement'; }
     this.emettre('changement');
     if (!this.prefetch || this.prefetchId !== id) { this.prefetch = this.chargerProtocoleFn(id); this.prefetchId = id; }
@@ -242,6 +263,8 @@ export class Intervention {
   choisirAutre(id = ID_COMMUN) {
     const conduite = this.conduites.includes(id) ? id : ID_COMMUN;
     if (conduite !== this.conduiteId) { this.protocoleCommun = null; this.communEtat = 'absent'; }   // une autre conduite : l'ancienne est lâchée (ses coches restent dans la fiche, sous son préfixe)
+    // D-80 : on QUITTE l'arrêt cardiaque alors que le métronome bat → une question non bloquante (« Arrêter / Continuer ») ; sans réponse il continue. Pas de question en passant d'une conduite à l'autre (on n'était pas en ACR).
+    if (this.situation === ACR && this.son.etat?.().metronome.actif) this.questionMetronome = 'question';
     this.conduiteId = conduite; this.situation = AUTRE;
     this.stockage.modifier(this.fiche, (f) => { f.situations.push({ protocole: conduite === ID_COMMUN ? null : conduite, depuis: Date.now() }); }, { immediat: true });
     this.journaliser('situation', { protocole: conduite === ID_COMMUN ? null : conduite, libelle: conduite === ID_COMMUN ? 'autre situation' : (titreDe(conduite) ?? 'autre situation') });   // (le nom de navigation, pas l'identifiant du fichier : P4d m7)
@@ -475,6 +498,32 @@ export class Intervention {
     this.journaliser('chronometre', { id: 'metronome', action: 'demarrage', frequence: this.metronome.frequence });
     this.emettre('changement');
     return true;
+  }
+
+  /**
+   * D-80 (METRO-1 = C), corrigé par le lot J-b (M-1, M-2) : la ligne « Métronome en marche — Arrêter · Continuer » de l'écran « Autre situation » (et des conduites) est présente TANT QUE le métronome
+   * bat hors ACR, sans aucun délai (la carte qui disparaissait après 15 s ne laissait plus aucun moyen d'arrêter le métronome). Renvoie :
+   *   'question' : « Arrêter · Continuer » ; 'continue' : « Continuer » touché, il ne reste que « Arrêter » ; null : pas de ligne (en ACR, métronome arrêté ou en pause, pas de sortie d'ACR métronome en marche).
+   * Cette fonction ne touche JAMAIS au son : sans réponse le métronome continue.
+   */
+  etatLigneMetronome() {
+    if (this.questionMetronome === null || this.situation === ACR) return null;
+    if (!this.son.etat?.().metronome.actif) return null;
+    return this.questionMetronome;
+  }
+
+  /** La question est-elle encore entière (« Arrêter · Continuer ») ? */
+  questionMetronomeOuverte() { return this.etatLigneMetronome() === 'question'; }
+
+  /** Réponse : « arreter » = pause du métronome (même effet que « Masser » ; journalisé), à tout moment tant que la ligne est là (m-a : aucun délai qui l'ignorerait) ; « continuer » = la ligne se réduit à « Arrêter ». Sans ligne : sans effet. */
+  repondreQuestionMetronome(choix) {
+    if (this.etatLigneMetronome() === null) { this.questionMetronome = null; this.emettre('changement'); return; }
+    if (choix === 'arreter') {
+      this.questionMetronome = null;
+      this.son.pauseMetronome();
+      this.journaliser('chronometre', { id: 'metronome', action: 'pause', apres: 'sortie_acr' });
+    } else if (choix === 'continuer') this.questionMetronome = 'continue';
+    this.emettre('changement');
   }
 
   basculerMetronome() {

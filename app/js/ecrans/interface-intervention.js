@@ -392,6 +392,29 @@ export class InterfaceIntervention {
     this.zone.appli.append(creer('div', null, '', { id: 'insuf-centre', role: 'status', 'aria-live': 'polite', 'aria-atomic': 'true' }));
   }
 
+  /**
+   * D-80 (METRO-1 = C), corrigé par le lot J-b (M-1, M-2) : la question « Métronome en marche — Arrêter · Continuer » est une LIGNE du flux de l'écran « Autre situation » (et des conduites), sous la
+   * tuile rouge — jamais une carte superposée : elle ne recouvre RIEN (panneau d'alerte, écran d'appel, transmission, volet « Fiche », « Lieu » : elle n'y existe pas) et ne pousse que la liste de cet écran.
+   * Présente tant que le métronome bat hors ACR ; après « Continuer », seul « Arrêter » reste. Sans réponse le métronome continue (D-80).
+   */
+  construireLigneMetronome() {
+    const etat = this.intervention.etatLigneMetronome();
+    if (etat === null) return null;
+    const ligne = creer('div', 'ligne-metronome', '', { id: 'ligne-metronome', role: 'group', 'aria-label': 'Métronome', 'data-etat': etat });
+    ligne.append(creer('span', 'ligne-metronome-texte', 'Métronome en marche'));
+    ligne.append(bouton('Arrêter', 'bouton', () => this.intervention.repondreQuestionMetronome('arreter'), { id: 'ligne-metronome-arreter' }));
+    if (etat === 'question') ligne.append(bouton('Continuer', 'bouton', () => this.intervention.repondreQuestionMetronome('continuer'), { id: 'ligne-metronome-continuer' }));
+    return ligne;
+  }
+
+  /** Redessine l'écran « Autre situation » seulement si la ligne affichée n'est plus celle qu'il faut (le métronome s'est arrêté sans toucher à la ligne) ; jamais à chaque tick. */
+  majQuestionMetronome() {
+    if (this.panneau !== null || this.intervention.situation !== AUTRE) return;
+    const attendu = this.intervention.etatLigneMetronome() ?? '';
+    const present = document.getElementById('ligne-metronome')?.dataset.etat ?? '';
+    if (attendu !== present) this.rendre();
+  }
+
   pulser() {
     this.majInsufflations();
     const r = document.getElementById('repere');
@@ -416,6 +439,7 @@ export class InterfaceIntervention {
     const global = document.getElementById('chrono-global');
     if (global) global.textContent = i.texteGlobal();
     this.majBarreVitale();
+    this.majQuestionMetronome();
     this.majResumeFiche(); this.placerVolet();
     // pastille d'avertissement (son · écran) dans la rangée du titre
     const pastille = document.getElementById('pastille-avert');
@@ -821,6 +845,8 @@ export class InterfaceIntervention {
     for (const p of acrs) urgence.append(gros(p.titre, acrs.length > 1 ? p.sous.split(' · ')[0] : 'passer en ACR', 'bouton bouton-urgence gros gros-urgence', () => { this.versPrincipal(); i.choisirAcr(p.id).catch(() => {}); }, p.id === i.protocoleId ? 'passer-acr' : `passer-${p.id}`, { 'data-vital': 'acr' }));   // commande vitale : agit tout de suite même volet ouvert (D-64c, N1)
     if (acrs.length > 1) urgence.classList.add('autre-urgences-deux');
     page.append(urgence);
+    const ligneMetronome = this.construireLigneMetronome();   // D-80 corrigé (J-b) : dans le flux, sous la tuile rouge
+    if (ligneMetronome) page.append(ligneMetronome);
     page.append(this.construireChecklistCommune());
     const outils = creer('div', 'accueil-grille autre-outils');
     outils.append(

@@ -95,12 +95,13 @@ export const DUREE_AFFICHAGE_INSUFFLATIONS_MS = 5000;
 export class CompteurInsufflations {
   constructor({ tous = BATTEMENTS_PAR_SERIE, dureeMs = DUREE_AFFICHAGE_INSUFFLATIONS_MS } = {}) { this.tous = tous; this.dureeMs = dureeMs; this.remettreAZero(); }
   remettreAZero() { this.n = 0; this.fin = null; }
-  /** À appeler à chaque battement émis, avec l'heure (performance.now) du battement. */
+  /** À appeler à chaque battement émis, avec l'heure (performance.now) du battement. Renvoie vrai UNIQUEMENT au battement qui allume l'affichage (D-82 : c'est là que le signal sonore est demandé, une fois par affichage). */
   battement(perf) {
     this.majAffichage(perf);
-    if (this.fin !== null) return;
+    if (this.fin !== null) return false;
     this.n += 1;
-    if (this.n >= this.tous) this.fin = perf + this.dureeMs;
+    if (this.n >= this.tous) { this.fin = perf + this.dureeMs; return true; }
+    return false;
   }
   majAffichage(perf) { if (this.fin !== null && perf >= this.fin) { this.fin = null; this.n = 0; } }
   affiche(perf) { this.majAffichage(perf); return this.fin !== null; }
@@ -135,6 +136,8 @@ export class Son {
   insufflationsAffichees(maintenantPerf = this.perf()) { return this.metronome.actif && this.insuf.affiche(maintenantPerf); }   // m-3 : métronome en pause = rien à montrer (le calque s'éteint aussitôt)
   /** D-81 : règle le nombre de battements entre deux affichages sur le rapport du protocole (30:2 adulte, 15:2 enfant). Valeur invalide : rien ne change. Le comptage en cours n'est pas remis à zéro. */
   reglerInsufflations(tous) { if (Number.isInteger(tous) && tous > 0) this.insuf.tous = tous; }
+  /** m-2 (revue du lot I) : remet le comptage à zéro (changement d'ACR : le rapport change, le nombre déjà compté n'a plus de sens). Le métronome n'est pas touché. */
+  remettreAZeroInsufflations() { this.insuf.remettreAZero(); }
   /** Nombre de battements comptés depuis le dernier départ (ou la fin du dernier affichage). */
   get compteInsufflations() { return this.insuf.n; }
 
@@ -284,16 +287,18 @@ export class Son {
         // au retour du son, le premier battement audio peut tomber juste après un battement visuel : on ne le double pas
         if (m.dernierBattementPerf === null || maintenantPerf - m.dernierBattementPerf >= periode * 0.45) {
           m.total += 1; emis = 1; m.dernierBattementPerf = maintenantPerf;
-          this.insuf.battement(maintenantPerf);
+          const allume = this.insuf.battement(maintenantPerf);
           this.onBattement({ indice: m.total, source: 'audio', perf: maintenantPerf });
+          if (allume) this.jouerSignalInsufflations();   // D-82
         }
         m.prochainPerf = m.dernierBattementPerf + periode; // la phase visuelle repart du dernier battement émis
       }
     } else {
       while (maintenantPerf >= m.prochainPerf) {
         m.total += 1; emis += 1; m.dernierBattementPerf = m.prochainPerf;
-        this.insuf.battement(m.prochainPerf);
+        const allume = this.insuf.battement(m.prochainPerf);
         this.onBattement({ indice: m.total, source: 'visuel', perf: m.prochainPerf });
+        if (allume) this.jouerSignalInsufflations();   // D-82 (sans effet si le son est coupé : voir la méthode)
         m.prochainPerf += periode;
       }
     }
@@ -307,6 +312,30 @@ export class Son {
     const image = (t) => { if (arrete) return; this.avancer(t); id = demander(image); };
     id = demander(image);
     return () => { arrete = true; if (id !== null) annuler?.(id); };
+  }
+
+  /**
+   * D-82 : signal sonore de « 2 insufflations » — deux notes DESCENDANTES, plus graves et bien plus longues que le clic du métronome (1000 Hz, 40 ms), pour qu'on ne le confonde pas avec un battement. Même moteur
+   * (Web Audio) que le clic, aucun fichier son. Demandé une seule fois par affichage (par `avancer`, au battement qui allume l'affichage). Rien si le métronome est en pause, si le son est coupé (contexte non
+   * « running » : le repère visuel seul reste) ou si l'interface dit qu'on n'est pas en arrêt cardiaque (`signalInsufflationsPermis`). N'agit ni sur la boucle du métronome ni sur sa phase : il s'ajoute.
+   * @returns {boolean} vrai si le signal a été lancé
+   */
+  jouerSignalInsufflations() {
+    if (!this.metronome.actif || this.ctx?.state !== 'running') return false;
+    try { if (this.signalInsufflationsPermis?.() === false) return false; } catch { return false; }
+    try {
+      const maintenant = this.ctx.currentTime;
+      [[660, 0], [440, 0.3]].forEach(([frequence, decalage]) => {
+        const o = this.ctx.createOscillator(); const g = this.ctx.createGain();
+        o.type = 'sine'; o.frequency.value = frequence;
+        g.gain.setValueAtTime(0.0001, maintenant + decalage);
+        g.gain.exponentialRampToValueAtTime(0.5, maintenant + decalage + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, maintenant + decalage + 0.28);
+        o.connect(g); g.connect(this.ctx.destination);
+        o.start(maintenant + decalage); o.stop(maintenant + decalage + 0.3);
+      });
+      return true;
+    } catch { return false; }   // le moteur en panne ne doit jamais gêner le métronome
   }
 
   // ───────── Alertes (UN SEUL canal à la fois) ─────────
