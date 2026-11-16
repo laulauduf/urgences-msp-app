@@ -3,7 +3,7 @@
   "id": "avc",
   "titre": "Suspicion d'accident vasculaire cérébral (AVC) de l'adulte, jusqu'à l'arrivée des secours",
   "titre_court": "AVC de l'adulte",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/avc.md",
@@ -30,6 +30,11 @@
         "par": "agent recherche-reco (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
         "le": "2026-11-15",
         "objet": "Version 0.1.3 : habilitations de neuf étapes renvoyées aux gestes de professions.json 0.3.0 (signes-avc, visage, bras, parole, autres-signes, signes-passagers → reconnaitre_malaise_grave ; glycemie → glycemie_capillaire ; allonger, confort → position_attente_confort), valeurs identiques à celles qui étaient en ligne ; aucun libellé, aucune précision, aucun statut de source modifié."
+      },
+      {
+        "par": "agent de finition « lot G » (Sonnet 5.5 / high), lancé par « urgences - pilote 5 »",
+        "le": "2026-11-16",
+        "objet": "Version 0.1.4 (lot G, décisions D-66 et D-69 de Laurent : saisir dans l'étape) : ajout du champ `saisie` aux étapes de recueil heure-debut, glycemie, antecedents — il dit dans quel champ de la fiche de la victime va le renseignement saisi sur place ; les puces (s'il y en a) reprennent uniquement des textes déjà écrits dans l'étape. Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.1.4 non contrôlée."
       }
     ]
   },
@@ -555,6 +560,7 @@
       "titre_fiche": "Heure de début",
       "texte_court": "Heure de début",
       "precision": "Ou dernière fois vue sans signes ; à donner au 15",
+      "saisie": { "champ": "debut_signes" },
       "consigne_guidee": "Notez l'heure où les signes sont apparus, ou l'heure où la victime a été vue pour la dernière fois sans signes, et donnez-la au 15.",
       "detail": "Premiers secours en équipe : rechercher « l'heure où les signes sont apparus et l'heure où la victime a été vue pour la dernière fois sans signes » (p. 188). Appui : l'actualisation HAS 2025 porte sur « les critères d'éligibilité à la thrombolyse intraveineuse des patients ayant un AVC constaté au réveil ou de début inconnu » (page de la recommandation) ; l'heure conditionne donc le traitement (déduit). Champ « heure de début » de la fiche bilan (cahier des charges, Déroulé 4).",
       "statut": "DEDUIT",
@@ -583,6 +589,7 @@
       "titre_fiche": "Glycémie capillaire",
       "texte_court": "Glycémie capillaire",
       "precision": "Si possible, sans retarder l'alerte ; l'hypoglycémie imite l'AVC",
+      "saisie": { "champ": "constantes", "types": ["glycemie"] },
       "consigne_guidee": "Si possible, mesurez la glycémie capillaire sans retarder l'alerte : une hypoglycémie peut simuler un accident vasculaire cérébral.",
       "detail": "Premiers secours en équipe : « Au cours du 4ème regard, il est indispensable de réaliser une mesure de la glycémie capillaire. En effet, une hypoglycémie peut simuler un AVC » (p. 188) ; procédure p. 189 ; indication « signes qui évoquent un accident vasculaire cérébral » (p. 99) ; logigramme : « Prendre une glycémie capillaire » (AVC ou accident ischémique transitoire). ERC : MASS ou LAPSS « can increase the specificity of stroke recognition if glucose measurement is available ». « Sans retarder l'alerte » : déduit de l'appel « immédiat » (HAS). Seule source qui impose ce geste : le référentiel des secouristes en équipe ; transposition aux soignants libéraux et place après l'alerte : DÉDUIT (fiche V2, V5).",
       "statut": "DEDUIT",
@@ -675,6 +682,7 @@
       "titre_fiche": "Antécédents, traitements",
       "texte_court": "Antécédents, traitements",
       "precision": "Anticoagulant, autonomie, allergies, épisode identique < 24 h avant",
+      "saisie": { "champ": "antecedents_traitements" },
       "consigne_guidee": "Recherchez : signes neurologiques identiques dans les 24 heures précédentes, antécédents, traitement anticoagulant et autres traitements, allergies, autonomie habituelle.",
       "detail": "Premiers secours en équipe : « l'existence de signes neurologiques identiques dans les 24 heures précédentes » ; antécédents de crise convulsive ; fièvre ; autonomie habituelle ; facteurs de risque, dont « un traitement anticoagulant » ; chirurgie récente, stimulateur cardiaque ou contre-indication à l'IRM (p. 188) ; interrogatoire du 4e regard : antécédents, traitements, allergies (p. 69). Premiers secours citoyen : âge, antécédents, traitements (p. 41). Fiche bilan du cahier des charges : antécédents, traitements, allergies.",
       "statut": "CITE",

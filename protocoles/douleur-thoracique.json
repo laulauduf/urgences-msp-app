@@ -3,7 +3,7 @@
   "id": "douleur-thoracique",
   "titre": "Douleur thoracique de l'adulte (suspicion de syndrome coronarien aigu), jusqu'à l'arrivée des secours",
   "titre_court": "Douleur thoracique adulte",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/douleur-thoracique.md",
@@ -40,6 +40,11 @@
         "par": "agent code « urgences - code 6 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
         "le": "2026-11-16",
         "objet": "Version 0.1.6 (lot V2, décision D-65 de Laurent, test de la version 0.2.6) : ajout du champ `precision_visible: true` à l'étape repartir-taches (« À plusieurs : répartir ») — sa précision reste toujours affichée, en petit, sous le libellé, sans dépliage, comme « Se protéger » et « Respire ? » (D-61 étendue). Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.1.6 non contrôlée."
+      },
+      {
+        "par": "agent de finition « lot G » (Sonnet 5.5 / high), lancé par « urgences - pilote 5 »",
+        "le": "2026-11-16",
+        "objet": "Version 0.1.7 (lot G, décisions D-66 et D-69 de Laurent : saisir dans l'étape) : ajout du champ `saisie` aux étapes de recueil heure-debut, type-douleur, antecedents-traitements, constantes — il dit dans quel champ de la fiche de la victime va le renseignement saisi sur place ; les puces (s'il y en a) reprennent uniquement des textes déjà écrits dans l'étape. Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.1.7 non contrôlée."
       }
     ]
   },
@@ -796,6 +801,7 @@
       "titre_fiche": "Heure de début",
       "texte_court": "Heure de début",
       "precision": "Début, durée, continue ou intermittente",
+      "saisie": { "champ": "debut_signes", "puces": ["continue", "intermittente"] },
       "consigne_guidee": "Notez l'heure de début de la douleur, sa durée, et si elle est continue ou intermittente.",
       "detail": "PSE : « L'évolution dans le temps est un élément précieux : installation brutale ou progressive, douleur continue ou intermittente. La durée de la douleur doit être précisée. » PSC : « la durée du malaise ». L'heure de début est un champ de la fiche bilan du cahier des charges (Déroulé 4).",
       "statut": "DEDUIT",
@@ -825,6 +831,7 @@
       "titre_fiche": "Type de douleur",
       "texte_court": "Type de douleur",
       "precision": "Étau, poids, brûlure, coup de poignard ; intensité",
+      "saisie": { "champ": "notes", "puces": ["étau", "poids", "brûlure", "coup de poignard"] },
       "consigne_guidee": "Faites décrire la douleur : en étau, poids, brûlure, coup de poignard ; son siège, son irradiation et son intensité.",
       "detail": "PSE : douleur « en étau » ou « en coup de poignard », déchirure, poids sur le thorax, brûlure, ou augmentée par les mouvements respiratoires ; préciser siège et irradiation ; sévérité « grâce à l'échelle de douleur » ; elle peut débuter au repos, pendant ou après un effort. PSE, quatrième regard (analyse de toute plainte) : facteur déclencheur ou améliorant, qualité, région, sévérité, temporalité. ESC § 3.1.1 : « Acute chest discomfort—which may be described as pain, pressure, tightness, heaviness, or burning ».",
       "statut": "CITE",
@@ -882,6 +889,7 @@
       "titre_fiche": "Antécédents, traitements",
       "texte_court": "Antécédents, traitements",
       "precision": "Cardiovasculaires, facteurs de risque, traitements, allergies",
+      "saisie": { "champ": "antecedents_traitements" },
       "consigne_guidee": "Renseignez-vous auprès de la victime ou de son entourage : antécédents cardiovasculaires, facteurs de risque, traitements, allergies ; notez-les dans la fiche bilan.",
       "detail": "PSE : épisode similaire, hospitalisation ; antécédents cardio-vasculaires (angine de poitrine, infarctus) ou pulmonaires (embolie pulmonaire, phlébites) ; facteurs de risque (tabagisme, tabagisme avec contraceptifs oraux, obésité, diabète, hypertension, hypercholestérolémie) ; antécédents familiaux. ERC : allergie connue à l'aspirine (contre-indication). ESC : la prise d'un inhibiteur de la phosphodiestérase 5 dans les dernières 24 à 48 heures est une contre-indication des dérivés nitrés (à demander si la trinitrine est envisagée : déduit). Libellé repris de la conduite commune, précision adaptée.",
       "statut": "DEDUIT",
@@ -912,6 +920,7 @@
       "titre_fiche": "Constantes",
       "texte_court": "Constantes",
       "precision": "Pression artérielle, fréquence cardiaque, SpO₂ ; sans retarder l'alerte",
+      "saisie": { "champ": "constantes" },
       "consigne_guidee": "Mesurez la pression artérielle, la fréquence cardiaque et la SpO₂, sans retarder l'alerte.",
       "detail": "ESC § 3.1.2 : « Prompt assessment of vital signs is recommended at first medical contact (FMC) ». ERC (ligne B-Breathing du tableau ABCDE) : « Assess oxygen saturation level with a pulse oximetry. » ; ligne C-Circulation : signes d'hypotension (fréquence cardiaque très rapide ou très lente). Attestation de niveau 2, module 1 : « mettre en œuvre des appareils non invasifs de surveillance des paramètres vitaux ». Le choix de la pression artérielle, de la fréquence cardiaque et de la SpO₂ est déduit : la pression artérielle conditionne les dérivés nitrés, la SpO₂ l'oxygène. Glycémie capillaire : non citée par les sources lues pour la douleur thoracique.",
       "statut": "DEDUIT",

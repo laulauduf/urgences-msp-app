@@ -14,6 +14,8 @@ import { detailHabilitation } from '../habilitations.js';
 import { construireDefinition } from './glossaire.js';
 import { afficherMateriel } from './materiel.js';
 import { construireMateriel } from '../materiel.js';
+import { valeurEtape } from '../saisie-etape.js';
+import { construireZoneSaisie } from './etape-saisie.js';
 
 /** État d'affichage de l'écran ACR, conservé par l'interface entre deux dessins. */
 export function etatAcrInitial() { return { deplies: new Set(), acronymes: new Set(), notation: null, section: 'conduite', evenements: false, confirmation: null }; }
@@ -173,14 +175,41 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
   };
 
   // ───── la liste « conduite à tenir » (et « reprise ») ─────
+  const etatDeLigne = (item) => (item.nonFaite ? 'non_faite' : item.cochee ? 'faite' : item.notee ? 'notee' : item.cochable ? 'a_faire' : 'info');
+  /** Case de l'étape (ou signe d'information quand elle ne se coche pas). Une fonction à part : la saisie dans l'étape la remplace sans redessiner la liste. */
+  const marqueur = (item) => {
+    const e = item.etape;
+    if (item.cochable || item.cochee) {
+      // une étape déjà cochée garde sa case (pour pouvoir la décocher) même si la profession a changé ; sinon elle ne se coche que si elle est cochable
+      const c = bouton(item.cochee ? '✓' : '', 'bouton case', () => cocher(item.id), {
+        'data-case': item.id, 'aria-pressed': String(item.cochee), 'aria-label': `${e.texte_court} : ${item.cochee ? 'faite' : 'à faire'}`,
+      });
+      if (!item.cochable && !item.cochee) c.disabled = true;   // une case cochée reste décochable même si la profession a changé (revue L6 m5)
+      return c;
+    }
+    return creer('span', 'etape-info', item.notee ? '✎' : 'ℹ', { 'aria-hidden': 'true' });
+  };
+  /** G1 : après une saisie dans une étape, la LIGNE de l'étape suit la fiche (case, « fait à T+ », valeur sous le libellé) SANS redessiner l'écran : la frappe et le clavier ne sont jamais interrompus. */
+  const majSaisie = (id) => {
+    const it = intervention.itemChecklist(id);
+    const li = [...page.querySelectorAll('li.etape')].find((l) => l.dataset.etape === id);
+    if (!it || !li) return;
+    li.dataset.etat = etatDeLigne(it);
+    const premier = li.firstElementChild;
+    if (premier && (premier.classList.contains('case') || premier.classList.contains('etape-info'))) premier.replaceWith(marqueur(it));
+    li.querySelector('.etape-marques')?.replaceWith(marques(it));
+    const v = li.querySelector('[data-valeur]');
+    if (v) { const t = valeurEtape(intervention.fiche, it.etape.saisie); v.textContent = t; v.hidden = t === ''; }
+  };
   const ligne = (item) => {
     const e = item.etape;
     const precision = plein(e.precision) ? e.precision.trim() : '';
     // D-61 (lot V1) : une étape qui porte `precision_visible: true` (« Se protéger », « Respire ? ») garde sa précision TOUJOURS affichée, en petit, sous le libellé, sans dépliage ; les autres restent dépliables
     const visible = precision !== '' && e.precision_visible === true;
     // dépliable : la précision, et — pour une action que cette profession ne peut pas cocher — « Noter : fait à hh:mm » (hors de la ligne : une carte = une hauteur)
-    const noterDispo = item.restreint && !item.cochee;
-    const depliable = (precision !== '' && !visible) || noterDispo;
+    const saisie = intervention.saisiePermise(item);   // M4 : champ connu, étape non vitale, APRÈS toute étape vitale, jamais dans un arrêt cardiaque (même condition que la règle R20 du contrôle)
+    const noterDispo = item.restreint && !item.cochee && !saisie;   // (une étape de recueil se saisit : la donnée est notée avec sa valeur, pas « fait à hh:mm »)
+    const depliable = (precision !== '' && !visible) || noterDispo || saisie;
     const ouverte = depliable && (etat.deplies.has(item.id) || etat.notation?.id === item.id);
     const cibleRenvoi = renvoiDe(e);
     if (cibleRenvoi !== null) {
@@ -193,17 +222,11 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
       else { const groupe = creer('span', 'renvoi-boutons'); groupe.append(...boutons); lr.append(groupe); lr.classList.add('etape-renvoi-multi'); }   // plusieurs boutons : sous le libellé, sur toute la largeur (sinon le libellé est écrasé)
       return lr;
     }
-    const etatLigne = item.nonFaite ? 'non_faite' : item.cochee ? 'faite' : item.notee ? 'notee' : item.cochable ? 'a_faire' : 'info';
-    const li = creer('li', 'etape', '', { 'data-etape': item.id, 'data-etat': etatLigne });
+    const li = creer('li', 'etape', '', { 'data-etape': item.id, 'data-etat': etatDeLigne(item) });
     if (item.vitale) li.dataset.vitale = 'oui';   // (même l'étape réservée aux habilités, qui n'est plus « exempte ») étape vitale : barre verticale et libellé en graisse 800 (jamais de rouge : réservé au 15)
-    if (item.cochable || item.cochee) {
-      // une étape déjà cochée garde sa case (pour pouvoir la décocher) même si la profession a changé ; sinon elle ne se coche que si elle est cochable
-      const c = bouton(item.cochee ? '✓' : '', 'bouton case', () => cocher(item.id), {
-        'data-case': item.id, 'aria-pressed': String(item.cochee), 'aria-label': `${e.texte_court} : ${item.cochee ? 'faite' : 'à faire'}`,
-      });
-      if (!item.cochable && !item.cochee) c.disabled = true;   // une case cochée reste décochable même si la profession a changé (revue L6 m5)
-      li.append(c);
-    } else li.append(creer('span', 'etape-info', item.notee ? '✎' : 'ℹ', { 'aria-hidden': 'true' }));
+    li.append(marqueur(item));
+    // G1 (D-66, D-69 variante A) : une étape de recueil porte `saisie` dans les DONNÉES du protocole ; seule une étape que le contrôle R20 a laissée passer (jamais vitale, jamais avant l'alerte)
+    // se déplie sur des puces ou un champ. Toucher son NOM la déplie (D-72) ; la case reste séparée ; la valeur saisie s'affiche sous le libellé, la case se coche toute seule.
     const texte = creer('span', 'etape-texte', e.texte_court);
     // ✱ = « provisoire » ou « à valider » (légende dans le bandeau BROUILLON ; détail dans Sources) : un signe, pas un badge
     const incertainSoi = (x) => typeof x.etape.provisoire === 'string' || x.etape.statut === 'A_VALIDER';
@@ -216,6 +239,7 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
         rendre();
       }, { 'data-deplier': item.id, 'aria-expanded': String(ouverte) });
       if (noterDispo) texte.append(creer('span', 'etape-noter-indice', ' ✎', { 'aria-label': 'noter l\'heure possible', role: 'img' }));
+      else if (saisie) texte.append(creer('span', 'etape-noter-indice', ' ✎', { 'aria-label': 'saisie possible', role: 'img' }));
       titre.append(texte, creer('span', 'etape-fleche', '', { 'aria-hidden': 'true', 'data-ouverte': String(ouverte) }));
       li.append(titre);
     } else {
@@ -224,6 +248,11 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
       li.append(titre);
     }
     if (visible) li.append(creer('p', 'etape-precision etape-precision-visible', precision, { 'data-precision': item.id }));   // juste sous le libellé, avant les marques (fait à T+…)
+    if (saisie) {
+      // la valeur saisie sous le libellé (lue dans la fiche : jamais une seconde copie) ; masquée tant que rien n'est saisi
+      const v = valeurEtape(intervention.fiche, e.saisie);
+      li.append(creer('p', 'etape-valeur', v, { 'data-valeur': item.id, ...(v === '' ? { hidden: '' } : {}) }));
+    }
     li.append(marques(item));
     if (etat.confirmation === item.id && item.surDemande && !item.cochee) {
       // confirmation « fait sur demande du 15 » (D-58) : deux boutons sous la ligne, la case ne se coche qu'au second geste ; Annuler ne coche rien
@@ -240,6 +269,7 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
         if (etat.notation?.id === item.id) li.append(formulaireNotation(item));
         else li.append(bouton('Noter : fait à hh:mm', 'bouton noter', () => noter(item.id), { 'data-noter': item.id }));
       }
+      if (saisie) li.append(construireZoneSaisie({ intervention, item, auSaisie: () => majSaisie(item.id) }));
     }
     return li;
   };

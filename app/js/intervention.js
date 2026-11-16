@@ -9,8 +9,9 @@ import { chargerHabilitations } from './habilitations.js';
 import { chargerGlossaire, lireGlossaire } from './glossaire.js';
 import { chargerUnites, lireUnites } from './unites.js';
 import { TYPES_CONSTANTE } from './bilan.js';
-import { victimeActive, ajouterVictime, retirerVictime, numeroVictime } from './victimes.js';
+import { victimeActive, victimePriseEnCharge, ajouterVictime, retirerVictime, numeroVictime } from './victimes.js';
 import { lireEdition, ecrireEdition } from './edition.js';
+import { champDe, valeurEtape, saisiePermise } from './saisie-etape.js';
 
 /** Champs de premier niveau de la fiche qui ne sont PAS ceux d'une victime : le message au 15 (évaluation, demande), commun à toutes les victimes (D-64). */
 const CHAMPS_GLOBAUX = ['evaluation', 'demande'];
@@ -320,13 +321,14 @@ export class Intervention {
   estCochee(id) { return Boolean(this.fiche.checklist[id]); }
 
   /** `surDemande` (D-58) : coche d'une étape réservée aux habilités, confirmée « fait sur demande du 15 » ; le journal le dit (donnée `sur_demande`, mention dans le libellé : la transmission la reprend). */
-  cocher(id, { t = Date.now(), surDemande = false, repris = false } = {}) {
+  cocher(id, { t = Date.now(), surDemande = false, repris = false, saisie = false, silencieux = false } = {}) {
     if (this.estCochee(id)) return false;
-    this.stockage.modifier(this.fiche, (f) => { f.checklist[id] = { coche_le: t }; }, { immediat: true });
+    // `saisie` (D-66) : l'étape de recueil a été cochée PAR une saisie (elle se décoche si la saisie est vidée) ; `silencieux` : pas de redessin (l'écran de saisie ne se reconstruit pas, on perdrait la frappe)
+    this.stockage.modifier(this.fiche, (f) => { f.checklist[id] = { coche_le: t, ...(saisie ? { saisie: true } : {}) }; }, { immediat: true });
     const e = this.etape(id);
     const libelle = e?.texte_court ?? id;
-    this.journaliser('case', { id, libelle: surDemande ? `${libelle} — ${MENTION_SUR_DEMANDE}` : libelle, ...(surDemande ? { sur_demande: true } : {}), ...(repris ? { repris: true } : {}) }, { maintenant: t });
-    this.emettre('changement');
+    this.journaliser('case', { id, libelle: surDemande ? `${libelle} — ${MENTION_SUR_DEMANDE}` : libelle, ...(surDemande ? { sur_demande: true } : {}), ...(repris ? { repris: true } : {}), ...(saisie ? { saisie: true } : {}) }, { maintenant: t });
+    if (!silencieux) this.emettre('changement');
     return true;
   }
 
@@ -376,12 +378,38 @@ export class Intervention {
   }
 
   /** Décoche une étape : la case sort de la fiche ; le journal garde les deux entrées (la seconde marquée `decochee`). */
-  decocher(id) {
+  decocher(id, { silencieux = false } = {}) {
     if (!this.estCochee(id)) return false;
     this.stockage.modifier(this.fiche, (f) => { delete f.checklist[id]; }, { immediat: true });
     this.journaliser('case', { id, libelle: this.etape(id)?.texte_court ?? id, decochee: true });
-    this.emettre('changement');
+    if (!silencieux) this.emettre('changement');
     return true;
+  }
+
+  /**
+   * D-66 (lot G) : après une saisie dans une étape de recueil (le renseignement est DÉJÀ dans la fiche : `definirChamp`, `ajouterConstante` — mêmes champs que le volet « Fiche », jamais une
+   * seconde copie), l'étape se coche (heure de la saisie) si quelque chose est saisi ; si tout est vidé et que c'est la saisie qui l'avait cochée, elle se décoche. Une étape qu'une profession
+   * ne peut pas cocher (`restreint`) n'est jamais cochée par ce biais : la donnée est gardée, la case reste celle du filtre par profession. Jamais pour une étape sans `saisie` ni pour une étape
+   * vitale (le contrôle R20 le garantit pour les protocoles ; ici on le vérifie aussi). N'émet que `saisie` (jamais `changement` : l'écran ne se redessine pas, on perdrait la frappe).
+   * @returns {{valeur: string, coche: boolean}} la valeur montrée sous le libellé, et l'état de la case
+   */
+  /** M4 : cette étape de la checklist peut-elle porter une saisie ? (étape saisissable, non vitale, après toute étape vitale du protocole, jamais dans un arrêt cardiaque : `saisiePermise`). */
+  saisiePermise(item) {
+    if (!item) return false;
+    const p = this.protocole?.etapes?.includes(item.etape) ? this.protocole : this.protocoleCommun?.etapes?.includes(item.etape) ? this.protocoleCommun : this.protocole;
+    return saisiePermise(p, item.etape);
+  }
+
+  etapeSaisie(id) {
+    const item = this.itemChecklist(id);
+    const saisie = item?.etape?.saisie;
+    if (!item || !this.saisiePermise(item)) return { valeur: '', coche: false };
+    const valeur = valeurEtape(this.fiche, saisie);
+    // m1 : jamais pour une étape que le protocole déclare non cochable (cochable: false), ni pour une étape que la profession ne peut pas cocher, ni « sur demande du 15 » (D-58) : la valeur est gardée, la case reste ce qu'elle est
+    if (valeur !== '') { if (!item.cochee && item.cochable && !item.surDemande) this.cocher(id, { saisie: true, silencieux: true }); }
+    else if (item.cochee && this.fiche.checklist[id]?.saisie === true) this.decocher(id, { silencieux: true });
+    this.emettre('saisie', { id });
+    return { valeur, coche: this.estCochee(id) };
   }
 
   /**
@@ -552,11 +580,11 @@ export class Intervention {
    * Écrit un champ de la fiche. D-64 : les champs du patient (`bloc` « identite », « circonstances », « bilan_vital », ou `null` pour antécédents, traitements, allergies, notes…)
    * s'écrivent dans la victime OUVERTE ; « évaluation » et « demande » (le message au 15, toutes victimes) restent au premier niveau. N'émet RIEN : l'écran de saisie ne se redessine pas.
    */
-  definirChamp(bloc, cle, valeur) {
+  definirChamp(bloc, cle, valeur, { priseEnCharge = false } = {}) {
     this.commencee = true;
     this.stockage.modifier(this.fiche, (f) => {
       if (!bloc && CHAMPS_GLOBAUX.includes(cle)) { f[cle] = valeur; return; }
-      const v = victimeActive(f);
+      const v = priseEnCharge ? victimePriseEnCharge(f) : victimeActive(f);   // M2 : la saisie dans une étape va à la victime prise en charge (VICTIME-SAISIE ouverte, registre)
       if (bloc) v[bloc] = { ...(v[bloc] ?? {}), [cle]: valeur }; else v[cle] = valeur;
     });
   }
@@ -616,13 +644,13 @@ export class Intervention {
   }
 
   /** Numéro de la victime ouverte quand il y en a plusieurs (écrit dans le journal à côté des constantes et gestes) ; sinon rien. */
-  victimeDuJournal() { return this.fiche.victimes.length > 1 ? numeroVictime(this.fiche, this.victimeActive.id) : undefined; }
+  victimeDuJournal(id = this.victimeActive.id) { return this.fiche.victimes.length > 1 ? numeroVictime(this.fiche, id) : undefined; }
 
   /** Unité usuelle d'un type de constante (D-26), '' si le fichier n'en donne pas. Jamais de conversion ni de seuil (D-19). */
   uniteDe(type) { return this.unites?.parType?.get(type) ?? ''; }
 
   /** Constante : valeur BRUTE, horodatée (heure préremplie « maintenant », modifiable) ; aucune interprétation (D-19). @returns {{ok: boolean, raison?: string}} */
-  ajouterConstante(type, valeur, heure) {
+  ajouterConstante(type, valeur, heure, { priseEnCharge = false } = {}) {
     if (!TYPES_CONSTANTE.some((t) => t.id === type)) return { ok: false, raison: 'type de mesure inconnu' };
     if (typeof valeur !== 'string' || valeur.trim() === '') return { ok: false, raison: 'écrire la valeur mesurée' };
     const t = heureVersTimestamp(heure);
@@ -630,7 +658,8 @@ export class Intervention {
     const v = valeur.trim();
     // journal d'abord : la constante garde l'identifiant de son entrée, pour que sa correction soit retrouvée (L7c, revue L7 C1)
     const unite = this.uniteDe(type);   // gardée AVEC la valeur : la fiche, le journal et le document disent la même unité, même sans l'intervention (clôture depuis l'accueil)
-    const victime = this.victimeActive.id; const numero = this.victimeDuJournal();   // D-64 : la constante est rattachée à la victime dont l'onglet est ouvert
+    const cible = priseEnCharge ? victimePriseEnCharge(this.fiche) : this.victimeActive;   // D-64 : la victime dont l'onglet est ouvert ; M2 : celle de la checklist quand la saisie vient d'une étape
+    const victime = cible.id; const numero = this.victimeDuJournal(cible.id);
     const entree = this.journaliser('constante', { type, valeur: v, unite, ...(numero ? { victime: numero } : {}) }, { maintenant: t });
     this.stockage.modifier(this.fiche, (f) => { f.constantes = [...(f.constantes ?? []), { t, type, valeur: v, unite, victime, journal_id: entree.id }]; }, { immediat: true });
     this.emettre('fiche');

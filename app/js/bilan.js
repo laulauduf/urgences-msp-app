@@ -207,7 +207,8 @@ function pageS({ fiche, appelant, protocoleId, maintenant }) {
   const faits = [
     ...(fiche.gestes_produits ?? []).map((g) => ({ mot: `geste${marque(g.victime)}`, t: g.t, texte: g.texte, entree: idJournalGeste(fiche, g) })),
     ...journal.filter((e) => e.type === 'geste' && e.donnees?.id).map((e) => ({ mot: 'geste', t: e.t, texte: e.donnees.libelle ?? e.donnees.id, entree: e.id })),
-    ...Object.entries(fiche.checklist ?? {}).filter(([, v]) => Number.isFinite(v?.coche_le)).map(([cle, v]) => {
+    // (G1, D-66 : une étape de RECUEIL cochée par sa saisie n'est pas un geste : sa valeur est déjà dite par ses propres lignes — début des signes, notes, antécédents, constantes —, jamais en double « fait : … »)
+    ...Object.entries(fiche.checklist ?? {}).filter(([, v]) => Number.isFinite(v?.coche_le) && v.saisie !== true).map(([cle, v]) => {
       const entree = journal.filter((e) => e.type === 'case' && e.donnees?.id === cle && !e.donnees?.decochee).at(-1);
       return { mot: 'fait', t: v.coche_le, texte: entree?.donnees?.libelle ?? cle, entree: entree?.id ?? null };
     }),

@@ -3,7 +3,7 @@
   "id": "acr-adulte-dae",
   "titre": "Arrêt cardio-respiratoire de l'adulte, avec défibrillateur automatisé externe",
   "titre_court": "Arrêt cardiaque adulte",
-  "version": "0.4.15",
+  "version": "0.4.16",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/acr-adulte-dae.md",
@@ -81,6 +81,11 @@
         "par": "agent code « urgences - code 6 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
         "le": "2026-11-16",
         "objet": "Version 0.4.15 (lot V2, décision D-65 de Laurent, test de la version 0.2.6) : ajout du champ `precision_visible: true` à l'étape repartir-taches (« À plusieurs : répartir ») — sa précision reste toujours affichée, en petit, sous le libellé, sans dépliage, comme « Se protéger » et « Respire ? » (D-61 étendue). Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.4.15 non contrôlée."
+      },
+      {
+        "par": "agent recherche-reco (Opus 5.5 / high), lancé par « urgences - pilote 5 »",
+        "le": "2026-11-16",
+        "objet": "Version 0.4.16 (non contrôlée). (identifiant « insufflations-noyade », distinct de l'étape « insufflations-initiales » de l'ACR de l'enfant, dont le libellé diffère : coches gardées entre ACR, test p4d m2) (1) D-78 : étape insufflations, libellé « 30:2 si formé » → « 30:2 », titre de fiche « Insufflations 30:2 », consigne guidée sans « Si vous êtes formé aux insufflations » ; précision, détail (citation ERC conservée telle quelle), sources et statut inchangés. (2) D-77 : nouvelle étape de premier niveau insufflations-initiales (« Noyade : 5 insufflations », ordre 23, juste avant « Masser », intertitre Secourir, non vitale, cochable), statut A_VALIDER (✱) : 5 insufflations initiales CITÉES pour la noyade seulement (ERC circonstances particulières p. 11, fig. 9 p. 13, p. 36 ; ERC premiers secours p. 8 et p. 22 ; synthèse ERC p. 27 ; pages p. 11 et p. 13 et p. 8 lues sur les images locales) ; divergence avec les références françaises (PSE fiche Noyade p. 273-274 : aucune insufflation initiale ; logigramme PSE p. 16 : RCP « en commençant par les compressions » ; PSC p. 27 : cycles 30/2 d'emblée) ; extension à tout arrêt d'origine hypoxique de l'adulte (D-77) : aucune source lue (V33, V34, V35). Pas de marque `provisoire` : D-77 n'est pas un CHOIX PROVISOIRE au registre (R6). Champ ordre renuméroté 1..72 (étapes compressions à apres-intervention : +1) ; identifiants, parent et ref_fiche existants inchangés. Source ajoutée : DGSCGC-LOGI-PSE-2026. Ajouts : decisions_appliquees D-77 et D-78, phases_et_sections, recapitulatif_chiffre, divergences_fiche, points V33 à V35, remarque du hors champ (noyade)."
       }
     ]
   },
@@ -110,7 +115,9 @@
     {"decision": "D-52", "etat": "REPONDUE", "objet": "Point V31 tranché (ordre des sources) : « Analyser la situation » avant « Se protéger » (logigramme PSC) ; « À plusieurs : répartir » une fois l'arrêt reconnu, après « Respire ? » (RTN PSE p. 138) ; ce second point est remplacé par D-57 depuis la version 0.4.11"},
     {"decision": "D-55", "etat": "REMPLACEE", "autorise_par": "D-63", "objet": "[REMPLACÉE PAR D-63 : étape bilan-15 retirée en 0.4.14 par D-63 (le bilan à passer au 15 n'est pas une étape : les informations se recueillent dans la fiche bilan de l'appli et sont restituées par la transmission)] Ligne à cocher « Bilan à passer au 15 » juste après « Alerter le 15 » (étape bilan-15), précision « Nombre de victimes, âge, identité, état, gestes faits » (Laurent : « nombre de victimes, âge, identité… ») ; contenu d'après les informations minimales de l'alerte (RTN premiers secours citoyen p. 11) et le guide Saed de la HAS"},
     {"decision": "D-56", "etat": "REPONDUE", "autorise_par": "D-56", "objet": "Vocabulaire médical dans tous les textes affichés (libellés, précisions, consignes) : l'appli s'adresse à des professionnels de santé ; sigles absents des sources toujours en toutes lettres (D-10)"},
-    {"decision": "D-57", "etat": "REPONDUE", "autorise_par": "D-57", "objet": "« À plusieurs : répartir » en premier, juste après « Analyser la situation » (donc avant « Se protéger ») ; remplace, pour cette étape, le placement de D-52 ; précision listant les tâches à répartir : bilan, alerte, DAE, appui (venir aider le leader ou un intervenant qui a une tâche) ; choix du médecin référent (marque portée par l'étape repartir-taches)"}
+    {"decision": "D-57", "etat": "REPONDUE", "autorise_par": "D-57", "objet": "« À plusieurs : répartir » en premier, juste après « Analyser la situation » (donc avant « Se protéger ») ; remplace, pour cette étape, le placement de D-52 ; précision listant les tâches à répartir : bilan, alerte, DAE, appui (venir aider le leader ou un intervenant qui a une tâche) ; choix du médecin référent (marque portée par l'étape repartir-taches)"},
+    {"decision": "D-77", "etat": "DIRECTION DONNEE (contenu A_VALIDER)", "objet": "Arrêt d'origine hypoxique : 5 insufflations au début, avant les compressions (16/11/2026). Étape insufflations-initiales (0.4.16) : les sources lues ne couvrent que la noyade chez l'adulte (ERC 2025) et divergent des références françaises ; extension aux autres arrêts hypoxiques non sourcée (V33, V34, V35)"},
+    {"decision": "D-78", "etat": "REPONDUE", "objet": "« 30:2 si formé » devient « 30:2 » (16/11/2026) : public formé AFGSU 2 (D-36), condition sans objet ; marque portée par l'étape insufflations"}
   ],
   "ordre_etapes": {
     "statut": "DEDUIT",
@@ -127,7 +134,7 @@
     "raisonnement": "L'AFGSU 2 intègre les éléments des référentiels PSC1 (arrêté AFGSU, annexe 2) ; le PSC1 s'appelle désormais PSC et son contenu technique est fixé par les références techniques nationales de juillet 2026 (fiche organisation-secours, R3 à R10 ; lien juridique à confirmer, V9 de cette fiche). La conduite à tenir PSC p. 27 donne l'ordre : ne répond pas, demander de l'aide, allonger, libérer les voies aériennes, respiration 10 s au plus, puis réanimation avec alerte. C'est l'ordre retenu par D-6 pour le moment de l'alerte ; la place de l'appel à l'aide suit la même page (D-35, provisoire). Limite de cet appui (contrôle 0.4.0, écart majeur n° 70) : le PSC prévient lui-même (p. 3) que les puces de ses procédures n'induisent pas systématiquement une hiérarchisation stricte, et son logigramme (p. 6) omet l'appel à l'aide. L'ordre des puces est donc repris fidèlement, mais la source ne l'impose pas comme un ordre strict : l'ordre reste un choix (D-6 répondue ; D-35 provisoire). L'ERC 2025 fait alerter dès l'absence de réponse : divergence maintenue.",
     "ref_fiche": "§ 2, note en tête ; § 7, Moment de l'alerte et Place de l'appel à l'aide",
     "etapes_concernees": ["liberer-voies-aeriennes", "evaluer-respiration", "criteres-arret", "respiration-anormale", "convulsions", "doute-reanimer", "duree-evaluation-pouls", "alerter", "haut-parleur", "numeros-urgence", "plan-a-plan-b", "aide-regulateur", "seul-sans-telephone"],
-    "remarque": "Les étapes de ces deux blocs portent decision « D-6 » : leur rang découle de D-6, pas leur contenu. L'étape appel-aide (et son détail appeler-collegues) porte la marque provisoire « D-35 ». L'étape allonger-dos est placée selon la conduite à tenir PSC p. 27 (CITÉ). Version 0.3.0 : statut A_VALIDER, faute de source officielle lue fixant cet ordre ; DÉDUIT en 0.4.0 par la lecture des RTN PSC (lien AFGSU → PSC à confirmer). Version 0.4.1 : les mots « conforme » et « appuyée par la source » sont retirés ; la séquence reprend les puces du PSC p. 27, qui ne fixent pas un ordre strict (p. 3). Version 0.4.7 : deux étapes insérées par D-48 (analyse-situation après securite ; repartir-taches après appel-aide) ; leur place est la décision de Laurent, pas un rang de puce du PSC. Version 0.4.9 : étape bilan-15 insérée par D-55 après alerter et ses détails ; retirée en 0.4.14 par D-63 (le bilan à passer au 15 n'est pas une étape : les informations se recueillent dans la fiche bilan de l'appli et sont restituées par la transmission) ; champ ordre renuméroté sans trou (71 étapes). Ordre des étapes D-48 depuis D-52 (0.4.8) puis D-57 (0.4.11) : analyse-situation en tête, puis repartir-taches, puis securite ; ces deux places sont des décisions de Laurent, pas des rangs de puce du PSC (le PSC p. 27 et le PSE p. 138 confient alerte et défibrillateur une fois l'arrêt reconnu : fiche § 7)."
+    "remarque": "Les étapes de ces deux blocs portent decision « D-6 » : leur rang découle de D-6, pas leur contenu. L'étape appel-aide (et son détail appeler-collegues) porte la marque provisoire « D-35 ». L'étape allonger-dos est placée selon la conduite à tenir PSC p. 27 (CITÉ). Version 0.3.0 : statut A_VALIDER, faute de source officielle lue fixant cet ordre ; DÉDUIT en 0.4.0 par la lecture des RTN PSC (lien AFGSU → PSC à confirmer). Version 0.4.1 : les mots « conforme » et « appuyée par la source » sont retirés ; la séquence reprend les puces du PSC p. 27, qui ne fixent pas un ordre strict (p. 3). Version 0.4.7 : deux étapes insérées par D-48 (analyse-situation après securite ; repartir-taches après appel-aide) ; leur place est la décision de Laurent, pas un rang de puce du PSC. Version 0.4.9 : étape bilan-15 insérée par D-55 après alerter et ses détails ; retirée en 0.4.14 par D-63 (le bilan à passer au 15 n'est pas une étape : les informations se recueillent dans la fiche bilan de l'appli et sont restituées par la transmission) ; champ ordre renuméroté sans trou (71 étapes). Ordre des étapes D-48 depuis D-52 (0.4.8) puis D-57 (0.4.11) : analyse-situation en tête, puis repartir-taches, puis securite ; ces deux places sont des décisions de Laurent, pas des rangs de puce du PSC (le PSC p. 27 et le PSE p. 138 confient alerte et défibrillateur une fois l'arrêt reconnu : fiche § 7). Version 0.4.16 : étape insufflations-initiales (D-77, A_VALIDER) insérée juste avant compressions (72 étapes) ; place tirée de la figure 9 de l'ERC circonstances particulières (p. 13 : appel, respiration absente, 5 insufflations, puis RCP 30:2), absente du PSC p. 27 (cycles 30/2 d'emblée)."
   },
   "phases_et_sections": {
     "statut": "DEDUIT",
@@ -136,7 +143,7 @@
       "Protéger": "étape repartir-taches (0.4.11, D-57 : placée entre analyse-situation et securite, elle garde l'intertitre de ses voisines pour ne pas couper le groupe ; choix d'affichage, V29) ; étape securite : fiche « Protection » des RTN premiers secours citoyen (p. 10) et première question « Danger » du logigramme (p. 3) ; étape analyse-situation (0.4.7, D-48) : le logigramme « Sécuriser l'intervention » range « Observer et repérer » et « Interroger (témoins | victimes) » avec la protection (p. 4), et la fiche « Alerte » lie l'« évaluation rapide de la situation, des risques » à la mise en sécurité (PSC p. 11) ; les RTN premiers secours en équipe rangent au contraire ce temps dans le bilan (« premier regard », p. 65-66) : fiche § 7",
       "Bilan": "étapes reconnaitre-arret, appel-aide, allonger-dos, liberer-voies-aeriennes, evaluer-respiration : l'alerte se fait « après une évaluation rapide de la situation » (PSC p. 11) ; les RTN premiers secours en équipe situent la reconnaissance de l'arrêt « au tout début du bilan » (p. 136) ; le PSC lui-même dit « Examiner la victime » (p. 27) et n'emploie pas le mot « bilan »",
       "Alerter": "étapes alerter et faire-chercher-defibrillateur (l'étape bilan-15, ajoutée en 0.4.9 par D-55, est retirée en 0.4.14 par D-63 (le bilan à passer au 15 n'est pas une étape : les informations se recueillent dans la fiche bilan de l'appli et sont restituées par la transmission)) : « ALERTER » (PSC p. 26) ; fiche « Alerte » (p. 11) ; le tiers alerte et ramène le défibrillateur dans la même phrase (p. 27)",
-      "Secourir": "étapes compressions, insufflations, mettre-en-oeuvre-defibrillateur, cycles, causes-reversibles : chapitre 02 « Secourir une personne » du PSC (p. 14)",
+      "Secourir": "étapes insufflations-noyade (0.4.16, D-77), compressions, insufflations, mettre-en-oeuvre-defibrillateur, cycles, causes-reversibles : chapitre 02 « Secourir une personne » du PSC (p. 14)",
       "Reprise": "étapes signes-reprise, apres-reprise, surveillance : la RPP SFMU 2024 emploie « retour à une activité circulatoire spontanée (RACS) » (champ 1) et « reprise d'une activité cardiaque spontanée » (argumentaire de R5.3) ; l'appli écrit déjà « reprise »",
       "Après": "étape apres-intervention : intertitre neutre ; l'aide cognitive HAS/SFAR 2026 range le débriefing sous « Suites à donner » (p. 2)"
     },
@@ -254,7 +261,7 @@
       "url": "https://www.securite-civile.interieur.gouv.fr/documentation/secourisme-et-associations/secourisme-references-techniques-nationales.html",
       "consulte_le": "2026-11-15",
       "en_vigueur": "oui",
-      "lu_en_entier": "Non : p. 136 à 140 (arrêt cardiaque) lues par l'auteur dans le passage 0.4.1, sur le texte extrait (_sources/_texte/DGSCGC_RTN_PSE_2026-07.txt) ; p. 136 relue par le verificateur (contrôle 0.4.0) ; p. 65 à 70 (bilans : premier et deuxième regards) lues par l'auteur en 0.4.7 ; p. 72 (transmission du bilan) et p. 380-381 (fiche « Alerte ») lues par l'auteur en 0.4.9, sur le même texte extrait",
+      "lu_en_entier": "Non : p. 136 à 140 (arrêt cardiaque) lues par l'auteur dans le passage 0.4.1, sur le texte extrait (_sources/_texte/DGSCGC_RTN_PSE_2026-07.txt) ; p. 136 relue par le verificateur (contrôle 0.4.0) ; p. 65 à 70 (bilans : premier et deuxième regards) lues par l'auteur en 0.4.7 ; p. 72 (transmission du bilan) et p. 380-381 (fiche « Alerte ») lues par l'auteur en 0.4.9, sur le même texte extrait ; p. 135 (causes de l'arrêt) et p. 271-274 (fiches « Noyade » 08AC02 et 08PR02, juillet 2026) lues par l'auteur en 0.4.16, sur le même texte extrait",
       "remarque": "Annexe 3 de l'arrêté du 07/07/2026 (NOR INTE2618304A). Référentiel des secouristes en équipe, pas du citoyen : cité pour information (recherche du pouls, seuil de la respiration agonique, signes de vie, bilan), jamais seul pour fonder une étape."
     },
     "HAS-SFAR-2026-AC": {
@@ -286,6 +293,16 @@
       "en_vigueur": "oui",
       "lu_en_entier": "Oui (9 p.), relu par l'auteur le 15/11/2026",
       "remarque": "Aide à la compréhension : « les textes des références techniques nationales […] priment sur ces logigrammes » (p. 2). Fichier local _sources/DGSCGC_Logigrammes_PSC_2026-09.pdf (hors git)."
+    },
+    "DGSCGC-LOGI-PSE-2026": {
+      "titre": "Recueil de logigrammes – Références techniques nationales Premiers secours en équipe, ISBN 978-2-11-179960-8 (logigramme « Prendre en charge une atteinte circonstancielle », LOGI / 13 / 07-2026)",
+      "organisme": "DGSCGC (ministère de l'Intérieur)",
+      "annee": 2026,
+      "url": "https://www.securite-civile.interieur.gouv.fr/documentation/secourisme-et-associations/secourisme-references-techniques-nationales.html",
+      "consulte_le": "2026-11-16",
+      "en_vigueur": "oui",
+      "lu_en_entier": "Non : p. 2 (préface) et p. 16 (« Noyade ») lues par l'auteur en 0.4.16 sur le texte extrait (_sources/_texte/DGSCGC_Logigrammes_PSE_2026-09.txt) ; p. 16 non vue en image (seules les p. 1 à 4 sont rendues dans _sources/_images/logigrammes-pse)",
+      "remarque": "Aide à la compréhension : « les textes des références techniques nationales, qui peuvent avoir un effet de droit, priment sur ces logigrammes » (p. 2). Fichier local _sources/DGSCGC_Logigrammes_PSE_2026-09.pdf (hors git). Mois d'édition écrit différemment dans d'autres protocoles (« septembre 2026 », douleur-thoracique.json ; « juillet 2026 », anaphylaxie.json) : la page 16 porte « 07-2026 »."
     },
     "ARRETE-AFGSU-2019": {
       "titre": "Arrêté du 1er juillet 2019 modifiant l'arrêté du 30 décembre 2014 relatif à l'attestation de formation aux gestes et soins d'urgence (annexes), JORF n° 0155 du 06/07/2019, texte n° 24",
@@ -413,7 +430,7 @@
       },
       {
         "texte": "Arrêt traumatique, noyade, hypothermie, intoxication, anaphylaxie : circonstances particulières, à traiter dans des fiches dédiées. Certaines modifient l'algorithme (exemple : noyade, 5 ventilations initiales par les premiers intervenants et les équipes de secours) ; l'anaphylaxie relève de la réanimation avancée standard.",
-        "remarque": "Corrigé d'après la revérification D-13 (n° 77) : pagination (noyade p. 11 et p. 36 ; ES p. 27) ; l'anaphylaxie retirée des algorithmes modifiés (SC p. 16) ; les 5 ventilations visent les premiers intervenants et les équipes de secours (SC p. 36).",
+        "remarque": "Corrigé d'après la revérification D-13 (n° 77) : pagination (noyade p. 11 et p. 36 ; ES p. 27) ; l'anaphylaxie retirée des algorithmes modifiés (SC p. 16) ; les 5 ventilations visent les premiers intervenants et les équipes de secours (SC p. 36). Version 0.4.16 (D-77) : les 5 insufflations initiales de la noyade sont reprises dans la conduite à tenir (étape insufflations-initiales, A_VALIDER) ; le reste de la prise en charge de la noyade (sauvetage aquatique, hypothermie) reste hors champ.",
         "statut": "CITE",
         "statut_fiche": "CITÉ (reformulé)",
         "sources": [{"ref": "ERC-SC", "localisation": "p. 1-2 (principe), p. 11 et p. 36 (noyade), p. 16 (anaphylaxie)"}, {"ref": "ERC-ES", "localisation": "p. 27"}],
@@ -1102,8 +1119,47 @@
       }
     },
     {
-      "id": "compressions",
+      "id": "insufflations-noyade",
       "ordre": 23,
+      "parent": null,
+      "phase": "Secourir",
+      "niveau": "principal",
+      "premier_ecran": false,
+      "critique": false,
+      "titre_fiche": "Noyade : 5 insufflations initiales",
+      "texte_court": "Noyade : 5 insufflations",
+      "precision": "Avant de masser, puis 30:2",
+      "consigne_guidee": "En cas de noyade, donnez 5 insufflations avant de commencer les compressions, puis poursuivez à 30 compressions pour 2 insufflations.",
+      "detail": "Noyade, ERC 2025 : « Start with 5 ventilations using 100 % inspired oxygen when available, continue with standard CPR protocol. » Algorithme des sauveteurs « with a duty to respond » (figure 9) : inconscient, appel en haut-parleur, respiration absente ou anormale, 5 insufflations (avec oxygène si possible), pas de signe de vie, RCP 30:2, défibrillateur dès que possible. Commencer par les compressions seulement si le sauveteur ne veut pas insuffler ; la pose du défibrillateur ne doit pas retarder la réanimation (rythme choquable initial dans moins de 10 % des noyades). Premiers secours ERC : « If feasible and safe, provide 5 rescue breaths and start standard CPR » ; le nombre de 5 n'a pas de preuve scientifique, il est retenu « for clarity ». Références françaises : la fiche « Noyade » des premiers secours en équipe ne prévoit pas d'insufflations initiales et son logigramme fait commencer la réanimation « en commençant par les compressions » ; les premiers secours citoyen font débuter d'emblée les cycles 30/2. Autres arrêts d'origine hypoxique de l'adulte (pendaison, strangulation, obstruction, asphyxie, surdosage) : aucune source lue ne prévoit d'insufflations initiales. Oxygène : selon habilitation.",
+      "statut": "A_VALIDER",
+      "statut_fiche": "5 insufflations initiales : CITÉ pour la noyade de l'adulte (ERC 2025) ; affichage : A_VALIDER (divergence avec les références françaises, V33) ; extension à tout arrêt hypoxique (D-77) : A_VALIDER, aucune source (V34) ; défibrillateur et noyade : V35",
+      "decision": "D-77",
+      "sources": [
+        {"ref": "ERC-SC", "localisation": "p. 11, résumé « Drowning » (lu sur l'image de la page)", "citation": "Start with 5 ventilations using 100 % inspired oxygen when available, continue with standard CPR protocol."},
+        {"ref": "ERC-SC", "localisation": "fig. 9 p. 13, « CPR after drowning for rescuers with a duty to respond » (lue sur l'image de la page)", "citation": "Give 5 ventilations (supplemented with oxygen if possible)"},
+        {"ref": "ERC-SC", "localisation": "p. 36, « Cardiac arrest caused by drowning »", "citation": "CPR should start with 5 ventilations."},
+        {"ref": "ERC-SC", "localisation": "p. 36 (compressions d'abord seulement si le sauveteur ne veut pas insuffler ; défibrillateur)", "citation": "CPR should not be delayed by AED application."},
+        {"ref": "ERC-FA", "localisation": "p. 8, « Drowning » (lu sur l'image de la page)", "citation": "If feasible and safe, provide 5 rescue breaths and start standard CPR."},
+        {"ref": "ERC-FA", "localisation": "p. 22 (justification du nombre)", "citation": "for clarity the ERC recommends five initial ventilations"},
+        {"ref": "ERC-ES", "localisation": "p. 27, résumé « Drowning »"},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 273-274, fiche « Noyade » 08PR02 / 07-2026 (spécificités de la réanimation : aucune insufflation initiale)"},
+        {"ref": "DGSCGC-LOGI-PSE-2026", "localisation": "p. 16, « Noyade » (lu sur le texte extrait)", "citation": "Pratiquer une RCP si nécessaire en commençant par les compressions"},
+        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 26 (noyade parmi les causes) ; p. 27 (RCP d'emblée en cycles 30/2, aucune insufflation initiale)"},
+        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 135 (origine respiratoire de l'arrêt de l'adulte : obstruction, traumatisme, noyade, électricité, pendaison) ; p. 138 et p. 140 (RCP d'emblée en cycles 30/2)"},
+        {"ref": "ERC-BLS", "localisation": "recherche par mots dans le texte extrait (« drowning », « hypoxic », « asphyx », « rescue breaths ») : aucune insufflation initiale chez l'adulte"}
+      ],
+      "a_valider": "(1) Noyade de l'adulte (V33) : l'ERC 2025 fait commencer la réanimation par 5 insufflations (circonstances particulières p. 11, fig. 9 p. 13, p. 36 ; premiers secours p. 8 et p. 22 ; synthèse p. 27) ; les références françaises n'en prévoient pas (PSE, fiche « Noyade » p. 273-274 ; logigramme PSE p. 16 : « en commençant par les compressions » ; PSC p. 27 : cycles 30/2 d'emblée). Divergence ERC / DGSCGC à trancher par le médecin. (2) Extension « arrêt hypoxique » de D-77 (V34) : aucune source lue ne prévoit d'insufflations initiales pour les autres arrêts d'origine hypoxique de l'adulte (pendaison, strangulation, obstruction, asphyxie, surdosage) ; chez l'enfant, l'ERC pédiatrique les prévoit quelle que soit la cause (p. 13 : protocole acr-enfant, étape insufflations-initiales). Cherché : textes extraits ERC 2025 BLS, ALS, circonstances particulières, premiers secours, synthèse, pédiatrie (« five / 5 rescue breaths », « 5 ventilations », « initial rescue breaths », « hypoxic », « asphyx », « drowning ») ; PSC et PSE 2026 et leurs logigrammes (« noyade », « insufflations », « asphyx », « pendaison », « strangulation »). (3) Défibrillateur (V35) : en cas de noyade, l'ERC ne fait pas retarder la réanimation par la pose du défibrillateur (p. 36), alors que D-45 fait chercher un défibrillateur à vue avant de masser.",
+      "ref_fiche": "§ 2, étape 8 bis ; § 7, Noyade : insufflations initiales ; § 9, V33 à V35",
+      "qui_fiche": "Tous (formés AFGSU 2) ; oxygène selon habilitation (section 6)",
+      "professions": {"geste": "insufflations_sans_materiel"},
+      "remarque": "Étape ajoutée en 0.4.16 (D-77, 16/11/2026). Placée juste avant « Masser », comme dans la figure 9 de l'ERC circonstances particulières (appel, respiration absente, 5 insufflations, puis RCP 30:2) et comme l'étape insufflations-initiales de l'ACR de l'enfant ; étape de premier niveau non vitale, qui ne retarde ni « Alerter » ni « Masser » pour l'arrêt non hypoxique (la barre « Masser » et « DAE » reste accessible). Libellé limité à la noyade, seule circonstance de l'adulte couverte par les sources lues ; l'extension « arrêt hypoxique » de D-77 est dite dans la précision et reste A_VALIDER (V34) ; libellé possible si Laurent l'étend : « Arrêt hypoxique ? 5 insufflations ». Pas de marque `provisoire` : D-77 n'est pas un CHOIX PROVISOIRE au registre (règle R6) ; le statut A_VALIDER affiche ✱.",
+      "cochable": true,
+      "acronymes": [],
+      "materiel": ["masque-poche"]
+    },
+    {
+      "id": "compressions",
+      "ordre": 24,
       "parent": null,
       "phase": "Secourir",
       "niveau": "vital",
@@ -1142,7 +1198,7 @@
     },
     {
       "id": "position-mains",
-      "ordre": 24,
+      "ordre": 25,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1167,7 +1223,7 @@
     },
     {
       "id": "bras-tendus",
-      "ordre": 25,
+      "ordre": 26,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1189,7 +1245,7 @@
     },
     {
       "id": "profondeur",
-      "ordre": 26,
+      "ordre": 27,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1214,7 +1270,7 @@
     },
     {
       "id": "frequence",
-      "ordre": 27,
+      "ordre": 28,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1239,7 +1295,7 @@
     },
     {
       "id": "relachement",
-      "ordre": 28,
+      "ordre": 29,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1261,7 +1317,7 @@
     },
     {
       "id": "plan-de-compression",
-      "ordre": 29,
+      "ordre": 30,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1288,7 +1344,7 @@
     },
     {
       "id": "patient-obese",
-      "ordre": 30,
+      "ordre": 31,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1313,7 +1369,7 @@
     },
     {
       "id": "femme-enceinte",
-      "ordre": 31,
+      "ordre": 32,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1341,7 +1397,7 @@
     },
     {
       "id": "femme-enceinte-terme",
-      "ordre": 32,
+      "ordre": 33,
       "parent": "femme-enceinte",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1368,16 +1424,16 @@
     },
     {
       "id": "insufflations",
-      "ordre": 33,
+      "ordre": 34,
       "parent": null,
       "phase": "Secourir",
       "niveau": "principal",
       "premier_ecran": false,
       "critique": false,
-      "titre_fiche": "Insufflations 30:2 si formé",
-      "texte_court": "30:2 si formé",
+      "titre_fiche": "Insufflations 30:2",
+      "texte_court": "30:2",
       "precision": "Environ 1 s, le thorax commence à se soulever",
-      "consigne_guidee": "Si vous êtes formé aux insufflations, alternez 30 compressions et 2 insufflations.",
+      "consigne_guidee": "Alternez 30 compressions et 2 insufflations.",
       "detail": "« If you have been trained to provide rescue breaths, alternate 30 chest compressions with 2 rescue breaths. » Chaque insufflation dure environ 1 s, juste assez pour que le thorax commence à se soulever (« just enough air to make the chest start to rise »). Premiers secours citoyen : cycles de 30 compressions et 2 insufflations ; chaque insufflation dure 1 seconde environ et cesse dès le début du soulèvement de la poitrine.",
       "statut": "CITE",
       "statut_fiche": "CITÉ",
@@ -1389,14 +1445,15 @@
       "ref_fiche": "§ 2, étape 10 ; § 3, Ratio compressions/insufflations",
       "qui_fiche": "Tous les formés (AFGSU 2)",
       "professions": {"geste": "insufflations_sans_materiel"},
-      "remarque": "Version 0.4.1 (contrôle 0.4.0, écart n° 29) : « le thorax se soulève » remplacé par « commence à se soulever », pour ne pas pousser à insuffler trop.",
+      "remarque": "Version 0.4.1 (contrôle 0.4.0, écart n° 29) : « le thorax se soulève » remplacé par « commence à se soulever », pour ne pas pousser à insuffler trop. Version 0.4.16 (D-78, 16/11/2026) : libellé « 30:2 si formé » → « 30:2 », titre de fiche et consigne guidée sans la condition « si vous êtes formé » (public formé AFGSU 2, D-36) ; la citation ERC du détail et des sources (« If you have been trained… ») est gardée telle quelle : c'est le texte de la source.",
+      "decision": "D-78",
       "cochable": true,
       "acronymes": [],
       "materiel": ["masque-poche"]
     },
     {
       "id": "technique-insufflation",
-      "ordre": 34,
+      "ordre": 35,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1418,7 +1475,7 @@
     },
     {
       "id": "pause-insufflations",
-      "ordre": 35,
+      "ordre": 36,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1445,7 +1502,7 @@
     },
     {
       "id": "echec-insufflations",
-      "ordre": 36,
+      "ordre": 37,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1467,7 +1524,7 @@
     },
     {
       "id": "compressions-continues",
-      "ordre": 37,
+      "ordre": 38,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1492,7 +1549,7 @@
     },
     {
       "id": "option-professionnels",
-      "ordre": 38,
+      "ordre": 39,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1515,7 +1572,7 @@
     },
     {
       "id": "ventilation-manuelle-masque",
-      "ordre": 39,
+      "ordre": 40,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1542,7 +1599,7 @@
     },
     {
       "id": "oxygene-pendant-reanimation",
-      "ordre": 40,
+      "ordre": 41,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1564,7 +1621,7 @@
     },
     {
       "id": "canule-oropharyngee",
-      "ordre": 41,
+      "ordre": 42,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1586,7 +1643,7 @@
     },
     {
       "id": "ventilation-passive",
-      "ordre": 42,
+      "ordre": 43,
       "parent": "insufflations",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1617,7 +1674,7 @@
     },
     {
       "id": "mettre-en-oeuvre-defibrillateur",
-      "ordre": 43,
+      "ordre": 44,
       "parent": null,
       "phase": "Secourir",
       "niveau": "vital",
@@ -1656,7 +1713,7 @@
     },
     {
       "id": "electrodes",
-      "ordre": 44,
+      "ordre": 45,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1678,7 +1735,7 @@
     },
     {
       "id": "position-antero-laterale",
-      "ordre": 45,
+      "ordre": 46,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1704,7 +1761,7 @@
     },
     {
       "id": "position-antero-posterieure",
-      "ordre": 46,
+      "ordre": 47,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1726,7 +1783,7 @@
     },
     {
       "id": "soutien-gorge",
-      "ordre": 47,
+      "ordre": 48,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1748,7 +1805,7 @@
     },
     {
       "id": "boitier-implante",
-      "ordre": 48,
+      "ordre": 49,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1770,7 +1827,7 @@
     },
     {
       "id": "oxygene-et-choc",
-      "ordre": 49,
+      "ordre": 50,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1794,7 +1851,7 @@
     },
     {
       "id": "analyse-rythme",
-      "ordre": 50,
+      "ordre": 51,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1816,7 +1873,7 @@
     },
     {
       "id": "choc-indique",
-      "ordre": 51,
+      "ordre": 52,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1838,7 +1895,7 @@
     },
     {
       "id": "apres-choc",
-      "ordre": 52,
+      "ordre": 53,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1865,7 +1922,7 @@
     },
     {
       "id": "choc-non-indique",
-      "ordre": 53,
+      "ordre": 54,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1891,7 +1948,7 @@
     },
     {
       "id": "suivre-defibrillateur",
-      "ordre": 54,
+      "ordre": 55,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1913,7 +1970,7 @@
     },
     {
       "id": "cycles",
-      "ordre": 55,
+      "ordre": 56,
       "parent": null,
       "phase": "Secourir",
       "niveau": "principal",
@@ -1943,7 +2000,7 @@
     },
     {
       "id": "cycles-avec-defibrillateur",
-      "ordre": 56,
+      "ordre": 57,
       "parent": "cycles",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1966,7 +2023,7 @@
     },
     {
       "id": "limiter-interruptions",
-      "ordre": 57,
+      "ordre": 58,
       "parent": "cycles",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1988,7 +2045,7 @@
     },
     {
       "id": "releve-masseur",
-      "ordre": 58,
+      "ordre": 59,
       "parent": "cycles",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2017,7 +2074,7 @@
     },
     {
       "id": "causes-reversibles",
-      "ordre": 59,
+      "ordre": 60,
       "parent": null,
       "phase": "Secourir",
       "niveau": "principal",
@@ -2043,7 +2100,7 @@
     },
     {
       "id": "causes-reversibles-cabinet",
-      "ordre": 60,
+      "ordre": 61,
       "parent": "causes-reversibles",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2067,7 +2124,7 @@
     },
     {
       "id": "signes-reprise",
-      "ordre": 61,
+      "ordre": 62,
       "parent": null,
       "phase": "Reprise",
       "section": "reprise",
@@ -2097,7 +2154,7 @@
     },
     {
       "id": "signes-reprise-cabinet",
-      "ordre": 62,
+      "ordre": 63,
       "parent": "signes-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2127,7 +2184,7 @@
     },
     {
       "id": "laisser-defibrillateur",
-      "ordre": 63,
+      "ordre": 64,
       "parent": "signes-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2154,7 +2211,7 @@
     },
     {
       "id": "apres-reprise",
-      "ordre": 64,
+      "ordre": 65,
       "parent": null,
       "phase": "Reprise",
       "section": "reprise",
@@ -2182,7 +2239,7 @@
     },
     {
       "id": "oxygene-apres-reprise",
-      "ordre": 65,
+      "ordre": 66,
       "parent": "apres-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2205,7 +2262,7 @@
     },
     {
       "id": "position-laterale",
-      "ordre": 66,
+      "ordre": 67,
       "parent": "apres-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2227,7 +2284,7 @@
     },
     {
       "id": "pression-arterielle-cible",
-      "ordre": 67,
+      "ordre": 68,
       "parent": "apres-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2250,7 +2307,7 @@
     },
     {
       "id": "surveillance",
-      "ordre": 68,
+      "ordre": 69,
       "parent": null,
       "phase": "Reprise",
       "section": "reprise",
@@ -2280,7 +2337,7 @@
     },
     {
       "id": "recidive-arret",
-      "ordre": 69,
+      "ordre": 70,
       "parent": "surveillance",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2307,7 +2364,7 @@
     },
     {
       "id": "constantes-transmission",
-      "ordre": 70,
+      "ordre": 71,
       "parent": "surveillance",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2330,7 +2387,7 @@
     },
     {
       "id": "apres-intervention",
-      "ordre": 71,
+      "ordre": 72,
       "parent": null,
       "phase": "Après",
       "niveau": "principal",
@@ -2761,6 +2818,7 @@
     {"parametre": "Fréquence des compressions", "valeur": "100–120 /min (fourchette)", "statut": "CITE", "sources": [{"ref": "ERC-BLS", "localisation": "p. 4, p. 15 et fig. 7 p. 8"}, {"ref": "DGSCGC-PSC-2026", "localisation": "p. 30"}], "ref_fiche": "§ 3"},
     {"parametre": "Profondeur", "valeur": "au moins 5 cm, sans dépasser 6 cm", "statut": "CITE", "sources": [{"ref": "ERC-BLS", "localisation": "p. 4, p. 15 et fig. 7 p. 8"}, {"ref": "DGSCGC-PSC-2026", "localisation": "p. 30"}], "ref_fiche": "§ 3"},
     {"parametre": "Ratio compressions/insufflations", "valeur": "30:2", "statut": "CITE", "sources": [{"ref": "ERC-BLS", "localisation": "p. 4 et p. 18"}, {"ref": "DGSCGC-PSC-2026", "localisation": "p. 27"}], "ref_fiche": "§ 3"},
+    {"parametre": "Insufflations initiales (noyade de l'adulte)", "valeur": "ERC : 5, avant les compressions, puis RCP 30:2 ; PSC et PSE : aucune (logigramme PSE : compressions d'abord) ; autres arrêts d'origine hypoxique de l'adulte : aucune source lue", "statut": "A_VALIDER", "sources": [{"ref": "ERC-SC", "localisation": "p. 11 ; fig. 9 p. 13 ; p. 36"}, {"ref": "ERC-FA", "localisation": "p. 8 ; p. 22"}, {"ref": "DGSCGC-PSE-2026", "localisation": "p. 273-274"}, {"ref": "DGSCGC-LOGI-PSE-2026", "localisation": "p. 16"}, {"ref": "DGSCGC-PSC-2026", "localisation": "p. 27"}], "a_valider": "Divergence ERC / DGSCGC pour la noyade (V33) ; extension à tout arrêt hypoxique demandée par D-77 sans source (V34).", "decision": "D-77", "ref_fiche": "§ 3"},
     {"parametre": "Durée d'une insufflation", "valeur": "environ 1 s", "statut": "CITE", "sources": [{"ref": "ERC-BLS", "localisation": "p. 17 et fig. 7 p. 9"}, {"ref": "ERC-ALS", "localisation": "p. 8"}, {"ref": "DGSCGC-PSC-2026", "localisation": "p. 32"}], "ref_fiche": "§ 3"},
     {"parametre": "Interruption pour 2 insufflations", "valeur": "ERC : interruption totale des compressions de 10 s au plus ; premiers secours citoyen : les 2 insufflations en 5 s au plus — choix du chiffre affiché à faire", "statut": "A_VALIDER", "sources": [{"ref": "ERC-BLS", "localisation": "p. 17 ; fig. 7 p. 9"}, {"ref": "DGSCGC-PSC-2026", "localisation": "p. 32"}], "a_valider": "Divergence (fiche § 7 ; V20) : les deux sources ne mesurent pas la même chose.", "ref_fiche": "§ 3"},
     {"parametre": "Durée maximale de l'évaluation de la respiration", "valeur": "10 s au plus", "statut": "CITE", "sources": [{"ref": "ERC-BLS", "localisation": "fig. 7 p. 8 (revérification n° 9)"}, {"ref": "DGSCGC-PSC-2026", "localisation": "p. 27"}], "ref_fiche": "§ 3"},
@@ -2794,7 +2852,8 @@
     {"point": "Ordre selon l'aide cognitive HAS/SFAR 2026 (hôpital)", "consequence": "Appel de la ligne d'urgence vitale juste après le constat, avant les compressions ; libération des voies aériennes plus bas, parmi des « actions simultanées ». Contexte hospitalier : information, sans effet sur D-6.", "ref_fiche": "§ 7, ligne 15"},
     {"point": "Arrêt de la réanimation", "consequence": "ERC BLS fig. 7 (grand public) : reprise certaine, consigne d'un professionnel de santé, épuisement ; PSC p. 27 : jusqu'à la demande du défibrillateur ou au relais des secours ; RPP SFMU 2024 R5.3 : évaluation médicale sur place préférable ; HAS/SFAR 2026 : « ne jamais s'arrêter ». L'étape signes-reprise-cabinet passe A_VALIDER (V27).", "ref_fiche": "§ 7, ligne 16"},
     {"point": "Femme enceinte : place et seuil", "consequence": "ERC SC : lever la compression aorto-cave le plus tôt possible ; aide cognitive HAS/SFAR : juste sous les compressions, « si grossesse manifeste » ; ERC : 20 semaines (texte), sans seuil pour le déplacement dans le tableau 12. Étape remontée sous les compressions (choix d'affichage DÉDUIT, V28) ; seuil A_VALIDER (V18).", "ref_fiche": "§ 7, ligne 17"},
-    {"point": "Répartir les tâches : quand ? (0.4.11)", "consequence": "Premiers secours citoyen p. 27 : le tiers est chargé d'alerter et de ramener le défibrillateur une fois l'absence de respiration constatée ; premiers secours en équipe p. 138 : organisation selon le nombre de secouristes une fois l'arrêt reconnu ; premiers secours citoyen p. 11 : l'alerte suit l'évaluation de la situation et une éventuelle mise en sécurité. D-57 place « À plusieurs : répartir » en tête, juste après « Analyser la situation », avant « Se protéger ». Pas de contradiction de contenu : répartir n'est pas exécuter (l'alerte reste après « Respire ? », D-6) et les puces du PSC n'induisent pas une hiérarchisation stricte (p. 3) ; divergence d'ordre écrite, tranchée par D-57.", "decision": "D-57", "autorise_par": "D-57", "ref_fiche": "§ 7, Répartir les tâches : quand ?"}
+    {"point": "Répartir les tâches : quand ? (0.4.11)", "consequence": "Premiers secours citoyen p. 27 : le tiers est chargé d'alerter et de ramener le défibrillateur une fois l'absence de respiration constatée ; premiers secours en équipe p. 138 : organisation selon le nombre de secouristes une fois l'arrêt reconnu ; premiers secours citoyen p. 11 : l'alerte suit l'évaluation de la situation et une éventuelle mise en sécurité. D-57 place « À plusieurs : répartir » en tête, juste après « Analyser la situation », avant « Se protéger ». Pas de contradiction de contenu : répartir n'est pas exécuter (l'alerte reste après « Respire ? », D-6) et les puces du PSC n'induisent pas une hiérarchisation stricte (p. 3) ; divergence d'ordre écrite, tranchée par D-57.", "decision": "D-57", "autorise_par": "D-57", "ref_fiche": "§ 7, Répartir les tâches : quand ?"},
+    {"point": "Noyade : insufflations initiales (0.4.16, D-77)", "consequence": "ERC 2025 (circonstances particulières p. 11, fig. 9 p. 13, p. 36 ; premiers secours p. 8 et p. 22) : commencer par 5 insufflations, puis RCP 30:2 ; compressions d'abord seulement si le sauveteur ne veut pas insuffler ; la pose du défibrillateur ne retarde pas la réanimation. Premiers secours en équipe 2026 (fiche « Noyade », p. 273-274) : aucune insufflation initiale ; logigramme PSE p. 16 : RCP « en commençant par les compressions » ; premiers secours citoyen p. 27 : cycles 30/2 d'emblée. Étape insufflations-initiales affichée avec le statut A_VALIDER (V33). Extension « arrêt hypoxique » de D-77 : aucune source lue pour l'adulte (V34). Défibrillateur à vue (D-45) et noyade : V35.", "decision": "D-77", "ref_fiche": "§ 7, Noyade : insufflations initiales"}
   ],
   "points_a_valider_fiche": [
     {"id": "V1", "point": "Valeur unique du métronome dans la fourchette 100–120 /min", "decision": "décidé : 110/min (D-11) ; fourchette conforme sur l'original (D-13 fait)"},
@@ -2827,6 +2886,9 @@
     {"id": "V29", "point": "Intertitres de phase (Protéger, Bilan, Alerter, Secourir, Reprise, Après) et section Reprise (signes de reprise, après la reprise, surveiller)", "decision": "confirmation du médecin (libellés de regroupement DÉDUITS)"},
     {"id": "V30", "point": "Portée de D-45 à plusieurs sauveteurs : défibrillateur à vue, le premier sauveteur va-t-il le chercher avant de masser, ou un collègue le rapporte-t-il pendant que le massage commence (PSC p. 27 : le tiers ramène le défibrillateur, réanimation immédiate ; ERC p. 18 : un témoin guidé vers le défibrillateur) ? La précision affichée suit la lettre de D-45, sans distinguer", "decision": "confirmation de Laurent"},
     {"id": "V31", "point": "Placement des deux étapes D-48 (registre : « placement à confirmer ») : « Analyser la situation » après « Se protéger », alors que le logigramme PSC (p. 4) fait observer et repérer avant de protéger et que le PSE (p. 65-66) met danger et situation dans le même premier regard ; « À plusieurs : répartir » avant « Allonger » et la recherche de la respiration, alors que le PSE (p. 138) organise les tâches une fois l'arrêt reconnu", "decision": "TRANCHÉ par D-52 (0.4.8 : « Analyser la situation » avant « Se protéger » ; « À plusieurs : répartir » après « Respire ? »), puis, pour « À plusieurs : répartir », par D-57 (0.4.11 : en tête, juste après « Analyser la situation », avant « Se protéger ») ; la divergence d'ordre avec le PSC p. 27 et le PSE p. 138 reste écrite (fiche § 7)"},
-    {"id": "V32", "point": "Ce qu'un soignant libéral doit transmettre au 15 (étape bilan-15, D-55) : liste « nombre de victimes, âge, identité, état, gestes faits » tirée des informations minimales de l'alerte du citoyen (PSC p. 11), du PSE (p. 72, p. 380) et de Saed (HAS 2014, via la fiche cadre) ; aucune source lue ne fixe le contenu du bilan donné au 15 par un soignant libéral", "decision": "sans objet (D-63 : l'étape bilan-15 est retirée)"}
+    {"id": "V32", "point": "Ce qu'un soignant libéral doit transmettre au 15 (étape bilan-15, D-55) : liste « nombre de victimes, âge, identité, état, gestes faits » tirée des informations minimales de l'alerte du citoyen (PSC p. 11), du PSE (p. 72, p. 380) et de Saed (HAS 2014, via la fiche cadre) ; aucune source lue ne fixe le contenu du bilan donné au 15 par un soignant libéral", "decision": "sans objet (D-63 : l'étape bilan-15 est retirée)"},
+    {"id": "V33", "point": "Noyade de l'adulte : 5 insufflations avant les compressions (ERC 2025 circonstances particulières p. 11, fig. 9 p. 13, p. 36 ; premiers secours p. 8) ou compressions d'abord (logigramme PSE p. 16) ? La fiche « Noyade » du PSE (p. 273-274) et le PSC (p. 27) n'en prévoient pas", "decision": "décision médicale (Laurent) ; étape insufflations-initiales affichée A_VALIDER en attendant"},
+    {"id": "V34", "point": "D-77 « si arrêt hypoxique, 5 insufflations au début » : aucune source lue ne l'étend aux autres arrêts d'origine hypoxique de l'adulte (pendaison, strangulation, obstruction, asphyxie, surdosage) ; seules la noyade (ERC adulte) et l'enfant (ERC pédiatrie p. 13, toute cause) sont couverts", "decision": "décision médicale (Laurent) : garder le libellé « Noyade » ou l'étendre (« Arrêt hypoxique ? 5 insufflations ») sans source"},
+    {"id": "V35", "point": "Noyade et défibrillateur : l'ERC ne fait pas retarder la réanimation par la pose du défibrillateur (circonstances particulières p. 36 ; fig. 9 p. 13 : défibrillateur après le début de la RCP), alors que D-45 fait chercher un défibrillateur à vue avant de masser", "decision": "confirmation de Laurent (D-45 inchangée dans cette version)"}
   ]
 }

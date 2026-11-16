@@ -139,6 +139,8 @@ export class InterfaceIntervention {
   surEvenement(e) {
     // pendant une saisie, un changement ne doit PAS reconstruire le formulaire (on perdrait la frappe en cours) : voir ECRANS_DE_SAISIE
     if (e.type === 'changement' && !ECRANS_DE_SAISIE.includes(this.panneau)) this.rendre();
+    // D-66 : une saisie dans une étape de recueil écrit dans la fiche sans reconstruire l'écran (la frappe en cours serait perdue) ; seul le résumé sous l'en-tête est relu
+    if (e.type === 'saisie') this.majResumeFiche();
     // retour d'un appel `tel:` (page revenue au premier plan) : le mode transmission s'ouvre seul (4.7, 2.10)
     // (L7c : seulement si l'appli a été masquée dans les secondes qui ont suivi l'appel — voir Intervention.surveillerDepart)
     if (e.type === 'retour' && this.intervention.appelEnAttente) {
@@ -300,6 +302,8 @@ export class InterfaceIntervention {
     document.getElementById('barre-fiche')?.setAttribute('aria-expanded', 'false');
     if (el.contains(document.activeElement)) document.activeElement.blur();
     this.volet.remettreEtat(); this.volet.redessiner();   // une demande de retrait en cours est abandonnée ; un brouillon d'ajout est gardé
+    // M1 : le volet a pu corriger la fiche (heure, notes, antécédents, identité) pendant qu'une étape restait dépliée : ses champs se recalent sur la fiche, sinon la frappe suivante écraserait la correction
+    for (const z of document.querySelectorAll('.etape-saisie')) z.dispatchEvent(new Event('recaler'));
     const fin = () => { if (!this.voletOuvert) el.hidden = true; };
     if (immediat || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) fin(); else this.delaiVolet = setTimeout(fin, 280);
     if (focus) document.getElementById('barre-fiche')?.focus({ preventScroll: true });
@@ -359,7 +363,14 @@ export class InterfaceIntervention {
     return equipe;
   }
 
+  /** D-76 : montre ou cache le calque « 2 insufflations » du bouton « Masser » (appelé à chaque battement et à chaque tick de 250 ms : l'affichage s'éteint à ~5 s près d'une demi-seconde). */
+  majInsufflations() {
+    const el = document.getElementById('insuf-affichage');
+    if (el) el.hidden = !this.son.insufflationsAffichees();
+  }
+
   pulser() {
+    this.majInsufflations();
     const r = document.getElementById('repere');
     if (!r) return;
     r.classList.add('repere-actif');
@@ -414,6 +425,7 @@ export class InterfaceIntervention {
         const etat = !i.estCochee(masser.id) ? 'démarrer' : e.actif ? (e.mention ? 'visuel seul' : 'en cours') : 'en pause';   // « visuel seul » : le son s'est arrêté, le repère continue
         document.getElementById('metronome-etat').textContent = etat;
         tuileMasser.setAttribute('aria-pressed', String(e.actif));
+        this.majInsufflations();
         tuileMasser.setAttribute('aria-label', `${libelleBarre(masser)}${m ? `, métronome ${m.frequence} par minute${m.marque ? ' (provisoire, non validé)' : ''}` : ''} : ${etat}`);
       }
     }
@@ -496,6 +508,11 @@ export class InterfaceIntervention {
     const valeur = creer('b', null, '', {});
     valeur.append(creer('span', null, '', { id: 'metronome-valeur' }), creer('span', 'etoile', '✱', { id: 'metronome-etoile', hidden: '', 'aria-hidden': 'true' }), creer('span', 'repere', '', { id: 'repere', 'aria-hidden': 'true' }));
     masser.append(creer('span', null, '', { id: 'masser-libelle' }), valeur, creer('span', 'outil-etat', '', { id: 'metronome-etat' }));
+    // D-76 (INSUF-1) : « 2 insufflations » s'affiche ~5 s tous les 30 battements, DANS le bouton « Masser » (calque en position absolue : aucune mise en page ne bouge, la barre reste entière, la checklist n'est pas touchée).
+    // Le métronome ne s'arrête pas et aucun son n'est ajouté ; `son.insufflationsAffichees` dit quand (voir son.js).
+    const insuf = creer('span', 'insuf-affichage', '', { id: 'insuf-affichage', hidden: '', 'aria-hidden': 'true' });
+    insuf.append(creer('b', null, '2'), creer('span', null, 'insufflations'));
+    masser.append(insuf);
     const appel = bouton('', 'outil outil-appel', () => this.surBarre('alerter'), { id: 'barre-alerter', 'aria-label': `Appeler le ${this.numeroAppel()}` });
     appel.append(creer('span', null, 'Appeler'), creer('b', null, this.numeroAppel(), { id: 'appel-numero' }));   // petit libellé + GROS chiffre : le plus lisible de la barre
     // DAE : coche l'étape (une fois) et lance — ou relance — le cycle où l'on note analyses et chocs
@@ -618,8 +635,10 @@ export class InterfaceIntervention {
     zone.querySelector('[data-bandeau="acr-illisible"]')?.remove();
     if (i.echecAcr && i.situation === ACR) {
       const nom = PROTOCOLES_ACR.find((p) => p.id === i.echecAcr.id)?.libelle ?? i.echecAcr.id;
-      const b = creer('div', 'bandeau bandeau-avertissement bandeau-temporaire', '', { 'data-bandeau': 'acr-illisible', role: 'status' });
-      b.append(creer('span', 'bandeau-texte', `${nom} illisible : on reste sur l'arrêt cardiaque en cours.`), bouton('OK', 'bouton', () => { i.echecAcr = null; b.remove(); }, { id: 'acr-illisible-ok' }));
+      // r2 (revue ciblée AF-b) : le texte, coupé par « … » sur une ligne, reste lisible en entier par l'infobulle (`title`), comme les autres bandeaux temporaires
+      const texte = `${nom} illisible : on reste sur l'arrêt cardiaque en cours.`;
+      const b = creer('div', 'bandeau bandeau-avertissement bandeau-temporaire', '', { 'data-bandeau': 'acr-illisible', role: 'status', title: texte });
+      b.append(creer('span', 'bandeau-texte', texte), bouton('OK', 'bouton', () => { i.echecAcr = null; b.remove(); }, { id: 'acr-illisible-ok' }));
       zone.append(b);
     }
     if (i.versionDifferente && !this.versionVue) {

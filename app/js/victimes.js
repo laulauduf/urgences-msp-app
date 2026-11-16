@@ -61,6 +61,12 @@ export function victimeActive(fiche) {
 }
 
 /**
+ * La victime PRISE EN CHARGE : la première (la checklist, le chronomètre et le métronome sont les siens, D-64). La saisie faite DANS une étape de la checklist (lot G) va toujours à elle,
+ * jamais à l'onglet ouvert du volet « Fiche ». VICTIME-SAISIE ouverte (registre) : choix PROVISOIRE du pilote, à confirmer par Laurent.
+ */
+export const victimePriseEnCharge = (fiche) => (Array.isArray(fiche?.victimes) ? fiche.victimes[0] : undefined);
+
+/**
  * Numéro STABLE d'une victime (D-64b, M4) : il vient de l'identifiant (`v3` → 3), jamais de la position. Retirer la victime 2 ne renumérote pas la 3 : la page S, la frise du journal et le document
  * disent le même numéro. 0 si la victime n'existe pas.
  */
@@ -127,6 +133,13 @@ export function texteListe(puces, ids, libre) {
 /** Âge tel que le résumé et la transmission le disent quand la date de naissance n'est pas donnée (l'âge calculé depuis une date est dans bilan.js). */
 export const texteAgeSaisi = (identite) => (plein(identite?.age_exact) ? `${identite.age_exact.trim()} ans` : '');
 
+/** Courte mention d'une victime (« H adulte », « F 67 ans »), sinon son nom ; chaîne vide s'il n'y a rien. */
+export function mentionVictime(x) {
+  const i = x?.identite ?? {};
+  const t = [i.sexe === 'homme' ? 'H' : i.sexe === 'femme' ? 'F' : '', texteAgeSaisi(i) || TRANCHES_AGE.find((a) => a.id === i.tranche_age)?.court || ''].filter(Boolean).join(' ');
+  return t || (plein(i.nom) ? i.nom.trim() : '');
+}
+
 /** Ligne de résumé (sous l'en-tête) : « Victime 2/3 · H · 67 ans · nom · ATCD … ». Vide s'il n'y a qu'une victime et rien de noté. */
 export function resumeVictime(fiche, id = fiche?.victime_active) {
   const l = fiche?.victimes ?? [];
@@ -134,11 +147,7 @@ export function resumeVictime(fiche, id = fiche?.victime_active) {
   if (!v) return '';
   // plusieurs victimes (D-64b, D3) : le nombre, puis UNE courte mention par victime (sexe, tranche ou âge), la victime ouverte marquée ▸ ; le détail est dans le volet
   if (l.length > 1) {
-    const court = (x) => {
-      const i = x.identite ?? {};
-      const t = [i.sexe === 'homme' ? 'H' : i.sexe === 'femme' ? 'F' : '', texteAgeSaisi(i) || TRANCHES_AGE.find((a) => a.id === i.tranche_age)?.court || ''].filter(Boolean).join(' ');
-      return t || (plein(i.nom) ? i.nom.trim() : 'rien noté');
-    };
+    const court = (x) => mentionVictime(x) || 'rien noté';
     // lot A, A9 : la victime OUVERTE vient en premier (▸), sinon c'est elle que la ligne, coupée à droite sur un petit écran, ferait disparaître
     return [`${l.length} victimes`, `▸${court(v)}`, ...l.filter((x) => x !== v).map(court)].join(' · ');
   }

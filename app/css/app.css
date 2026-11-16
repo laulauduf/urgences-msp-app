@@ -221,6 +221,15 @@ body[data-texte="grand"] .outils .outil-appel b { font-size: 0.75rem; }
 .outil b .etoile { color: var(--texte-attenue); }
 .repere { display: inline-block; width: 0.625rem; height: 0.625rem; border-radius: 50%; border: 0.125rem solid var(--accent); background: transparent; vertical-align: middle; margin-left: 0.25rem; transition: background 0.05s; }
 .repere-actif { background: var(--accent); transform: scale(1.4); }
+/* D-76 (INSUF-1) : « 2 insufflations » ~5 s tous les 30 battements, en calque DANS le bouton « Masser » : position absolue, aucune hauteur ni largeur ne change (la barre reste entière, la checklist n'est pas touchée) ;
+   couleurs des jetons d'un aplat d'action (contraste vérifié dans les deux thèmes), le texte dit tout : jamais la couleur seule. */
+.outil-masser { position: relative; }
+.insuf-affichage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; padding: 0.125rem; background: var(--accent-fond); color: var(--sur-accent-fond); font-weight: 800; line-height: 1.05; pointer-events: none; }
+.insuf-affichage[hidden] { display: none; }
+.outil .insuf-affichage b { font-size: 1.5rem; line-height: 1; }
+.insuf-affichage span { font-size: 0.75rem; overflow-wrap: anywhere; }
+body[data-texte="grand"] .outil .insuf-affichage b { font-size: 0.75rem; }
+body[data-texte="grand"] .insuf-affichage span { font-size: 0.5rem; }
 
 @media (orientation: landscape) and (max-height: 600px) {
   .gabarit {
@@ -607,13 +616,16 @@ body[data-mode="intervention"] .bandeau .bouton { min-height: 48px; padding-bloc
 .transmission-haut { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
 .transmission-rang { font-weight: 800; }
 .transmission-adresse { position: sticky; top: 0; z-index: 2; margin: 0; padding: 0.375rem 0.5rem; background: var(--surface); border: 0.125rem solid var(--bordure); border-radius: 0.5rem; font-size: 1.25rem; font-weight: 800; }
-.transmission-titre { font-size: 1.5rem; margin: 0.25rem 0 0; }
-.transmission-ligne { margin: 0.25rem 0; font-size: 1.75rem; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+/* G3 (D-67, D-70) : la rubrique est un TITRE (« Lieu : », non touchable) ; ses lignes sont en retrait, précédées d'un tiret ; texte de 16 px (au lieu de 28) */
+.transmission-titre { font-size: 1.125rem; font-weight: 800; color: var(--texte-attenue); margin: 0.5rem 0 0; }
+.transmission-titre::after { content: " :"; }   /* les deux-points ne sont pas dans le texte lu ni copié */
+.transmission-ligne { margin: 0.25rem 0; padding-left: 1.25rem; position: relative; font-size: 1rem; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+.transmission-ligne::before { content: "–"; position: absolute; left: 0.375rem; font-weight: 400; color: var(--texte-attenue); }   /* le tiret n'est pas dans le texte lu ni copié */
 .transmission-nav { display: flex; gap: 0.5rem; position: sticky; bottom: 0; padding: 0.25rem 0; background: var(--fond); }
 .transmission-nav .bouton-grand { flex: 1 1 0; }
 .transmission-nav .bouton[disabled] { opacity: 0.4; }
-body[data-mode="intervention"][data-texte="grand"] .transmission-ligne { font-size: 0.75rem; }
-body[data-mode="intervention"][data-texte="grand"] .transmission-adresse, body[data-mode="intervention"][data-texte="grand"] .transmission-titre { font-size: 0.6875rem; }
+body[data-mode="intervention"][data-texte="grand"] .transmission-adresse { font-size: min(1.25rem, 26px); }   /* m6 (relecture du 16/11) : jamais plus petite qu à 100 % (20 px) ni décroissante : 20, 26, 26, 26 px */
+body[data-mode="intervention"][data-texte="grand"] .transmission-titre { font-size: min(1.125rem, 24px); }
 body[data-mode="intervention"][data-texte="grand"] .rangee-ajout .bouton { font-size: 0.5rem; padding: 0.125rem; }
 body[data-texte="grand"] .ecran-fiche h1 { font-size: 0.75rem; }
 body[data-mode="intervention"][data-texte="grand"] .ecran-fiche .bouton, body[data-mode="intervention"][data-texte="grand"] .ecran-journal .bouton { font-size: 0.6875rem; padding-block: 0.125rem; }
@@ -628,7 +640,6 @@ body[data-mode="intervention"][data-texte="grand"] .ecran-fiche .bouton, body[da
 .journal-corriger { font-size: 0.8125rem; padding: 0.125rem 0.5rem; }
 @media (orientation: landscape) and (max-height: 600px) {
   .ecran-fiche, .ecran-journal, .ecran-transmission { padding: 0.25rem 0.5rem; gap: 0.25rem; }
-  .transmission-ligne { font-size: 1.375rem; }
 }
 /* Barre de titre du panneau d'alerte : « Fermer » et « Mode transmission » tiennent sur UNE ligne, même sur 320 px (« Appeler le 15 » ne descend pas) */
 .panneau-titre { flex-wrap: nowrap; align-items: center; }
@@ -987,6 +998,8 @@ body[data-texte="grand"] .volet { font-size: 0.5625rem; }
 body[data-texte="grand"] .entete .resume-fiche { font-size: 0.5rem; min-height: 40px; }
 
 /* mode transmission : les sous-titres de victime (D-64) */
+.transmission-ligne.transmission-sous-titre { padding-left: 0; }
+.transmission-ligne.transmission-sous-titre::before { content: none; }   /* un sous-titre de victime est un titre : ni retrait ni tiret */
 .transmission-sous-titre { font-weight: 800; border-top: 0.125rem solid var(--ligne); padding-top: 0.5rem; margin-top: 0.5rem; color: var(--accent); }
 
 /* paysage bas : le titre, « Fermer » et les onglets tiennent sur UNE rangée (la place est comptée) ; la poignée est cachée, le titre se glisse comme elle */
@@ -1039,7 +1052,7 @@ body[data-mode="intervention"] .volet .ajout-formulaire input[type="text"] { fle
 .outil-fiche[aria-expanded="true"] { background: var(--accent-fond); border-color: var(--accent-fond); color: var(--sur-accent-fond); }
 .outil-fiche[aria-expanded="true"] b { color: inherit; }
 /* transmission : libellé petit, valeur grasse ; victime sans rien : grisée ; dégradé = l'écran se poursuit sous Précédent / Suivant */
-.transmission-k { font-size: 0.7em; font-weight: 600; color: var(--texte-attenue); }
+.transmission-k { font-size: 0.875em; font-weight: 600; color: var(--texte-attenue); }
 .transmission-v { font-weight: 800; }
 .transmission-vide { font-weight: 400; font-style: italic; color: var(--texte-attenue); }
 .transmission-suite { position: sticky; bottom: 80px; height: 1.5rem; margin-top: -1.5rem; background: linear-gradient(to bottom, transparent, var(--fond)); pointer-events: none; }
@@ -1056,10 +1069,10 @@ body[data-mode="intervention"] .volet .ajout-formulaire input[type="text"] { fle
 .volet-compact .volet-fermer { min-width: 64px; padding-inline: 0.5em; }
 
 /* ───────── V2 (D-65, d) : lignes modifiables du mode transmission ───────── */
-.transmission-editable { cursor: pointer; border-radius: 0.5rem; }
-.transmission-editable::after { content: " ✎"; font-size: 0.6em; font-weight: 400; color: var(--texte-attenue); }   /* le crayon n'est pas dans le texte lu ni copié */
+.transmission-editable { cursor: pointer; border-radius: 0.5rem; min-height: 48px; box-sizing: border-box; padding-block: 0.875em; margin-block: 0; }   /* G3 : seules les lignes modifiables se touchent (cible de 48 px, crayon) */
+.transmission-editable::after { content: " ✎"; font-size: 1em; font-weight: 400; color: var(--texte-attenue); }   /* le crayon n'est pas dans le texte lu ni copié */
 .transmission-editable:focus-visible { outline: 0.1875rem solid var(--accent); outline-offset: 0.125rem; }
-.transmission-edition { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0.25rem 0; padding: 0.5rem; background: var(--surface); border: 0.125rem solid var(--accent); border-radius: var(--rayon); }
+.transmission-edition { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0.25rem 0 0.25rem 1.25rem; padding: 0.5rem; background: var(--surface); border: 0.125rem solid var(--accent); border-radius: var(--rayon); }
 .transmission-edition .transmission-k { flex: 1 0 100%; }
 .transmission-saisie-ligne { flex: 1 1 10rem; min-width: 0; min-height: 48px; font-size: 1.25rem; padding: 0.25rem 0.5rem; background: var(--fond); color: var(--texte); border: 0.125rem solid var(--bordure); border-radius: 0.625rem; }
 body[data-mode="intervention"][data-texte="grand"] .transmission-saisie-ligne { font-size: 0.75rem; }
@@ -1149,7 +1162,7 @@ body[data-texte="grand"] .outil-etat { font-size: min(0.6875rem, 15px); }
 body[data-texte="grand"] .outils .outil-appel { font-size: min(0.8125rem, 17px); }
 body[data-texte="grand"] .outils .outil-appel b { font-size: min(1.625rem, 34px); }
 body[data-texte="grand"] .etape-texte { font-size: min(1.1875rem, 25px); }
-body[data-mode="intervention"][data-texte="grand"] .transmission-ligne { font-size: min(1.75rem, 37px); }
+body[data-mode="intervention"][data-texte="grand"] .transmission-ligne { font-size: min(1rem, 21px); }   /* G3 : 16 px à 100 % ; plafond ≥ la valeur à 130 % (20,8 px) : la taille ne redescend jamais quand le texte grossit (F1) */
 body[data-texte="grand"] .volet { font-size: min(1rem, 20.8px); }   /* le volet suit le texte comme à 130 % : ses étiquettes ne redescendent plus (elles valaient 11,8 px à 150 %) */
 
 /* F2 : décompte du cycle toujours lisible — une seule ligne, jamais coupé ni recouvert par « Relancer » ; en texte agrandi la carte passe sur deux rangées (le décompte seul en haut, « Relancer » et « ▾ » dessous) */
@@ -1193,3 +1206,23 @@ body[data-agrandi="oui"]:not([data-texte="grand"]) .bandeau-simulation { flex-wr
 /* m4 : « Confirmer : terminer » prend la place de « Terminer » (une demi-rangée), au lieu de la rangée entière : « Clôture », « Nouvelle urgence » et « Accueil » ne se décalent plus sous le doigt */
 @media (orientation: portrait) { body:not([data-texte="grand"]) .menu-intervention > #menu-terminer-confirme { grid-column: auto; font-size: 0.8125rem; line-height: 1.1; padding-block: 0.125rem; } }   /* même hauteur que « Terminer » : le texte, plus long, tient sur 2-3 lignes de 13 px sans agrandir la rangée */
 @media (orientation: portrait) and (max-width: 340px) { body:not([data-texte="grand"]) .menu-intervention > #menu-terminer-confirme { font-size: 0.75rem; } }   /* 320 px : la demi-rangée est plus étroite (3 lignes à 13 px dépassaient de 3 px) */
+
+/* ═════════ LOT G (16/11/2026) — G1 : saisie dans l'étape de recueil (D-66, D-69 variante A, maquette du 16/11) ═════════ */
+/* la valeur saisie s'affiche sous le libellé ; la zone de saisie se déplie sous la ligne, sur toute sa largeur ; les contrôles reprennent ceux du volet « Fiche » (cibles de 52 px, texte de 17 à 18 px) */
+.etape-valeur { grid-column: 2 / -1; margin: -0.25rem 0 0; padding: 0 0.75rem 0.5rem 0.25rem; font-size: 1.0625rem; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+.etape-valeur[hidden] { display: none; }
+.etape-saisie { grid-column: 1 / -1; display: grid; gap: 0.75em; padding: 0.625em 0.75em 0.75em; font-size: 1rem; border-top: 0.125rem solid var(--ligne); }
+.etape[data-etat="faite"] .etape-saisie { border-top-color: var(--ok); }
+.saisie-etiquette { display: block; margin: 0 0 0.375em; font-size: 0.875em; font-weight: 700; letter-spacing: 0.04em; color: var(--texte-attenue); }
+.etape-saisie .choix-rapides .bouton { min-height: 52px; font-size: 1.0625em; flex: 1 1 4em; }
+.etape-saisie .champ-fiche input, .etape-saisie .champ-fiche textarea, .saisie-valeur-rang input { width: 100%; min-height: 52px; font-size: 1.125em; box-sizing: border-box; }
+.etape-saisie .champ-fiche textarea { resize: vertical; }
+.saisie-maintenant { min-height: 52px; font-size: 1.0625em; justify-self: start; padding-inline: 1em; }
+.saisie-valeur-rang { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5em; }
+.saisie-valeur-rang .bouton { min-height: 52px; font-size: 1.0625em; padding-inline: 1em; }
+.saisie-valeur-rang input { padding: 0.25rem 0.5rem; background: var(--fond); color: var(--texte); border: 0.0625rem solid var(--bordure); border-radius: 0.625rem; }
+.saisie-serie { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.25em; font-weight: 700; font-variant-numeric: tabular-nums; }
+.saisie-serie li { padding: 0.375em 0.75em; background: var(--fond); border-radius: 0.5rem; overflow-wrap: anywhere; }
+.saisie-serie[hidden] { display: none; }
+body[data-texte="grand"] .etape-saisie { font-size: min(1rem, 20.8px); }
+body[data-texte="grand"] .etape-valeur { font-size: min(1.0625rem, 22px); }

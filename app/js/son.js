@@ -84,6 +84,28 @@ export function genererWav({ frequence = 880, dureeS = 0.15, sampleRate = 22050,
   return octets;
 }
 
+/** D-76 (INSUF-1) : un affichage « 2 insufflations » tous les 30 battements (rapport 30:2 de l'ERC, déjà sourcé dans le protocole ACR), pendant environ 5 secondes. */
+export const BATTEMENTS_PAR_SERIE = 30;
+export const DUREE_AFFICHAGE_INSUFFLATIONS_MS = 5000;
+
+/**
+ * D-76 : compteur PUR des battements du massage, sans son ni DOM. Le métronome ne s'arrête JAMAIS : ce compteur ne fait que dire QUAND afficher « 2 insufflations ». Au 30e battement l'affichage
+ * s'allume pour `dureeMs` ; les battements qui tombent pendant l'affichage ne sont pas comptés ; à la fin de l'affichage le comptage repart de zéro.
+ */
+export class CompteurInsufflations {
+  constructor({ tous = BATTEMENTS_PAR_SERIE, dureeMs = DUREE_AFFICHAGE_INSUFFLATIONS_MS } = {}) { this.tous = tous; this.dureeMs = dureeMs; this.remettreAZero(); }
+  remettreAZero() { this.n = 0; this.fin = null; }
+  /** À appeler à chaque battement émis, avec l'heure (performance.now) du battement. */
+  battement(perf) {
+    this.majAffichage(perf);
+    if (this.fin !== null) return;
+    this.n += 1;
+    if (this.n >= this.tous) this.fin = perf + this.dureeMs;
+  }
+  majAffichage(perf) { if (this.fin !== null && perf >= this.fin) { this.fin = null; this.n = 0; } }
+  affiche(perf) { this.majAffichage(perf); return this.fin !== null; }
+}
+
 const MOTIFS = {
   discrete: { bips: 1, vibration: [120] },
   forte: { bips: 3, vibration: [200, 100, 200, 100, 200] },
@@ -106,7 +128,13 @@ export class Son {
     this.ctx = null;
     this.metronome = { actif: false, frequence: null, source: null, tAudio0: null, indiceAudio: -1, total: -1, dernierBattementPerf: null, prochainPerf: null, modeAvant: null };
     this.secours = new Map();
+    this.insuf = new CompteurInsufflations();   // D-76
   }
+
+  /** D-76 : l'affichage « 2 insufflations » est-il à montrer à cet instant ? (le son n'est jamais touché) */
+  insufflationsAffichees(maintenantPerf = this.perf()) { return this.insuf.affiche(maintenantPerf); }
+  /** Nombre de battements comptés depuis le dernier départ (ou la fin du dernier affichage). */
+  get compteInsufflations() { return this.insuf.n; }
 
   // ───────── État ─────────
 
@@ -216,6 +244,7 @@ export class Son {
     const m = this.metronome;
     m.actif = true; m.frequence = frequence; m.indiceAudio = -1; m.total = -1; m.dernierBattementPerf = null; m.modeAvant = null;
     m.prochainPerf = this.perf(); // premier battement visuel tout de suite
+    this.insuf.remettreAZero();   // D-76 : le comptage repart de zéro à chaque (re)lancement du massage
     this.demarrerSource();
     this.signaler();
   }
@@ -253,6 +282,7 @@ export class Son {
         // au retour du son, le premier battement audio peut tomber juste après un battement visuel : on ne le double pas
         if (m.dernierBattementPerf === null || maintenantPerf - m.dernierBattementPerf >= periode * 0.45) {
           m.total += 1; emis = 1; m.dernierBattementPerf = maintenantPerf;
+          this.insuf.battement(maintenantPerf);
           this.onBattement({ indice: m.total, source: 'audio', perf: maintenantPerf });
         }
         m.prochainPerf = m.dernierBattementPerf + periode; // la phase visuelle repart du dernier battement émis
@@ -260,6 +290,7 @@ export class Son {
     } else {
       while (maintenantPerf >= m.prochainPerf) {
         m.total += 1; emis += 1; m.dernierBattementPerf = m.prochainPerf;
+        this.insuf.battement(m.prochainPerf);
         this.onBattement({ indice: m.total, source: 'visuel', perf: m.prochainPerf });
         m.prochainPerf += periode;
       }
