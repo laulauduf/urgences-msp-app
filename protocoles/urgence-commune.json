@@ -3,7 +3,7 @@
   "id": "urgence-commune",
   "titre": "Conduite à tenir commune à toute urgence (hors arrêt cardiaque), jusqu'à l'arrivée des secours",
   "titre_court": "Urgence : conduite commune",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/urgence-commune.md",
@@ -50,6 +50,11 @@
         "par": "agent code « urgences - code 5 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
         "le": "2026-11-15",
         "objet": "Version 0.1.8 (lot V1, D-63 qui remplace D-55) : l'étape bilan-15 (« Bilan à passer au 15 ») est RETIRÉE — ce n'est pas une étape ; les informations à restituer au 15 se recueillent dans la fiche bilan de l'appli. Champ ordre renuméroté 1..22 sans trou ; identifiants des autres étapes inchangés ; mentions de bilan-15 et de D-55 corrigées (decisions_appliquees, phases_et_sections, ordre_etapes ou sources, point à valider marqué sans objet) ; les anciennes entrées de ce journal restent telles quelles (historique). Aucun autre texte médical modifié. Version 0.1.8 non contrôlée."
+      },
+      {
+        "par": "agent code « urgences - code 6 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
+        "le": "2026-11-16",
+        "objet": "Version 0.1.9 (lot V2, décision D-65 de Laurent, test de la version 0.2.6) : ajout du champ `precision_visible: true` à l'étape repartir-taches (« À plusieurs : répartir ») — sa précision reste toujours affichée, en petit, sous le libellé, sans dépliage, comme « Se protéger » et « Respire ? » (D-61 étendue). Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.1.9 non contrôlée."
       }
     ]
   },
@@ -275,6 +280,7 @@
       "titre_fiche": "Si plusieurs, répartir les tâches",
       "texte_court": "À plusieurs : répartir",
       "precision": "Bilan, alerte, matériel, appui (aider le leader ou un intervenant)",
+      "precision_visible": true,
       "consigne_guidee": "À plusieurs, répartissez les tâches dès le début : qui fait le bilan, qui alerte, qui apporte le matériel, qui vient en appui du leader ou d'un intervenant ; si possible, une personne accueille les secours.",
       "detail": "Tâches de la précision : décision D-57 du médecin référent, adaptée à la conduite commune (le défibrillateur, propre à l'arrêt cardiaque qui a son protocole, est compris dans le matériel ; « appui » : venir aider le leader ou un intervenant qui a une tâche). Premiers secours citoyen : l'alerte peut être donnée par le secouriste ou un témoin ; quand on la confie à une autre personne, s'assurer avant qu'elle a tous les éléments et vérifier après qu'elle l'a faite ; si possible, envoyer une personne pour accueillir les secours et organiser leur accès. Premiers secours en équipe (pour information) : le bilan est la phase de recueil d'informations qui évalue la situation et l'état de la victime ; à plusieurs secouristes, les mesures peuvent être faites pendant qu'un autre s'occupe de l'interrogatoire et de l'examen. Attestation de niveau 2 : prise en charge « seul ou en équipe ». Les rôles de l'écran « Rôles d'équipe » viennent du cahier des charges ; aucune source lue ne fixe une répartition nominative entre soignants libéraux. Libellé repris de la conduite à tenir de l'arrêt cardiaque (décision D-48) ; place en tête, juste après « Analyser la situation » et avant « Se protéger » : décision D-57.",
       "statut": "DEDUIT",

@@ -10,6 +10,7 @@ import { chargerGlossaire, lireGlossaire } from './glossaire.js';
 import { chargerUnites, lireUnites } from './unites.js';
 import { TYPES_CONSTANTE } from './bilan.js';
 import { victimeActive, ajouterVictime, retirerVictime, numeroVictime } from './victimes.js';
+import { lireEdition, ecrireEdition } from './edition.js';
 
 /** Champs de premier niveau de la fiche qui ne sont PAS ceux d'une victime : le message au 15 (évaluation, demande), commun à toutes les victimes (D-64). */
 const CHAMPS_GLOBAUX = ['evaluation', 'demande'];
@@ -567,6 +568,19 @@ export class Intervention {
       const v = victimeActive(f);
       v.identite = { ...(v.identite ?? {}), date_naissance: { ...(v.identite?.date_naissance ?? {}), [partie]: valeur } };
     });
+  }
+
+  // ───────── Modification sur place dans le mode transmission (D-65, d) : voir edition.js ─────────
+
+  /** Valeur à proposer dans le champ d'une ligne modifiable. */
+  lireEdition(edit) { return lireEdition(this.fiche, edit); }
+
+  /** Écrit la valeur d'une ligne modifiable (la victime de la LIGNE, le lieu de l'intervention) ; enregistré à chaque frappe, sur l'appareil seulement. N'émet RIEN : l'écran ne se redessine pas. */
+  ecrireEdition(edit, valeur) {
+    this.commencee = true;
+    let r = { ok: false };
+    this.stockage.modifier(this.fiche, (f) => { r = ecrireEdition(f, edit, valeur); });
+    return r;
   }
 
   // ───────── Victimes (D-64) : un onglet par victime, sans limite ─────────

@@ -3,7 +3,7 @@
   "id": "acr-adulte-dae",
   "titre": "Arrêt cardio-respiratoire de l'adulte, avec défibrillateur automatisé externe",
   "titre_court": "Arrêt cardiaque adulte",
-  "version": "0.4.14",
+  "version": "0.4.15",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/acr-adulte-dae.md",
@@ -76,6 +76,11 @@
         "par": "agent code « urgences - code 5 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
         "le": "2026-11-15",
         "objet": "Version 0.4.14 (lot V1, D-63 qui remplace D-55) : l'étape bilan-15 (« Bilan à passer au 15 ») est RETIRÉE — ce n'est pas une étape ; les informations à restituer au 15 se recueillent dans la fiche bilan de l'appli. Champ ordre renuméroté 1..71 sans trou ; identifiants des autres étapes inchangés ; mentions de bilan-15 et de D-55 corrigées (decisions_appliquees, phases_et_sections, ordre_etapes ou sources, point à valider marqué sans objet) ; les anciennes entrées de ce journal restent telles quelles (historique). Aucun autre texte médical modifié. Version 0.4.14 non contrôlée."
+      },
+      {
+        "par": "agent code « urgences - code 6 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
+        "le": "2026-11-16",
+        "objet": "Version 0.4.15 (lot V2, décision D-65 de Laurent, test de la version 0.2.6) : ajout du champ `precision_visible: true` à l'étape repartir-taches (« À plusieurs : répartir ») — sa précision reste toujours affichée, en petit, sous le libellé, sans dépliage, comme « Se protéger » et « Respire ? » (D-61 étendue). Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.4.15 non contrôlée."
       }
     ]
   },
@@ -470,6 +475,7 @@
       "titre_fiche": "Si plusieurs, répartir les tâches",
       "texte_court": "À plusieurs : répartir",
       "precision": "Bilan, alerte, DAE, appui (aider le leader ou un intervenant)",
+      "precision_visible": true,
       "consigne_guidee": "À plusieurs, répartissez les tâches dès le début : qui fait le bilan, qui alerte, qui apporte le défibrillateur, qui vient en appui du leader ou d'un intervenant.",
       "detail": "Tâches de la précision : décision D-57 du médecin référent (« appui » : venir aider le leader ou un intervenant qui a une tâche). Premiers secours citoyen : au tiers, « lui demander d'alerter les secours, et de ramener et installer un DAE » ; quand l'alerte est confiée à une autre personne, s'assurer avant qu'elle possède tous les éléments ; à plusieurs intervenants formés, se relayer et confier à l'un le rôle de « coach », qui guide, encourage et corrige les gestes des autres. Premiers secours en équipe (pour information, secouristes équipés) : organisation selon le nombre de secouristes ; à 3 ou plus, « les trois actions (alerte, RCP et DAE) sont réalisées simultanément » ; à plusieurs, les mesures peuvent être faites pendant qu'un autre secouriste s'occupe de l'interrogatoire et de l'examen. ERC : à plusieurs témoins, l'un est guidé vers le défibrillateur ; l'un continue la réanimation pendant que l'autre pose les électrodes ; à l'hôpital, rôles attribués à l'avance, et ignorer qui est le leader peut causer des erreurs. Aide cognitive HAS/SFAR 2026 (hôpital) : « actions simultanées » avant l'équipe de réanimation ; leader médical noté en traçabilité. Aucune source lue ne fixe une répartition nominative pour 2 ou 3 soignants libéraux (point V7). Place en tête, juste après « Analyser la situation » et avant « Se protéger » : décision D-57 du médecin référent ; les sources, elles, répartissent ces tâches une fois l'arrêt reconnu (premiers secours citoyen p. 27 ; premiers secours en équipe p. 138).",
       "statut": "DEDUIT",

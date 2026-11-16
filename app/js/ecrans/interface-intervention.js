@@ -70,7 +70,7 @@ export class InterfaceIntervention {
     this.panneau = null;            // null (écran principal : conduite à tenir) | 'alerte' | 'lieu' | 'menu' | 'situation' | 'roles' | 'profession' | 'glossaire' | 'transmission' | 'journal' | 'cloture' | 'materiel' | 'apropos'
     this.repriseRepliee = false; this.versionVue = false;   // bandeaux « Fiche reprise » (replié au premier toucher) et « Appli mise à jour » (acquitté)
     this.volet = null; this.voletOuvert = false; this.delaiVolet = null; this.cleVolet = ''; this.dernierResume = null;   // fiche bilan : le volet (D-64), indépendant de `panneau`
-    this.tr = { page: 0, edition: false };     // mode transmission : page courante, saisie E / D ouverte
+    this.tr = { page: 0, edition: false, ligne: null };     // mode transmission : page courante, saisie E / D ouverte
     this.jr = { corrige: null, texte: '', erreur: null };   // journal : entrée en cours de correction
     this.cloture = null;                       // écran « Clôture et export » (L8) : il a son propre état et se redessine lui-même
     this.cl = etatAcrInitial();   // précisions dépliées, saisie de l'heure, pastille courante : survit au redessin de l'écran ACR
@@ -204,12 +204,14 @@ export class InterfaceIntervention {
     document.addEventListener('keydown', surTouche);
     const replacer = () => this.placerVolet();
     window.addEventListener('resize', replacer);
-    this.zone.contenu.addEventListener('scroll', replacer, { passive: true });   // D-64c, N3 : la carte du cycle (collante) bouge avec le défilement, le volet la suit à l'image près
+    this.zone.contenu.addEventListener('scroll', replacer, { passive: true });
+    window.visualViewport?.addEventListener('resize', replacer); window.visualViewport?.addEventListener('scroll', replacer);   // clavier du téléphone (D-65, c)
+    element.addEventListener('focusin', (ev) => { if (/^(INPUT|TEXTAREA)$/.test(ev.target.tagName)) { this.cleVolet = ''; setTimeout(() => this.placerVolet(), 150); } });   // le champ touché passe au premier plan quand le clavier a fini de monter   // D-64c, N3 : la carte du cycle (collante) bouge avec le défilement, le volet la suit à l'image près
     const observateur = typeof ResizeObserver === 'function' ? new ResizeObserver(replacer) : null;
     observateur?.observe(this.zone.barre); observateur?.observe(this.zone.entete);
     this.debranchements.push(() => {
       this.zone.contenu.removeEventListener('click', surListe, true); document.removeEventListener('keydown', surTouche);
-      window.removeEventListener('resize', replacer); this.zone.contenu.removeEventListener('scroll', replacer); observateur?.disconnect();
+      window.removeEventListener('resize', replacer); this.zone.contenu.removeEventListener('scroll', replacer); window.visualViewport?.removeEventListener('resize', replacer); window.visualViewport?.removeEventListener('scroll', replacer); observateur?.disconnect();
     });
   }
 
@@ -239,6 +241,22 @@ export class InterfaceIntervention {
     else if (carteCommence) { hautProt = rCarte.top; basProt = entier(rRelance) ? rRelance.bottom : Math.min(rCarte.bottom, zc.bottom); }
     else if (entier(rRelance)) { hautProt = rRelance.top; basProt = rRelance.bottom; }
     const apresEntete = this.zone.entete.getBoundingClientRect().bottom + 6;
+    // D-65 (c) : CLAVIER du téléphone ouvert (le visualViewport est plus court que la fenêtre) : le volet se pose AU-DESSUS du clavier et le champ en cours de saisie est amené dans la vue ; la barre peut être
+    // masquée par le clavier (c'est le système), elle redevient visible à sa fermeture. Garde l'en-tête visible s'il reste ≥ 140 px, sinon le volet prend toute la hauteur visible.
+    const vv = window.visualViewport;
+    const basVisible = vv ? vv.offsetTop + vv.height : H;
+    if (vv && H - basVisible > 100) {
+      const dispoK = basVisible - Math.max(apresEntete, vv.offsetTop + 8);
+      const hauteurK = Math.max(0, Math.round(dispoK >= 140 ? dispoK : vv.height - 8));
+      el.classList.toggle('volet-compact', hauteurK < 220); delete el.dataset.recouvre;
+      const cleK = `k|${Math.round(basVisible)}|${Math.round(droite)}|${hauteurK}`;
+      if (cleK === this.cleVolet) return;
+      this.cleVolet = cleK;
+      el.style.bottom = `${Math.round(H - basVisible)}px`; el.style.right = `${Math.round(droite)}px`; el.style.left = '0'; el.style.height = `${hauteurK}px`;
+      const actif = document.activeElement;
+      if (actif && el.contains(actif) && /^(INPUT|TEXTAREA)$/.test(actif.tagName)) requestAnimationFrame(() => actif.scrollIntoView?.({ block: 'center' }));
+      return;
+    }
     const placeSous = bas - (basProt !== null ? basProt + 6 : apresEntete);        // entre la carte du cycle et la barre (le cas ordinaire : le volet monte du bas)
     const placeSur = basProt !== null ? hautProt - 6 - apresEntete : 0;          // entre l'en-tête et la carte du cycle
     // Peu de place sous la carte (petit écran, texte agrandi) mais davantage au-dessus : le volet se pose AU-DESSUS de la carte, plutôt que de la recouvrir ou de ne laisser qu'un liseré

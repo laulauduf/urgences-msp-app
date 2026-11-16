@@ -363,14 +363,14 @@ body[data-texte="grand"] .equipe .roles-court { display: inline; }
 .checklist-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.25rem; }
 .phase { margin: 0.125rem 0 -0.25rem; font-size: 0.6875rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texte-attenue); }
 .etape {
-  display: grid; grid-template-columns: 3.25rem minmax(0, 1fr) auto; align-items: center; min-height: 58px;
+  display: grid; grid-template-columns: 3.25rem minmax(0, 1fr) auto; align-items: center; min-height: 56px;
   background: var(--surface); border: 0.125rem solid var(--ligne); border-radius: var(--rayon); overflow: hidden;
 }
 .etape[data-etat="faite"] { border-color: var(--ok); background: var(--ok-fond); }
 .etape[data-vitale="oui"] { box-shadow: inset 0.25rem 0 0 var(--texte); }
 .etape[data-vitale="oui"] .etape-texte { font-weight: 800; }
 .case {
-  width: 48px; height: 48px; min-width: 48px; min-height: 48px; padding: 0; margin: 0.25rem 0 0.25rem 0.375rem; border-radius: 0.75rem;
+  width: 48px; height: 48px; min-width: 48px; min-height: 48px; padding: 0; margin: 0.1875rem 0 0.1875rem 0.375rem; border-radius: 0.75rem;
   border: 0.125rem solid var(--bordure); background: var(--surface); color: var(--texte-attenue); font-size: 1.375rem; line-height: 1;
 }
 .etape[data-etat="faite"] .case { background: var(--ok); border-color: var(--ok); color: var(--sur-ok); }
@@ -1054,3 +1054,12 @@ body[data-mode="intervention"] .volet .ajout-formulaire input[type="text"] { fle
 .volet-compact .volet-titre small, .volet-compact .volet-poignee, .volet-compact .onglet-mot, body[data-texte="grand"] .volet .onglet-mot { display: none; }
 .volet-compact .volet-titre { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .volet-compact .volet-fermer { min-width: 64px; padding-inline: 0.5em; }
+
+/* ───────── V2 (D-65, d) : lignes modifiables du mode transmission ───────── */
+.transmission-editable { cursor: pointer; border-radius: 0.5rem; }
+.transmission-editable::after { content: " ✎"; font-size: 0.6em; font-weight: 400; color: var(--texte-attenue); }   /* le crayon n'est pas dans le texte lu ni copié */
+.transmission-editable:focus-visible { outline: 0.1875rem solid var(--accent); outline-offset: 0.125rem; }
+.transmission-edition { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0.25rem 0; padding: 0.5rem; background: var(--surface); border: 0.125rem solid var(--accent); border-radius: var(--rayon); }
+.transmission-edition .transmission-k { flex: 1 0 100%; }
+.transmission-saisie-ligne { flex: 1 1 10rem; min-width: 0; min-height: 48px; font-size: 1.25rem; padding: 0.25rem 0.5rem; background: var(--fond); color: var(--texte); border: 0.125rem solid var(--bordure); border-radius: 0.625rem; }
+body[data-mode="intervention"][data-texte="grand"] .transmission-saisie-ligne { font-size: 0.75rem; }

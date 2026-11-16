@@ -30,6 +30,7 @@ self.URGENCES_LISTE_CACHE = [
   "app/js/ecrans/roles.js",
   "app/js/ecrans/secours.js",
   "app/js/ecrans/transmission.js",
+  "app/js/edition.js",
   "app/js/etat-preparation.js",
   "app/js/export.js",
   "app/js/fiche.js",

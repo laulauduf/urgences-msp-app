@@ -112,26 +112,34 @@ export function tableauConstantes(constantes, fiche = null) {
 const ligne = (texte) => ({ valeur: texte });
 const lignes = (...l) => l.filter((x) => x !== null && x !== undefined && x.valeur !== '');
 // une ligne « libellé : valeur » garde le libellé et la valeur séparés (l'écran de transmission met la valeur en gras) ET le texte entier (document, texte copié)
-const champ = (libelle, v) => (plein(v) ? { valeur: `${libelle} : ${v.trim()}`, libelle, texte: v.trim() } : null);
+// `edit` (D-65, d) : où écrire la valeur quand l'écran de transmission la rend modifiable (voir edition.js) ; `initial` = ce que le champ propose d'abord
+const champ = (libelle, v, edit = null) => (plein(v) ? { valeur: `${libelle} : ${v.trim()}`, libelle, texte: v.trim(), ...(edit ? { edit: { ...edit, initial: edit.initial ?? v.trim() } } : {}) } : null);
+/** Ligne simple modifiable. */
+const ligneEd = (texte, edit) => ({ valeur: texte, edit });
+const edV = (v, bloc, cle) => ({ cible: 'victime', victime: v.id, bloc, cle, initial: String((bloc ? v[bloc]?.[cle] : v[cle]) ?? '') });
 
 function pageLieu({ fiche, structure, champsSensibles }) {
   const lieu = fiche.lieu ?? { type: 'cabinet' };
   if (lieu.type === 'domicile') {
     const adresse = [lieu.adresse, plein(lieu.etage) ? `étage ${lieu.etage}` : null].filter(plein).join(', ');
+    const edL = (cle) => ({ cible: 'lieu-champ', cle });
     return {
       id: 'lieu', titre: 'Lieu', adresse: adresse || 'Domicile : adresse à saisir',
-      lignes: lignes(champ('Adresse', lieu.adresse), champ('Étage', lieu.etage), champ("Code d'accès", lieu.code_acces), champ('Accès', lieu.acces)),
+      lignes: lignes(champ('Adresse', lieu.adresse, edL('adresse')), champ('Étage', lieu.etage, edL('etage')), champ("Code d'accès", lieu.code_acces, edL('code_acces')), champ('Accès', lieu.acces, edL('acces'))),
     };
   }
-  const t = (c) => structure?.texte?.(c) ?? 'non renseigné';
+  // au cabinet, une valeur propre à CETTE intervention (fiche.lieu.surcharges, modifiée sur place dans la transmission) prime sur la structure ; la structure n'est jamais modifiée (D-65, d)
+  const sur = lieu.surcharges ?? {};
+  const t = (c) => (plein(sur[c]) ? sur[c].trim() : (structure?.texte?.(c) ?? 'non renseigné'));
+  const edS = (cle, initial) => ({ cible: 'lieu-surcharge', cle, initial });
   const d = structure?.donnees ?? {};
   const manque = (c) => t(c) === 'non renseigné';
   // adresse exacte (L7c, revue L7 mineur 6) : ligne 1, complément (bâtiment, étage…), code postal et commune
-  const adresse = [t('adresse.ligne1'), t('adresse.complement'), [t('adresse.code_postal'), t('adresse.commune')].filter((x) => x !== 'non renseigné').join(' ')].filter((x) => x !== '' && x !== 'non renseigné').join(', ');
-  const code = champsSensibles?.code_entree;
-  const optionnel = (libelle, chemin) => (manque(chemin) ? null : ligne(`${libelle} : ${t(chemin)}`));
+  const adresse = plein(sur.adresse) ? sur.adresse.trim() : [t('adresse.ligne1'), t('adresse.complement'), [t('adresse.code_postal'), t('adresse.commune')].filter((x) => x !== 'non renseigné').join(' ')].filter((x) => x !== '' && x !== 'non renseigné').join(', ');
+  const code = plein(sur.code_entree) ? sur.code_entree : champsSensibles?.code_entree;
+  const optionnel = (libelle, chemin) => (manque(chemin) ? null : ligneEd(`${libelle} : ${t(chemin)}`, edS(chemin, t(chemin))));
   // donnée attendue au cabinet : dite « non renseigné », jamais masquée (4.8, 3.2)
-  const attendu = (libelle, chemin) => ligne(`${libelle} : ${t(chemin)}`);
+  const attendu = (libelle, chemin) => ligneEd(`${libelle} : ${t(chemin)}`, edS(chemin, manque(chemin) ? '' : t(chemin)));
   // les autres codes que la structure déclare (portail, etc.) : sur ce téléphone seulement, et dits s'ils manquent
   const autresCodes = (Array.isArray(d.champs_sensibles_locaux) ? d.champs_sensibles_locaux : []).filter((c) => plein(c?.id) && c.id !== 'code_entree' && plein(c?.libelle))
     .map((c) => (plein(champsSensibles?.[c.id]) ? ligne(`${c.libelle} : ${champsSensibles[c.id].trim()}`) : ligne(`${c.libelle} : non renseigné sur ce téléphone`)));
@@ -139,14 +147,14 @@ function pageLieu({ fiche, structure, champsSensibles }) {
     id: 'lieu', titre: 'Lieu', adresse: adresse || 'Adresse de la structure : non renseignée',
     lignes: lignes(
       // donnée de structure manquante sur ce téléphone : dite, jamais masquée (4.8)
-      plein(code) ? ligne(`Code d'entrée : ${code.trim()}`) : ligne("Code d'entrée : non renseigné sur ce téléphone"),
+      plein(code) ? ligneEd(`Code d'entrée : ${code.trim()}`, edS('code_entree', code.trim())) : ligneEd("Code d'entrée : non renseigné sur ce téléphone", edS('code_entree', '')),
       ...autresCodes,
-      ligne(`Structure : ${t('structure.nom')}`),
-      ligne(`Adresse : ${adresse || 'non renseignée'}`),
+      ligneEd(`Structure : ${t('structure.nom')}`, edS('structure.nom', manque('structure.nom') ? '' : t('structure.nom'))),
+      ligneEd(`Adresse : ${adresse || 'non renseignée'}`, edS('adresse', adresse)),
       optionnel('Repère', 'adresse.repere'), attendu('Accès', 'acces.description'), attendu('Stationnement des secours', 'acces.stationnement_secours'),
       attendu("Point d'accueil", 'acces.point_accueil'), attendu('Défibrillateur (DAE)', 'dae.emplacement'),
       ...(Array.isArray(d.materiel?.contenants) ? d.materiel.contenants.filter((c) => plein(c?.libelle) && plein(c?.emplacement)).map((c) => ligne(`${c.libelle} : ${c.emplacement}`)) : []),
-      ligne(`Numéro de rappel : ${t('numero_rappel')}`),
+      ligneEd(`Numéro de rappel : ${t('numero_rappel')}`, edS('numero_rappel', manque('numero_rappel') ? '' : t('numero_rappel'))),
     ),
   };
 }
@@ -163,10 +171,10 @@ function lignesSVictime(v, numero, multi, maintenant) {
   const ageLigne = ageTexte === null ? null : ageTexte.startsWith('âge estimé : ') ? ligne(`Âge estimé : ${ageTexte.slice('âge estimé : '.length)}`) : champ('Âge', ageTexte);
   const tranche = TRANCHES_AGE.find((t) => t.id === id.tranche_age);
   const l = lignes(
-    champ('Patient', [id.prenom, id.nom].filter(plein).join(' ')), champ('Sexe', id.sexe), ageLigne, tranche ? champ("Tranche d'âge", tranche.court) : null,
-    champ('Début des signes', c.heure_debut), champ('Lieu dans la structure', c.lieu_dans_structure), champ('Témoin', c.temoin), champ('Gestes déjà faits', c.gestes_deja_faits),
-    champ('Conscience', [bv.avpu ? `AVPU ${bv.avpu}` : '', bv.conscience].filter(plein).join(' — ')), champ('Respiration', bv.respiration), champ('Circulation', bv.circulation),
-    champ('Notes', v.notes),
+    champ('Patient', [id.prenom, id.nom].filter(plein).join(' '), edV(v, 'identite', 'nom')), champ('Sexe', id.sexe), ageLigne, tranche ? champ("Tranche d'âge", tranche.court) : null,
+    champ('Début des signes', c.heure_debut, edV(v, 'circonstances', 'heure_debut')), champ('Lieu dans la structure', c.lieu_dans_structure, edV(v, 'circonstances', 'lieu_dans_structure')), champ('Témoin', c.temoin, edV(v, 'circonstances', 'temoin')), champ('Gestes déjà faits', c.gestes_deja_faits, edV(v, 'circonstances', 'gestes_deja_faits')),
+    champ('Conscience', [bv.avpu ? `AVPU ${bv.avpu}` : '', bv.conscience].filter(plein).join(' — '), edV(v, 'bilan_vital', 'conscience')), champ('Respiration', bv.respiration, edV(v, 'bilan_vital', 'respiration')), champ('Circulation', bv.circulation, edV(v, 'bilan_vital', 'circulation')),
+    champ('Notes', v.notes, edV(v, null, 'notes')),
   );
   return multi ? [sousTitre(numero), ...(l.length > 0 ? l : [RIEN_NOTE])] : l;
 }
@@ -247,8 +255,8 @@ export function construireTransmission({ fiche, structure, champsSensibles = {},
   // A : par victime (D-64) ; le sous-titre n'est posé que si la victime a au moins une ligne
   const lignesA = victimes.flatMap((v) => {
     const l = lignes(
-      champ('Antécédents', texteListe(PUCES_ANTECEDENTS, v.antecedents_puces, v.antecedents)), champ('Traitements', texteListe(PUCES_TRAITEMENTS, v.traitements_puces, v.traitements)),
-      champ('Allergies', v.allergies), champ('Médecin traitant', v.medecin_traitant), champ('Poids estimé', v.identite?.poids_estime),
+      champ('Antécédents', texteListe(PUCES_ANTECEDENTS, v.antecedents_puces, v.antecedents), edV(v, null, 'antecedents')), champ('Traitements', texteListe(PUCES_TRAITEMENTS, v.traitements_puces, v.traitements), edV(v, null, 'traitements')),
+      champ('Allergies', v.allergies, edV(v, null, 'allergies')), champ('Médecin traitant', v.medecin_traitant, edV(v, null, 'medecin_traitant')), champ('Poids estimé', v.identite?.poids_estime, edV(v, 'identite', 'poids_estime')),
     );
     return multi ? [sousTitre(numeroVictime(fiche, v.id)), ...(l.length > 0 ? l : [RIEN_NOTE])] : l;
   });

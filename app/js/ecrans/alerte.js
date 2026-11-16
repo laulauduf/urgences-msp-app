@@ -62,7 +62,7 @@ export function afficherAlerte(conteneur, { intervention, numeros, structure, au
   }
 
   // Horodatage
-  panneau.append(bouton("J'ai appelé", 'bouton bouton-accent bouton-plein', () => { intervention.appelFait(); majConfirmation(); }, { id: 'jai-appele' }));
+  panneau.append(bouton("J'ai appelé", 'bouton bouton-accent bouton-plein', () => { intervention.appelFait(); majConfirmation(); auFermer(); }, { id: 'jai-appele' }));   // D-65 (b) : « Alerter » est cochée avec l'heure (appelFait) et l'écran d'appel se ferme : retour à la liste à cocher
   const confirmation = creer('p', 'confirmation', '');
   confirmation.setAttribute('role', 'status');
   const majConfirmation = () => { confirmation.textContent = `Appel noté (${intervention.appelsFaits}).`; };

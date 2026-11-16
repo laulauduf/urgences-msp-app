@@ -3,7 +3,7 @@
   "id": "douleur-thoracique",
   "titre": "Douleur thoracique de l'adulte (suspicion de syndrome coronarien aigu), jusqu'à l'arrivée des secours",
   "titre_court": "Douleur thoracique adulte",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/douleur-thoracique.md",
@@ -35,6 +35,11 @@
         "par": "agent code « urgences - code 5 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
         "le": "2026-11-15",
         "objet": "Version 0.1.5 (lot V1) : ajout du champ `precision_visible: true` à l'étape securite — leur précision reste toujours affichée, en petit, sous le libellé, sans dépliage (décision D-61 de Laurent) ; règle R19 du contrôle des JSON. Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.1.5 non contrôlée."
+      },
+      {
+        "par": "agent code « urgences - code 6 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
+        "le": "2026-11-16",
+        "objet": "Version 0.1.6 (lot V2, décision D-65 de Laurent, test de la version 0.2.6) : ajout du champ `precision_visible: true` à l'étape repartir-taches (« À plusieurs : répartir ») — sa précision reste toujours affichée, en petit, sous le libellé, sans dépliage, comme « Se protéger » et « Respire ? » (D-61 étendue). Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.1.6 non contrôlée."
       }
     ]
   },
@@ -366,6 +371,7 @@
       "titre_fiche": "Si plusieurs, répartir les tâches",
       "texte_court": "À plusieurs : répartir",
       "precision": "Bilan, alerte, DAE, appui (aider le leader ou un intervenant)",
+      "precision_visible": true,
       "consigne_guidee": "À plusieurs, répartissez les tâches dès le début : qui fait le bilan, qui alerte, qui apporte le défibrillateur et le matériel, qui vient en appui du leader ou d'un intervenant ; si possible, une personne accueille les secours.",
       "detail": "Tâches de la précision : décision D-57 du médecin référent (« appui » : venir aider le leader ou un intervenant qui a une tâche) ; le défibrillateur est gardé dans la liste parce que ce protocole le fait mettre à portée : la complication grave citée est l'arrêt cardiaque par fibrillation ventriculaire (premiers secours en équipe p. 184-185 ; étape « DAE à portée »). Premiers secours citoyen : l'alerte peut être donnée par le secouriste ou un témoin ; quand on la confie à une autre personne, s'assurer avant qu'elle a tous les éléments et vérifier après qu'elle l'a faite ; si possible, envoyer une personne pour accueillir les secours et organiser leur accès. Premiers secours en équipe (pour information) : le bilan est la phase de recueil d'informations qui évalue la situation et l'état de la victime ; à plusieurs secouristes, les mesures peuvent être faites pendant qu'un autre s'occupe de l'interrogatoire et de l'examen. Attestation de niveau 2 : prise en charge « seul ou en équipe ». Le matériel est ici le défibrillateur, puis le tensiomètre, l'oxymètre, l'électrocardiographe et l'oxygène s'ils existent (déduit des étapes correspondantes). Aucune source lue ne fixe une répartition nominative entre soignants libéraux. Libellé : décision D-48 ; place en tête, juste après « Analyser la situation » et avant « Se protéger » : décision D-57.",
       "statut": "DEDUIT",

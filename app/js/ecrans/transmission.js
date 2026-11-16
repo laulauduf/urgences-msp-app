@@ -2,6 +2,7 @@
 // HAS, D-9) — avec « Précédent » / « Suivant » en bas et une ligne d'adresse toujours visible en tête. Un champ vide de la fiche ne s'affiche pas.
 // La barre du bas, le chronomètre global et le métronome restent visibles (cet écran n'est qu'un contenu). Aucun voile ne le recouvre.
 import { creer, bouton } from '../dom.js';
+import { cleEdition } from '../edition.js';
 
 /**
  * @param {HTMLElement} conteneur
@@ -19,14 +20,38 @@ export function afficherTransmission(conteneur, { pages, etat, intervention, auF
 
   const liste = creer('div', 'transmission-lignes');
   // D-64 : le sous-titre d'une victime (« — Victime 2 — ») est mis en évidence ; les lignes ordinaires ne changent pas
+  /** Contenu d'une ligne : « libellé : valeur » (libellé petit, valeur grasse ; le texte reste « libellé : valeur » à la lecture et à la copie) ou le texte entier. */
+  const remplir = (el, l) => {
+    if (typeof l.libelle === 'string' && typeof l.texte === 'string') el.append(creer('span', 'transmission-k', `${l.libelle} : `), creer('strong', 'transmission-v', l.texte)); else el.append(l.valeur);
+    return el;
+  };
+  const finEdition = () => { etat.ligne = null; auRendre(); };
   for (const l of p.lignes) {
     if (l.titre) { liste.append(creer('p', 'transmission-ligne transmission-sous-titre', l.valeur)); continue; }
     if (l.vide) { liste.append(creer('p', 'transmission-ligne transmission-vide', l.valeur)); continue; }
-    if (typeof l.libelle === 'string' && typeof l.texte === 'string') {
-      // « libellé : valeur » : le libellé petit, la valeur grasse (le texte reste « libellé : valeur » à la lecture et à la copie)
-      const p = creer('p', 'transmission-ligne'); p.append(creer('span', 'transmission-k', `${l.libelle} : `), creer('strong', 'transmission-v', l.texte)); liste.append(p); continue;
+    // D-65 (d) : une ligne modifiable se touche, devient un champ de saisie, et est enregistrée à chaque frappe dans la fiche (le lieu de l'intervention, la victime de la ligne) ; jamais dans l'aperçu en lecture seule
+    if (intervention && l.edit) {
+      const cle = cleEdition(l.edit);
+      const libelle = l.libelle ?? l.valeur.split(' : ')[0];
+      if (etat.ligne === cle) {
+        const bloc = creer('div', 'transmission-edition', '', { 'data-edit-ouvert': cle });
+        const saisie = creer('input', 'transmission-saisie-ligne', '', { id: 'transmission-ligne-saisie', type: 'text', 'aria-label': `Modifier : ${libelle}`, autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false' });
+        saisie.value = intervention.lireEdition(l.edit);
+        saisie.addEventListener('input', () => intervention.ecrireEdition(l.edit, saisie.value));      // enregistré à chaque frappe, sans redessiner (on perdrait la frappe)
+        saisie.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') finEdition(); });
+        bloc.append(creer('span', 'transmission-k', libelle), saisie, bouton('Terminé', 'bouton bouton-accent', finEdition, { id: 'transmission-ligne-ok' }));
+        liste.append(bloc);
+        setTimeout(() => saisie.focus({ preventScroll: true }), 0);
+        continue;
+      }
+      const ligne = remplir(creer('p', 'transmission-ligne transmission-editable', '', { role: 'button', tabindex: '0', 'data-edit': cle, 'aria-label': `Modifier : ${l.valeur}` }), l);
+      const ouvrir = () => { etat.ligne = cle; auRendre(); };
+      ligne.addEventListener('click', ouvrir);
+      ligne.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); ouvrir(); } });
+      liste.append(ligne);
+      continue;
     }
-    liste.append(creer('p', 'transmission-ligne', l.valeur));
+    liste.append(remplir(creer('p', 'transmission-ligne'), l));
   }
   ecran.append(liste);
 
@@ -46,7 +71,7 @@ export function afficherTransmission(conteneur, { pages, etat, intervention, auF
 
   ecran.append(creer('div', 'transmission-suite', '', { 'aria-hidden': 'true' }));   // dégradé : l'écran se poursuit sous Précédent / Suivant
   const nav = creer('div', 'transmission-nav');
-  const aller = (delta) => { etat.page += delta; etat.edition = false; auRendre(); };
+  const aller = (delta) => { etat.page += delta; etat.edition = false; etat.ligne = null; auRendre(); };
   nav.append(
     bouton('Précédent', 'bouton bouton-grand', () => aller(-1), { id: 'transmission-precedent' }),
     bouton('Suivant', 'bouton bouton-grand bouton-accent', () => aller(1), { id: 'transmission-suivant' }),

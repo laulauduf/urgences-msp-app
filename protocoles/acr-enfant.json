@@ -3,7 +3,7 @@
   "id": "acr-enfant",
   "titre": "Arrêt cardiaque de l'enfant et du nourrisson (réanimation de base pédiatrique, avec défibrillateur automatisé externe)",
   "titre_court": "Arrêt cardiaque enfant",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/acr-enfant.md",
@@ -51,6 +51,11 @@
         "par": "agent code « urgences - code 5 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
         "le": "2026-11-15",
         "objet": "Version 0.1.7 (lot V1, D-63 qui remplace D-55) : l'étape bilan-15 (« Bilan à passer au 15 ») est RETIRÉE — ce n'est pas une étape ; les informations à restituer au 15 se recueillent dans la fiche bilan de l'appli. Champ ordre renuméroté 1..61 sans trou ; identifiants des autres étapes inchangés ; détail age-poids-estime conservé et rattaché à l'étape alerter ; mentions de bilan-15 et de D-55 corrigées (decisions_appliquees, phases_et_sections, ordre_etapes ou sources, point à valider marqué sans objet) ; les anciennes entrées de ce journal restent telles quelles (historique). Aucun autre texte médical modifié. Version 0.1.7 non contrôlée."
+      },
+      {
+        "par": "agent code « urgences - code 6 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
+        "le": "2026-11-16",
+        "objet": "Version 0.1.8 (lot V2, décision D-65 de Laurent, test de la version 0.2.6) : ajout du champ `precision_visible: true` à l'étape repartir-taches (« À plusieurs : répartir ») — sa précision reste toujours affichée, en petit, sous le libellé, sans dépliage, comme « Se protéger » et « Respire ? » (D-61 étendue). Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.1.8 non contrôlée."
       }
     ]
   },
@@ -404,6 +409,7 @@
       "titre_fiche": "À plusieurs : répartir",
       "texte_court": "À plusieurs : répartir",
       "precision": "Bilan, alerte, DAE, appui ; un soignant pour les parents",
+      "precision_visible": true,
       "consigne_guidee": "À plusieurs, répartissez les tâches dès le début : qui fait le bilan, qui alerte, qui apporte le défibrillateur, qui vient en appui du leader ou d'un intervenant ; un soignant s'occupe des parents.",
       "detail": "Tâches à répartir (décision D-57) : bilan, alerte, DAE, appui (« appui » : venir aider le leader ou un intervenant qui a une tâche) ; un soignant pour les parents. ERC pédiatrique, pour les soignants : « establish a team with clearly defined individual roles and responsibilities as soon as possible » ; « Assign a dedicated team member to the care of parents or caregivers » (p. 5). Second sauveteur : il alerte pendant que le premier commence la réanimation, puis apporte et pose le DAE (p. 13). Premiers secours citoyen (conduite à tenir pour tous les âges) : demander au tiers d'alerter les secours et de ramener et installer un DAE (p. 27) ; à plusieurs intervenants formés, rôle de « coach » qui guide, encourage et corrige (p. 28). Premiers secours en équipe : organisation selon le nombre de secouristes (p. 138). Place en tête, avant « Se protéger » : décision D-57 ; les sources confient alerte et DAE une fois l'arrêt reconnu.",
       "statut": "A_VALIDER",
