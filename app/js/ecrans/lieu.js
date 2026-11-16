@@ -37,8 +37,12 @@ export function afficherLieu(conteneur, { intervention, structure, auRetour }) {
 
   const domicile = creer('div', 'lieu-domicile');
   for (const [cle, libelle] of CHAMPS_DOMICILE) {
-    const label = creer('label', 'reglage-champ', `${libelle} : `);
-    const entree = creer('input'); entree.type = 'text'; entree.name = cle; entree.value = lieu[cle] ?? '';
+    // A11 : même composant que le volet « Fiche » — libellé au-dessus, champ pleine largeur de 52 px en 18 px ; l'adresse (longue) est un champ sur DEUX lignes
+    const label = creer('label', 'champ-fiche lieu-champ');
+    label.append(creer('span', 'lieu-etiquette', libelle));
+    const long = cle === 'adresse';
+    const entree = creer(long ? 'textarea' : 'input'); entree.name = cle; entree.value = lieu[cle] ?? '';
+    if (long) { entree.rows = 2; entree.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') ev.preventDefault(); }); } else entree.type = 'text';
     entree.autocomplete = 'off'; entree.autocapitalize = 'off'; entree.spellcheck = false; entree.setAttribute('autocorrect', 'off');
     // « input » ET « change » (revue m13) : la frappe est enregistrée sans attendre la perte du focus (l'écriture est déjà regroupée en moins d'1 s)
     for (const evenement of ['input', 'change']) entree.addEventListener(evenement, () => intervention.definirLieu({ [cle]: entree.value }));
@@ -49,5 +53,7 @@ export function afficherLieu(conteneur, { intervention, structure, auRetour }) {
   const afficher = () => { const dom = radios.domicile.checked; domicile.hidden = !dom; cabinet.hidden = dom; };
   for (const r of Object.values(radios)) r.addEventListener('change', () => { intervention.definirLieu({ type: radios.domicile.checked ? 'domicile' : 'cabinet' }); afficher(); });
   afficher();
+  // A11 : « Terminé » pleine largeur en bas (avant : il fallait remonter à « Retour »)
+  page.append(bouton('Terminé', 'bouton bouton-accent bouton-plein', auRetour, { id: 'lieu-termine' }));
   conteneur.replaceChildren(page);
 }

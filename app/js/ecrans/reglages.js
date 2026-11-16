@@ -43,8 +43,10 @@ export async function afficherReglages(conteneur, { stockage, structure, groupes
   titre.append(creer('h1', 'info-titre', 'Réglages'), retour);   // même gabarit que les autres écrans : titre à gauche, « Fermer » à droite
   page.append(titre);
 
+  // A6 : la confirmation « Enregistré sur cet appareil » est collée sous le titre (feuille de style : sticky) — elle s'écrivait tout en bas de la page, hors de l'écran
   const etat = creer('p', 'reglage-etat');
   etat.setAttribute('role', 'status');
+  page.append(etat);
   const enregistrer = async (cle, valeur) => {
     const ok = await stockage.ecrireReglage(cle, valeur);
     etat.textContent = ok ? 'Enregistré sur cet appareil.' : "Réglage pris en compte, mais non enregistré : le stockage de l'appareil ne répond pas.";
@@ -142,6 +144,5 @@ export async function afficherReglages(conteneur, { stockage, structure, groupes
   rein.append(bouton, confirmation, resultat);
   page.append(rein);
 
-  page.append(etat);
   conteneur.replaceChildren(page);
 }

@@ -108,3 +108,15 @@ export function heureVersTimestamp(texte, maintenant = Date.now()) {
   if (d.getTime() > maintenant + 5 * 60 * 1000) d.setDate(d.getDate() - 1);
   return d.getTime();
 }
+
+/**
+ * Position d'un geste NOTÉ par rapport au début de l'intervention (lot A, A4). L'heure saisie est une minute pleine (hh:mm, secondes à zéro) : un geste noté « maintenant »
+ * tombe donc jusqu'à 59 s AVANT le début, alors qu'il vient d'être fait. Un écart qui ne dépasse pas cette minute d'arrondi n'est jamais « avant le début » : il vaut T+00:00.
+ * @returns {{avantDebut: boolean, ecartMs: number}} `ecartMs` : distance au début (positive), ou 0 quand elle vient seulement de l'arrondi à la minute
+ */
+export function positionGeste(t, debut) {
+  const minute = (x) => Math.floor(x / 60000);
+  if (t >= debut) return { avantDebut: false, ecartMs: t - debut };
+  if (minute(t) >= minute(debut)) return { avantDebut: false, ecartMs: 0 };
+  return { avantDebut: true, ecartMs: debut - t };
+}

@@ -30,13 +30,14 @@ export function construireVolet({ intervention, auFermer, auChangement }) {
   prise.append(creer('span', 'volet-poignee', '', { 'aria-hidden': 'true' }), creer('div', 'volet-tete'));
   prise.querySelector('.volet-tete').append(titre, bouton('Fermer', 'bouton bouton-accent volet-fermer', () => auFermer(), { id: 'volet-fermer' }));
   const onglets = creer('div', 'volet-onglets', '', { id: 'victimes-onglets', role: 'tablist', 'aria-label': 'Victimes' });
+  const liste = creer('div', 'volet-onglets-liste');   // A9 : la rangée DÉFILANTE des onglets ; le « + » est HORS de cette rangée (il la recouvrait : l'onglet ouvert passait dessous à partir de 3 ou 4 victimes)
   const champs = creer('div', 'volet-champs ecran-fiche', '', { id: 'volet-champs' });
   volet.append(prise, onglets, champs);
 
   // ───── onglets ─────
   function dessinerOnglets() {
     const f = fiche();
-    onglets.replaceChildren();
+    onglets.replaceChildren(liste); liste.replaceChildren();
     for (const v of f.victimes) {
       const actif = v.id === f.victime_active;
       // « Victime 2 » : le mot est masqué par la feuille de style quand la place manque (paysage bas, texte agrandi : « 1 », « 2 »), le nom accessible reste complet
@@ -44,11 +45,11 @@ export function construireVolet({ intervention, auFermer, auChangement }) {
       onglet.append(creer('span', 'onglet-mot', 'Victime '), creer('span', null, String(numeroVictime(f, v.id))));
       // la checklist, le cycle et le métronome suivent la PREMIÈRE victime (la victime prise en charge) : repère visible dès qu'il y en a plusieurs (D-64b, design)
       if (f.victimes.length > 1 && v.id === f.victimes[0].id) { onglet.append(creer('span', 'onglet-suivi', '', { 'aria-hidden': 'true' })); onglet.setAttribute('aria-label', `${libelleVictime(f, v.id)}, suivie par la checklist`); }
-      onglets.append(onglet);
+      liste.append(onglet);
     }
     onglets.append(bouton(f.victimes.length > 1 ? '+' : '+ Victime', `bouton onglet onglet-plus${f.victimes.length > 1 ? '' : ' onglet-plus-mot'}`, () => { etat.retrait = false; etat.ajout = null; intervention.ajouterVictime(); redessiner(); auChangement(); }, { id: 'victime-ajouter', 'aria-label': 'Ajouter une victime' }));
     // l'onglet ouvert reste visible dans la rangée (qui défile quand il y a beaucoup de victimes) ; le « + » est collé à droite par la feuille de style
-    requestAnimationFrame(() => onglets.querySelector('.onglet-actif')?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' }));
+    requestAnimationFrame(() => liste.querySelector(".onglet-actif")?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' }));
   }
   function choisir(id) {
     if (id === fiche().victime_active) return;

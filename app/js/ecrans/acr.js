@@ -9,7 +9,7 @@
 // étape à l'autre, ex. « Protéger », « Alerter ») ; `section` (« reprise » range l'étape sous la pastille Reprise, sinon Conduite à tenir).
 import { creer, bouton, heureLocale } from '../dom.js';
 import { formaterDuree, MARQUE_PROVISOIRE, MARQUE_A_VALIDER } from '../horloge.js';
-import { texteSource, MENTION_SUR_DEMANDE } from '../checklist.js';
+import { texteSource, MENTION_SUR_DEMANDE, positionGeste } from '../checklist.js';
 import { detailHabilitation } from '../habilitations.js';
 import { construireDefinition } from './glossaire.js';
 import { afficherMateriel } from './materiel.js';
@@ -89,8 +89,9 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
     if (item.cochee) m.append(creer('span', 'etape-fait', `fait à ${tPlus(item.coche_le)}`));
     if (item.notee) {
       // un geste noté avant le début de l'intervention (cas courant : on agit avant de sortir le téléphone) le dit, au lieu d'afficher « T+00:00 » (revue L6 m6)
-      const avantDebut = item.notee.t < debut;
-      const rel = avantDebut ? `avant le début, T−${formaterDuree(debut - item.notee.t)}` : tPlus(item.notee.t);
+      // A4 : l'écart qui vient seulement de l'arrondi à la minute (hh:mm) n'est PAS « avant le début »
+      const pos = positionGeste(item.notee.t, debut);
+      const rel = pos.avantDebut ? `avant le début, T−${formaterDuree(pos.ecartMs)}` : `T+${formaterDuree(pos.ecartMs)}`;
       m.append(creer('span', 'etape-notee', `noté fait à ${heureLocale(item.notee.t)} (${rel})`));
     }
     if (item.nonFaite && renvoiDe(e) === null) m.append(creer('span', 'marque-non-faite', '⚠ non faite'));

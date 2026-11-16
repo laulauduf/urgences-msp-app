@@ -171,7 +171,7 @@ function lignesSVictime(v, numero, multi, maintenant) {
   const ageLigne = ageTexte === null ? null : ageTexte.startsWith('âge estimé : ') ? ligne(`Âge estimé : ${ageTexte.slice('âge estimé : '.length)}`) : champ('Âge', ageTexte);
   const tranche = TRANCHES_AGE.find((t) => t.id === id.tranche_age);
   const l = lignes(
-    champ('Patient', [id.prenom, id.nom].filter(plein).join(' '), edV(v, 'identite', 'nom')), champ('Sexe', id.sexe), ageLigne, tranche ? champ("Tranche d'âge", tranche.court) : null,
+    champ('Patient', [id.prenom, id.nom].filter(plein).join(' ')), champ('Sexe', id.sexe), ageLigne, tranche ? champ("Tranche d'âge", tranche.court) : null,
     champ('Début des signes', c.heure_debut, edV(v, 'circonstances', 'heure_debut')), champ('Lieu dans la structure', c.lieu_dans_structure, edV(v, 'circonstances', 'lieu_dans_structure')), champ('Témoin', c.temoin, edV(v, 'circonstances', 'temoin')), champ('Gestes déjà faits', c.gestes_deja_faits, edV(v, 'circonstances', 'gestes_deja_faits')),
     champ('Conscience', [bv.avpu ? `AVPU ${bv.avpu}` : '', bv.conscience].filter(plein).join(' — '), edV(v, 'bilan_vital', 'conscience')), champ('Respiration', bv.respiration, edV(v, 'bilan_vital', 'respiration')), champ('Circulation', bv.circulation, edV(v, 'bilan_vital', 'circulation')),
     champ('Notes', v.notes, edV(v, null, 'notes')),
@@ -266,6 +266,7 @@ export function construireTransmission({ fiche, structure, champsSensibles = {},
     { id: 'a', titre: 'A — Antécédents', lignes: lignesA },
     { id: 'e', titre: 'E — Évaluation', lignes: lignes(plein(fiche.evaluation) ? ligne(fiche.evaluation.trim()) : null) },
     // D : la demande écrite ; tant qu'elle ne l'est pas, la ligne PROVISOIRE de la maquette, marquée ✱ (D-64 : texte à revoir par Laurent)
+    // DEMANDE-1 ouverte (registre) : la ligne provisoire par défaut reste MARQUÉE « ✱ (texte provisoire) » à l'écran, dans le document et dans le texte copié (R15 : marque si et seulement si le contenu est provisoire) ; remise le 16/11/2026 (lot AF-b, M1), en attendant la réponse de Laurent
     { id: 'd', titre: 'D — Demande', lignes: lignes(plein(fiche.demande) ? ligne(fiche.demande.trim()) : ligne(`${LIGNE_DEMANDE_PROVISOIRE} ✱ (texte provisoire)`)) },
   ];
 }
@@ -273,6 +274,7 @@ export function construireTransmission({ fiche, structure, champsSensibles = {},
 // ───────── Journal (4.10) ─────────
 
 /** Texte lisible d'une entrée du journal (aucun contenu médical : seulement ce que l'équipe a fait ou saisi). */
+const ACTIONS_CHRONO = { demarrage: 'démarré', relance: 'relancé', arret: 'arrêté', pause: 'en pause', reprise: 'repris' };
 export function libelleEntree(e) {
   const d = e?.donnees ?? {};
   const role = (id) => ROLES.find((r) => r.id === id)?.libelle ?? String(id);
@@ -282,15 +284,21 @@ export function libelleEntree(e) {
     case 'situation': return d.libelle ? `Situation : ${d.libelle}` : d.protocole ? `Situation : ${titreDe(d.protocole) ?? d.protocole}` : 'Situation';
     case 'role': return `Rôle ${role(d.role)} : ${d.de ?? '—'} → ${d.vers ?? '—'}`;
     case 'profession': return `Profession : ${d.vers ?? 'non réglée'}`;
-    case 'case': return d.decochee ? `Case décochée : ${d.libelle ?? d.id}` : `Case cochée : ${d.libelle ?? d.id}`;
+    case 'case': return d.decochee ? `Décoché : ${d.libelle ?? d.id}` : `Fait : ${d.libelle ?? d.id}`;
     case 'evenement': return d.libelle ?? String(d.id ?? 'événement');
     case 'constante': return `${libelleType(d.type)}${d.victime ? ` (Victime ${d.victime})` : ''} : ${avecUnite(d.valeur, d.unite)}`;
     case 'geste': return `Geste${d.victime ? ` (Victime ${d.victime})` : ''} : ${d.texte ?? d.libelle ?? d.id ?? ''}`.trim();
     case 'appel_lance': return `Appel lancé : ${d.numero ?? ''}`.trim();
     case 'appel_simule': return `Appel simulé : ${d.numero ?? ''}`.trim();
     case 'appel_fait': return "J'ai appelé";
-    case 'chronometre': return `Chronomètre ${d.id ?? ''} : ${d.action ?? ''}${d.cycle ? ` (cycle ${d.cycle})` : ''}`.trim();
-    case 'echeance': return `Échéance : ${d.id ?? ''}`.trim();
+    case 'chronometre': {
+      // lot A, A10 : « Métronome démarré », « Cycle 2 relancé » — jamais « Chronomètre metronome : demarrage »
+      const action = ACTIONS_CHRONO[d.action] ?? d.action ?? '';
+      if (d.id === 'metronome') return `Métronome ${action}`.trim();
+      if (d.id === 'cycle') return `Cycle${d.cycle ? ` ${d.cycle}` : ''} ${action}`.trim();
+      return `Chronomètre ${d.id ?? ''} ${action}`.replace(/\s+/g, ' ').trim();
+    }
+    case 'echeance': return d.id === 'cycle' ? 'Échéance du cycle' : `Échéance : ${d.id ?? ''}`.trim();
     case 'rattrapage': return 'Échéance franchie pendant l\'absence';
     case 'horloge_modifiee': return 'Heure du téléphone modifiée';
     case 'reprise': return 'Fiche reprise';

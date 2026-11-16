@@ -92,6 +92,7 @@ export class InterfaceIntervention {
     this.construireEntete();
     this.construireBarre();
     this.monterVolet();
+    this.monterSuiviClavier();   // D-70 : le champ en cours de saisie reste visible au-dessus du clavier, aussi dans la zone centrale
     if (this.intervention.transmissionAuRetour) { this.intervention.transmissionAuRetour = false; this.panneau = 'transmission'; }   // reprise après un appel : transmission d'abord
     this.debranchements.push(this.intervention.ecouter((e) => this.surEvenement(e)));
     // premier toucher dans la fiche reprise : le bandeau « Fiche reprise » se replie APRÈS l'action touchée (jamais entre le toucher et le clic :
@@ -132,7 +133,7 @@ export class InterfaceIntervention {
     appli.classList.remove('gabarit');
     entete.hidden = true; barre.hidden = true; entete.replaceChildren(); barre.replaceChildren();
     for (const b of bandeaux.querySelectorAll('[data-bandeau="simulation"],[data-bandeau="reprise"],[data-bandeau="acr-illisible"],[data-bandeau="version"],[data-bandeau="son"],[data-bandeau="ecran"],[data-bandeau="echeance"],[data-bandeau="rattrapage"]')) b.remove();
-    delete document.body.dataset.mode; delete document.body.dataset.texte; delete document.body.dataset.panneau;
+    delete document.body.dataset.mode; delete document.body.dataset.texte; delete document.body.dataset.agrandi; delete document.body.dataset.panneau;
   }
 
   surEvenement(e) {
@@ -367,8 +368,10 @@ export class InterfaceIntervention {
 
   /** Texte très agrandi (≥ 200 % : racine ≥ 22 px) : l'en-tête et les bandeaux se resserrent (voir app.css, data-texte="grand"). */
   majTaille() {
-    const grand = parseFloat(getComputedStyle(document.documentElement).fontSize) >= 22;
-    document.body.dataset.texte = grand ? 'grand' : 'normal';
+    const racine = parseFloat(getComputedStyle(document.documentElement).fontSize);
+    document.body.dataset.texte = racine >= 22 ? 'grand' : 'normal';
+    // F2 : `data-agrandi` = texte agrandi dès 112 % (racine ≥ 18 px), AVANT le mode « grand » : dès 130 % le titre et le décompte du cycle n'ont plus la place de la mise en page normale
+    document.body.dataset.agrandi = racine >= 18 ? 'oui' : 'non';
   }
 
   rafraichir() {
@@ -438,7 +441,7 @@ export class InterfaceIntervention {
     const i = this.intervention;
     const puce = document.getElementById('puce-profession');
     if (puce) {
-      puce.textContent = `⚠ Profession ${this.nomProfession()} — régler`;
+      puce.textContent = `Profession ${this.nomProfession()} — régler`;   // A1 : le « ⚠ » vient de la feuille de style (.puce[data-regle="non"]::before), un seul
       puce.dataset.regle = 'non';
       puce.setAttribute('aria-label', `Profession ${this.nomProfession()}. Choisir`);
     }
@@ -474,8 +477,9 @@ export class InterfaceIntervention {
   poserBandeauTemporaire(cle, texte, dureeMs) {
     const zone = this.zone.bandeaux;
     zone.querySelector(`[data-bandeau="${cle}"]`)?.remove();
-    const b = creer('div', 'bandeau bandeau-avertissement', texte, { 'data-bandeau': cle, role: 'status', title: texte });
-    b.append(' ', bouton('OK', 'bouton', () => b.remove()));
+    // A3 : bandeau TEMPORAIRE (il porte un bouton « OK ») : le texte passe à la ligne et « OK » reste dans la largeur de l'écran (classe `bandeau-temporaire`)
+    const b = creer('div', 'bandeau bandeau-avertissement bandeau-temporaire', '', { 'data-bandeau': cle, role: 'status', title: texte });
+    b.append(creer('span', 'bandeau-texte', texte), bouton('OK', 'bouton', () => b.remove()));
     zone.append(b);
     setTimeout(() => b.remove(), dureeMs);
   }
@@ -536,7 +540,44 @@ export class InterfaceIntervention {
   /** Ouvre un écran. `null` = « fermer » : retour à l'écran principal (la conduite à tenir en ACR). */
   ouvrirPanneau(nom) {
     this.fermerVolet({ focus: false, immediat: true });   // un autre écran (alerte, menu…) prend la place : le volet se retire d'un coup
+    // F5 (m1 de la relecture D-65) : une ligne ouverte en modification dans la transmission est REFERMÉE quand on quitte l'écran (ou qu'on y revient, y compris à l'ouverture automatique après un appel) :
+    // sinon le champ se rouvrait seul, focalisé, et le clavier pouvait monter sans avoir été demandé
+    if ((nom === 'transmission') !== (this.panneau === 'transmission')) { this.tr.ligne = null; this.tr.edition = false; }
     this.panneau = nom; this.messageTest = null; this.rendre();
+  }
+
+  /**
+   * D-70 : un champ de saisie de la zone centrale (mode transmission, écran « Lieu »…) reste VISIBLE au-dessus du clavier du téléphone, sans défilement à la main — comme le volet « Fiche » (`placerVolet`, D-65 c).
+   * Le clavier recouvre le bas de la page (le `visualViewport` devient plus court que la fenêtre) : on réserve à la zone centrale de quoi défiler (marge basse égale à la partie recouverte), puis on la fait défiler
+   * jusqu'à ce que le champ soit au-dessus du clavier. Clavier fermé : la réserve est retirée. NON MESURÉ sur un vrai téléphone (comme D-65 c).
+   */
+  placerChampActif() {
+    const c = this.zone.contenu;
+    const vv = window.visualViewport; const H = window.innerHeight;
+    const bas = vv ? vv.offsetTop + vv.height : H;
+    const clavier = Math.max(0, H - bas);
+    const actif = document.activeElement;
+    const champ = actif && c.contains(actif) && /^(INPUT|TEXTAREA)$/.test(actif.tagName) ? actif : null;
+    if (!champ || clavier <= 100) { if (c.style.paddingBottom) c.style.paddingBottom = ''; return; }
+    const zone = c.getBoundingClientRect();
+    c.style.paddingBottom = `${Math.max(0, Math.round(zone.bottom - bas))}px`;   // de quoi défiler : le bas de la zone est sous le clavier
+    const r = champ.getBoundingClientRect();
+    const limite = bas - 12; const haut = Math.max(zone.top, vv?.offsetTop ?? 0) + 8;
+    if (r.bottom > limite) c.scrollTop += r.bottom - limite;
+    const r2 = champ.getBoundingClientRect();
+    if (r2.top < haut) c.scrollTop -= haut - r2.top;   // un champ plus haut que la place libre : on garde son début en vue
+  }
+
+  /** Branche le suivi du clavier : événements du visualViewport et prise de focus dans la zone centrale (le champ passe au premier plan quand le clavier a fini de monter). */
+  monterSuiviClavier() {
+    const suivre = () => this.placerChampActif();
+    const surFocus = (ev) => { if (/^(INPUT|TEXTAREA)$/.test(ev.target.tagName)) { suivre(); setTimeout(suivre, 150); setTimeout(suivre, 450); } };
+    window.visualViewport?.addEventListener('resize', suivre); window.visualViewport?.addEventListener('scroll', suivre);
+    this.zone.contenu.addEventListener('focusin', surFocus);
+    this.debranchements.push(() => {
+      window.visualViewport?.removeEventListener('resize', suivre); window.visualViewport?.removeEventListener('scroll', suivre);
+      this.zone.contenu.removeEventListener('focusin', surFocus); this.zone.contenu.style.paddingBottom = '';
+    });
   }
 
   /** Retour à l'écran principal (ACR, choix de situation…). */
@@ -554,12 +595,15 @@ export class InterfaceIntervention {
     if (i.simulation) {
       // texte + couleur + motif rayé, différent de tout autre bandeau ; présent sur CHAQUE écran de simulation
       const b = creer('div', 'bandeau-simulation', '', { 'data-bandeau': 'simulation' });
-      b.append(creer('span', 'simulation-mot', 'SIMULATION'));
+      const mot = creer('span', 'simulation-mot', 'SIMULATION');
+      // A5 : une simulation REPRISE ne pose pas un second bandeau « Fiche reprise » : la mention est dans le bandeau violet (une seule rangée)
+      if (i.repriseDe) mot.append(creer('small', 'simulation-reprise', `reprise (${heureLocale(i.repriseDe.debut)})`));
+      b.append(mot);
       b.append(bouton('URGENCE RÉELLE', 'bouton bouton-urgence', () => this.actions.urgenceReelle(), { id: 'urgence-reelle' }));
       b.append(bouton('Quitter', 'bouton', () => this.demanderQuitterSimulation(b), { id: 'quitter-simulation' }));
       zone.prepend(b);
     }
-    if (i.repriseDe) {
+    if (i.repriseDe && !i.simulation) {
       // UNE ligne (revue M3). D-28 (cahier 2.8) : « NOUVELLE URGENCE » reste à UN toucher dans tous les cas. Tant que personne n'a rien touché dans la fiche, « Accueil »
       // l'accompagne ; dès le premier toucher le bandeau se replie (texte court ; « Accueil » passe au menu, 2 touchers) mais GARDE son bouton NOUVELLE URGENCE. La ligne ne
       // prend pas plus de place qu'avant (le bouton fait 48 px dans les deux cas) et l'équipe n'a jamais à chercher le menu pour repartir sur une autre victime.
@@ -574,15 +618,15 @@ export class InterfaceIntervention {
     zone.querySelector('[data-bandeau="acr-illisible"]')?.remove();
     if (i.echecAcr && i.situation === ACR) {
       const nom = PROTOCOLES_ACR.find((p) => p.id === i.echecAcr.id)?.libelle ?? i.echecAcr.id;
-      const b = creer('div', 'bandeau bandeau-avertissement', `${nom} illisible : on reste sur l'arrêt cardiaque en cours.`, { 'data-bandeau': 'acr-illisible', role: 'status' });
-      b.append(' ', bouton('OK', 'bouton', () => { i.echecAcr = null; b.remove(); }, { id: 'acr-illisible-ok' }));
+      const b = creer('div', 'bandeau bandeau-avertissement bandeau-temporaire', '', { 'data-bandeau': 'acr-illisible', role: 'status' });
+      b.append(creer('span', 'bandeau-texte', `${nom} illisible : on reste sur l'arrêt cardiaque en cours.`), bouton('OK', 'bouton', () => { i.echecAcr = null; b.remove(); }, { id: 'acr-illisible-ok' }));
       zone.append(b);
     }
     if (i.versionDifferente && !this.versionVue) {
       // parade 3 (2.4, revue M2) : l'appli a changé de version pendant l'intervention ; dit une fois, acquittable en un toucher
       const texte = `Appli mise à jour pendant l'intervention (version ${i.versionDifferente.de} → ${i.versionDifferente.vers})`;
-      const b = creer('div', 'bandeau bandeau-avertissement', texte, { 'data-bandeau': 'version', title: texte, role: 'status' });
-      b.append(' ', bouton('OK', 'bouton', () => { this.versionVue = true; b.remove(); }, { id: 'version-ok' }));
+      const b = creer('div', 'bandeau bandeau-avertissement bandeau-temporaire', '', { 'data-bandeau': 'version', title: texte, role: 'status' });
+      b.append(creer('span', 'bandeau-texte', texte), bouton('OK', 'bouton', () => { this.versionVue = true; b.remove(); }, { id: 'version-ok' }));
       zone.append(b);
     }
   }
@@ -635,8 +679,19 @@ export class InterfaceIntervention {
       });
     } else if (this.panneau === 'materiel') {
       // le protocole de la fiche (copie), sinon celui en mémoire : « Autre situation » n'en a pas, la liste est alors dite vide
-      const protocole = i.protocole ?? i.fiche.protocoles_utilises?.[i.protocoleActifId] ?? null;
-      afficherMateriel(contenu, { modele: construireMateriel({ protocole, structure: this.structure }), avecArticles: true, auFermer: () => this.ouvrirPanneau(null) });
+      const protocole = i.protocole ?? i.fiche.protocoles_utilises?.[i.protocoleActifId] ?? this.materielAcr ?? null;   // (this.materielAcr : le protocole de l'ACR, chargé à la demande depuis une conduite)
+      if (i.situation === AUTRE && !this.materielAcr) {
+        // A8 : dans une conduite, la liste de la CONDUITE (ses articles et rien d'autre) ; sans liste propre, on le dit et l'ACR est proposé sous son nom — jamais le matériel de l'arrêt cardiaque sous le titre « du protocole »
+        const nom = i.conduiteId === ID_COMMUN ? 'Autre situation' : (i.protocoleCommun?.titre_court ?? titreDe(i.conduiteId) ?? 'cette conduite');
+        afficherMateriel(contenu, {
+          modele: construireMateriel({ protocole: i.protocoleCommun, structure: this.structure, seulementListe: true }), avecArticles: true,
+          titre: `Matériel : ${nom}`, messageVide: this.materielAcrEchec ? "Le matériel de l'arrêt cardiaque est indisponible (fichier illisible)." : 'Pas de liste de matériel pour cette conduite.',
+          actionVide: { libelle: "Voir le matériel de l'arrêt cardiaque", action: async () => { const rc = await i.chargerProtocoleFn(i.protocoleId); this.materielAcr = rc.ok ? rc.protocole : null; this.materielAcrEchec = !rc.ok; if (this.panneau === 'materiel') this.rendre(); } },
+          auFermer: () => this.ouvrirPanneau(null),
+        });
+      } else {
+        afficherMateriel(contenu, { modele: construireMateriel({ protocole, structure: this.structure }), avecArticles: true, titre: i.situation === AUTRE ? "Matériel de l'arrêt cardiaque" : null, auFermer: () => this.ouvrirPanneau(null) });
+      }
     } else if (this.panneau === 'apropos') {
       afficherAPropos(contenu, { chargerProtocole: () => (i.protocole ? Promise.resolve({ ok: true, protocole: i.protocole }) : i.chargerProtocoleFn(i.protocoleId)), stockage: i.stockage, auFermer: () => this.ouvrirPanneau(null) });
     } else if (this.panneau === 'transmission') {
@@ -845,7 +900,8 @@ export class InterfaceIntervention {
     if (i.chronoCycle?.note) evenements.append(creer('p', 'cycle-note', `${i.chronoCycle.note}${suffixeMarques(i.chronoCycle, { note: i.chronoCycle.note })}`, { id: 'cycle-note' }));
     for (const ev of i.evenements) {
       const b = bouton('', 'bouton', () => { i.noterEvenement(ev.id); }, { 'data-evenement': ev.id });
-      b.append(creer('span', null, ev.libelle), creer('span', 'compte', ` (${i.compteEvenement(ev.id)})`));
+      // A2 : l'espace est HORS du compteur (qui ne se coupe pas) : sinon « défibrillateur (0) » devenait un seul bloc et se coupait au milieu du mot
+      b.append(creer('span', null, ev.libelle), document.createTextNode(' '), creer('span', 'compte', `(${i.compteEvenement(ev.id)})`));
       if (ev.statut === 'A_VALIDER') b.append(creer('span', 'marque', MARQUE_A_VALIDER));   // revue m6 : le contenu non établi se voit partout où il s'affiche
       evenements.append(b);
     }
@@ -886,7 +942,7 @@ export class InterfaceIntervention {
     const i = this.intervention;
     const page = creer('section', 'menu-intervention');
     page.setAttribute('aria-label', 'Menu');
-    const rubrique = (titre) => page.append(creer('h2', 'phase', titre));
+    const rubrique = (titre, classe = 'phase') => page.append(creer('h2', classe, titre));
     // `sous` : valeur courante en petit sous le libellé (masquée en paysage bas : la place y est comptée)
     const ligne = (libelle, action, id, classe = 'bouton bouton-plein', sous = null) => {
       const b = bouton(libelle, classe, action, { id });
@@ -906,22 +962,23 @@ export class InterfaceIntervention {
       page.append(annuler);
     }
     rubrique('Pendant');
+    // A7 : « Changer de situation » est la seule de ces actions utile PENDANT un arrêt (adulte ↔ enfant) : en tête de « Pendant », plus au milieu de « Fin »
+    ligne('Changer de situation', () => this.ouvrirPanneau('situation'), 'menu-situation');
     ligne('Mode transmission', () => this.ouvrirPanneau('transmission'), 'menu-transmission');
     ligne('Journal', () => this.ouvrirPanneau('journal'), 'menu-journal');
     ligne('Rôles', () => this.ouvrirPanneau('roles'), 'menu-roles', 'bouton bouton-plein', i.roles.length > 0 ? texteBandeauCourt(i.roles) : 'non attribués');
-    ligne('Matériel', () => this.ouvrirPanneau('materiel'), 'menu-materiel');
+    ligne('Matériel', () => { this.materielAcr = null; this.materielAcrEchec = false; this.ouvrirPanneau('materiel'); }, 'menu-materiel');
     rubrique('Outils');
     ligne('Glossaire', () => this.ouvrirPanneau('glossaire'), 'menu-glossaire');
     ligne('Préparer ce téléphone', () => this.ouvrirPanneau('telephone'), 'menu-tester');
     ligne('Profession', () => this.ouvrirPanneau('profession'), 'menu-profession', 'bouton bouton-plein', this.nomProfession());
     ligne('À propos', () => this.ouvrirPanneau('apropos'), 'menu-apropos');
-    rubrique('Fin');
+    rubrique('Fin', 'phase phase-fin');   // séparée de 16 px des lignes d'outils (feuille de style)
     const terminer = bouton("Terminer l'intervention", 'bouton bouton-plein bouton-terminer', () => {
       terminer.replaceWith(bouton("Confirmer : terminer l'intervention", 'bouton bouton-urgence bouton-plein', () => { i.terminer(); this.actions.terminee(); }, { id: 'menu-terminer-confirme' }));
     }, { id: 'menu-terminer' });
     page.append(terminer);
     ligne('Clôture et export', () => this.ouvrirPanneau('cloture'), 'menu-cloture');   // fonction 25 de 4.0 : exporter, clôturer
-    ligne('Changer de situation', () => this.ouvrirPanneau('situation'), 'menu-situation');
     ligne('Nouvelle urgence', () => this.actions.nouvelleUrgence(), 'menu-nouvelle-urgence');
     ligne('Accueil', () => this.actions.accueil(), 'menu-accueil');
     this.zone.contenu.replaceChildren(page);

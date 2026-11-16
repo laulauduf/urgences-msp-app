@@ -17,6 +17,8 @@ export function afficherJournal(conteneur, { intervention, etat, auFermer, auRen
     const texte = creer('span', 'journal-texte');
     if (l.barree) texte.append(creer('s', null, l.texte)); else texte.append(document.createTextNode(l.texte));
     li.append(texte);
+    // A10 : le crayon ✎ (48 × 48) est sur la MÊME rangée que l'heure et le texte (plus un bouton « Corriger » dessous) ; il porte le texte de l'entrée dans son nom accessible
+    if (etat.corrige !== l.id && l.corrigeable) li.append(bouton('✎', 'bouton journal-corriger', () => { etat.corrige = l.id; etat.texte = ''; etat.erreur = null; auRendre(); }, { 'data-corriger': l.id, 'aria-label': `Corriger : ${l.texte}` }));
     for (const c of l.corrections) li.append(creer('span', 'journal-correction', `correction à ${c.heure} (${c.tPlus}) : ${c.texte}`));
     if (etat.corrige === l.id) {
       const t = creer('textarea', 'journal-saisie', '', { id: 'correction-texte', rows: 2, autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', 'aria-label': `Correction de : ${l.texte}` });
@@ -29,8 +31,6 @@ export function afficherJournal(conteneur, { intervention, etat, auFermer, auRen
         if (r.ok) { etat.corrige = null; etat.texte = ''; etat.erreur = null; } else etat.erreur = r.raison;
         auRendre();
       }, { id: 'correction-valider' }), bouton('Annuler', 'bouton', () => { etat.corrige = null; etat.erreur = null; auRendre(); }, { id: 'correction-annuler' }));
-    } else if (l.corrigeable) {
-      li.append(bouton('Corriger', 'bouton journal-corriger', () => { etat.corrige = l.id; etat.texte = ''; etat.erreur = null; auRendre(); }, { 'data-corriger': l.id }));
     }
     liste.append(li);
   }

@@ -36,6 +36,10 @@ export function afficherAccueil(conteneur, { auUrgence, auProtocole = null, auAu
     }
   }
   page.append(grille);
+  // résultat d'un effacement (2.9, revue m10) : « Fiche effacée à hh:mm » ou la cause de l'échec — jamais un échec silencieux. A6 : JUSTE sous les tuiles rouges (et plus tout en bas de la page, où il
+  // s'écrivait hors de l'écran) ; masqué tant qu'il n'a rien à dire, pour ne pas repousser « Autres urgences »
+  const resultat = creer('p', 'confirmation', '', { id: 'resultat-effacement', role: 'status', hidden: '' });
+  page.append(resultat);
 
   const autres = [];
   if (auProtocole) for (const c of CONDUITES) if (protocolePublie(c.id)) autres.push(gros(c.titre, c.sous, 'bouton gros', () => auProtocole(c.id), `ouvrir-${c.id}`));
@@ -60,9 +64,6 @@ export function afficherAccueil(conteneur, { auUrgence, auProtocole = null, auAu
   const attente = creer('div', 'en-attente');
   attente.id = 'en-attente';
   page.append(attente);
-  // résultat d'un effacement (2.9, revue m10) : « Fiche effacée à hh:mm » ou la cause de l'échec — jamais un échec silencieux
-  const resultat = creer('p', 'confirmation', '', { id: 'resultat-effacement', role: 'status' });
-  page.append(resultat);
   const resultatTest = creer('p', 'confirmation', '', { id: 'resultat-test', role: 'status' });
   page.append(resultatTest);
   const confirmation = creer('div', 'test-confirmation', '', { id: 'test-confirmation' });
@@ -77,12 +78,12 @@ export function afficherAccueil(conteneur, { auUrgence, auProtocole = null, auAu
   page.append(liens);
   conteneur.replaceChildren(page);
   // taille de texte (200 %) : l'accueil suit la même règle que les écrans d'intervention (body[data-texte]) pour que le bouton d'urgence reste entièrement visible
-  const majTaille = () => { document.body.dataset.texte = parseFloat(getComputedStyle(document.documentElement).fontSize) >= 22 ? 'grand' : 'normal'; };
+  const majTaille = () => { const racine = parseFloat(getComputedStyle(document.documentElement).fontSize); document.body.dataset.texte = racine >= 22 ? 'grand' : 'normal'; document.body.dataset.agrandi = racine >= 18 ? 'oui' : 'non'; };
   majTaille();
   const suivi = setInterval(() => { if (page.isConnected) majTaille(); else clearInterval(suivi); }, 400);
 
   return {
-    afficherResultat(texte) { resultat.textContent = texte; },
+    afficherResultat(texte) { resultat.textContent = texte; resultat.hidden = !texte; if (texte) resultat.scrollIntoView?.({ block: 'nearest' }); },   // A6 : amené à l'écran si la page est défilée
     afficherTest(texte) { resultatTest.textContent = texte; const e = document.getElementById('etat-test'); if (e) e.textContent = etatTest.son ? 'son vérifié ✓' : 'à faire ✱'; },
     /** « Avez-vous entendu le bip ? » (revue R1, M1) : seule la réponse « Oui » valide le son. */
     demanderConfirmationSon() {

@@ -89,8 +89,9 @@ export function afficherCloture(conteneur, ctx) {
     // 3. copie : en dernier, avec son avertissement lisible AVANT le geste
     const copie = creer('div', 'cloture-groupe');
     copie.append(
-      ...(etat.partage ? [] : [avertissementReplie('cloture-avertissement-copie-sante', RESUME_SANTE, [AVERTISSEMENT_PARTAGE])]),   // R1f (m6) : pas deux fois la même phrase quand le bloc partage est ouvert, juste au-dessus   // L8c (revue L8 M1) : données de santé, messagerie déconseillée — AVANT la copie (4.10.3)
-      avertissementReplie('cloture-avertissement-copie', RESUME_PRESSE_PAPIERS, [AVERTISSEMENT_PRESSE_PAPIERS]),
+      // A12 : UN SEUL avertissement avant « Copier » (avant : deux pavés de ≈ 110 px). Les deux phrases sont fusionnées (données de santé, puis historique du clavier) et un « Pourquoi ? » unique garde
+      // les textes complets : on raccourcit, on ne retire rien (R1e). R1f (m6) : quand le bloc partage est ouvert juste au-dessus, il dit déjà la phrase de santé : seule celle du presse-papiers reste.
+      avertissementReplie('cloture-avertissement-copie', etat.partage ? RESUME_PRESSE_PAPIERS : `${RESUME_SANTE} ${RESUME_PRESSE_PAPIERS}`, etat.partage ? [AVERTISSEMENT_PRESSE_PAPIERS] : [AVERTISSEMENT_PARTAGE, AVERTISSEMENT_PRESSE_PAPIERS]),   // L8c (revue L8 M1) : données de santé, messagerie déconseillée — AVANT la copie (4.10.3)
       bouton('Copier le texte', 'bouton bouton-plein', async () => {
         etat.message = ''; etat.erreur = '';
         // l'appli retient qu'elle a écrit dans le presse-papiers AVANT d'écrire : si l'écriture aboutit à moitié, il sera quand même vidé à l'effacement

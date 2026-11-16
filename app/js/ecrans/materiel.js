@@ -2,28 +2,29 @@
 // depuis l'accueil, « Matériel » montre les contenants et leurs emplacements. Mise en page seulement : le modèle est dans materiel.js, le contenu dans le protocole
 // et dans config/structure.json. Textes via textContent.
 import { creer, bouton } from '../dom.js';
-import { EMPLACEMENT_INCONNU } from '../materiel.js';
+import { EMPLACEMENT_INCONNU, libelleNiveau } from '../materiel.js';
 
 /** Intertitres du niveau d'un article (revue design R3, n° 7) : les valeurs du protocole ne s'affichent plus brutes ; une valeur inconnue s'affiche telle quelle, avec sa majuscule. */
 const NIVEAUX = [['indispensable', 'Indispensable'], ['recommande', 'Recommandé'], ['optionnel', 'Optionnel']];
-const majuscule = (t) => (t ? t.charAt(0).toUpperCase() + t.slice(1) : 'Autres');
 
 /**
  * @param {HTMLElement} conteneur
  * @param {{modele: {articles: object[], contenants: object[]}, avecArticles: boolean, auFermer: () => void}} options
  *   `avecArticles` : faux depuis l'accueil (pas de protocole en cours : seulement les contenants).
  */
-export function afficherMateriel(conteneur, { modele, avecArticles = true, auFermer, integre = false }) {
+export function afficherMateriel(conteneur, { modele, avecArticles = true, auFermer, integre = false, titre: titreEcran = null, messageVide = null, actionVide = null }) {
   const page = creer('section', 'ecran-info ecran-materiel', '', { 'aria-label': 'Matériel' });
   // `integre` (pastille Matériel de l'écran ACR) : ni titre ni « Fermer », le contenu seul
   if (!integre) {
     const titre = creer('div', 'panneau-titre');
-    titre.append(creer('h1', 'info-titre', avecArticles ? 'Matériel du protocole' : 'Matériel'), bouton('Fermer', 'bouton', auFermer, { id: 'fermer-materiel' }));
+    titre.append(creer('h1', 'info-titre', titreEcran ?? (avecArticles ? 'Matériel du protocole' : 'Matériel')), bouton('Fermer', 'bouton', auFermer, { id: 'fermer-materiel' }));
     page.append(titre);
   }
 
   if (avecArticles) {
-    if (modele.articles.length === 0) page.append(creer('p', 'plan-aide', 'Aucun matériel listé par le protocole.', { role: 'status', id: 'materiel-vide' }));
+    if (modele.articles.length === 0) page.append(creer('p', 'plan-aide', messageVide ?? 'Aucun matériel listé par le protocole.', { role: 'status', id: 'materiel-vide' }));
+    // conduite sans liste propre : celle de l'arrêt cardiaque, proposée sous son nom (lot A, A8)
+    if (modele.articles.length === 0 && actionVide) page.append(bouton(actionVide.libelle, 'bouton bouton-plein', actionVide.action, { id: 'materiel-voir-acr' }));
     // « Emplacements à renseigner » : UNE note en tête tant qu'aucun emplacement n'est connu, au lieu de la répéter sur chaque ligne
     if (modele.articles.length > 0 && modele.articles.every((a) => a.emplacement === EMPLACEMENT_INCONNU)) page.append(creer('p', 'plan-aide', 'Emplacements à renseigner (configuration de la structure).', { id: 'materiel-emplacements-a-renseigner' }));
     const liste = creer('div', 'materiel-groupes', '', { id: 'materiel-articles' });
@@ -31,7 +32,7 @@ export function afficherMateriel(conteneur, { modele, avecArticles = true, auFer
     for (const cle of clefs) {
       const articles = modele.articles.filter((a) => (NIVEAUX.some(([k]) => k === cle) ? a.niveau === cle : (a.niveau ?? '') === cle));
       if (articles.length === 0) continue;
-      liste.append(creer('h3', 'phase', NIVEAUX.find(([k]) => k === cle)?.[1] ?? majuscule(cle)));
+      liste.append(creer('h3', 'phase', libelleNiveau(cle)));   // lot A, A8 : jamais un code à tirets bas
       const ul = creer('ul', 'info-liste');
       for (const a of articles) {
         const li = creer('li', 'info-ligne', '', { 'data-article': a.id });

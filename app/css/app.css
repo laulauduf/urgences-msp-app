@@ -1063,3 +1063,133 @@ body[data-mode="intervention"] .volet .ajout-formulaire input[type="text"] { fle
 .transmission-edition .transmission-k { flex: 1 0 100%; }
 .transmission-saisie-ligne { flex: 1 1 10rem; min-width: 0; min-height: 48px; font-size: 1.25rem; padding: 0.25rem 0.5rem; background: var(--fond); color: var(--texte); border: 0.125rem solid var(--bordure); border-radius: 0.625rem; }
 body[data-mode="intervention"][data-texte="grand"] .transmission-saisie-ligne { font-size: 0.75rem; }
+
+/* ═════════ LOT A du plan d'ergonomie (16/11/2026, D-68) : petits correctifs sûrs — tout en fin de fichier : à spécificité égale, ces règles l'emportent ═════════ */
+
+/* A2 : le compteur d'un événement du cycle (« Analyse du défibrillateur (1) ») ne se coupe jamais en « ( / 1 / ) » */
+.evenements .compte { white-space: nowrap; }
+
+/* A3 + C1 (revue AF, 16/11/2026) : un bandeau TEMPORAIRE (il porte un bouton « OK ») est sur UNE ligne coupée par « … » (texte complet à l'attribut title) PARTOUT ;
+   il ne passe à la ligne qu'en portrait, texte normal (pas agrandi) : c'est là seulement que la barre du bas reste entièrement visible (mesuré : 5 dispositions de la passation §5 + 375 × 812).
+   Avant ce correctif, le passage à la ligne s'appliquait aussi en texte agrandi et en paysage : à 200 % la barre (DAE) sortait de l'écran pendant 15 s à chaque fin de cycle. */
+body[data-mode="intervention"] .bandeau.bandeau-temporaire { display: flex; align-items: center; gap: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: clip; line-height: 1.2; padding-block: 0.125rem; }
+.bandeau-temporaire::before { flex: none; }
+.bandeau-temporaire .bandeau-texte { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bandeau-temporaire .bouton { flex: none; }
+@media (orientation: portrait) {
+  body[data-mode="intervention"]:not([data-agrandi="oui"]):not([data-texte="grand"]) .bandeau.bandeau-temporaire { white-space: normal; overflow: visible; }
+  body[data-mode="intervention"]:not([data-agrandi="oui"]):not([data-texte="grand"]) .bandeau-temporaire .bandeau-texte { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
+}
+
+/* A5 : bandeau de simulation sur UNE rangée (mot, « URGENCE RÉELLE », « Quitter » poussé à droite) ; « reprise (hh:mm) » est écrit sous le mot, sans second bandeau.
+   Sous 340 px de large (ou pendant la confirmation « Confirmer : quitter », plus large), le passage à la ligne reste permis. */
+.bandeau-simulation { flex-wrap: nowrap; gap: 0.5rem; padding: 0.125rem 0.5rem; }
+.bandeau-simulation .simulation-mot { flex: none; display: flex; flex-direction: column; align-items: flex-start; padding: 0.125rem 0.5rem; font-size: 0.8125rem; letter-spacing: 0.05em; line-height: 1.1; }
+.bandeau-simulation .simulation-reprise { font-size: 0.625rem; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.bandeau-simulation .bouton { flex: none; min-height: 48px; padding: 0 0.5rem; font-size: 0.8125rem; white-space: nowrap; }
+.bandeau-simulation #quitter-simulation { margin-left: auto; }
+@media (max-width: 339px) { .bandeau-simulation { flex-wrap: wrap; } }
+.bandeau-simulation:has(#quitter-simulation[data-confirme="1"]) { flex-wrap: wrap; }
+
+/* A6 : la confirmation « Enregistré sur cet appareil » est collée sous le titre des Réglages (elle s'écrivait en bas de la page, hors de l'écran) ; rien tant qu'elle est vide */
+.reglage-etat { position: sticky; top: 0; z-index: 2; margin: 0 0 0.5rem; padding: 0.25rem 0; background: var(--fond); min-height: 0; }
+.reglage-etat:empty { display: none; }
+
+/* A7 : la rubrique « Fin » est séparée de 16 px des lignes d'outils (en pixels : à 200 % elle ne double pas) */
+.menu-intervention .phase-fin { margin-top: 16px; }
+
+/* A9 : le « + » est HORS de la rangée défilante des onglets (il y était collé en `sticky` et recouvrait l'onglet ouvert dès 3 ou 4 victimes) */
+.volet-onglets { overflow: visible; align-items: center; touch-action: auto; }
+.volet-onglets-liste { flex: 1 1 auto; min-width: 0; display: flex; gap: 0.5em; overflow-x: auto; overscroll-behavior: contain; touch-action: pan-x; scrollbar-width: thin; scroll-padding-inline: 0.5em; }
+.volet .onglet-plus { position: static; flex: none; }
+
+/* A10 : journal — UNE rangée par entrée (heure · texte · crayon ✎ de 48 px) au lieu d'un bouton « Corriger » sous chaque ligne */
+.journal-liste { gap: 0; }
+.journal-ligne { display: grid; grid-template-columns: 4.75rem minmax(0, 1fr) 48px; align-items: center; column-gap: 0.5rem; row-gap: 0; min-height: 48px; padding-top: 0; }
+.journal-heure { font-size: 0.8125rem; line-height: 1.15; }
+.journal-texte { min-width: 0; line-height: 1.2; overflow-wrap: anywhere; }
+.journal-corriger { grid-column: 3; min-width: 48px; padding: 0; font-size: 1.125rem; }
+.journal-ligne > .journal-correction, .journal-ligne > .journal-saisie, .journal-ligne > .noter-erreur, .journal-ligne > .bouton:not(.journal-corriger) { grid-column: 1 / -1; margin-block: 0.25rem; }
+
+/* A11 : écran « Lieu » — même composant que le volet « Fiche » : libellé au-dessus, champ pleine largeur de 52 px en 18 px ; « Cabinet / Domicile » côte à côte */
+.lieu-choix { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+.lieu-choix .reglage-choix { justify-content: center; border: 0.0625rem solid var(--bordure); border-radius: var(--rayon); padding: 0.25rem 0.5rem; }
+.lieu-domicile { display: flex; flex-direction: column; gap: 0.75rem; }
+.lieu-champ { display: flex; flex-direction: column; gap: 0.25rem; }
+.lieu-etiquette { font-size: 0.875rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--texte-attenue); }
+.lieu-champ input, .lieu-champ textarea { width: 100%; min-height: 52px; font-size: 1.125rem; box-sizing: border-box; padding: 0.25rem 0.5rem; background: var(--fond); color: var(--texte); border: 0.0625rem solid var(--bordure); border-radius: 0.625rem; }
+.lieu-champ textarea { min-height: 3.75rem; resize: none; }
+.ecran-lieu h1 { margin: 0; }
+
+/* A12 : 114 et 18 — un bouton d'UNE ligne chacun (portrait), libellé coupé par « … » (le texte complet est dans le nom accessible) ; sous 340 px et en paysage bas, la grille de deux colonnes d'origine reste */
+.bouton-numero-ligne { justify-content: flex-start; text-align: left; min-width: 0; overflow: hidden; }
+.numero-texte { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (orientation: portrait) and (min-width: 340px) { body:not([data-texte="grand"]) .autres-numeros { display: flex; flex-direction: column; gap: 0.25rem; } }
+
+/* A13 : bandeau BROUILLON lisible EN ENTIER à 375 px, sans prendre une ligne de plus (une 2e ligne coûtait une étape à l'ouverture de l'ACR, D-43) : pendant une intervention il montre sa version COURTE
+   (attribut data-court : la légende du ✱ et « BROUILLON non validé »), le texte complet reste dans l'élément (lecteur d'écran, accueil, document, « À propos »). */
+body[data-mode="intervention"] .bandeau-brouillon { font-size: 0; }
+body[data-mode="intervention"] .bandeau-brouillon::before { content: attr(data-court); font-size: 12px; }
+@media (max-width: 340px) { body[data-mode="intervention"] .bandeau-brouillon::before { font-size: 11px; } }
+body[data-mode="intervention"][data-texte="grand"] .bandeau-brouillon::before { font-size: 11px; }
+
+/* A7 (suite) : « Changer de situation » rejoint « Pendant » (5 lignes, donc une rangée de plus) et « Fin » se sépare de 16 px : pour que les rangées du menu tiennent encore à 375 × 667 (test des deux touchers), « Terminer »
+   n'occupe plus une rangée à lui seul en portrait (il partage la rangée de « Clôture et export ») et les deux premières rubriques serrent leur marge haute de 8 à 4 px. */
+@media (orientation: portrait) { body:not([data-texte="grand"]) .menu-intervention > .bouton-terminer { grid-column: auto; } }
+.menu-intervention > .phase:not(.phase-fin) { margin-top: 0.25rem; }
+
+/* ═════════ LOT F du plan d'ergonomie (16/11/2026, D-68) : texte agrandi et petits écrans — tout en fin de fichier ═════════ */
+
+/* F1 : plus de « falaise ». Dès 137,5 % (racine ≥ 22 px) l'ancien bloc `body[data-texte="grand"]` remplaçait les tailles par de petites valeurs en rem : à 150 % le « 15 » de la barre et la ligne lue au régulateur
+   étaient PLUS PETITS qu'à 100 %. Règle maintenant : la taille de la feuille normale (en rem, elle grossit avec le texte) BORNÉE par un plafond en pixels qui vaut au moins sa valeur à 130 % ;
+   donc jamais sous la valeur à 100 %, jamais sous celle du zoom précédent. Ce que le mode « grand » gagne en place vient de la mise en page, pas de la taille de police. */
+body[data-texte="grand"] .outil { font-size: min(0.6875rem, 16px); }
+body[data-texte="grand"] .outil b { font-size: min(1.125rem, 26px); }
+body[data-texte="grand"] .outil-etat { font-size: min(0.6875rem, 15px); }
+body[data-texte="grand"] .outils .outil-appel { font-size: min(0.8125rem, 17px); }
+body[data-texte="grand"] .outils .outil-appel b { font-size: min(1.625rem, 34px); }
+body[data-texte="grand"] .etape-texte { font-size: min(1.1875rem, 25px); }
+body[data-mode="intervention"][data-texte="grand"] .transmission-ligne { font-size: min(1.75rem, 37px); }
+body[data-texte="grand"] .volet { font-size: min(1rem, 20.8px); }   /* le volet suit le texte comme à 130 % : ses étiquettes ne redescendent plus (elles valaient 11,8 px à 150 %) */
+
+/* F2 : décompte du cycle toujours lisible — une seule ligne, jamais coupé ni recouvert par « Relancer » ; en texte agrandi la carte passe sur deux rangées (le décompte seul en haut, « Relancer » et « ▾ » dessous) */
+.cycle-decompte { white-space: nowrap; }
+body[data-agrandi="oui"] .zone-cycle { grid-template-columns: minmax(0, 1fr) auto; }
+body[data-agrandi="oui"] .zone-cycle .cycle-haut { grid-column: 1 / -1; }
+/* F2 : en-tête en texte agrandi — le titre garde ses mots entiers (taille bornée comme à 130 %, jamais « Ar / c… ») et la pastille « Son · Écran » se réduit à « ⚠ » de 48 × 48 (son nom accessible reste complet) : ni titre coupé, ni recouvrement du temps */
+body[data-agrandi="oui"] .entete-titre { font-size: min(1rem, 20.8px); overflow-wrap: normal; hyphens: manual; }
+body[data-agrandi="oui"] .pastille-avert { font-size: 0; padding: 0; width: 48px; min-width: 48px; }
+body[data-agrandi="oui"] .pastille-avert::before { content: "⚠"; font-size: 20px; }
+
+/* F3 : petit écran (≤ 339 px) — pastilles de section plus étroites et non rognées ; la jupe de la carte du cycle ne dépasse plus l'écart de 8 px qui la sépare des pastilles (elle en rognait le bas de 8 px) */
+@media (max-width: 339px) {
+  .pastilles { grid-template-columns: repeat(4, minmax(max-content, 1fr)); gap: 0.25rem; }
+  .pastille { font-size: 0.75rem; padding-inline: 0.125rem; }
+}
+.zone-cycle { box-shadow: 0 -0.1875rem 0 0.1875rem var(--fond), 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1); }
+
+/* F4 : accueil — aucun mot coupé au milieu (« Hypoglycémi / e ») ; les tuiles passent sur UNE colonne dès que le texte agrandi les rend trop étroites (largeur minimale en rem : elle grossit avec le texte) ; en texte
+   agrandi la tuile garde la taille de sa valeur à 130 %, le titre de l'accueil tient sur une ligne et le bandeau BROUILLON se replie à une ligne pour que le bouton rouge reste entièrement visible */
+.accueil .gros { overflow-wrap: normal; hyphens: manual; word-break: normal; }
+@media (orientation: portrait) { .accueil .accueil-grille { grid-template-columns: repeat(auto-fit, minmax(max(8.5rem, calc(50% - 0.375rem)), 1fr)); } }
+body[data-texte="grand"] .accueil .gros { font-size: min(1.1875rem, 25px); }
+body[data-texte="grand"] .accueil .gros-urgence { font-size: min(1.75rem, 36px); }
+body[data-texte="grand"] .accueil-titre { font-size: min(1.5rem, 31px); }
+body[data-texte="grand"]:not([data-mode]) .bandeau-brouillon { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* F2 (suite) : sur un très petit écran en texte agrandi, le titre garde sa taille (comme à 130 %) et peut prendre une 3e ligne plutôt que d'être tronqué (« Arrêt cardiaque / adulte » ne tient pas sur 2 lignes à 144 px) */
+@media (max-width: 340px) { body[data-agrandi="oui"] .entete-titre { -webkit-line-clamp: 3; } }
+/* A9 (suite) : le « + » étant hors de la rangée défilante, il lui prend sa largeur ; en texte agrandi et dans le volet compact on le resserre (48 px) et on retire le grand retrait latéral de la rangée, pour que les onglets restent atteignables */
+body[data-agrandi="oui"] .volet .onglet-plus { font-size: 1.125em; padding: 0 0.5em; }
+.volet-compact .volet-onglets { padding-inline: 0.25em; }
+/* A2 (suite) : sur un très petit écran les boutons d'événement du cycle prennent la largeur entière (un mot comme « défibrillateur » ne tient pas dans une demi-largeur de 320 px et se coupait au milieu) */
+@media (max-width: 340px) { .evenements .bouton { flex-basis: 100%; overflow-wrap: break-word; } }
+
+/* ═════════ LOT correctif AF-b (16/11/2026) : mineurs m1 et m4 de la revue des lots A et F ═════════ */
+
+/* m1 : texte agrandi sans être « grand » (112 à 137 % : réglage courant sur Android) : le bandeau de simulation avait ses boutons en `flex: none` sur une seule rangée et débordait de l'écran
+   (page défilant à l'horizontale, « Quitter » rogné). Il peut de nouveau passer à la ligne ; à partir de 137,5 % (`grand`) la règle serrée de la feuille continue de s'appliquer. */
+body[data-agrandi="oui"]:not([data-texte="grand"]) .bandeau-simulation { flex-wrap: wrap; }
+
+/* m4 : « Confirmer : terminer » prend la place de « Terminer » (une demi-rangée), au lieu de la rangée entière : « Clôture », « Nouvelle urgence » et « Accueil » ne se décalent plus sous le doigt */
+@media (orientation: portrait) { body:not([data-texte="grand"]) .menu-intervention > #menu-terminer-confirme { grid-column: auto; font-size: 0.8125rem; line-height: 1.1; padding-block: 0.125rem; } }   /* même hauteur que « Terminer » : le texte, plus long, tient sur 2-3 lignes de 13 px sans agrandir la rangée */
+@media (orientation: portrait) and (max-width: 340px) { body:not([data-texte="grand"]) .menu-intervention > #menu-terminer-confirme { font-size: 0.75rem; } }   /* 320 px : la demi-rangée est plus étroite (3 lignes à 13 px dépassaient de 3 px) */

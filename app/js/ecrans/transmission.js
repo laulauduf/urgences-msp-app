@@ -39,13 +39,16 @@ export function afficherTransmission(conteneur, { pages, etat, intervention, auF
         saisie.value = intervention.lireEdition(l.edit);
         saisie.addEventListener('input', () => intervention.ecrireEdition(l.edit, saisie.value));      // enregistré à chaque frappe, sans redessiner (on perdrait la frappe)
         saisie.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') finEdition(); });
-        bloc.append(creer('span', 'transmission-k', libelle), saisie, bouton('Terminé', 'bouton bouton-accent', finEdition, { id: 'transmission-ligne-ok' }));
+        // F5 (m2 de la relecture D-65) : « Annuler » remet la valeur lue à l'OUVERTURE de la ligne (vider l'adresse par erreur pendant la lecture au 15 la supprimait de la fiche, sans retour)
+        bloc.append(creer('span', 'transmission-k', libelle), saisie, bouton('Terminé', 'bouton bouton-accent', finEdition, { id: 'transmission-ligne-ok' }),
+          // m7 (revue AF) : rien n'est écrit si la valeur n'a pas changé (sinon la valeur de la structure serait figée dans la fiche comme surcharge)
+          bouton('Annuler', 'bouton', () => { if (intervention.lireEdition(l.edit) !== (etat.initiale ?? '')) intervention.ecrireEdition(l.edit, etat.initiale ?? ''); finEdition(); }, { id: 'transmission-ligne-annuler' }));
         liste.append(bloc);
         setTimeout(() => saisie.focus({ preventScroll: true }), 0);
         continue;
       }
       const ligne = remplir(creer('p', 'transmission-ligne transmission-editable', '', { role: 'button', tabindex: '0', 'data-edit': cle, 'aria-label': `Modifier : ${l.valeur}` }), l);
-      const ouvrir = () => { etat.ligne = cle; auRendre(); };
+      const ouvrir = () => { etat.ligne = cle; etat.initiale = intervention.lireEdition(l.edit); auRendre(); };
       ligne.addEventListener('click', ouvrir);
       ligne.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); ouvrir(); } });
       liste.append(ligne);

@@ -4,13 +4,22 @@
 import { MARQUE_A_VALIDER } from './horloge.js';
 
 export const EMPLACEMENT_INCONNU = 'emplacement non renseigné';
+
+/** Niveaux de matériel écrits par les protocoles (codes à tirets bas) → intertitre en français. Traduction littérale du code, aucun contenu ajouté (lot A, A8) ; un code inconnu perd ses tirets bas et prend une majuscule. */
+const NIVEAUX_FR = { indispensable: 'Indispensable', recommande: 'Recommandé', optionnel: 'Optionnel', optionnel_ou_recommande: 'Optionnel ou recommandé', non_determine: 'Non déterminé', non_preconise: 'Non préconisé', non_recommande_seul: 'Non recommandé seul', hors_protocole: 'Hors protocole' };
+export function libelleNiveau(code) {
+  if (typeof code !== 'string' || code.trim() === '') return 'Autres';
+  if (Object.hasOwn(NIVEAUX_FR, code)) return NIVEAUX_FR[code];
+  const t = code.replace(/_/g, ' ').trim();
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
 const plein = (v) => typeof v === 'string' && v.trim() !== '';
 
 /**
  * @param {{protocole: object|null, structure: {donnees: object}|null}} entree
  * @returns {{articles: {id: string, libelle: string, niveau: string|null, marques: string[], emplacement: string, etapes: string[]}[], contenants: {id: string, libelle: string, emplacement: string}[]}}
  */
-export function construireMateriel({ protocole, structure }) {
+export function construireMateriel({ protocole, structure, seulementListe = false }) {
   const donnees = structure?.donnees ?? {};
   const contenants = (Array.isArray(donnees.materiel?.contenants) ? donnees.materiel.contenants : []).filter((c) => plein(c?.libelle))
     .map((c) => ({ id: c.id, libelle: c.libelle, emplacement: plein(c.emplacement) ? c.emplacement : EMPLACEMENT_INCONNU }));
@@ -18,9 +27,10 @@ export function construireMateriel({ protocole, structure }) {
   const etapes = Array.isArray(protocole?.etapes) ? protocole.etapes : [];
 
   // liste des articles : celle du protocole ; sinon, ce que les étapes citent (identifiant tel quel, sans doublon)
+  // option seulementListe (conduites, lot A, A8) : sans liste propre au protocole, rien n'est déduit des étapes (leurs identifiants bruts ne sont pas des libellés)
   const liste = Array.isArray(protocole?.materiel) && protocole.materiel.length > 0
     ? protocole.materiel.filter((a) => plein(a?.id))
-    : [...new Set(etapes.flatMap((e) => (Array.isArray(e.materiel) ? e.materiel : [])))].map((id) => ({ id }));
+    : seulementListe ? [] : [...new Set(etapes.flatMap((e) => (Array.isArray(e.materiel) ? e.materiel : [])))].map((id) => ({ id }));
 
   const articles = liste.map((a) => {
     const rattache = rattachements.find((r) => r?.ref_liste === (a.ref_liste_proposee ?? a.id));

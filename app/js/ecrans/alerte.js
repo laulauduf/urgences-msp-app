@@ -75,7 +75,12 @@ export function afficherAlerte(conteneur, { intervention, numeros, structure, au
     const liste = creer('div', 'autres-numeros');
     for (const n of reste) {
       const moyen = n.moyens.includes('tel') ? 'tel' : n.moyens[0];
-      liste.append(appel(n, 'bouton bouton-plein', moyen === 'sms' ? `${n.numero} — ${n.libelle} (SMS)` : `Appeler le ${n.numero} — ${n.libelle}`));
+      const el = appel(n, 'bouton bouton-plein bouton-numero-ligne', moyen === 'sms' ? `${n.numero} (SMS) — ${n.libelle}` :`Appeler le ${n.numero} — ${n.libelle}`);
+      // m2 (revue AF) : « (SMS) » est en tête du libellé, pour ne jamais être avalé par le « … » de fin de ligne
+      // A12 : UNE ligne de 48 px chacun (le libellé du fichier, long pour le 114, se coupe par « … » ; le texte complet reste dans le nom accessible et l'infobulle)
+      const texteComplet = el.textContent;
+      el.replaceChildren(creer('span', 'numero-texte', texteComplet)); el.title = texteComplet; el.setAttribute('aria-label', texteComplet);
+      liste.append(el);
     }
     panneau.append(liste);
   }

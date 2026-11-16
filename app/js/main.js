@@ -187,7 +187,8 @@ async function lancerReprise() {
 
 function poserBandeauBrouillon() {
   // légende du signe ✱ des étapes (relecture design D4) : l'information « provisoire » reste lisible sans badge sur chaque ligne
-  document.getElementById('bandeaux').append(creer('div', 'bandeau bandeau-brouillon', `✱ provisoire ou à valider · ${TEXTE_BROUILLON_DOCUMENT}`));
+  // A13 : `data-court` = la version courte, montrée pendant une intervention (feuille de style) pour tenir en entier sur une ligne à 375 px ; le texte complet reste dans l'élément
+  document.getElementById('bandeaux').append(creer('div', 'bandeau bandeau-brouillon', `✱ provisoire ou à valider · ${TEXTE_BROUILLON_DOCUMENT}`, { 'data-court': '✱ provisoire ou à valider · BROUILLON non validé' }));
 }
 
 /** Contexte partagé, rempli au fil des chargements (la page ne les attend jamais). */

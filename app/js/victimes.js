@@ -139,7 +139,8 @@ export function resumeVictime(fiche, id = fiche?.victime_active) {
       const t = [i.sexe === 'homme' ? 'H' : i.sexe === 'femme' ? 'F' : '', texteAgeSaisi(i) || TRANCHES_AGE.find((a) => a.id === i.tranche_age)?.court || ''].filter(Boolean).join(' ');
       return t || (plein(i.nom) ? i.nom.trim() : 'rien noté');
     };
-    return [`${l.length} victimes`, ...l.map((x) => `${x === v ? '▸' : ''}${court(x)}`)].join(' · ');
+    // lot A, A9 : la victime OUVERTE vient en premier (▸), sinon c'est elle que la ligne, coupée à droite sur un petit écran, ferait disparaître
+    return [`${l.length} victimes`, `▸${court(v)}`, ...l.filter((x) => x !== v).map(court)].join(' · ');
   }
   const idt = v.identite ?? {};
   const tranche = TRANCHES_AGE.find((t) => t.id === idt.tranche_age)?.court;
