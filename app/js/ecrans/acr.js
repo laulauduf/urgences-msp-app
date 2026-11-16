@@ -64,7 +64,7 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
   const boutonsRenvoi = (cible, id) => {
     const cibles = renvoiCibles ? renvoiCibles(cible) : [];
     const liste = cibles.length > 0 ? [...cibles].sort((a, b) => (b.id === cible) - (a.id === cible)) : [{ id: cible, libelle: 'Passer en ACR' }];
-    return liste.map((c, rang) => bouton(liste.length > 1 ? c.libelle : 'Passer en ACR', 'bouton bouton-urgence bouton-renvoi', () => auRenvoi(c.id), rang === 0 ? { 'data-renvoi': id, 'data-cible': c.id } : { 'data-renvoi-autre': id, 'data-cible': c.id }));
+    return liste.map((c, rang) => bouton(liste.length > 1 ? c.libelle : 'Passer en ACR', 'bouton bouton-urgence bouton-renvoi', () => auRenvoi(c.id), rang === 0 ? { 'data-renvoi': id, 'data-cible': c.id, 'data-vital': 'renvoi' } : { 'data-renvoi-autre': id, 'data-cible': c.id, 'data-vital': 'renvoi' }));   // `data-vital` (D-64d) : navigation SANS effet d'écriture autre qu'un changement de situation : elle agit tout de suite, même volet ouvert
   };
   const noter = (id) => { etat.notation = { id, valeur: heureCourante(), erreur: null }; rendre(); };
   const valider = () => {
@@ -175,9 +175,11 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
   const ligne = (item) => {
     const e = item.etape;
     const precision = plein(e.precision) ? e.precision.trim() : '';
+    // D-61 (lot V1) : une étape qui porte `precision_visible: true` (« Se protéger », « Respire ? ») garde sa précision TOUJOURS affichée, en petit, sous le libellé, sans dépliage ; les autres restent dépliables
+    const visible = precision !== '' && e.precision_visible === true;
     // dépliable : la précision, et — pour une action que cette profession ne peut pas cocher — « Noter : fait à hh:mm » (hors de la ligne : une carte = une hauteur)
     const noterDispo = item.restreint && !item.cochee;
-    const depliable = precision !== '' || noterDispo;
+    const depliable = (precision !== '' && !visible) || noterDispo;
     const ouverte = depliable && (etat.deplies.has(item.id) || etat.notation?.id === item.id);
     const cibleRenvoi = renvoiDe(e);
     if (cibleRenvoi !== null) {
@@ -220,6 +222,7 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
       titre.append(texte);
       li.append(titre);
     }
+    if (visible) li.append(creer('p', 'etape-precision etape-precision-visible', precision, { 'data-precision': item.id }));   // juste sous le libellé, avant les marques (fait à T+…)
     li.append(marques(item));
     if (etat.confirmation === item.id && item.surDemande && !item.cochee) {
       // confirmation « fait sur demande du 15 » (D-58) : deux boutons sous la ligne, la case ne se coche qu'au second geste ; Annuler ne coche rien
@@ -231,7 +234,7 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
       li.append(c);
     }
     if (ouverte) {
-      if (precision !== '') li.append(creer('p', 'etape-precision', precision, { 'data-precision': item.id }));
+      if (precision !== '' && !visible) li.append(creer('p', 'etape-precision', precision, { 'data-precision': item.id }));
       if (noterDispo) {
         if (etat.notation?.id === item.id) li.append(formulaireNotation(item));
         else li.append(bouton('Noter : fait à hh:mm', 'bouton noter', () => noter(item.id), { 'data-noter': item.id }));

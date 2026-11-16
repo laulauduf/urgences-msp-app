@@ -9,6 +9,10 @@ import { chargerHabilitations } from './habilitations.js';
 import { chargerGlossaire, lireGlossaire } from './glossaire.js';
 import { chargerUnites, lireUnites } from './unites.js';
 import { TYPES_CONSTANTE } from './bilan.js';
+import { victimeActive, ajouterVictime, retirerVictime, numeroVictime } from './victimes.js';
+
+/** Champs de premier niveau de la fiche qui ne sont PAS ceux d'une victime : le message au 15 (évaluation, demande), commun à toutes les victimes (D-64). */
+const CHAMPS_GLOBAUX = ['evaluation', 'demande'];
 import { verifierProtocole } from './protocole.js';
 import { ID_COMMUN, chargerProtocoleCommun, prefixerProtocole, prefixeDe } from './protocole-commun.js';
 import { titreDe } from './catalogue.js';
@@ -53,7 +57,7 @@ export class Intervention {
     // `protocoleCommun` désigne la conduite COURANTE (le nom est resté, il est lu par l'interface et par les tests).
     // communEtat : 'absent' (fichier non publié : aucune requête) | 'chargement' | 'ok' | 'illisible' (publié mais inutilisable : l'écran le dit)
     this.conduiteId = ID_COMMUN;
-    this.acrDemande = null; this.echecAcr = null;   // P4d : dernier ACR demandé (le dernier choix l'emporte) ; { id, raisons } quand un CHANGEMENT d'ACR a échoué et que l'ACR en cours est gardé
+    this.acrDemande = null; this.echecAcr = null; this.chargementAcr = null;   // P4d : dernier ACR demandé (le dernier choix l'emporte) ; { id, raisons } quand un CHANGEMENT d'ACR a échoué et que l'ACR en cours est gardé
     this.protocoleCommun = null; this.communEtat = 'absent';
     // checklist (L6) : habilitations par profession (null tant que non lues ou illisibles : tout est alors restrictif), glossaire, mode et étapes passées
     this.habilitations = null; this.habilitationsEtat = 'chargement'; this.glossaire = lireGlossaire(null);
@@ -178,6 +182,8 @@ export class Intervention {
   reprendreAppelDansAcr() {
     const alerte = this.etapesPremierEcran().find((e) => e.cochage_auto === 'appel');
     if (!alerte || this.estCochee(alerte.id)) return;
+    // V1, N3 : une étape « Alerter » déjà cochée PUIS décochée (volontairement) n'est pas recochée au changement d'ACR suivant — les deux ACR partagent cet identifiant, la reprise ne sert qu'à l'arrivée d'une conduite
+    if (this.fiche.journal.some((e) => e.type === 'case' && e.donnees?.id === alerte.id)) return;
     const appel = this.fiche.journal.find((e) => ['appel_lance', 'appel_fait', 'appel_simule'].includes(e.type));
     if (appel) this.cocher(alerte.id, { t: appel.t, repris: true });
   }
@@ -197,13 +203,16 @@ export class Intervention {
     if (!this.protocolesAcr.includes(id)) return;
     this.acrDemande = id;   // le DERNIER choix l'emporte, même s'il revient à l'ACR en cours (annule alors le changement en attente)
     if (this.situation === ACR && this.protocoleActifId === id && this.protocoleEtat !== 'secours') { this.echecAcr = null; return; }
+    if (this.chargementAcr === id) return;   // V1, N1 : cet ACR est déjà en cours de chargement (double toucher) : le premier appel l'adopte, une seule fois
     // P4d (m3) : CHANGEMENT d'ACR (un ACR est déjà adopté et affiché) : il reste affiché, avec sa barre « Masser · DAE », jusqu'à l'arrivée du nouveau ; jamais d'écran « Chargement » qui masquerait un massage en cours
     const garde = this.situation === ACR && this.protocoleEtat === 'ok';
     this.situation = ACR; this.echecAcr = null;
     if (!garde) { this.protocoleActifId = id; this.protocoleEtat = 'chargement'; }
     this.emettre('changement');
     if (!this.prefetch || this.prefetchId !== id) { this.prefetch = this.chargerProtocoleFn(id); this.prefetchId = id; }
-    const r = await this.prefetch;
+    this.chargementAcr = id;
+    let r;
+    try { r = await this.prefetch; } finally { if (this.chargementAcr === id) this.chargementAcr = null; }
     // (P4d, m1) un autre choix ou un départ de l'ACR pendant le chargement : il l'emporte, l'ACR n'est ni adopté ni enregistré
     if (this.detruite || this.situation !== ACR || this.acrDemande !== id) return;
     if (r.ok) { this.protocoleActifId = id; this.adopterProtocole(r.protocole); }
@@ -216,7 +225,7 @@ export class Intervention {
       this.prefetch = null; // on réessaiera au prochain essai
       if (!this.fiche.situations.some((s) => s.protocole === id)) {
         this.stockage.modifier(this.fiche, (f) => { f.situations.push({ protocole: id, depuis: Date.now(), secours: true }); });
-        this.journaliser('situation', { protocole: id, secours: true });
+        this.journaliser('situation', { protocole: id, secours: true, libelle: titreDe(id) ?? id });   // (libellé lisible, pas l'identifiant du fichier : V1, N2)
       }
       this.basculerSecours(r.raisons);
     }
@@ -535,22 +544,65 @@ export class Intervention {
 
   // ───────── Fiche bilan (L7, 4.6) : saisie sans validation bloquante, enregistrée à chaque frappe ─────────
 
-  /** Écrit un champ de la fiche (`bloc` : « identite », « circonstances », « bilan_vital » ou null pour un champ de premier niveau). N'émet RIEN : l'écran de saisie ne se redessine pas. */
+  /** La victime dont l'onglet est ouvert (D-64) : c'est elle que la saisie de la fiche modifie. */
+  get victimeActive() { return victimeActive(this.fiche); }
+
+  /**
+   * Écrit un champ de la fiche. D-64 : les champs du patient (`bloc` « identite », « circonstances », « bilan_vital », ou `null` pour antécédents, traitements, allergies, notes…)
+   * s'écrivent dans la victime OUVERTE ; « évaluation » et « demande » (le message au 15, toutes victimes) restent au premier niveau. N'émet RIEN : l'écran de saisie ne se redessine pas.
+   */
   definirChamp(bloc, cle, valeur) {
     this.commencee = true;
     this.stockage.modifier(this.fiche, (f) => {
-      if (bloc) f[bloc] = { ...(f[bloc] ?? {}), [cle]: valeur }; else f[cle] = valeur;
+      if (!bloc && CHAMPS_GLOBAUX.includes(cle)) { f[cle] = valeur; return; }
+      const v = victimeActive(f);
+      if (bloc) v[bloc] = { ...(v[bloc] ?? {}), [cle]: valeur }; else v[cle] = valeur;
     });
   }
 
-  /** Date de naissance en trois champs : `partie` = jour, mois ou annee. */
+  /** Date de naissance en trois champs : `partie` = jour, mois ou annee (de la victime ouverte). */
   definirNaissance(partie, valeur) {
     this.commencee = true;
     this.stockage.modifier(this.fiche, (f) => {
-      const n = { ...(f.identite?.date_naissance ?? {}), [partie]: valeur };
-      f.identite = { ...(f.identite ?? {}), date_naissance: n };
+      const v = victimeActive(f);
+      v.identite = { ...(v.identite ?? {}), date_naissance: { ...(v.identite?.date_naissance ?? {}), [partie]: valeur } };
     });
   }
+
+  // ───────── Victimes (D-64) : un onglet par victime, sans limite ─────────
+
+  /** Ajoute une fiche de victime et l'ouvre. Écrit tout de suite (un onglet de plus ne doit jamais se perdre). */
+  ajouterVictime() {
+    this.commencee = true;
+    let r;
+    this.stockage.modifier(this.fiche, (f) => { r = ajouterVictime(f); }, { immediat: true });
+    this.journaliser('victime_ajoutee', { numero: r.numero });
+    this.ecrire();
+    this.emettre('victimes');
+    return r;
+  }
+
+  /** Ouvre l'onglet d'une victime. Aucune autre donnée ne change (la checklist, les chronomètres et le métronome ne dépendent pas de l'onglet). */
+  choisirVictime(id) {
+    if (!this.fiche.victimes.some((v) => v.id === id) || this.fiche.victime_active === id) return { ok: this.fiche.victime_active === id };
+    this.stockage.modifier(this.fiche, (f) => { f.victime_active = id; }, { immediat: true });
+    this.emettre('victimes');
+    return { ok: true };
+  }
+
+  /** Retire une victime ajoutée par erreur (la confirmation est demandée par l'écran, qui annonce `contenuVictime` avant). La dernière ne se retire pas. */
+  retirerVictime(id) {
+    let r;
+    this.stockage.modifier(this.fiche, (f) => { r = retirerVictime(f, id); }, { immediat: true });
+    if (!r.ok) return r;
+    this.journaliser('victime_retiree', { numero: r.numero, constantes: r.retirees.constantes, gestes: r.retirees.gestes });
+    this.ecrire();
+    this.emettre('victimes');
+    return r;
+  }
+
+  /** Numéro de la victime ouverte quand il y en a plusieurs (écrit dans le journal à côté des constantes et gestes) ; sinon rien. */
+  victimeDuJournal() { return this.fiche.victimes.length > 1 ? numeroVictime(this.fiche, this.victimeActive.id) : undefined; }
 
   /** Unité usuelle d'un type de constante (D-26), '' si le fichier n'en donne pas. Jamais de conversion ni de seuil (D-19). */
   uniteDe(type) { return this.unites?.parType?.get(type) ?? ''; }
@@ -564,8 +616,9 @@ export class Intervention {
     const v = valeur.trim();
     // journal d'abord : la constante garde l'identifiant de son entrée, pour que sa correction soit retrouvée (L7c, revue L7 C1)
     const unite = this.uniteDe(type);   // gardée AVEC la valeur : la fiche, le journal et le document disent la même unité, même sans l'intervention (clôture depuis l'accueil)
-    const entree = this.journaliser('constante', { type, valeur: v, unite }, { maintenant: t });
-    this.stockage.modifier(this.fiche, (f) => { f.constantes = [...(f.constantes ?? []), { t, type, valeur: v, unite, journal_id: entree.id }]; }, { immediat: true });
+    const victime = this.victimeActive.id; const numero = this.victimeDuJournal();   // D-64 : la constante est rattachée à la victime dont l'onglet est ouvert
+    const entree = this.journaliser('constante', { type, valeur: v, unite, ...(numero ? { victime: numero } : {}) }, { maintenant: t });
+    this.stockage.modifier(this.fiche, (f) => { f.constantes = [...(f.constantes ?? []), { t, type, valeur: v, unite, victime, journal_id: entree.id }]; }, { immediat: true });
     this.emettre('fiche');
     return { ok: true };
   }
@@ -576,8 +629,9 @@ export class Intervention {
     const t = heureVersTimestamp(heure);
     if (t === null) return { ok: false, raison: 'heure invalide : écrire hh:mm' };
     const x = texte.trim();
-    const entree = this.journaliser('geste', { texte: x }, { maintenant: t });
-    this.stockage.modifier(this.fiche, (f) => { f.gestes_produits = [...(f.gestes_produits ?? []), { t, texte: x, journal_id: entree.id }]; }, { immediat: true });
+    const victime = this.victimeActive.id; const numero = this.victimeDuJournal();
+    const entree = this.journaliser('geste', { texte: x, ...(numero ? { victime: numero } : {}) }, { maintenant: t });
+    this.stockage.modifier(this.fiche, (f) => { f.gestes_produits = [...(f.gestes_produits ?? []), { t, texte: x, victime, journal_id: entree.id }]; }, { immediat: true });
     this.emettre('fiche');
     return { ok: true };
   }

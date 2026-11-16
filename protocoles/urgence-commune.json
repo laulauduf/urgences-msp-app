@@ -3,7 +3,7 @@
   "id": "urgence-commune",
   "titre": "Conduite à tenir commune à toute urgence (hors arrêt cardiaque), jusqu'à l'arrivée des secours",
   "titre_court": "Urgence : conduite commune",
-  "version": "0.1.6",
+  "version": "0.1.8",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/urgence-commune.md",
@@ -40,6 +40,16 @@
         "par": "agent code « urgences - code 5 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
         "le": "2026-11-15",
         "objet": "Version 0.1.6 (lot P4c) : trois mineurs du contrôle ciblé docs/controle/urgence-commune-0.1.1-controle-cible-2026-11-15.md. N4 : page du collier cervical corrigée, « pas de collier cervical en routine (p. 20) » dans le détail de l'étape traumatisme (la p. 7 de l'ERC premiers secours porte le maintien tête-cou, pas le collier ; revérifié dans le texte extrait de l'ERC premiers secours, marqueur de page 20). N5 : qui_fiche de hemorragie, hemorragie-relais, obstruction, position-attente et traumatisme aligné sur les autres étapes (« Groupes 1 à 4 ; groupes 5 à 7 : A_VALIDER (D-4) »), sans effet à l'écran (le code lit `professions`). N6 : remarque de arret-cardiaque mise à jour (renvoi_protocole exploité par le code). Aucun autre changement. NON FAIT ici (hors périmètre : docs/) : la fiche docs/reco/urgence-commune.md dit encore p. 7 (§ 2, 10c et § 7) pour le collier. Version 0.1.6 non contrôlée."
+      },
+      {
+        "par": "agent code « urgences - code 5 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
+        "le": "2026-11-15",
+        "objet": "Version 0.1.7 (lot V1) : ajout du champ `precision_visible: true` à les étapes securite et respiration — leur précision reste toujours affichée, en petit, sous le libellé, sans dépliage (décision D-61 de Laurent) ; règle R19 du contrôle des JSON. Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.1.7 non contrôlée."
+      },
+      {
+        "par": "agent code « urgences - code 5 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
+        "le": "2026-11-15",
+        "objet": "Version 0.1.8 (lot V1, D-63 qui remplace D-55) : l'étape bilan-15 (« Bilan à passer au 15 ») est RETIRÉE — ce n'est pas une étape ; les informations à restituer au 15 se recueillent dans la fiche bilan de l'appli. Champ ordre renuméroté 1..22 sans trou ; identifiants des autres étapes inchangés ; mentions de bilan-15 et de D-55 corrigées (decisions_appliquees, phases_et_sections, ordre_etapes ou sources, point à valider marqué sans objet) ; les anciennes entrées de ce journal restent telles quelles (historique). Aucun autre texte médical modifié. Version 0.1.8 non contrôlée."
       }
     ]
   },
@@ -52,7 +62,7 @@
     {"decision": "D-47", "etat": "REPONDUE", "autorise_par": "D-47", "objet": "Libellé « Se protéger » (étape securite), repris de la conduite à tenir de l'arrêt cardiaque par cohérence"},
     {"decision": "D-48", "etat": "REPONDUE", "autorise_par": "D-48", "objet": "« Analyse de la situation » et « Si plusieurs, répartir les tâches » (étapes analyse-situation et repartir-taches), reprises par cohérence ; leur ordre suit D-52, puis D-57 pour repartir-taches (0.1.5)"},
     {"decision": "D-52", "etat": "REPONDUE", "autorise_par": "D-52", "objet": "« Analyser la situation » AVANT « Se protéger » (ordre des sources : observer avant de protéger, logigramme PSC p. 4) ; appliqué ici comme dans la conduite ACR 0.4.8. « À plusieurs : répartir » après « Respire ? » : D-52 vise l'ACR ; ici, l'étape venait après « Respire ? » et « Arrêt cardiaque ? », avant l'alerte (V4) ; depuis la version 0.1.5, sa place suit D-57"},
-    {"decision": "D-55", "etat": "REPONDUE", "autorise_par": "D-55", "objet": "Ligne à cocher « Bilan à passer au 15 » juste après « Alerter le 15 » (étape bilan-15), précision « Nombre de victimes, âge, identité, état, gestes faits » (Laurent : « nombre de victimes, âge, identité… ») ; contenu d'après les informations minimales de l'alerte (RTN premiers secours citoyen p. 11) et le guide Saed de la HAS"},
+    {"decision": "D-55", "etat": "REMPLACEE", "autorise_par": "D-63", "objet": "[REMPLACÉE PAR D-63 : étape bilan-15 retirée en 0.1.8 par D-63 (le bilan à passer au 15 n'est pas une étape : les informations se recueillent dans la fiche bilan de l'appli et sont restituées par la transmission)] Ligne à cocher « Bilan à passer au 15 » juste après « Alerter le 15 » (étape bilan-15), précision « Nombre de victimes, âge, identité, état, gestes faits » (Laurent : « nombre de victimes, âge, identité… ») ; contenu d'après les informations minimales de l'alerte (RTN premiers secours citoyen p. 11) et le guide Saed de la HAS"},
     {"decision": "D-49", "etat": "REPONDUE", "autorise_par": "D-49", "objet": "Libellé « Réaction de la victime » et types de réaction (étape reaction), repris par cohérence"},
     {"decision": "D-50", "etat": "REPONDUE", "autorise_par": "D-50", "objet": "Précision « gants, masque » de l'étape securite, reprise par cohérence"},
     {"decision": "D-51", "etat": "REPONDUE", "autorise_par": "D-51", "objet": "Conduite à tenir commune à toute urgence sur l'écran « Autre situation », au format de D-37, sourcée, contrôlée par le verificateur ; liste indicative (se protéger, analyser, bilan vital, alerter le 15, gestes adaptés, surveiller) sourcée et ajustée dans ce fichier"},
@@ -80,7 +90,7 @@
     "phases": {
       "Protéger": "analyse-situation, repartir-taches, securite (ordre D-52, puis D-57 pour repartir-taches) : fiche « Protection » (PSC p. 10) ; logigramme « Sécuriser l'intervention » (p. 4) ; même intertitre que la conduite à tenir de l'arrêt cardiaque ; repartir-taches, placée entre les deux autres, garde leur intertitre pour ne pas couper le groupe (choix d'affichage, 0.1.5)",
       "Bilan": "hemorragie, obstruction, reaction, respiration, arret-cardiaque : questions du processus « Pour toute intervention » (logigramme p. 3) ; le PSE nomme « bilan » ce recueil (p. 65)",
-      "Alerter": "alerter, bilan-15 (0.1.3, D-55 : contenu du message d'alerte, PSC p. 11) : fiche « Alerte » (PSC p. 11-12 : alerte confiée à une autre personne, accueil des secours)",
+      "Alerter": "alerter (l'étape bilan-15, ajoutée en 0.1.3 par D-55, est retirée en 0.1.8 par D-63 (le bilan à passer au 15 n'est pas une étape : les informations se recueillent dans la fiche bilan de l'appli et sont restituées par la transmission)) : fiche « Alerte » (PSC p. 11-12 : alerte confiée à une autre personne, accueil des secours)",
       "Secourir": "gestes-adaptes : chapitre 02 « Secourir une personne » du PSC (p. 14)",
       "Surveiller": "surveiller : « Surveiller en permanence (victime, gestes) » (logigramme p. 3) ; fiche « Surveillance de la victime » (PSE p. 71)",
       "Transmettre": "transmettre : fiche « Transmission du bilan » (PSE p. 72)"
@@ -300,6 +310,7 @@
       "titre_fiche": "Se protéger",
       "texte_court": "Se protéger",
       "precision": "Gants, masque si disponibles ; approche sans risque",
+      "precision_visible": true,
       "consigne_guidee": "Protégez-vous (gants, masque s'ils sont disponibles) et vérifiez que l'approche est sans danger, pour vous, la victime et les témoins.",
       "detail": "Premiers secours citoyen : lorsqu'on peut agir sans risque pour sa propre sécurité, supprimer ou écarter le danger de façon permanente ; dégagement d'urgence seulement face à un danger réel, immédiat et non contrôlable. Le processus « Pour toute intervention » commence par la question « Danger ». Gants (ou à défaut un sac plastique) sans retarder l'action de secours (fiche « Hémorragies »). ERC : « Ensure it is safe to approach » ; l'équipement de protection individuelle est utilisé quand il est disponible, sans retarder l'action. Même libellé et même précision que la conduite à tenir de l'arrêt cardiaque (décisions D-47 et D-50).",
       "statut": "DEDUIT",
@@ -490,6 +501,7 @@
       "titre_fiche": "Respire ? (10 s)",
       "texte_court": "Respire ? (10 s)",
       "precision": "Si aucune réaction : voies aériennes libérées, 10 s au plus",
+      "precision_visible": true,
       "consigne_guidee": "Si la victime ne réagit pas, allongez-la sur le dos, libérez les voies aériennes et recherchez la respiration pendant dix secondes au plus.",
       "detail": "Premiers secours citoyen : si la victime ne répond pas et ne réagit pas, l'allonger sur le dos quelle que soit sa position initiale, libérer les voies aériennes, rechercher la respiration sur 10 secondes au plus (regarder le ventre et la poitrine, écouter, sentir le flux d'air). Si elle respire : position latérale de sécurité (événement non traumatique) ou laisser sur le dos (traumatisme, origine inconnue). ERC premiers secours : « Look, Listen, Feel » pour une respiration normale, 10 secondes au maximum.",
       "statut": "CITE",
@@ -638,44 +650,8 @@
       "materiel": []
     },
     {
-      "id": "bilan-15",
-      "ordre": 13,
-      "parent": null,
-      "phase": "Alerter",
-      "niveau": "principal",
-      "premier_ecran": false,
-      "critique": false,
-      "titre_fiche": "Bilan à passer au 15",
-      "texte_court": "Bilan à passer au 15",
-      "precision": "Nombre de victimes, âge, identité, état, gestes faits",
-      "consigne_guidee": "Préparez ce que vous direz au 15 : numéro de rappel, lieu précis, nombre de victimes ; pour chaque victime, son identité, son âge, ce qu'elle présente (signes constatés) et les gestes déjà faits. Donnez d'abord l'essentiel sans retarder l'alerte, complétez ensuite. Le mode transmission de l'appli aide à le faire.",
-      "detail": "Informations minimales de l'alerte (premiers secours citoyen p. 11 ; premiers secours en équipe p. 380, pour information) : numéro de rappel, nature du problème, nombre de victimes en cas de victimes multiples, localisation la plus précise possible ; l'alerte doit être « rapide et précise ». Premiers secours en équipe (pour information, p. 72) : en cas de détresse vitale, transmettre sans délai la nature de l'intervention, le motif de la demande de renfort médical, le sexe et l'âge de la victime, puis compléter « dans les meilleurs délais » par un bilan complet (motif réel, sexe et âge, plainte principale, résultat du bilan et gestes de secours entrepris). Guide Saed de la HAS, 2014 (d'après la fiche cadre transversal § 2.D) : dans « Situation », l'identité du patient (nom, prénom, âge), sa localisation actuelle, le motif de l'appel et les faits objectifs (signes cliniques, constantes vitales). Dans l'appli : le mode transmission présente ces éléments (structure Saed, décision D-9) pour aider à les donner pendant l'appel. Libellé, place et précision (« nombre de victimes, âge, identité… ») : décision D-55 de Laurent ; la liste exacte de la précision est un choix de l'auteur, appuyé sur ces sources, à confirmer. La transmission du bilan complet, plus tard, reste l'étape « Transmettre le bilan ».",
-      "statut": "DEDUIT",
-      "statut_fiche": "CITÉ (informations minimales de l'alerte : PSC p. 11 ; sexe, âge, résultat du bilan, gestes entrepris : PSE p. 72, pour information ; identité : guide Saed, d'après la fiche cadre, guide non relu par l'auteur) ; DÉDUIT (liste retenue pour la précision, application au soignant libéral) ; libellé et place : D-55",
-      "sources": [
-        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 11 (fiche « Alerte », informations minimales à transmettre)", "citation": "en cas de situation à multiples victimes, préciser le nombre de victimes"},
-        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 11 (fiche « Alerte », présentation)", "citation": "Elle doit être rapide et précise"},
-        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 380 (fiche « Alerte » ; même liste d'informations minimales ; pour information)", "citation": "la nature du problème : maladie, accident, attaque terroriste, etc."},
-        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 72 (fiche « Transmission du bilan », la victime présente une détresse vitale ; pour information)", "citation": "le sexe et l'âge de la victime"},
-        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 72 (fiche « Transmission du bilan », la victime présente une détresse vitale ; pour information)", "citation": "transmettre sans délai une demande de moyen médical en renfort"},
-        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 72 (fiche « Transmission du bilan », la victime ne présente pas de détresse vitale ; pour information)", "citation": "le résultat du bilan et les gestes de secours entrepris"},
-        {"ref": "HAS-SAED-2014", "localisation": "§ 1.2, p. 9 (S : situation), cité d'après la fiche cadre transversal § 2.D, ligne D4 ; guide non relu par l'auteur", "citation": "l'identité du patient (nom, prénom, âge du patient)"},
-        {"ref": "SPEC", "localisation": "partie 1, « Module d'alerte » (mode transmission) ; partie 2, D-9 et D-55"}
-      ],
-      "raisonnement": "Le contenu minimal d'une alerte est cité : numéro de rappel, nature du problème, nombre de victimes si elles sont plusieurs, lieu (PSC p. 11 ; PSE p. 380). Le PSE p. 72 (secouristes en équipe, pour information) ajoute le sexe et l'âge, puis le résultat du bilan et les gestes entrepris, avec la consigne de transmettre sans délai l'essentiel puis de compléter. L'identité (nom, prénom, âge) vient du guide Saed de la HAS (S), cité d'après la fiche cadre ; ni le PSC ni le PSE ne la demandent pour l'alerte. La précision reprend la demande de Laurent (« nombre de victimes, âge, identité… ») et la complète de deux mots tirés du PSE p. 72 et de Saed : « état » (résultat du bilan ; signes cliniques) et « gestes faits » (gestes de secours entrepris). Le PSE et Saed s'adressent à des secouristes en équipe et à des professionnels de santé : l'application à un soignant libéral qui alerte le 15 est DÉDUITE ; aucune source lue ne dit ce qu'un soignant libéral doit transmettre au 15 (fiche cadre transversal, D15 : A_VALIDER). Libellé et place : D-55.",
-      "ref_fiche": "§ 2, étape 9 bis",
-      "qui_fiche": "Tous",
-      "professions": {"geste": "alerter_transmettre"},
-      "decision": "D-55",
-      "autorise_par": "D-55",
-      "remarque": "Étape ajoutée en 0.1.3 (D-55, remarque de Laurent en testant la version 0.2.4). Placée en premier niveau juste après « Alerter le 15 » et ses deux détails (alerter-consignes, accueil-secours), avant « Gestes adaptés » ; cochage_auto « appel » reste sur l'étape alerter. Cochable, jamais bloquante (l'appli ne retarde pas l'alerte). Rattachement au geste alerter_transmettre : DÉDUIT (transmettre les informations à l'alerte) ; l'identifiant est à ajouter à professions.json (geste alerter_transmettre, etapes_protocole), fichier tenu par le pilote. Même texte que l'étape bilan-15 du protocole acr-adulte-dae, hors le détail de l'état (arrêt) et des gestes (massage, défibrillateur).",
-      "cochable": true,
-      "acronymes": ["saed"],
-      "materiel": []
-    },
-    {
       "id": "gestes-adaptes",
-      "ordre": 14,
+      "ordre": 13,
       "parent": null,
       "phase": "Secourir",
       "niveau": "principal",
@@ -714,7 +690,7 @@
     },
     {
       "id": "position-laterale",
-      "ordre": 15,
+      "ordre": 14,
       "parent": "gestes-adaptes",
       "niveau": "detail",
       "premier_ecran": false,
@@ -743,7 +719,7 @@
     },
     {
       "id": "position-attente",
-      "ordre": 16,
+      "ordre": 15,
       "parent": "gestes-adaptes",
       "niveau": "detail",
       "premier_ecran": false,
@@ -777,7 +753,7 @@
     },
     {
       "id": "traumatisme",
-      "ordre": 17,
+      "ordre": 16,
       "parent": "gestes-adaptes",
       "niveau": "detail",
       "premier_ecran": false,
@@ -817,7 +793,7 @@
     },
     {
       "id": "surveiller",
-      "ordre": 18,
+      "ordre": 17,
       "parent": null,
       "phase": "Surveiller",
       "niveau": "principal",
@@ -848,7 +824,7 @@
     },
     {
       "id": "aggravation",
-      "ordre": 19,
+      "ordre": 18,
       "parent": "surveiller",
       "niveau": "detail",
       "premier_ecran": false,
@@ -874,7 +850,7 @@
     },
     {
       "id": "constantes-repetees",
-      "ordre": 20,
+      "ordre": 19,
       "parent": "surveiller",
       "niveau": "detail",
       "premier_ecran": false,
@@ -902,7 +878,7 @@
     },
     {
       "id": "confort",
-      "ordre": 21,
+      "ordre": 20,
       "parent": "surveiller",
       "niveau": "detail",
       "premier_ecran": false,
@@ -937,7 +913,7 @@
     },
     {
       "id": "transmettre",
-      "ordre": 22,
+      "ordre": 21,
       "parent": null,
       "phase": "Transmettre",
       "niveau": "principal",
@@ -968,7 +944,7 @@
     },
     {
       "id": "antecedents",
-      "ordre": 23,
+      "ordre": 22,
       "parent": "transmettre",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1025,7 +1001,7 @@
     {"id": "V8", "point": "Habilitation des groupes 5 à 7 sur « Gestes adaptés » (regroupement) et « Couvrir, lui parler » (confort) : A_VALIDER depuis la 0.1.1 (D-4) ; argument pour « oui » : mesures enseignées à toute personne (PSC p. 2)", "decision": "décision de Laurent"},
     {"id": "V9", "point": "Maintien manuel de la tête et du cou (rachis cervical) non affiché : recommandé par l'ERC premiers secours (tableau 3 p. 5 ; p. 7) et le PSE (p. 67), absent comme geste du PSC (p. 37, note 3 : la libération des voies aériennes stabilise le rachis)", "decision": "décision de Laurent"},
     {"id": "V10", "point": "Lien juridique AFGSU 2 → références premiers secours citoyen 2026 (fiche organisation-secours, V9)", "decision": "lecture juridique"},
-    {"id": "V11", "point": "Ce qu'un soignant libéral doit transmettre au 15 (étape bilan-15, D-55) : liste « nombre de victimes, âge, identité, état, gestes faits » tirée des informations minimales de l'alerte du citoyen (PSC p. 11), du PSE (p. 72, p. 380) et de Saed (HAS 2014, via la fiche cadre) ; aucune source lue ne fixe le contenu du bilan donné au 15 par un soignant libéral", "decision": "confirmation de Laurent"},
+    {"id": "V11", "point": "Ce qu'un soignant libéral doit transmettre au 15 (étape bilan-15, D-55) : liste « nombre de victimes, âge, identité, état, gestes faits » tirée des informations minimales de l'alerte du citoyen (PSC p. 11), du PSE (p. 72, p. 380) et de Saed (HAS 2014, via la fiche cadre) ; aucune source lue ne fixe le contenu du bilan donné au 15 par un soignant libéral", "decision": "sans objet (D-63 : l'étape bilan-15 est retirée)"},
     {"id": "V12", "point": "Extension de D-57 à la conduite commune (0.1.5) : « À plusieurs : répartir » en tête, et précision « Bilan, alerte, matériel, appui (aider le leader ou un intervenant) » — « DAE » de D-57 remplacé par « matériel » (le défibrillateur relève ici du protocole arrêt cardiaque ; le matériel comprend aussi les appareils de mesure du bilan) ; « accueil des secours » (PSC p. 12) sorti de la précision, gardé dans la consigne et l'étape accueil-secours", "decision": "confirmation de Laurent"}
   ]
 }

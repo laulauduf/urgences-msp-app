@@ -9,7 +9,9 @@
 
 /** @param {object[]} etapesPremierEcran étapes `premier_ecran` triées par `ordre` @returns {{alerter: object|null, masser: object|null, dae: object|null}} */
 export function actionsVitales(etapesPremierEcran) {
-  const etapes = Array.isArray(etapesPremierEcran) ? etapesPremierEcran : [];
+  // V1, N4 (revue des correctifs P4d) : la barre appelle `toucherTuile` SANS la confirmation « sur demande du 15 » (D-58) ; une étape réservée aux habilités n'est donc JAMAIS une action de la barre,
+  // même si elle est la dernière étape du premier écran ou porte `barre`
+  const etapes = (Array.isArray(etapesPremierEcran) ? etapesPremierEcran : []).filter((e) => e?.reserve_habilites !== true);
   const alerter = etapes.find((e) => e.cochage_auto === 'appel') ?? null;
   // r3 : un champ EXPLICITE `barre: "masser" | "dae"` du protocole l'emporte ; à défaut, la déduction ci-dessous (à ne plus utiliser une fois le champ posé)
   const masser = etapes.find((e) => e.barre === 'masser') ?? etapes.find((e) => e.declenche?.metronome === 'demarrer') ?? null;

@@ -35,6 +35,23 @@ export function prefixerProtocole(protocole, prefixe = PREFIXE_COMMUN) {
 }
 
 /**
+ * Les protocoles PUBLIÉS (dans la liste de cache) que le contrôle d'exécution refuse (V1, m5 de la revue P4) : fichier illisible, incohérent ou introuvable. Sert à PRÉVENIR dans la ligne d'état de
+ * l'accueil, la veille, au lieu de le découvrir en pleine urgence. Ne lève jamais d'exception ; ne charge pas un protocole non publié.
+ * @param {{ids: string[], publie?: (id: string) => boolean, charger: (id: string) => Promise<{ok: boolean, raisons?: string[]}>}} options
+ * @returns {Promise<{id: string, raisons: string[]}[]>}
+ */
+export async function protocolesIllisibles({ ids, publie = (id) => protocolePublie(id), charger }) {
+  const illisibles = [];
+  for (const id of ids) {
+    if (!publie(id)) continue;
+    let r;
+    try { r = await charger(id); } catch { r = { ok: false, raisons: ['chargement impossible'] }; }
+    if (!r?.ok) illisibles.push({ id, raisons: Array.isArray(r?.raisons) ? r.raisons : ['illisible'] });
+  }
+  return illisibles;
+}
+
+/**
  * Charge une conduite (la commune par défaut). Ne lève jamais d'exception ; ne fait AUCUNE requête si le fichier n'est pas publié.
  * @returns {Promise<{ok: true, protocole: object} | {ok: false, absent: boolean, raisons: string[]}>}
  */

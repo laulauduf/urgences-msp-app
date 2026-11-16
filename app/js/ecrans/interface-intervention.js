@@ -24,7 +24,8 @@ import { afficherRoles } from './roles.js';
 import { afficherProfession } from './profession.js';
 import { afficherAcr, etatAcrInitial } from './acr.js';
 import { afficherGlossaire } from './glossaire.js';
-import { afficherFiche } from './fiche.js';
+import { construireVolet } from './fiche.js';
+import { resumeVictime } from '../victimes.js';
 import { afficherTransmission } from './transmission.js';
 import { afficherJournal } from './journal.js';
 import { afficherCloture } from './cloture.js';
@@ -43,9 +44,10 @@ const DELAI_REBOND_BASCULE_MS = 600;
  * ÉCRANS DE SAISIE : liste UNIQUE des panneaux où l'on tape. Ils ne sont JAMAIS reconstruits sur l'événement « changement » : sinon la
  * frappe en cours serait effacée à chaque événement (bug silencieux, sans erreur). Tout nouvel écran avec un champ de saisie doit être
  * ajouté ici ; un test (tests/unitaires/protections-surete.test.mjs) échoue s'il manque. Exception voulue : l'écran ACR (écran principal, pas un panneau) se redessine
- * mais garde sa saisie de l'heure dans `this.cl`.
+ * mais garde sa saisie de l'heure dans `this.cl`. D-64 : la fiche bilan n'est PLUS un panneau : c'est le volet (`ecrans/fiche.js`), monté une fois HORS de #contenu, que
+ * `rendre()` ne touche jamais (test dédié dans protections-surete.test.mjs).
  */
-export const ECRANS_DE_SAISIE = ['lieu', 'roles', 'profession', 'fiche', 'transmission', 'journal', 'cloture', 'apropos'];
+export const ECRANS_DE_SAISIE = ['lieu', 'roles', 'profession', 'transmission', 'journal', 'cloture', 'apropos'];
 
 /**
  * Barre d'OUTILS du bas (refonte R1, D-39) : Temps · Métronome · Appeler le 15 · Fiche — dans cet ordre, comme la maquette. Le menu « ⋯ » est dans l'en-tête.
@@ -65,9 +67,9 @@ export class InterfaceIntervention {
    */
   constructor({ intervention, son, ecran, numeros, structure, groupes = () => [], actions }) {
     Object.assign(this, { intervention, son, ecran, numerosFn: numeros, structureFn: structure, groupesFn: groupes, actions });
-    this.panneau = null;            // null (écran principal : conduite à tenir) | 'alerte' | 'lieu' | 'menu' | 'situation' | 'roles' | 'profession' | 'glossaire' | 'fiche' | 'transmission' | 'journal' | 'cloture' | 'materiel' | 'apropos'
+    this.panneau = null;            // null (écran principal : conduite à tenir) | 'alerte' | 'lieu' | 'menu' | 'situation' | 'roles' | 'profession' | 'glossaire' | 'transmission' | 'journal' | 'cloture' | 'materiel' | 'apropos'
     this.repriseRepliee = false; this.versionVue = false;   // bandeaux « Fiche reprise » (replié au premier toucher) et « Appli mise à jour » (acquitté)
-    this.fb = { ajout: null };                 // fiche bilan : formulaire d'ajout ouvert
+    this.volet = null; this.voletOuvert = false; this.delaiVolet = null; this.cleVolet = ''; this.dernierResume = null;   // fiche bilan : le volet (D-64), indépendant de `panneau`
     this.tr = { page: 0, edition: false };     // mode transmission : page courante, saisie E / D ouverte
     this.jr = { corrige: null, texte: '', erreur: null };   // journal : entrée en cours de correction
     this.cloture = null;                       // écran « Clôture et export » (L8) : il a son propre état et se redessine lui-même
@@ -89,6 +91,7 @@ export class InterfaceIntervention {
     entete.hidden = false; barre.hidden = false;
     this.construireEntete();
     this.construireBarre();
+    this.monterVolet();
     if (this.intervention.transmissionAuRetour) { this.intervention.transmissionAuRetour = false; this.panneau = 'transmission'; }   // reprise après un appel : transmission d'abord
     this.debranchements.push(this.intervention.ecouter((e) => this.surEvenement(e)));
     // premier toucher dans la fiche reprise : le bandeau « Fiche reprise » se replie APRÈS l'action touchée (jamais entre le toucher et le clic :
@@ -117,7 +120,8 @@ export class InterfaceIntervention {
   }
 
   demonter() {
-    clearInterval(this.minuteur);
+    clearInterval(this.minuteur); clearTimeout(this.delaiVolet);
+    this.volet?.element.remove(); this.volet = null; this.voletOuvert = false; this.cleVolet = ''; this.dernierResume = null;
     this.arreterBoucle?.();
     this.secours?.arreter(); this.secours = null;
     this.cloture?.demonter(); this.cloture = null;
@@ -163,6 +167,141 @@ export class InterfaceIntervention {
     entete.append(bloc);
     entete.append(bouton('', 'bouton pastille-avert', () => this.ouvrirPanneau('telephone'), { id: 'pastille-avert', hidden: '' }));
     entete.append(bouton('⋯', 'bouton bouton-menu', () => this.ouvrirPanneau(this.panneau === 'menu' ? null : 'menu'), { id: 'barre-menu', 'aria-label': 'Menu' }));
+    // ligne de RÉSUMÉ de la fiche (D-64), compacte, sous le titre : elle montre la victime ouverte et le nombre de victimes, et rouvre le volet ; absente tant que rien n'est noté
+    const resume = bouton('', 'bouton resume-fiche', () => this.ouvrirVolet(), { id: 'resume-fiche', hidden: '', 'aria-controls': 'volet-fiche' });
+    resume.append(creer('span', 'resume-txt', '', { id: 'resume-txt' }), creer('span', 'resume-ico', '✎', { 'aria-hidden': 'true' }));
+    entete.append(resume);
+    this.dernierResume = null;
+  }
+
+  // ───────── Volet « Fiche bilan » (D-64) ─────────
+
+  /**
+   * Monte le volet UNE fois (hors de #contenu : `rendre()` ne le touche jamais, la frappe survit à tous les redessins) et branche ce qui le concerne :
+   * glissement de la poignée vers le bas, toucher de la liste au-dessus, touche Échap, remise en place quand la fenêtre ou la barre changent de taille.
+   */
+  monterVolet() {
+    const i = this.intervention;
+    this.volet = construireVolet({ intervention: i, auFermer: () => this.fermerVolet(), auChangement: () => this.majResumeFiche() });
+    const { element, prise } = this.volet;
+    this.zone.appli.append(element);
+    // glisser la poignée (ou l'en-tête du volet) vers le bas : au-delà de 70 px, il se referme
+    let y0 = null; let dy = 0;
+    prise.addEventListener('pointerdown', (e) => { if (e.target.closest('button')) return; y0 = e.clientY; dy = 0; element.classList.add('glisse'); prise.setPointerCapture?.(e.pointerId); });
+    prise.addEventListener('pointermove', (e) => { if (y0 === null) return; dy = Math.max(0, e.clientY - y0); element.style.transform = `translateY(${dy}px)`; });
+    const finGlisse = () => { if (y0 === null) return; const ferme = dy > 70; y0 = null; element.classList.remove('glisse'); element.style.transform = ''; if (ferme) this.fermerVolet(); };
+    prise.addEventListener('pointerup', finGlisse); prise.addEventListener('pointercancel', finGlisse);
+    // UNE seule règle (D-64d, N1-bis) : volet ouvert, tout toucher dans la liste NE FAIT QUE fermer le volet — jamais une case cochée ou décochée (« Alerter » comprise), un métronome ou un cycle lancé ou recalé,
+    // un événement noté. Seule exception : la navigation marquée `data-vital` (« Passer en ACR », boutons de renvoi), qui n'écrit rien d'autre qu'un changement de situation et agit tout de suite ET ferme le volet
+    // (un toucher perdu au moment de basculer en ACR retarderait un geste vital, D-64b M1). L'accès vital reste la BARRE du bas (Masser, Appeler, DAE, Fiche), toujours active en un toucher.
+    const surListe = (ev) => {
+      if (!this.voletOuvert) return;
+      if (!ev.target.closest?.('[data-vital]')) { ev.stopPropagation(); ev.preventDefault(); }
+      this.fermerVolet({ focus: false, immediat: true });
+    };
+    this.zone.contenu.addEventListener('click', surListe, true);
+    const surTouche = (ev) => { if (ev.key === 'Escape' && this.voletOuvert) this.fermerVolet(); };
+    document.addEventListener('keydown', surTouche);
+    const replacer = () => this.placerVolet();
+    window.addEventListener('resize', replacer);
+    this.zone.contenu.addEventListener('scroll', replacer, { passive: true });   // D-64c, N3 : la carte du cycle (collante) bouge avec le défilement, le volet la suit à l'image près
+    const observateur = typeof ResizeObserver === 'function' ? new ResizeObserver(replacer) : null;
+    observateur?.observe(this.zone.barre); observateur?.observe(this.zone.entete);
+    this.debranchements.push(() => {
+      this.zone.contenu.removeEventListener('click', surListe, true); document.removeEventListener('keydown', surTouche);
+      window.removeEventListener('resize', replacer); this.zone.contenu.removeEventListener('scroll', replacer); observateur?.disconnect();
+    });
+  }
+
+  /**
+   * Place le volet juste au-dessus de la barre (portrait) ou à gauche d'elle (paysage bas : la barre est en colonne à droite), sur ~55 % de la hauteur AU PLUS, et jamais
+   * sur l'en-tête ni sur la carte du cycle (« Relancer ») : la hauteur est bornée par ce qui doit rester visible. Rien de vital n'est recouvert, quelle que soit la taille.
+   */
+  placerVolet() {
+    const el = this.volet?.element;
+    if (!el || el.hidden) return;
+    const L = window.innerWidth; const H = window.innerHeight;
+    const b = this.zone.barre.getBoundingClientRect();
+    const lateral = b.width < L * 0.6;   // paysage bas : la barre est une colonne à droite
+    const bas = lateral ? H : b.top;
+    const droite = lateral ? L - b.left : 0;
+    // la carte du cycle (« Relancer ») est épargnée dès qu'elle est entièrement visible dans la zone centrale ; sinon (écran très agrandi : elle est déjà hors d'atteinte sans défilement) on ne s'en soucie pas
+    // ce qui est TOUJOURS épargné : l'en-tête (titre, temps écoulé) et, quand il est atteignable volet fermé, le bouton « Relancer » ou la carte du cycle (D-64b, M2 et M5)
+    const cycle = document.getElementById('zone-cycle');
+    const zc = this.zone.contenu.getBoundingClientRect();
+    const entier = (r) => r && r.height > 0 && r.top >= zc.top - 1 && r.bottom <= zc.bottom + 1;
+    const rCarte = cycle && !cycle.hidden ? cycle.getBoundingClientRect() : null;
+    const rRelance = document.getElementById('relance-cycle')?.getBoundingClientRect();
+    // la partie protégée du cycle : la carte entière si elle est visible ; sinon sa partie visible (haut de la carte jusqu'au bouton « Relancer » s'il est atteignable) ; sinon le seul bouton « Relancer »
+    const carteCommence = rCarte && rCarte.height > 0 && rCarte.top >= zc.top - 1 && rCarte.top < zc.bottom - 1;
+    let hautProt = null; let basProt = null;
+    if (entier(rCarte)) { hautProt = rCarte.top; basProt = rCarte.bottom; }
+    else if (carteCommence) { hautProt = rCarte.top; basProt = entier(rRelance) ? rRelance.bottom : Math.min(rCarte.bottom, zc.bottom); }
+    else if (entier(rRelance)) { hautProt = rRelance.top; basProt = rRelance.bottom; }
+    const apresEntete = this.zone.entete.getBoundingClientRect().bottom + 6;
+    const placeSous = bas - (basProt !== null ? basProt + 6 : apresEntete);        // entre la carte du cycle et la barre (le cas ordinaire : le volet monte du bas)
+    const placeSur = basProt !== null ? hautProt - 6 - apresEntete : 0;          // entre l'en-tête et la carte du cycle
+    // Peu de place sous la carte (petit écran, texte agrandi) mais davantage au-dessus : le volet se pose AU-DESSUS de la carte, plutôt que de la recouvrir ou de ne laisser qu'un liseré
+    const dessus = basProt !== null && placeSous < 150 && placeSur > placeSous;
+    const finBas = dessus ? hautProt - 6 : bas;
+    // ≈ 55 % au plus, JAMAIS plus que la place réellement libre : le volet est plus petit sur petit écran (il défile) mais ne recouvre ni la barre, ni l'en-tête, ni « Relancer »
+    let hauteur = Math.max(0, Math.round(Math.min(0.55 * H, dessus ? placeSur : placeSous)));
+    // N2 (D-64c) : sous 120 px, on commence par replier les événements du cycle s'ils sont déroulés (ils prennent la place) ; si la place reste inférieure à 56 px (une bande où « Fermer » n'entre même pas),
+    // le volet passe en PLEIN ÉCRAN sous l'en-tête (il recouvre alors la liste et la carte du cycle : `data-recouvre`) — « Fermer » reste atteignable, la barre et le temps aussi
+    if (hauteur < 120 && this.cl.evenements && !this.evenementsReplies) { this.cl.evenements = false; this.evenementsReplies = true; this.rendre(); this.cleVolet = ''; this.placerVolet(); return; }
+    let finBasEff = finBas; const plein = hauteur < 56 && H - apresEntete > hauteur;
+    if (plein) { finBasEff = bas; hauteur = Math.max(0, Math.round(bas - apresEntete)); }
+    if (plein) el.dataset.recouvre = 'cycle'; else delete el.dataset.recouvre;
+    el.classList.toggle('volet-compact', hauteur < 220);   // peu de place : titre, « Fermer » et onglets sur une rangée (feuille de style)
+    const cle = `${Math.round(finBasEff)}|${Math.round(droite)}|${hauteur}`;
+    if (cle === this.cleVolet) return;
+    this.cleVolet = cle;
+    el.style.bottom = `${Math.round(H - finBasEff)}px`; el.style.right = `${Math.round(droite)}px`; el.style.left = '0'; el.style.height = `${hauteur}px`;
+  }
+
+  ouvrirVolet() {
+    if (this.voletOuvert || !this.volet) return;
+    if (this.panneau !== null) { this.panneau = null; this.rendre(); }   // le volet se pose sur la conduite à tenir : on revient d'abord à l'écran principal
+    const el = this.volet.element;
+    this.voletOuvert = true; clearTimeout(this.delaiVolet); this.evenementsReplies = false;
+    this.volet.redessiner();
+    el.hidden = false; this.cleVolet = ''; this.placerVolet(); void el.offsetWidth;   // la mise en page est lue AVANT la transition
+    el.classList.add('ouvert');
+    this.majResumeFiche();
+    document.getElementById('barre-fiche')?.setAttribute('aria-expanded', 'true');
+    this.volet.titre.focus({ preventScroll: true });
+  }
+
+  fermerVolet({ focus = true, immediat = false } = {}) {
+    if (!this.voletOuvert || !this.volet) return;
+    const el = this.volet.element;
+    this.voletOuvert = false;
+    el.classList.remove('ouvert');
+    this.majResumeFiche();
+    document.getElementById('barre-fiche')?.setAttribute('aria-expanded', 'false');
+    if (el.contains(document.activeElement)) document.activeElement.blur();
+    this.volet.remettreEtat(); this.volet.redessiner();   // une demande de retrait en cours est abandonnée ; un brouillon d'ajout est gardé
+    const fin = () => { if (!this.voletOuvert) el.hidden = true; };
+    if (immediat || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) fin(); else this.delaiVolet = setTimeout(fin, 280);
+    if (focus) document.getElementById('barre-fiche')?.focus({ preventScroll: true });
+  }
+
+  basculerVolet() { if (this.voletOuvert) this.fermerVolet(); else this.ouvrirVolet(); }
+
+  /** Résumé sous l'en-tête : relu à chaque saisie et à chaque tick (peu coûteux : le DOM n'est touché que si le texte change). */
+  majResumeFiche() {
+    const r = document.getElementById('resume-fiche');
+    if (!r || !this.intervention.fiche) return;
+    const t = resumeVictime(this.intervention.fiche);
+    // volet ouvert, le résumé est redondant (les onglets disent la victime) et il ferait grandir l'en-tête, donc reculer la carte du cycle : il est caché tant que le volet est ouvert
+    const masque = this.voletOuvert || this.panneau === 'transmission';   // la transmission dit déjà le nombre de victimes : le résumé lui volerait de la place
+    const cle = `${masque}|${t}`;
+    if (cle === this.dernierResume) return;
+    this.dernierResume = cle;
+    r.hidden = t === '' || masque;
+    this.zone.entete.classList.toggle('avec-resume', !r.hidden);   // l'en-tête ne passe sur deux rangées que lorsque le résumé est affiché
+    document.getElementById('resume-txt').textContent = t;
+    r.setAttribute('aria-label', `Fiche : ${t}. Toucher pour modifier.`);
   }
 
   /** Pastille « ⚠ Son · Écran » : l'information ne disparaît QUE quand la parade est faite — bip ENTENDU et confirmé par l'utilisateur (revue R1, M1), veille d'écran obtenue (le blocage de la veille sur iPhone installé reste SUPPOSÉ). */
@@ -222,6 +361,7 @@ export class InterfaceIntervention {
     const global = document.getElementById('chrono-global');
     if (global) global.textContent = i.texteGlobal();
     this.majBarreVitale();
+    this.majResumeFiche(); this.placerVolet();
     // pastille d'avertissement (son · écran) dans la rangée du titre
     const pastille = document.getElementById('pastille-avert');
     if (pastille) { const a = this.etatAvertissements(); pastille.hidden = a.texte === ''; pastille.textContent = a.texte; pastille.setAttribute('aria-label', `${a.texte.replace('⚠ ', 'Attention : ')}. Détails`); }
@@ -355,7 +495,7 @@ export class InterfaceIntervention {
   surBarre(id) {
     const i = this.intervention;
     if (id === 'alerter') { this.ouvrirPanneau('alerte'); return; }
-    if (id === 'fiche') { this.ouvrirPanneau(this.panneau === 'fiche' ? null : 'fiche'); return; }   // un second toucher revient à la conduite à tenir
+    if (id === 'fiche') { this.basculerVolet(); return; }   // D-64 : le volet monte (ou redescend) ; la barre reste active
     const { masser, dae } = actionsVitales(i.etapesPremierEcran());
     // N2 (revue des correctifs R1c) : un second toucher involontaire (double toucher, retouche « pour confirmer ») dans les 1,5 s est ignoré
     const maintenant = performance.now();
@@ -377,6 +517,7 @@ export class InterfaceIntervention {
 
   /** Ouvre un écran. `null` = « fermer » : retour à l'écran principal (la conduite à tenir en ACR). */
   ouvrirPanneau(nom) {
+    this.fermerVolet({ focus: false, immediat: true });   // un autre écran (alerte, menu…) prend la place : le volet se retire d'un coup
     this.panneau = nom; this.messageTest = null; this.rendre();
   }
 
@@ -460,6 +601,7 @@ export class InterfaceIntervention {
     const { contenu } = this.zone;
     this.secours?.arreter(); this.secours = null;
     document.body.dataset.panneau = this.panneau ?? '';   // l'en-tête se compacte pendant l'appel (app.css, L9c étape 2, M4)
+    this.majResumeFiche();   // le résumé de la fiche se masque pendant la transmission (D-64b)
     this.majBandeauxFixes();
     this.majBandeauxSon();
     this.majBarre();
@@ -479,8 +621,6 @@ export class InterfaceIntervention {
       afficherMateriel(contenu, { modele: construireMateriel({ protocole, structure: this.structure }), avecArticles: true, auFermer: () => this.ouvrirPanneau(null) });
     } else if (this.panneau === 'apropos') {
       afficherAPropos(contenu, { chargerProtocole: () => (i.protocole ? Promise.resolve({ ok: true, protocole: i.protocole }) : i.chargerProtocoleFn(i.protocoleId)), stockage: i.stockage, auFermer: () => this.ouvrirPanneau(null) });
-    } else if (this.panneau === 'fiche') {
-      afficherFiche(contenu, { intervention: i, etat: this.fb });
     } else if (this.panneau === 'transmission') {
       const pages = construireTransmission({ fiche: i.fiche, structure: this.structure, champsSensibles: i.champsSensibles, appelant: i.appelant, protocoleId: i.protocolesAcr, maintenant: Date.now() });
       afficherTransmission(contenu, { pages, etat: this.tr, intervention: i, auFermer: () => this.ouvrirPanneau(null), auRendre: () => this.rendre() });
@@ -521,7 +661,7 @@ export class InterfaceIntervention {
     const alerte = document.getElementById('barre-alerter');
     if (alerte) alerte.setAttribute('aria-current', this.panneau === 'alerte' ? 'page' : 'false');
     const fiche = document.getElementById('barre-fiche');
-    if (fiche) fiche.setAttribute('aria-current', this.panneau === 'fiche' ? 'page' : 'false');
+    if (fiche) fiche.setAttribute('aria-expanded', String(this.voletOuvert));   // D-64 : le volet est ouvert ou non (plus d'écran « Fiche »)
     const menu = document.getElementById('barre-menu');
     if (menu) { const ouvert = this.panneau === 'menu'; menu.setAttribute('aria-expanded', String(ouvert)); menu.textContent = ouvert ? '✕' : '⋯'; menu.setAttribute('aria-label', ouvert ? 'Fermer le menu' : 'Menu'); }
     this.majTitre();
@@ -555,17 +695,17 @@ export class InterfaceIntervention {
     const i = this.intervention;
     const page = creer('section', 'accueil autre-situation', '', { 'aria-label': i.conduiteId === ID_COMMUN ? 'Autre situation' : (i.protocoleCommun?.titre_court ?? titreDe(i.conduiteId) ?? 'Autre situation'), 'data-conduite': i.conduiteId });
     /** Grosse tuile : titre + sous-titre discret (comme l'accueil). */
-    const gros = (titre, sous, classe, action, id) => { const b = bouton(titre, classe, action, { id }); b.append(creer('small', null, sous)); return b; };
+    const gros = (titre, sous, classe, action, id, attrs = {}) => { const b = bouton(titre, classe, action, { id, ...attrs }); b.append(creer('small', null, sous)); return b; };
     // la tuile rouge « Arrêt cardiaque » : toujours à UN toucher, quelle que soit la conduite ; deux tuiles (adulte, enfant) quand l'ACR enfant est publié — CHOIX PROVISOIRE (D-15, P4a)
     const urgence = creer('div', 'accueil-grille autre-urgences');
     const acrs = PROTOCOLES_ACR.filter((p) => p.id === i.protocoleId || (i.protocolesAcr.includes(p.id) && protocolePublie(p.id)));
-    for (const p of acrs) urgence.append(gros(p.titre, acrs.length > 1 ? p.sous.split(' · ')[0] : 'passer en ACR', 'bouton bouton-urgence gros gros-urgence', () => { this.versPrincipal(); i.choisirAcr(p.id).catch(() => {}); }, p.id === i.protocoleId ? 'passer-acr' : `passer-${p.id}`));
+    for (const p of acrs) urgence.append(gros(p.titre, acrs.length > 1 ? p.sous.split(' · ')[0] : 'passer en ACR', 'bouton bouton-urgence gros gros-urgence', () => { this.versPrincipal(); i.choisirAcr(p.id).catch(() => {}); }, p.id === i.protocoleId ? 'passer-acr' : `passer-${p.id}`, { 'data-vital': 'acr' }));   // commande vitale : agit tout de suite même volet ouvert (D-64c, N1)
     if (acrs.length > 1) urgence.classList.add('autre-urgences-deux');
     page.append(urgence);
     page.append(this.construireChecklistCommune());
     const outils = creer('div', 'accueil-grille autre-outils');
     outils.append(
-      gros('Fiche bilan', 'noter les informations', 'bouton gros', () => this.ouvrirPanneau('fiche'), 'autre-fiche'),
+      gros('Fiche bilan', 'noter les informations', 'bouton gros', () => this.ouvrirVolet(), 'autre-fiche'),
       gros('Transmission au 15', 'message structuré', 'bouton gros', () => this.ouvrirPanneau('transmission'), 'autre-transmission'),
       gros('Lieu / adresse', 'où envoyer les secours', 'bouton gros', () => this.ouvrirLieu(null), 'autre-lieu'),
     );
@@ -672,7 +812,7 @@ export class InterfaceIntervention {
    */
   construireZoneCycle() {
     const i = this.intervention;
-    const cycle = creer('div', 'zone-cycle', '', { id: 'zone-cycle' });
+    const cycle = creer('div', 'zone-cycle', '', { id: 'zone-cycle' });   // volet ouvert, un toucher ici NE FAIT QUE fermer le volet (D-64d, N1-bis) : « Relancer » accidentel recalerait le cycle, un événement noterait une fausse heure
     cycle.hidden = this.cycleMasque();
     const haut = creer('div', 'cycle-haut');
     haut.append(creer('p', 'cycle-statut', '', { id: 'cycle-statut' }));

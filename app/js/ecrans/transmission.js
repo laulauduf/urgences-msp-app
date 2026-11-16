@@ -18,7 +18,16 @@ export function afficherTransmission(conteneur, { pages, etat, intervention, auF
   ecran.append(haut, creer('p', 'transmission-adresse', adresse, { id: 'transmission-adresse' }), creer('h1', 'transmission-titre', p.titre));
 
   const liste = creer('div', 'transmission-lignes');
-  for (const l of p.lignes) liste.append(creer('p', 'transmission-ligne', l.valeur));
+  // D-64 : le sous-titre d'une victime (« — Victime 2 — ») est mis en évidence ; les lignes ordinaires ne changent pas
+  for (const l of p.lignes) {
+    if (l.titre) { liste.append(creer('p', 'transmission-ligne transmission-sous-titre', l.valeur)); continue; }
+    if (l.vide) { liste.append(creer('p', 'transmission-ligne transmission-vide', l.valeur)); continue; }
+    if (typeof l.libelle === 'string' && typeof l.texte === 'string') {
+      // « libellé : valeur » : le libellé petit, la valeur grasse (le texte reste « libellé : valeur » à la lecture et à la copie)
+      const p = creer('p', 'transmission-ligne'); p.append(creer('span', 'transmission-k', `${l.libelle} : `), creer('strong', 'transmission-v', l.texte)); liste.append(p); continue;
+    }
+    liste.append(creer('p', 'transmission-ligne', l.valeur));
+  }
   ecran.append(liste);
 
   // E et D : champs libres de la fiche, modifiables ici (« Mon évaluation », « Ma demande »)
@@ -35,6 +44,7 @@ export function afficherTransmission(conteneur, { pages, etat, intervention, auF
     }
   }
 
+  ecran.append(creer('div', 'transmission-suite', '', { 'aria-hidden': 'true' }));   // dégradé : l'écran se poursuit sous Précédent / Suivant
   const nav = creer('div', 'transmission-nav');
   const aller = (delta) => { etat.page += delta; etat.edition = false; auRendre(); };
   nav.append(
@@ -45,4 +55,8 @@ export function afficherTransmission(conteneur, { pages, etat, intervention, auF
   nav.querySelector('#transmission-suivant').disabled = etat.page === pages.length - 1;
   ecran.append(nav);
   conteneur.replaceChildren(ecran);
+  // D-64c, N4 : le dégradé de suite n'apparaît que si la page se poursuit sous Précédent / Suivant (jamais un faux signe sur une page courte ou en bas de page)
+  const suite = ecran.querySelector('.transmission-suite');
+  const majSuite = () => { if (!suite.isConnected) { conteneur.onscroll = null; return; } suite.hidden = !(conteneur.scrollHeight - conteneur.scrollTop - conteneur.clientHeight > 8); };
+  conteneur.onscroll = majSuite; majSuite(); requestAnimationFrame(majSuite);
 }

@@ -3,7 +3,7 @@
   "id": "douleur-thoracique",
   "titre": "Douleur thoracique de l'adulte (suspicion de syndrome coronarien aigu), jusqu'à l'arrivée des secours",
   "titre_court": "Douleur thoracique adulte",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/douleur-thoracique.md",
@@ -30,6 +30,11 @@
         "par": "agent recherche-reco (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
         "le": "2026-11-15",
         "objet": "Version 0.1.4 : habilitations de neuf étapes renvoyées aux gestes de professions.json 0.3.0, valeurs identiques à celles qui étaient en ligne (douleur-thoracique, formes-trompeuses, signes-gravite → reconnaitre_malaise_grave ; mettre-au-repos, rester-aupres → position_attente_confort ; electrocardiogramme → electrocardiogramme ; traitement-prescrit → aide_prise_traitement_prescrit ; aspirine → aspirine ; oxygene-sur-avis → oxygene_hors_arret). electrocardiogramme-au-15 garde ses habilitations en ligne (raison de contenu, voir la remarque du geste electrocardiogramme). Aucun libellé, aucune précision, aucun statut de source modifié ; les champs remarque de ces étapes (« geste manquant », « habilitations portées par l'étape ») n'ont pas été touchés : devenus obsolètes, à nettoyer."
+      },
+      {
+        "par": "agent code « urgences - code 5 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
+        "le": "2026-11-15",
+        "objet": "Version 0.1.5 (lot V1) : ajout du champ `precision_visible: true` à l'étape securite — leur précision reste toujours affichée, en petit, sous le libellé, sans dépliage (décision D-61 de Laurent) ; règle R19 du contrôle des JSON. Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.1.5 non contrôlée."
       }
     ]
   },
@@ -397,6 +402,7 @@
       "titre_fiche": "Se protéger",
       "texte_court": "Se protéger",
       "precision": "Gants, masque si disponibles ; approche sans risque",
+      "precision_visible": true,
       "consigne_guidee": "Protégez-vous (gants, masque s'ils sont disponibles) et vérifiez que l'approche est sans danger, pour vous, la victime et les témoins.",
       "detail": "Premiers secours citoyen : lorsqu'on peut agir sans risque pour sa propre sécurité, supprimer ou écarter le danger de façon permanente ; dégagement d'urgence seulement face à un danger réel, immédiat et non contrôlable. Le processus « Pour toute intervention » commence par la question « Danger ». Gants (ou à défaut un sac plastique) sans retarder l'action de secours (fiche « Hémorragies »). ERC : « Ensure it is safe to approach » ; l'équipement de protection individuelle est utilisé quand il est disponible, sans retarder l'action. Repris tel quel de la conduite commune (décisions D-47 et D-50).",
       "statut": "DEDUIT",

@@ -26,7 +26,8 @@ import { construireMateriel } from './materiel.js';
 import { messageEffacement, viderPressePapiers, TEXTE_BROUILLON_DOCUMENT } from './export.js';
 import { creer } from './dom.js';
 import { appelant } from './roles.js';
-import { PROTOCOLES_ACR, IDS_ACR, IDS_CONDUITES } from './catalogue.js';
+import { PROTOCOLES_ACR, IDS_ACR, IDS_CONDUITES, titreDe } from './catalogue.js';
+import { protocolesIllisibles } from './protocole-commun.js';
 
 // Thème mémorisé localement : appliqué avant tout le reste, pour éviter un clignotement clair → sombre.
 appliquerTheme(themeLocal());
@@ -357,6 +358,11 @@ async function verifierProtocoles() {
     texte: resultat.ok ? `Protocole « ${resultat.protocole.titre_court} » lisible` : `Protocole illisible : l'écran de secours sera utilisé (${resultat.raisons.join(' ; ')})`,
     ok: resultat.ok,
   });
+  // V1 (m5 de la revue P4) : les AUTRES protocoles publiés (ACR enfant, conduites) sont contrôlés de même ; un point n'apparaît que si l'un d'eux est illisible (rien à signaler : la ligne d'état reste inchangée)
+  const autres = await protocolesIllisibles({ ids: [...PROTOCOLES_ACR.slice(1).map((p) => p.id), ...IDS_CONDUITES], charger: (id) => chargerProtocole(id, { premierEcranRequis: IDS_ACR.includes(id) }) });
+  if (autres.length > 0) {
+    definirPoint('protocoles-autres', { texte: `Protocole(s) illisible(s) : ${autres.map((x) => titreDe(x.id) ?? x.id).join(', ')} — l'écran de secours ou un message le dira en urgence`, ok: false });
+  } else retirerPoint('protocoles-autres');
 }
 
 function demarrer() {

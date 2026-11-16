@@ -3,7 +3,7 @@
   "id": "acr-enfant",
   "titre": "Arrêt cardiaque de l'enfant et du nourrisson (réanimation de base pédiatrique, avec défibrillateur automatisé externe)",
   "titre_court": "Arrêt cardiaque enfant",
-  "version": "0.1.5",
+  "version": "0.1.7",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/acr-enfant.md",
@@ -41,6 +41,16 @@
         "par": "urgences - pilote 4 (correction de texte, sans effet sur une règle)",
         "le": "2026-11-15",
         "objet": "Version 0.1.5 : précision de l'étape frequence « Métronome à 110 (choix D-11) » → « Métronome : 110 / min » (l'identifiant interne D-11 s'affichait à l'écran ; signalé par urgences - code 5, lot P4a). Valeur inchangée (D-11)."
+      },
+      {
+        "par": "agent code « urgences - code 5 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
+        "le": "2026-11-15",
+        "objet": "Version 0.1.6 (lot V1) : ajout du champ `precision_visible: true` à les étapes securite et evaluer-respiration — leur précision reste toujours affichée, en petit, sous le libellé, sans dépliage (décision D-61 de Laurent) ; règle R19 du contrôle des JSON. Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.1.6 non contrôlée."
+      },
+      {
+        "par": "agent code « urgences - code 5 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
+        "le": "2026-11-15",
+        "objet": "Version 0.1.7 (lot V1, D-63 qui remplace D-55) : l'étape bilan-15 (« Bilan à passer au 15 ») est RETIRÉE — ce n'est pas une étape ; les informations à restituer au 15 se recueillent dans la fiche bilan de l'appli. Champ ordre renuméroté 1..61 sans trou ; identifiants des autres étapes inchangés ; détail age-poids-estime conservé et rattaché à l'étape alerter ; mentions de bilan-15 et de D-55 corrigées (decisions_appliquees, phases_et_sections, ordre_etapes ou sources, point à valider marqué sans objet) ; les anciennes entrées de ce journal restent telles quelles (historique). Aucun autre texte médical modifié. Version 0.1.7 non contrôlée."
       }
     ]
   },
@@ -68,7 +78,7 @@
     {"decision": "D-49", "etat": "REPONDUE", "autorise_par": "D-49", "objet": "Étape « Réaction de la victime » ; depuis la version 0.1.3, précision « Verbale, motrice ? Stimuler sans douleur ; aucune : arrêt ? » (types de réaction voulus par D-49, stimulation non douloureuse de l'ERC pédiatrique p. 12)"},
     {"decision": "D-50", "etat": "REPONDUE", "autorise_par": "D-50", "objet": "Précision de l'étape securite : gants, masque (transposée)"},
     {"decision": "D-52", "etat": "REPONDUE", "objet": "« Analyser la situation » avant « Se protéger » ; « À plusieurs : répartir » une fois l'arrêt reconnu, après « Respire ? » (transposée) ; ce second point est remplacé par D-57 depuis la version 0.1.2"},
-    {"decision": "D-55", "etat": "REPONDUE", "autorise_par": "D-55", "objet": "Ligne à cocher « Bilan à passer au 15 » juste après « Alerter le 15 » (étape bilan-15, version 0.1.3) ; D-55 vise la conduite à tenir ACR : appliquée à l'ACR de l'enfant par le pilote (extension à confirmer par Laurent, point VE21) ; précision de l'adulte complétée du poids estimé (ERC pédiatrique p. 5)"},
+    {"decision": "D-55", "etat": "REMPLACEE", "autorise_par": "D-63", "objet": "[REMPLACÉE PAR D-63 : étape bilan-15 retirée en 0.1.7 par D-63 (le bilan à passer au 15 n'est pas une étape : les informations se recueillent dans la fiche bilan de l'appli et sont restituées par la transmission)] Ligne à cocher « Bilan à passer au 15 » juste après « Alerter le 15 » (étape bilan-15, version 0.1.3) ; D-55 vise la conduite à tenir ACR : appliquée à l'ACR de l'enfant par le pilote (extension à confirmer par Laurent, point VE21) ; précision de l'adulte complétée du poids estimé (ERC pédiatrique p. 5)"},
     {"decision": "D-56", "etat": "REPONDUE", "autorise_par": "D-56", "objet": "Vocabulaire médical dans tous les textes affichés (libellés, précisions, consignes) : l'appli s'adresse à des professionnels de santé ; sigles absents des sources toujours en toutes lettres (D-10)"},
     {"decision": "D-57", "etat": "REPONDUE", "autorise_par": "D-57", "objet": "« À plusieurs : répartir » en premier, juste après « Analyser la situation » (avant « Se protéger »), précision listant les tâches à répartir (bilan, alerte, DAE, appui) ; choix du médecin référent pour l'ACR adulte, étendu à l'enfant par le pilote par cohérence (à corriger par Laurent s'il ne le veut que pour l'adulte) ; marque portée par l'étape repartir-taches"}
   ],
@@ -87,7 +97,7 @@
     "raisonnement": "Le PSC p. 27 donne une seule conduite à tenir pour tous les âges ; l'ordre de l'ACR adulte (D-6, D-35, D-52) est donc transposé à l'enfant (DÉDUIT). L'ERC pédiatrique fait alerter immédiatement et a renforcé ce point en 2025 : même divergence que pour l'adulte, conservée dans la fiche (§ 7). Les 5 insufflations initiales, propres à l'ERC pédiatrique, sont placées juste avant les compressions comme dans l'ERC ; absentes du PSC, du PSE et des logigrammes (VE1).",
     "ref_fiche": "§ 2, note en tête ; § 2 ter ; § 7, Moment de l'alerte",
     "etapes_concernees": ["liberer-voies-aeriennes", "evaluer-respiration", "criteres-arret", "pouls-non-fiable", "alerter", "seul-sans-telephone", "aide-regulateur"],
-    "remarque": "Les étapes listées portent decision « D-6 » : leur rang découle de D-6 (transposée), pas leur contenu. Marques posées par la transcription sur les mêmes blocs que l'ACR adulte ; la fiche enfant ne les détaille pas. L'étape appel-aide porte D-35 ; analyse-situation D-48 (place : D-52) ; repartir-taches D-57 depuis la version 0.1.2 (en tête, juste après analyse-situation ; D-52 avant) ; bilan-15 D-55 depuis la version 0.1.3 (juste après alerter et ses détails, avant faire-chercher-defibrillateur, comme l'ACR adulte 0.4.11)."
+    "remarque": "Les étapes listées portent decision « D-6 » : leur rang découle de D-6 (transposée), pas leur contenu. Marques posées par la transcription sur les mêmes blocs que l'ACR adulte ; la fiche enfant ne les détaille pas. L'étape appel-aide porte D-35 ; analyse-situation D-48 (place : D-52) ; repartir-taches D-57 depuis la version 0.1.2 (en tête, juste après analyse-situation ; D-52 avant) ; bilan-15 D-55 depuis la version 0.1.3, retirée en 0.1.7 par D-63 (le bilan à passer au 15 n'est pas une étape : les informations se recueillent dans la fiche bilan de l'appli et sont restituées par la transmission) ; champ ordre renuméroté sans trou (61 étapes)."
   },
   "phases_et_sections": {
     "statut": "DEDUIT",
@@ -95,7 +105,7 @@
     "phases": {
       "Protéger": "étapes analyse-situation, repartir-taches (0.1.2, D-57 : placée entre les deux autres, elle garde leur intertitre pour ne pas couper le groupe ; choix d'affichage) et securite (intertitre « Protéger » de la fiche § 2)",
       "Bilan": "étapes reconnaitre-arret, appel-aide, allonger-dos, liberer-voies-aeriennes, evaluer-respiration (intertitre « Bilan » de la fiche § 2)",
-      "Alerter": "étapes alerter, bilan-15 (0.1.3, D-55) et faire-chercher-defibrillateur (intertitre « Alerter » de la fiche § 2)",
+      "Alerter": "étapes alerter et faire-chercher-defibrillateur (l'étape bilan-15, ajoutée en 0.1.3 par D-55, est retirée en 0.1.7 par D-63 (le bilan à passer au 15 n'est pas une étape : les informations se recueillent dans la fiche bilan de l'appli et sont restituées par la transmission)) (intertitre « Alerter » de la fiche § 2)",
       "Secourir": "étapes insufflations-initiales, compressions, rapport-15-2, mettre-en-oeuvre-defibrillateur, cycles, causes-reversibles (intertitre « Secourir » de la fiche § 2)",
       "Reprise": "étapes signes-reprise, apres-reprise, surveillance (intertitre « Reprise » de la fiche § 2)",
       "Après": "étape apres-intervention (intertitre « Après » de la fiche § 2)"
@@ -234,7 +244,7 @@
       "consulte_le": "2026-11-15",
       "en_vigueur": "incertain",
       "lu_en_entier": "Oui (modèle de la fiche enfant)",
-      "remarque": "Fiche de projet en BROUILLON, pas une source médicale : citée pour les éléments communs et les décisions de Laurent prises pour l'adulte et appliquées à l'enfant. Le protocole correspondant (protocoles/acr-adulte-dae.json 0.4.11) sert de modèle pour les étapes bilan-15, oxygene-apres-reprise et cycles-avec-defibrillateur (version 0.1.3)."
+      "remarque": "Fiche de projet en BROUILLON, pas une source médicale : citée pour les éléments communs et les décisions de Laurent prises pour l'adulte et appliquées à l'enfant. Le protocole correspondant (protocoles/acr-adulte-dae.json 0.4.11) sert de modèle pour les étapes oxygene-apres-reprise et cycles-avec-defibrillateur (version 0.1.3) ; bilan-15, modelée de même, est retirée (D-63)."
     },
     "SPEC": {
       "titre": "SPEC.md, cahier des charges de l'appli (Contexte, Règles absolues, Décisions)",
@@ -456,6 +466,7 @@
       "titre_fiche": "Se protéger",
       "texte_court": "Se protéger",
       "precision": "Gants, masque si disponibles ; approche sans risque",
+      "precision_visible": true,
       "consigne_guidee": "Protégez-vous (gants, masque s'ils sont disponibles) et vérifiez que l'approche est sans danger.",
       "detail": "« Ensure your own safety and that of the child. » (ERC p. 12) ; soignants : « Use appropriate personal protection equipment when indicated. » (p. 5). Premiers secours citoyen : protection, masque en période d'épidémie (p. 10, p. 28). Libellé : D-47 ; précision : D-50.",
       "statut": "DEDUIT",
@@ -679,6 +690,7 @@
       "titre_fiche": "Respire ? (10 s)",
       "texte_court": "Respire ? (10 s)",
       "precision": "10 s au plus ; absente, anormale ou doute : arrêt",
+      "precision_visible": true,
       "consigne_guidee": "Cherchez la respiration pendant 10 secondes au plus : absente, anormale ou en cas de doute, c'est un arrêt.",
       "detail": "« assess breathing and look for signs of life for no longer than 10 s » ; regarder, écouter, sentir ; thorax qui bouge sans flux d'air = voies aériennes non libres ; « If you have any doubt whether breathing is normal, act as if it were not normal. » Premiers secours citoyen : 10 s au plus ; respiration agonique = arrêt.",
       "statut": "CITE",
@@ -872,44 +884,9 @@
       "materiel": []
     },
     {
-      "id": "bilan-15",
-      "ordre": 19,
-      "parent": null,
-      "phase": "Alerter",
-      "niveau": "principal",
-      "premier_ecran": false,
-      "critique": false,
-      "titre_fiche": "Bilan à passer au 15",
-      "texte_court": "Bilan à passer au 15",
-      "precision": "Victimes, âge, poids estimé, identité, état, gestes faits",
-      "consigne_guidee": "Préparez ce que vous direz au 15 : numéro de rappel, lieu précis, nombre de victimes ; pour l'enfant, son identité, son âge et son poids estimé, son état (ne réagit pas, ne respire pas normalement) et les gestes déjà faits (insufflations, massage, défibrillateur). Donnez d'abord l'essentiel sans retarder l'alerte, complétez ensuite. Le mode transmission de l'appli aide à le faire.",
-      "detail": "Informations minimales de l'alerte (premiers secours citoyen p. 11-12) : numéro de téléphone d'où l'appel est passé, nature du problème, nombre de victimes en cas de victimes multiples, localisation la plus précise possible ; l'alerte doit être « rapide et précise ». Arrêté AFGSU, annexe 2 (AFGSU de niveau 2) : alerter le SAMU, « transmettre les observations et de suivre les conseils donnés ». ERC pédiatrique : demander aux parents une estimation du poids de l'enfant, ou l'estimer par une méthode fondée sur la taille (p. 5). Premiers secours en équipe (pour information, p. 72) : en cas de détresse vitale, transmettre sans délai le sexe et l'âge de la victime, puis compléter par le résultat du bilan et les gestes de secours entrepris. Le poids estimé est une information à transmettre, jamais une base de calcul (règle absolue 4). Libellé et place : décision D-55, prise pour la conduite à tenir ACR et appliquée à l'enfant.",
-      "statut": "DEDUIT",
-      "statut_fiche": "CITÉ (informations minimales de l'alerte : PSC p. 11-12 ; transmettre les observations : arrêté AFGSU, annexe 2, p. 7 ; poids estimé : ERC-PLS p. 5 ; sexe, âge, résultat du bilan, gestes entrepris : PSE p. 72, pour information) ; DÉDUIT (liste retenue pour la précision, application au soignant libéral et à l'enfant) ; libellé et place : D-55 (extension à l'enfant à confirmer : VE21)",
-      "sources": [
-        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 11-12 (fiche « Alerte », informations minimales à transmettre)", "citation": "en cas de situation à multiples victimes, préciser le nombre de victimes"},
-        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 11 (fiche « Alerte »)", "citation": "rapide et précise"},
-        {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, module 1, JO p. 7 (lue sur l'image de la page)", "citation": "de transmettre les observations et de suivre les conseils donnés"},
-        {"ref": "ERC-PED", "localisation": "p. 5", "citation": "Ask caregivers for an estimate of the child's weight or estimate this using length-based methods"},
-        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 72 (fiche « Transmission du bilan » ; pour information)", "citation": "le sexe et l'âge de la victime"},
-        {"ref": "DGSCGC-PSE-2026", "localisation": "p. 72 (fiche « Transmission du bilan » ; pour information)", "citation": "gestes de secours entrepris"},
-        {"ref": "SPEC", "localisation": "partie 2, décisions D-9 et D-55 ; Règles absolues, n° 4"}
-      ],
-      "raisonnement": "Le contenu minimal d'une alerte est cité : numéro d'appel, nature du problème, nombre de victimes si elles sont plusieurs, lieu (premiers secours citoyen p. 11-12). L'AFGSU de niveau 2 apprend à alerter le SAMU et à lui transmettre les observations (arrêté AFGSU, annexe 2, p. 7). Les premiers secours en équipe (p. 72, pour information) ajoutent le sexe et l'âge, puis le résultat du bilan et les gestes entrepris. L'ERC pédiatrique fait estimer le poids de l'enfant (p. 5). La précision reprend celle de l'ACR adulte (« nombre de victimes, âge, identité, état, gestes faits », d'après la demande de D-55) et y ajoute le poids estimé, propre à l'enfant ; « nombre de victimes » est abrégé en « victimes » pour tenir sur une ligne. Aucune source lue ne fixe ce qu'un soignant libéral doit transmettre au 15 : l'application à un soignant libéral est déduite. D-55 nomme la conduite à tenir ACR : son application à l'ACR de l'enfant est à confirmer par Laurent.",
-      "ref_fiche": "§ 2, étape 9 bis",
-      "qui_fiche": "Tous",
-      "professions": {"geste": "alerter_transmettre"},
-      "decision": "D-55",
-      "autorise_par": "D-55",
-      "remarque": "Étape ajoutée en 0.1.3 (contrôle 0.1.2, écart majeur #70), mêmes mots que l'étape bilan-15 de l'ACR adulte 0.4.11, plus le poids estimé (ERC pédiatrique p. 5). Placée en premier niveau juste après « Alerter le 15 » et ses détails, avant faire-chercher-defibrillateur ; le détail age-poids-estime passe sous elle. Cochable, jamais bloquante ; cochage_auto « appel » reste sur l'étape alerter. Extension de D-55 à l'enfant par le pilote, à confirmer par Laurent (VE21). Identifiant à ajouter à professions.json (geste alerter_transmettre, etapes_protocole acr-enfant), fichier tenu par le pilote. Les informations minimales de l'alerte se trouvent p. 11 et p. 12 du PSC (la localisation est p. 12 : à signaler pour l'ACR adulte, qui cite p. 11 seule).",
-      "cochable": true,
-      "acronymes": ["saed"],
-      "materiel": []
-    },
-    {
       "id": "age-poids-estime",
-      "ordre": 20,
-      "parent": "bilan-15",
+      "ordre": 19,
+      "parent": "alerter",
       "niveau": "detail",
       "premier_ecran": false,
       "critique": false,
@@ -927,14 +904,14 @@
       "ref_fiche": "§ 2, étape 9b",
       "qui_fiche": "Tous",
       "professions": {"geste": "alerter_transmettre"},
-      "remarque": "Version 0.1.3 : détail déplacé sous l'étape bilan-15 (D-55), dont il précise le poids estimé ; contenu inchangé. La fiche 0.1.2 écrivait « étape 13 » pour le DAE, corrigé en « étape 14 » dans la fiche 0.1.3. Aucune saisie ni calcul : information à transmettre seulement.",
+      "remarque": "Version 0.1.3 : détail déplacé sous l'étape bilan-15 (D-55), dont il précise le poids estimé ; contenu inchangé. Version 0.1.7 : l'étape bilan-15 est retirée (D-63), le détail est rattaché à l'étape alerter (le poids estimé reste une information à transmettre dans le message d'alerte) ; contenu inchangé. La fiche 0.1.2 écrivait « étape 13 » pour le DAE, corrigé en « étape 14 » dans la fiche 0.1.3. Aucune saisie ni calcul : information à transmettre seulement.",
       "cochable": false,
       "acronymes": [],
       "materiel": ["estimation-poids-taille"]
     },
     {
       "id": "faire-chercher-defibrillateur",
-      "ordre": 21,
+      "ordre": 20,
       "parent": null,
       "phase": "Alerter",
       "niveau": "vital",
@@ -974,7 +951,7 @@
     },
     {
       "id": "insufflations-initiales",
-      "ordre": 22,
+      "ordre": 21,
       "parent": null,
       "phase": "Secourir",
       "niveau": "principal",
@@ -1007,7 +984,7 @@
     },
     {
       "id": "insufflation-technique",
-      "ordre": 23,
+      "ordre": 22,
       "parent": "insufflations-initiales",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1033,7 +1010,7 @@
     },
     {
       "id": "thorax-immobile",
-      "ordre": 24,
+      "ordre": 23,
       "parent": "insufflations-initiales",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1058,7 +1035,7 @@
     },
     {
       "id": "insufflations-impossibles",
-      "ordre": 25,
+      "ordre": 24,
       "parent": "insufflations-initiales",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1083,7 +1060,7 @@
     },
     {
       "id": "compressions",
-      "ordre": 26,
+      "ordre": 25,
       "parent": null,
       "phase": "Secourir",
       "niveau": "vital",
@@ -1122,7 +1099,7 @@
     },
     {
       "id": "nourrisson-deux-pouces",
-      "ordre": 27,
+      "ordre": 26,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1147,7 +1124,7 @@
     },
     {
       "id": "enfant-une-ou-deux-mains",
-      "ordre": 28,
+      "ordre": 27,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1172,7 +1149,7 @@
     },
     {
       "id": "profondeur",
-      "ordre": 29,
+      "ordre": 28,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1201,7 +1178,7 @@
     },
     {
       "id": "frequence",
-      "ordre": 30,
+      "ordre": 29,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1230,7 +1207,7 @@
     },
     {
       "id": "relachement",
-      "ordre": 31,
+      "ordre": 30,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1255,7 +1232,7 @@
     },
     {
       "id": "pauses",
-      "ordre": 32,
+      "ordre": 31,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1277,7 +1254,7 @@
     },
     {
       "id": "vetements",
-      "ordre": 33,
+      "ordre": 32,
       "parent": "compressions",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1302,7 +1279,7 @@
     },
     {
       "id": "rapport-15-2",
-      "ordre": 34,
+      "ordre": 33,
       "parent": null,
       "phase": "Secourir",
       "niveau": "principal",
@@ -1330,7 +1307,7 @@
     },
     {
       "id": "non-forme-30-2",
-      "ordre": 35,
+      "ordre": 34,
       "parent": "rapport-15-2",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1357,7 +1334,7 @@
     },
     {
       "id": "ballon-oxygene",
-      "ordre": 36,
+      "ordre": 35,
       "parent": "rapport-15-2",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1384,7 +1361,7 @@
     },
     {
       "id": "masque-de-poche",
-      "ordre": 37,
+      "ordre": 36,
       "parent": "rapport-15-2",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1406,7 +1383,7 @@
     },
     {
       "id": "bouche-a-bouche",
-      "ordre": 38,
+      "ordre": 37,
       "parent": "rapport-15-2",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1428,7 +1405,7 @@
     },
     {
       "id": "mettre-en-oeuvre-defibrillateur",
-      "ordre": 39,
+      "ordre": 38,
       "parent": null,
       "phase": "Secourir",
       "niveau": "vital",
@@ -1468,7 +1445,7 @@
     },
     {
       "id": "moins-25-kg",
-      "ordre": 40,
+      "ordre": 39,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1494,7 +1471,7 @@
     },
     {
       "id": "plus-25-kg",
-      "ordre": 41,
+      "ordre": 40,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1519,7 +1496,7 @@
     },
     {
       "id": "sans-electrodes-enfant",
-      "ordre": 42,
+      "ordre": 41,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1546,7 +1523,7 @@
     },
     {
       "id": "sans-mode-enfant",
-      "ordre": 43,
+      "ordre": 42,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1568,7 +1545,7 @@
     },
     {
       "id": "masser-pendant-pose",
-      "ordre": 44,
+      "ordre": 43,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1593,7 +1570,7 @@
     },
     {
       "id": "analyse-rythme",
-      "ordre": 45,
+      "ordre": 44,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1615,7 +1592,7 @@
     },
     {
       "id": "apres-analyse",
-      "ordre": 46,
+      "ordre": 45,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1640,7 +1617,7 @@
     },
     {
       "id": "defibrillateur-nourrisson",
-      "ordre": 47,
+      "ordre": 46,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1662,7 +1639,7 @@
     },
     {
       "id": "cycles",
-      "ordre": 48,
+      "ordre": 47,
       "parent": null,
       "phase": "Secourir",
       "niveau": "principal",
@@ -1689,7 +1666,7 @@
     },
     {
       "id": "cycles-avec-defibrillateur",
-      "ordre": 49,
+      "ordre": 48,
       "parent": "cycles",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1717,7 +1694,7 @@
     },
     {
       "id": "releve-masseur",
-      "ordre": 50,
+      "ordre": 49,
       "parent": "cycles",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1745,7 +1722,7 @@
     },
     {
       "id": "causes-reversibles",
-      "ordre": 51,
+      "ordre": 50,
       "parent": null,
       "phase": "Secourir",
       "niveau": "principal",
@@ -1772,7 +1749,7 @@
     },
     {
       "id": "causes-reversibles-cabinet",
-      "ordre": 52,
+      "ordre": 51,
       "parent": "causes-reversibles",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1798,7 +1775,7 @@
     },
     {
       "id": "signes-reprise",
-      "ordre": 53,
+      "ordre": 52,
       "parent": null,
       "phase": "Reprise",
       "section": "reprise",
@@ -1825,7 +1802,7 @@
     },
     {
       "id": "arret-du-massage",
-      "ordre": 54,
+      "ordre": 53,
       "parent": "signes-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1852,7 +1829,7 @@
     },
     {
       "id": "laisser-defibrillateur",
-      "ordre": 55,
+      "ordre": 54,
       "parent": "signes-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1874,7 +1851,7 @@
     },
     {
       "id": "apres-reprise",
-      "ordre": 56,
+      "ordre": 55,
       "parent": null,
       "phase": "Reprise",
       "section": "reprise",
@@ -1902,7 +1879,7 @@
     },
     {
       "id": "oxygene-apres-reprise",
-      "ordre": 57,
+      "ordre": 56,
       "parent": "apres-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1929,7 +1906,7 @@
     },
     {
       "id": "glycemie",
-      "ordre": 58,
+      "ordre": 57,
       "parent": "apres-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1953,7 +1930,7 @@
     },
     {
       "id": "surveillance",
-      "ordre": 59,
+      "ordre": 58,
       "parent": null,
       "phase": "Reprise",
       "section": "reprise",
@@ -1981,7 +1958,7 @@
     },
     {
       "id": "recidive-arret",
-      "ordre": 60,
+      "ordre": 59,
       "parent": "surveillance",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2007,7 +1984,7 @@
     },
     {
       "id": "transmettre-bilan",
-      "ordre": 61,
+      "ordre": 60,
       "parent": "surveillance",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2033,7 +2010,7 @@
     },
     {
       "id": "apres-intervention",
-      "ordre": 62,
+      "ordre": 61,
       "parent": null,
       "phase": "Après",
       "niveau": "principal",
@@ -2552,7 +2529,7 @@
     {"id": "VE18", "point": "Sources françaises autres que DGSCGC (HAS, SFMU, SFAR, Santé publique France) sur l'arrêt pédiatrique : non recherchées dans ce passage", "decision": "pilote (recherche complémentaire)"},
     {"id": "VE19", "point": "Outil d'estimation du poids (méthode fondée sur la taille) : aucune méthode nommée", "decision": "décision médicale"},
     {"id": "VE20", "point": "Transposition de D-57 à l'enfant (0.1.2) : « À plusieurs : répartir » en tête, juste après « Analyser la situation » ; précision « Bilan, alerte, DAE, appui ; un soignant pour les parents » (soignant dédié aux parents gardé, ERC pédiatrique p. 5). L'ERC pédiatrique fait alerter par le second sauveteur dès le début de la réanimation (p. 13) ; le PSC confie alerte et DAE au tiers une fois l'arrêt reconnu (p. 27)", "decision": "confirmation de Laurent"},
-    {"id": "VE21", "point": "Extension de D-55 à l'enfant (0.1.3) : étape « Bilan à passer au 15 » juste après « Alerter le 15 », précision « Victimes, âge, poids estimé, identité, état, gestes faits » (mots de l'adulte, plus le poids estimé de l'ERC pédiatrique p. 5 ; « nombre de victimes » abrégé pour tenir sur une ligne)", "decision": "confirmation de Laurent"},
+    {"id": "VE21", "point": "Extension de D-55 à l'enfant (0.1.3) : étape « Bilan à passer au 15 » juste après « Alerter le 15 », précision « Victimes, âge, poids estimé, identité, état, gestes faits » (mots de l'adulte, plus le poids estimé de l'ERC pédiatrique p. 5 ; « nombre de victimes » abrégé pour tenir sur une ligne)", "decision": "sans objet (D-63 : l'étape bilan-15 est retirée)"},
     {"id": "VE22", "point": "Étapes « tous » (apres-intervention, cochable ; parents-presents) : D-4 limite les groupes 5 à 7 à l'alerte, au massage et au défibrillateur ; même constat pour l'ACR adulte et la conduite commune", "decision": "Laurent (règle commune aux protocoles)"},
     {"id": "VE23", "point": "Format D-37 : trois précisions dépassent probablement une ligne (seul-sans-telephone ≈ 88 signes, vetements ≈ 75, plus-25-kg ≈ 68) ; elles se raccourciraient si « PSC » pouvait s'afficher en sigle (D-10)", "decision": "Laurent (D-10)"}
   ]

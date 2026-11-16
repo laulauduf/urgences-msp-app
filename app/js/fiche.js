@@ -1,14 +1,15 @@
 // Modèle de la fiche (cahier des charges 3.3) : fonctions PURES, sans accès au stockage ni au navigateur — testables sous Node.
 // Une fiche vit en mémoire ; stockage.js l'écrit après l'affichage. Aucune donnée patient dans ce fichier.
+import { victimeVide } from './victimes.js';
 
 /** Format courant des fiches stockées. Toute évolution ajoute une migration n-1 → n dans MIGRATIONS (parade 3 de 2.4). */
-export const FORMAT_FICHE = 1;
+export const FORMAT_FICHE = 2;
 
 /** Types d'entrées du journal (3.3). */
 export const TYPES_JOURNAL = [
   'urgence', 'situation', 'role', 'profession', 'case', 'evenement', 'constante', 'geste', 'appel_lance', 'appel_fait', 'appel_simule',
   'chronometre', 'echeance', 'rattrapage', 'horloge_modifiee', 'reprise', 'nouvelle_urgence', 'stockage_echec', 'version_differente',
-  'secours_protocole', 'acr_illisible', 'purge_reportee', 'correction', 'export', 'note',
+  'secours_protocole', 'acr_illisible', 'purge_reportee', 'correction', 'export', 'note', 'victime_ajoutee', 'victime_retiree',
 ];
 
 /** Événements qu'on écrit tout de suite, sans regroupement (2.8) : URGENCE, appels, case cochée, événement du DAE. */
@@ -47,11 +48,9 @@ export function creerFiche({ mode, maintenant = Date.now(), versionAppli = globa
     situations: [],
     lieu: { type: 'cabinet' },
     roles: [],
-    identite: {},
-    circonstances: {},
-    bilan_vital: {},
+    // D-64 : un onglet par victime ; identité, circonstances, bilan vital, antécédents… sont DANS la victime (format 2). Les constantes et les gestes restent ici, avec le champ `victime`.
+    victimes: [victimeVide('v1')], victime_active: 'v1', victime_suivante: 2,
     constantes: [],
-    antecedents: '', traitements: '', allergies: '', medecin_traitant: '',
     gestes_produits: [],
     evaluation: '', demande: '',
     checklist: {},
@@ -94,6 +93,11 @@ export function verifierFiche(fiche, modeAttendu) {
   for (const champ of ['checklist', 'protocoles_utilises', 'versions_protocoles', 'lieu']) {
     if (fiche[champ] === null || typeof fiche[champ] !== 'object' || Array.isArray(fiche[champ])) raisons.push(`${champ} absent ou mal formé`);
   }
+  // D-64 : au format 2, au moins une victime, et la victime ouverte existe (verifierFiche lit la fiche AVANT sa migration : les formats 1 et les plus récents ne sont pas contrôlés ici)
+  if (fiche.format === 2) {
+    if (!Array.isArray(fiche.victimes) || fiche.victimes.length === 0 || fiche.victimes.some((v) => v === null || typeof v !== 'object' || typeof v.id !== 'string')) raisons.push('victimes absentes ou mal formées');
+    else if (!fiche.victimes.some((v) => v.id === fiche.victime_active)) raisons.push('victime ouverte inconnue');
+  }
   return raisons;
 }
 
@@ -119,12 +123,42 @@ export function migrerFiche(fiche, { formatCourant = FORMAT_FICHE, migrations = 
   while (format < formatCourant) {
     const etape = migrations[format];
     if (typeof etape !== 'function') throw new Error(`aucune migration du format ${format} vers ${format + 1}`);
-    Object.assign(copie, etape(copie));
+    const { _retirer = [], ...changements } = etape(copie);   // `_retirer` : champs qui quittent le premier niveau (déplacés ailleurs par la migration)
+    Object.assign(copie, changements);
+    for (const cle of _retirer) delete copie[cle];
     format += 1;
     copie.format = format;
   }
   return { fiche: copie, migree: depart !== formatCourant, plusRecente: false };
 }
 
-/** Table des migrations : vide tant qu'il n'existe qu'un format. Ajouter ici `1: (fiche) => ({ … })` au passage au format 2. */
-export const MIGRATIONS = {};
+/**
+ * Format 1 → 2 (D-64, un onglet par victime). La fiche d'avant n'avait qu'UN patient, au premier niveau : il devient la victime 1, SANS rien perdre.
+ *  - identité, circonstances, bilan vital, antécédents, traitements, allergies, médecin traitant → dans la victime 1 ;
+ *  - le « nombre de victimes » saisi (D-63) est remplacé par les onglets : sa valeur, si elle existe, passe dans les NOTES de la victime 1 (en toutes lettres) ;
+ *  - chaque constante et chaque geste saisis reçoit `victime` = la victime 1 ; évaluation, demande, checklist, lieu, journal et champs inconnus ne bougent pas.
+ * Une valeur mal formée (fiche très ancienne) ne fait pas échouer la migration : elle est remplacée par du vide.
+ */
+const objet = (x) => (x !== null && typeof x === 'object' && !Array.isArray(x) ? x : {});
+const texte = (x) => (typeof x === 'string' ? x : '');
+const liste = (x) => (Array.isArray(x) ? x : []);
+const CHAMPS_PATIENT_FORMAT_1 = ['identite', 'circonstances', 'bilan_vital', 'antecedents', 'traitements', 'allergies', 'medecin_traitant'];
+function migrer1vers2(f) {
+  const { nombre_victimes: nombre, ...circonstances } = objet(f.circonstances);
+  const v = {
+    ...victimeVide('v1'),
+    identite: objet(f.identite), circonstances, bilan_vital: objet(f.bilan_vital),
+    antecedents: texte(f.antecedents), traitements: texte(f.traitements), allergies: texte(f.allergies), medecin_traitant: texte(f.medecin_traitant),
+    notes: (typeof nombre === 'string' || Number.isFinite(nombre)) && String(nombre).trim() !== '' ? `Nombre de victimes noté : ${String(nombre).trim()}` : '',
+  };
+  return {
+    victimes: [v], victime_active: 'v1', victime_suivante: 2,
+    // une entrée nulle ou mal formée (fiche très ancienne) est écartée : elle deviendrait « NaN:NaN undefined » (D-64b, m1)
+    constantes: liste(f.constantes).filter((c) => c !== null && typeof c === 'object' && !Array.isArray(c)).map((c) => ({ ...c, victime: 'v1' })),
+    gestes_produits: liste(f.gestes_produits).filter((g) => g !== null && typeof g === 'object' && !Array.isArray(g)).map((g) => ({ ...g, victime: 'v1' })),
+    _retirer: CHAMPS_PATIENT_FORMAT_1,
+  };
+}
+
+/** Table des migrations : `MIGRATIONS[n]` transforme une fiche de format n en format n+1. */
+export const MIGRATIONS = { 1: migrer1vers2 };

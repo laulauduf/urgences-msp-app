@@ -5,6 +5,8 @@
 import { formaterT } from './horloge.js';
 import { ROLES } from './roles.js';
 import { avecUnite } from './unites.js';
+import { titreDe } from './catalogue.js';
+import { PUCES_ANTECEDENTS, PUCES_TRAITEMENTS, TRANCHES_AGE, LIGNE_DEMANDE_PROVISOIRE, texteListe, numeroVictime } from './victimes.js';
 
 /** Types de constantes de SPEC.md (déroulé 4), dans cet ordre. SpO₂ : sigle sourcé du glossaire ; les autres, en toutes lettres (D-10). */
 export const TYPES_CONSTANTE = [
@@ -45,10 +47,11 @@ export function ageDepuis(naissance, maintenant = Date.now()) {
   return { annees: Math.floor(total / 12), mois: total % 12 };
 }
 
-/** « 42 ans », « 11 mois » avant 2 ans ; sans date valide, l'âge estimé est montré COMME estimé ; rien → null. */
+/** « 42 ans », « 11 mois » avant 2 ans ; sans date valide : l'âge exact saisi (D-64), sinon l'âge estimé, montré COMME estimé ; rien → null. */
 export function texteAge(identite, maintenant = Date.now()) {
   const age = ageDepuis(identite?.date_naissance, maintenant);
   if (age) return age.annees >= 2 ? `${age.annees} ans` : `${age.annees * 12 + age.mois} mois`;
+  if (plein(identite?.age_exact)) return `${identite.age_exact.trim()} ans`;
   return plein(identite?.age_estime) ? `âge estimé : ${identite.age_estime.trim()}` : null;
 }
 
@@ -108,7 +111,8 @@ export function tableauConstantes(constantes, fiche = null) {
 
 const ligne = (texte) => ({ valeur: texte });
 const lignes = (...l) => l.filter((x) => x !== null && x !== undefined && x.valeur !== '');
-const champ = (libelle, v) => (plein(v) ? ligne(`${libelle} : ${v.trim()}`) : null);
+// une ligne « libellé : valeur » garde le libellé et la valeur séparés (l'écran de transmission met la valeur en gras) ET le texte entier (document, texte copié)
+const champ = (libelle, v) => (plein(v) ? { valeur: `${libelle} : ${v.trim()}`, libelle, texte: v.trim() } : null);
 
 function pageLieu({ fiche, structure, champsSensibles }) {
   const lieu = fiche.lieu ?? { type: 'cabinet' };
@@ -147,8 +151,32 @@ function pageLieu({ fiche, structure, champsSensibles }) {
   };
 }
 
+/** Sous-titre d'une victime dans une page (écran : `titre: true`) ; seulement quand la fiche en porte plusieurs. Le numéro est STABLE (tiré de l'identifiant). */
+const sousTitre = (numero) => ({ valeur: `— Victime ${numero} —`, titre: true });
+/** Victime sans rien de noté : dite, jamais passée sous silence (D-64b, D4). */
+const RIEN_NOTE = { valeur: 'rien noté', vide: true };
+
+/** Lignes de S propres à UNE victime (D-64) : identité, âge, circonstances, conscience, notes. Le sous-titre n'est posé que si la victime a au moins une ligne. */
+function lignesSVictime(v, numero, multi, maintenant) {
+  const id = v.identite ?? {}; const c = v.circonstances ?? {}; const bv = v.bilan_vital ?? {};
+  const ageTexte = texteAge(id, maintenant);
+  const ageLigne = ageTexte === null ? null : ageTexte.startsWith('âge estimé : ') ? ligne(`Âge estimé : ${ageTexte.slice('âge estimé : '.length)}`) : champ('Âge', ageTexte);
+  const tranche = TRANCHES_AGE.find((t) => t.id === id.tranche_age);
+  const l = lignes(
+    champ('Patient', [id.prenom, id.nom].filter(plein).join(' ')), champ('Sexe', id.sexe), ageLigne, tranche ? champ("Tranche d'âge", tranche.court) : null,
+    champ('Début des signes', c.heure_debut), champ('Lieu dans la structure', c.lieu_dans_structure), champ('Témoin', c.temoin), champ('Gestes déjà faits', c.gestes_deja_faits),
+    champ('Conscience', [bv.avpu ? `AVPU ${bv.avpu}` : '', bv.conscience].filter(plein).join(' — ')), champ('Respiration', bv.respiration), champ('Circulation', bv.circulation),
+    champ('Notes', v.notes),
+  );
+  return multi ? [sousTitre(numero), ...(l.length > 0 ? l : [RIEN_NOTE])] : l;
+}
+
 function pageS({ fiche, appelant, protocoleId, maintenant }) {
-  const id = fiche.identite ?? {}; const c = fiche.circonstances ?? {}; const bv = fiche.bilan_vital ?? {};
+  const victimes = Array.isArray(fiche.victimes) ? fiche.victimes : [];
+  const multi = victimes.length > 1;
+  const numeroDe = (idVictime) => numeroVictime(fiche, idVictime);
+  /** « (Victime 2) » quand il y a plusieurs victimes et que la saisie est rattachée à l'une d'elles. */
+  const marque = (idVictime) => (multi && numeroDe(idVictime) > 0 ? ` (Victime ${numeroDe(idVictime)})` : '');
   const journal = fiche.journal ?? [];
   const debut = journal[0]?.t ?? fiche.cree_le;
   // « ACR constaté » seulement tant que l'intervention EST en ACR (R1f, M1) : après un retour en « Autre situation », la transmission ne le dit plus (le journal garde la bascule et le retour horodatés)
@@ -169,28 +197,26 @@ function pageS({ fiche, appelant, protocoleId, maintenant }) {
   }
   // gestes saisis, gestes notés « fait à hh:mm » (checklist) et ÉTAPES COCHÉES (tuiles et checklist) : tous les gestes réalisés vont dans S (D-9, revue L7 M2)
   const faits = [
-    ...(fiche.gestes_produits ?? []).map((g) => ({ mot: 'geste', t: g.t, texte: g.texte, entree: idJournalGeste(fiche, g) })),
+    ...(fiche.gestes_produits ?? []).map((g) => ({ mot: `geste${marque(g.victime)}`, t: g.t, texte: g.texte, entree: idJournalGeste(fiche, g) })),
     ...journal.filter((e) => e.type === 'geste' && e.donnees?.id).map((e) => ({ mot: 'geste', t: e.t, texte: e.donnees.libelle ?? e.donnees.id, entree: e.id })),
     ...Object.entries(fiche.checklist ?? {}).filter(([, v]) => Number.isFinite(v?.coche_le)).map(([cle, v]) => {
       const entree = journal.filter((e) => e.type === 'case' && e.donnees?.id === cle && !e.donnees?.decochee).at(-1);
       return { mot: 'fait', t: v.coche_le, texte: entree?.donnees?.libelle ?? cle, entree: entree?.id ?? null };
     }),
   ].filter((g) => plein(g.texte)).sort((a, b) => a.t - b.t);
-  const constantes = (fiche.constantes ?? []).filter((x) => x && plein(String(x.valeur))).sort((a, b) => a.t - b.t);
-  const ageTexte = texteAge(id, maintenant);
-  const ageLigne = ageTexte === null ? null : ageTexte.startsWith('âge estimé : ') ? ligne(`Âge estimé : ${ageTexte.slice('âge estimé : '.length)}`) : champ('Âge', ageTexte);
+  const constantes = (fiche.constantes ?? []).filter((x) => x && x.valeur !== undefined && x.valeur !== null && plein(String(x.valeur))).sort((a, b) => a.t - b.t);
   return {
     id: 's', titre: 'S — Situation',
     lignes: lignes(
       appelant ? ligne(`Appelant : ${appelant.personne} (${appelant.fonction})`) : null,
-      champ('Patient', [id.prenom, id.nom].filter(plein).join(' ')), champ('Sexe', id.sexe), ageLigne,
-      champ('Début des signes', c.heure_debut), champ('Lieu dans la structure', c.lieu_dans_structure), champ('Témoin', c.temoin), champ('Gestes déjà faits', c.gestes_deja_faits),
+      // D-63 / D-64 : le nombre de victimes est le nombre d'onglets, premier renseignement du message au 15 (PSC p. 11)
+      multi ? ligne(`Nombre de victimes : ${victimes.length}`) : null,   // D-64b (m5) : jamais « 1 » par défaut — seulement quand il y a au moins deux fiches
       ligne(`Début de l'intervention : ${hhmm(debut)}`),
       acr ? ligne(`ACR constaté à ${hhmm(acr.depuis)}`) : null,
-      champ('Conscience', [bv.avpu ? `AVPU ${bv.avpu}` : '', bv.conscience].filter(plein).join(' — ')), champ('Respiration', bv.respiration), champ('Circulation', bv.circulation),
+      ...victimes.flatMap((v) => lignesSVictime(v, numeroVictime(fiche, v.id), multi, maintenant)),
       // valeurs brutes datées, ordre chronologique, aucune tendance (Q-29) ; une valeur corrigée au journal est transmise CORRIGÉE, l'original dit « barré »
       ...constantes.map((x) => {
-        const debutLigne = `${hhmm(x.t)} ${libelleType(x.type)}`;
+        const debutLigne = `${hhmm(x.t)} ${libelleType(x.type)}${marque(x.victime)}`;
         const corr = correctionDeEntree(fiche, idJournalConstante(fiche, x));
         return ligne(corr ? texteCorrige(debutLigne, avecUnite(x.valeur, x.unite), corr, 'valeur') : `${debutLigne} : ${avecUnite(x.valeur, x.unite)}`);
       }),
@@ -216,13 +242,23 @@ function pageS({ fiche, appelant, protocoleId, maintenant }) {
  */
 export function construireTransmission({ fiche, structure, champsSensibles = {}, appelant = null, protocoleId = null, maintenant = Date.now() }) {
   const lieu = pageLieu({ fiche, structure, champsSensibles });
-  const id = fiche.identite ?? {};
+  const victimes = Array.isArray(fiche.victimes) ? fiche.victimes : [];
+  const multi = victimes.length > 1;
+  // A : par victime (D-64) ; le sous-titre n'est posé que si la victime a au moins une ligne
+  const lignesA = victimes.flatMap((v) => {
+    const l = lignes(
+      champ('Antécédents', texteListe(PUCES_ANTECEDENTS, v.antecedents_puces, v.antecedents)), champ('Traitements', texteListe(PUCES_TRAITEMENTS, v.traitements_puces, v.traitements)),
+      champ('Allergies', v.allergies), champ('Médecin traitant', v.medecin_traitant), champ('Poids estimé', v.identite?.poids_estime),
+    );
+    return multi ? [sousTitre(numeroVictime(fiche, v.id)), ...(l.length > 0 ? l : [RIEN_NOTE])] : l;
+  });
   return [
     lieu,
     pageS({ fiche, appelant, protocoleId, maintenant }),
-    { id: 'a', titre: 'A — Antécédents', lignes: lignes(champ('Antécédents', fiche.antecedents), champ('Traitements', fiche.traitements), champ('Allergies', fiche.allergies), champ('Médecin traitant', fiche.medecin_traitant), champ('Poids estimé', id.poids_estime)) },
+    { id: 'a', titre: 'A — Antécédents', lignes: lignesA },
     { id: 'e', titre: 'E — Évaluation', lignes: lignes(plein(fiche.evaluation) ? ligne(fiche.evaluation.trim()) : null) },
-    { id: 'd', titre: 'D — Demande', lignes: lignes(plein(fiche.demande) ? ligne(fiche.demande.trim()) : null) },
+    // D : la demande écrite ; tant qu'elle ne l'est pas, la ligne PROVISOIRE de la maquette, marquée ✱ (D-64 : texte à revoir par Laurent)
+    { id: 'd', titre: 'D — Demande', lignes: lignes(plein(fiche.demande) ? ligne(fiche.demande.trim()) : ligne(`${LIGNE_DEMANDE_PROVISOIRE} ✱ (texte provisoire)`)) },
   ];
 }
 
@@ -234,13 +270,14 @@ export function libelleEntree(e) {
   const role = (id) => ROLES.find((r) => r.id === id)?.libelle ?? String(id);
   switch (e?.type) {
     case 'urgence': return 'URGENCE touchée';
-    case 'situation': return d.libelle ? `Situation : ${d.libelle}` : d.protocole ? `Situation : ${d.protocole}` : 'Situation';
+    // (V1, N2 : une entrée sans libellé — fiche ancienne, écran de secours — est traduite par le catalogue ; un identifiant inconnu reste tel quel)
+    case 'situation': return d.libelle ? `Situation : ${d.libelle}` : d.protocole ? `Situation : ${titreDe(d.protocole) ?? d.protocole}` : 'Situation';
     case 'role': return `Rôle ${role(d.role)} : ${d.de ?? '—'} → ${d.vers ?? '—'}`;
     case 'profession': return `Profession : ${d.vers ?? 'non réglée'}`;
     case 'case': return d.decochee ? `Case décochée : ${d.libelle ?? d.id}` : `Case cochée : ${d.libelle ?? d.id}`;
     case 'evenement': return d.libelle ?? String(d.id ?? 'événement');
-    case 'constante': return `${libelleType(d.type)} : ${avecUnite(d.valeur, d.unite)}`;
-    case 'geste': return `Geste : ${d.texte ?? d.libelle ?? d.id ?? ''}`.trim();
+    case 'constante': return `${libelleType(d.type)}${d.victime ? ` (Victime ${d.victime})` : ''} : ${avecUnite(d.valeur, d.unite)}`;
+    case 'geste': return `Geste${d.victime ? ` (Victime ${d.victime})` : ''} : ${d.texte ?? d.libelle ?? d.id ?? ''}`.trim();
     case 'appel_lance': return `Appel lancé : ${d.numero ?? ''}`.trim();
     case 'appel_simule': return `Appel simulé : ${d.numero ?? ''}`.trim();
     case 'appel_fait': return "J'ai appelé";
@@ -257,6 +294,12 @@ export function libelleEntree(e) {
     case 'purge_reportee': return "Délai d'effacement atteint (effacement reporté)";
     case 'export': return d.moyen ? `Export confirmé : ${MOYENS[d.moyen] ?? d.moyen}` : 'Export';
     case 'note': return d.texte ?? 'Note';
+    // D-64 : seulement le numéro et les quantités retirées, jamais l'identité de la victime
+    case 'victime_ajoutee': return `Victime ${d.numero ?? '?'} ajoutée`;
+    case 'victime_retiree': {
+      const parts = [d.constantes > 0 ? `${d.constantes} constante${d.constantes > 1 ? 's' : ''}` : '', d.gestes > 0 ? `${d.gestes} geste${d.gestes > 1 ? 's' : ''}` : ''].filter(Boolean);
+      return `Victime ${d.numero ?? '?'} retirée${parts.length > 0 ? ` — retiré de la fiche : ${parts.join(', ')} (le journal les garde)` : ''}`;
+    }
     case 'correction': return `Correction : ${d.texte ?? ''}`.trim();
     default: return String(e?.type ?? 'entrée');
   }

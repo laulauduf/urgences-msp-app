@@ -57,6 +57,7 @@ self.URGENCES_LISTE_CACHE = [
   "app/js/theme.js",
   "app/js/unites.js",
   "app/js/version.js",
+  "app/js/victimes.js",
   "config/structure.json",
   "index.html",
   "manifest.webmanifest",

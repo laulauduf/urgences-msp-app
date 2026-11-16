@@ -3,7 +3,7 @@
   "id": "anaphylaxie",
   "titre": "Anaphylaxie (réaction allergique grave) de l'adulte, jusqu'à l'arrivée des secours",
   "titre_court": "Anaphylaxie adulte",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/anaphylaxie.md",
@@ -35,6 +35,11 @@
         "par": "agent recherche-reco (Opus 5.5 / high), lancé par « urgences - pilote 4 »",
         "le": "2026-11-15",
         "objet": "Version 0.1.4 (non contrôlée). (1) D-60 : étape adrenaline, libellé « Adrénaline intramusculaire si disponible » (le libellé de D-60, « Adrénaline IM si disponible », ne passe pas la règle R11 du contrôle : le sigle IM n'est pas dans le glossaire ; à remplacer par IM dès qu'une entrée sourcée existe, par exemple ERC pédiatrie p. 20, « intramuscularly (IM) ») ; précision « Stylo du patient ou trousse ; cuisse ; pas en IV ; sinon : 15 » ; consigne et détail réécrits, sans dose ; remarque, priorité et habilitation infirmier mises à jour (D-58 : ANA-2 répondue). (2) Vérification docs/controle/adrenaline-anaphylaxie-verification-2026-11-15.md : sous-étape cuisse-face-externe, « face antérolatérale » (ERC pédiatrie p. 20 et p. 39, ERC circonstances particulières p. 15, résumé des caractéristiques du produit EPIPEN 4.2), avec « jamais dans la fesse » ; « pas en IV » sourcé (ERC pédiatrie p. 39 ; ERC circonstances particulières p. 15 ; ERC réanimation avancée p. 29 pour l'arrêt) ; étape pas-amelioration : « Sans amélioration à 5 min » (ERC premiers secours p. 6, circonstances particulières p. 4, PSE p. 199, logigramme PSE p. 15), affichage gardé A_VALIDER (AN-6). Pages ERC lues sur les images locales (_sources/_images/). (3) Rattachement aux gestes de professions.json 0.3.0 : reconnaitre-anaphylaxie, criteres-diagnostiques, sans-signe-cutane, signes-choc → reconnaitre_malaise_grave ; allonger → position_attente_confort ; oxygene → oxygene_hors_arret ; stylo-patient → aide_auto_injecteur_prescrit ; cuisse-face-externe, verifier-stylo, pas-amelioration → adrenaline_anaphylaxie. Aucune valeur effective ne change (mêmes valeurs pour les sept groupes, vérifié geste par geste). L'étape adrenaline garde ses habilitations en ligne (mêmes valeurs que le geste adrenaline_anaphylaxie) : le code et les tests de l'étape réservée les lisent sur l'étape. reserve_habilites non touché. (4) Remarques « geste manquant » retirées ; decisions_appliquees : D-4 et D-25 mises à jour, D-58, D-59, D-60 ajoutées. Source ajoutée : ERC-ALS."
+      },
+      {
+        "par": "agent code « urgences - code 5 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
+        "le": "2026-11-15",
+        "objet": "Version 0.1.5 (lot V1) : ajout du champ `precision_visible: true` à l'étape securite — leur précision reste toujours affichée, en petit, sous le libellé, sans dépliage (décision D-61 de Laurent) ; règle R19 du contrôle des JSON. Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.1.5 non contrôlée."
       }
     ]
   },
@@ -431,6 +436,7 @@
       "titre_fiche": "Se protéger",
       "texte_court": "Se protéger",
       "precision": "Gants, masque si disponibles ; approche sans risque",
+      "precision_visible": true,
       "consigne_guidee": "Protégez-vous (gants, masque s'ils sont disponibles) et vérifiez que l'approche est sans danger, pour vous, la victime et les témoins.",
       "detail": "Repris de la conduite commune (libellé D-47, précision D-50 : gants, masque).",
       "statut": "DEDUIT",
