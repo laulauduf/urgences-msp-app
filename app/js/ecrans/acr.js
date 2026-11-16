@@ -254,6 +254,13 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
       li.append(creer('p', 'etape-valeur', v, { 'data-valeur': item.id, ...(v === '' ? { hidden: '' } : {}) }));
     }
     li.append(marques(item));
+    // m-1 / m-2 : le volet « Fiche » a pu changer la valeur ; la ligne (dépliée ou repliée) se remet d'accord avec la fiche, et la case que la SAISIE avait cochée se décoche si la valeur est vide (jamais une case cochée à la main)
+    if (saisie) li.addEventListener('recaler', (ev) => {
+      if (ev.target !== li) return;
+      intervention.etapeSaisie(item.id, { decocherSeulement: true });
+      const z = li.querySelector('.etape-saisie');
+      if (z) z.dispatchEvent(new Event('recaler')); else majSaisie(item.id);
+    });
     if (etat.confirmation === item.id && item.surDemande && !item.cochee) {
       // confirmation « fait sur demande du 15 » (D-58) : deux boutons sous la ligne, la case ne se coche qu'au second geste ; Annuler ne coche rien
       const c = creer('div', 'demande-confirmation', '', { 'data-confirmation': item.id, role: 'group', 'aria-label': `${e.texte_court} : confirmer ${MENTION_SUR_DEMANDE}` });

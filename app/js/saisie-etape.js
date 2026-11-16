@@ -87,6 +87,8 @@ export function poserHeure(texte, hhmm, precedente = null) {
     const k = occurrences(t, precedente).find((i) => /^\s*$/.test(t.slice(0, i)));
     if (k !== undefined) return t.slice(0, k) + hhmm + t.slice(k + precedente.trim().length);
   }
+  // m-5 : jamais deux fois la même heure en tête (la zone redessinée a pu oublier l'heure posée avant)
+  if (occurrences(t, hhmm).some((i) => /^\s*$/.test(t.slice(0, i)))) return t;
   return t.trim() === '' ? hhmm : `${hhmm}, ${t}`;
 }
 

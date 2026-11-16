@@ -160,6 +160,8 @@ export function lireMetronome(protocole) {
   if (!Number.isFinite(frequence) || frequence <= 0) return null;
   return {
     frequence,
+    // D-81 : rapport compressions / insufflations du protocole (30 adulte, 15 enfant) ; null si le protocole ne le dit pas (le contrôle du dépôt l'exige)
+    battementsAvantInsufflations: Number.isInteger(m.battements_avant_insufflations) && m.battements_avant_insufflations > 0 ? m.battements_avant_insufflations : null,
     provisoire: typeof m.provisoire === 'string' ? m.provisoire : null,
     marque: typeof m.provisoire === 'string' ? MARQUE_PROVISOIRE : null,
     mode: valeurDe(m.mode) ?? 'continu',

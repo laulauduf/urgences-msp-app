@@ -42,13 +42,18 @@ export function afficherTransmission(conteneur, { pages, etat, intervention, auF
         // F5 (m2 de la relecture D-65) : « Annuler » remet la valeur lue à l'OUVERTURE de la ligne (vider l'adresse par erreur pendant la lecture au 15 la supprimait de la fiche, sans retour)
         bloc.append(creer('span', 'transmission-k', libelle), saisie, bouton('Terminé', 'bouton bouton-accent', finEdition, { id: 'transmission-ligne-ok' }),
           // m7 (revue AF) : rien n'est écrit si la valeur n'a pas changé (sinon la valeur de la structure serait figée dans la fiche comme surcharge)
-          bouton('Annuler', 'bouton', () => { if (intervention.lireEdition(l.edit) !== (etat.initiale ?? '')) intervention.ecrireEdition(l.edit, etat.initiale ?? ''); finEdition(); }, { id: 'transmission-ligne-annuler' }));
+          bouton('Annuler', 'bouton', () => {
+            // r3 : une valeur venue de la STRUCTURE n'est jamais figée dans la fiche : si la ligne n'avait pas de surcharge à l'ouverture, « Annuler » retire celle que la frappe a posée (valeur vide = retour à la structure)
+            if (l.edit.cible === 'lieu-surcharge' && !etat.avaitSurcharge) { if (intervention.fiche?.lieu?.surcharges?.[l.edit.cle] !== undefined) intervention.ecrireEdition(l.edit, ''); }
+            else if (intervention.lireEdition(l.edit) !== (etat.initiale ?? '')) intervention.ecrireEdition(l.edit, etat.initiale ?? '');
+            finEdition();
+          }, { id: 'transmission-ligne-annuler' }));
         liste.append(bloc);
         setTimeout(() => saisie.focus({ preventScroll: true }), 0);
         continue;
       }
       const ligne = remplir(creer('p', 'transmission-ligne transmission-editable', '', { role: 'button', tabindex: '0', 'data-edit': cle, 'aria-label': `Modifier : ${l.valeur}` }), l);
-      const ouvrir = () => { etat.ligne = cle; etat.initiale = intervention.lireEdition(l.edit); auRendre(); };
+      const ouvrir = () => { etat.ligne = cle; etat.initiale = intervention.lireEdition(l.edit); etat.avaitSurcharge = intervention.fiche?.lieu?.surcharges?.[l.edit.cle] !== undefined; auRendre(); };
       ligne.addEventListener('click', ouvrir);
       ligne.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); ouvrir(); } });
       liste.append(ligne);

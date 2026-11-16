@@ -3,7 +3,7 @@
   "id": "avc",
   "titre": "Suspicion d'accident vasculaire cérébral (AVC) de l'adulte, jusqu'à l'arrivée des secours",
   "titre_court": "AVC de l'adulte",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/avc.md",
@@ -35,6 +35,11 @@
         "par": "agent de finition « lot G » (Sonnet 5.5 / high), lancé par « urgences - pilote 5 »",
         "le": "2026-11-16",
         "objet": "Version 0.1.4 (lot G, décisions D-66 et D-69 de Laurent : saisir dans l'étape) : ajout du champ `saisie` aux étapes de recueil heure-debut, glycemie, antecedents — il dit dans quel champ de la fiche de la victime va le renseignement saisi sur place ; les puces (s'il y en a) reprennent uniquement des textes déjà écrits dans l'étape. Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.1.4 non contrôlée."
+      },
+      {
+        "par": "agent recherche-reco (Opus 5.5 / high), lancé par le pilote",
+        "le": "2026-11-16",
+        "objet": "Version 0.1.5, d'après le contrôle docs/controle/bilan-victime-conduites-controle-2026-11-16.md (écart #26, mineur) : étape constantes, « pouls » devenu « fréquence cardiaque » dans la précision (« Pression artérielle, fréquence cardiaque, SpO₂, fréquence respiratoire ») et dans la consigne guidée (D-56, vocabulaire médical ; mot du PSE p. 70, « La fréquence cardiaque (FC) », que le détail de l'étape employait déjà ; même correction que douleur-thoracique.json 0.1.3). Sens inchangé ; aucune autre étape, aucun statut, aucune source, aucun champ `saisie` modifié. Fiche docs/reco/avc.md (§ 2, étape 8b) alignée. Version 0.1.5 non contrôlée."
       }
     ]
   },
@@ -794,8 +799,8 @@
       "critique": false,
       "titre_fiche": "Constantes",
       "texte_court": "Constantes",
-      "precision": "Pression artérielle, pouls, SpO₂, fréquence respiratoire",
-      "consigne_guidee": "Mesurez la pression artérielle, le pouls, la saturation en oxygène (SpO₂) et la fréquence respiratoire ; les signes cliniques priment sur les mesures.",
+      "precision": "Pression artérielle, fréquence cardiaque, SpO₂, fréquence respiratoire",
+      "consigne_guidee": "Mesurez la pression artérielle, la fréquence cardiaque, la saturation en oxygène (SpO₂) et la fréquence respiratoire ; les signes cliniques priment sur les mesures.",
       "detail": "Premiers secours en équipe, 4e regard : « Les paramètres suivants seront systématiquement réalisés » : fréquence respiratoire, saturation, fréquence cardiaque, pression artérielle ; « la prise en compte des signes cliniques prime sur les mesures » (p. 70). Intervalle de mesure : renvoi à la conduite commune (étape constantes-repetees), à valider (V5 de la fiche urgence-commune). Attestation de niveau 2, 1er module (JO p. 8) : « de mettre en œuvre des appareils non invasifs de surveillance des paramètres vitaux ».",
       "statut": "CITE",
       "statut_fiche": "CITÉ ([PSE])",
@@ -807,7 +812,7 @@
       "ref_fiche": "§ 2, étape 8b",
       "qui_fiche": "Médecin, IDE, MK (geste constantes_non_invasives) ; sage-femme, groupes 5 à 7 : A_VALIDER",
       "professions": {"geste": "constantes_non_invasives"},
-      "remarque": "Intervalle de mesure des constantes : renvoi à la conduite commune, A_VALIDER (fiche § 3 ; V5 de la fiche urgence-commune) : aucun intervalle chiffré n'est transcrit ici.",
+      "remarque": "Intervalle de mesure des constantes : renvoi à la conduite commune, A_VALIDER (fiche § 3 ; V5 de la fiche urgence-commune) : aucun intervalle chiffré n'est transcrit ici. Version 0.1.5 : « pouls » devenu « fréquence cardiaque » dans la précision et la consigne (D-56 ; mot du PSE p. 70 « La fréquence cardiaque (FC) », déjà retenu par douleur-thoracique.json 0.1.3 ; contrôle docs/controle/bilan-victime-conduites-controle-2026-11-16.md, #26) ; sens inchangé.",
       "cochable": false,
       "acronymes": ["spo2"],
       "materiel": []

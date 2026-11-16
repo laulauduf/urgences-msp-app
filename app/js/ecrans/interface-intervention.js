@@ -91,6 +91,7 @@ export class InterfaceIntervention {
     entete.hidden = false; barre.hidden = false;
     this.construireEntete();
     this.construireBarre();
+    this.monterInsufflationsCentre();
     this.monterVolet();
     this.monterSuiviClavier();   // D-70 : le champ en cours de saisie reste visible au-dessus du clavier, aussi dans la zone centrale
     if (this.intervention.transmissionAuRetour) { this.intervention.transmissionAuRetour = false; this.panneau = 'transmission'; }   // reprise après un appel : transmission d'abord
@@ -131,6 +132,7 @@ export class InterfaceIntervention {
     this.son.onBattement = () => {}; this.son.onEtat = () => {}; this.ecran.onEtat = () => {};
     const { appli, entete, barre, bandeaux } = this.zone;
     appli.classList.remove('gabarit');
+    document.getElementById('insuf-centre')?.remove();
     entete.hidden = true; barre.hidden = true; entete.replaceChildren(); barre.replaceChildren();
     for (const b of bandeaux.querySelectorAll('[data-bandeau="simulation"],[data-bandeau="reprise"],[data-bandeau="acr-illisible"],[data-bandeau="version"],[data-bandeau="son"],[data-bandeau="ecran"],[data-bandeau="echeance"],[data-bandeau="rattrapage"]')) b.remove();
     delete document.body.dataset.mode; delete document.body.dataset.texte; delete document.body.dataset.agrandi; delete document.body.dataset.panneau;
@@ -303,7 +305,8 @@ export class InterfaceIntervention {
     if (el.contains(document.activeElement)) document.activeElement.blur();
     this.volet.remettreEtat(); this.volet.redessiner();   // une demande de retrait en cours est abandonnée ; un brouillon d'ajout est gardé
     // M1 : le volet a pu corriger la fiche (heure, notes, antécédents, identité) pendant qu'une étape restait dépliée : ses champs se recalent sur la fiche, sinon la frappe suivante écraserait la correction
-    for (const z of document.querySelectorAll('.etape-saisie')) z.dispatchEvent(new Event('recaler'));
+    // m-1 / m-2 : TOUTES les lignes de recueil sont recalées, dépliées ou non (la valeur affichée d'une étape repliée ne reste pas périmée) ; une case cochée par la saisie dont la valeur a été vidée se décoche
+    for (const li of document.querySelectorAll('li.etape[data-etape]')) if (li.querySelector('[data-valeur]')) li.dispatchEvent(new Event('recaler'));
     const fin = () => { if (!this.voletOuvert) el.hidden = true; };
     if (immediat || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) fin(); else this.delaiVolet = setTimeout(fin, 280);
     if (focus) document.getElementById('barre-fiche')?.focus({ preventScroll: true });
@@ -365,8 +368,28 @@ export class InterfaceIntervention {
 
   /** D-76 : montre ou cache le calque « 2 insufflations » du bouton « Masser » (appelé à chaque battement et à chaque tick de 250 ms : l'affichage s'éteint à ~5 s près d'une demi-seconde). */
   majInsufflations() {
+    // H-1 : seulement en arrêt cardiaque, tuile « Masser » affichée ; hors ACR (« Autre situation », reprise d'activité) rien ne s'affiche, même si le métronome tourne encore (le métronome n'est pas touché : METRO-1)
+    const tuile = document.getElementById('barre-masser');
+    const montre = this.intervention.situation === ACR && !!tuile && !tuile.hidden && this.son.insufflationsAffichees();
     const el = document.getElementById('insuf-affichage');
-    if (el) el.hidden = !this.son.insufflationsAffichees();
+    if (el) el.hidden = !montre;
+    // D-79 : le même affichage, en très grand au centre de l'écran. Le texte n'est AJOUTÉ qu'à l'apparition et retiré à la disparition (jamais réécrit à chaque battement) :
+    // la région role="status" l'annonce une seule fois aux lecteurs d'écran.
+    const centre = document.getElementById('insuf-centre');
+    if (centre) {
+      const present = centre.childElementCount > 0;
+      if (montre && !present) {
+        const t = creer('div', 'insuf-centre-texte');
+        t.append(creer('b', 'insuf-centre-chiffre', '2'), creer('span', 'insuf-centre-mot', 'insufflations'));
+        centre.append(t);
+      } else if (!montre && present) centre.replaceChildren();
+    }
+  }
+
+  /** D-79 : calque central « 2 insufflations ». Élément de la grille, posé dans la MÊME case que la zone centrale (entre l'en-tête et la barre, ou à gauche de la barre en paysage) : il ne déplace rien,
+   *  ne recouvre jamais la barre ni l'en-tête, et ne capte aucun toucher (`pointer-events: none`, voir app.css). */
+  monterInsufflationsCentre() {
+    this.zone.appli.append(creer('div', null, '', { id: 'insuf-centre', role: 'status', 'aria-live': 'polite', 'aria-atomic': 'true' }));
   }
 
   pulser() {
@@ -425,10 +448,10 @@ export class InterfaceIntervention {
         const etat = !i.estCochee(masser.id) ? 'démarrer' : e.actif ? (e.mention ? 'visuel seul' : 'en cours') : 'en pause';   // « visuel seul » : le son s'est arrêté, le repère continue
         document.getElementById('metronome-etat').textContent = etat;
         tuileMasser.setAttribute('aria-pressed', String(e.actif));
-        this.majInsufflations();
         tuileMasser.setAttribute('aria-label', `${libelleBarre(masser)}${m ? `, métronome ${m.frequence} par minute${m.marque ? ' (provisoire, non validé)' : ''}` : ''} : ${etat}`);
       }
     }
+    this.majInsufflations();   // H-1 : hors du « if (masser) » — le calque s'efface aussi quand la tuile disparaît
     const tuileDae = document.getElementById('barre-dae');
     if (tuileDae) {
       tuileDae.hidden = !dae;
@@ -478,7 +501,7 @@ export class InterfaceIntervention {
     if (alerte === 'aucune') return;
     const def = this.intervention.definitions.find((d) => d.id === id);
     const texte = [def?.libelle ?? id, def?.note].filter(Boolean).join(' — ');
-    this.poserBandeauTemporaire('echeance', `Échéance : ${texte}${def ? suffixeMarques(def) : ''}`, 15000);   // les mêmes marques que la zone du cycle (revue m6)
+    this.poserBandeauTemporaire('echeance', `${texte}${def ? suffixeMarques(def) : ''}`, 15000, 'Échéance : ');   // les mêmes marques que la zone du cycle (revue m6)
   }
 
   afficherRattrapage({ franchies }) {
@@ -486,12 +509,16 @@ export class InterfaceIntervention {
     this.poserBandeauTemporaire('rattrapage', texte, 20000); // toujours en bandeau, jamais en voile
   }
 
-  poserBandeauTemporaire(cle, texte, dureeMs) {
+  poserBandeauTemporaire(cle, texte, dureeMs, prefixe = '') {
     const zone = this.zone.bandeaux;
     zone.querySelector(`[data-bandeau="${cle}"]`)?.remove();
     // A3 : bandeau TEMPORAIRE (il porte un bouton « OK ») : le texte passe à la ligne et « OK » reste dans la largeur de l'écran (classe `bandeau-temporaire`)
-    const b = creer('div', 'bandeau bandeau-avertissement bandeau-temporaire', '', { 'data-bandeau': cle, role: 'status', title: texte });
-    b.append(creer('span', 'bandeau-texte', texte), bouton('OK', 'bouton', () => b.remove()));
+    const b = creer('div', 'bandeau bandeau-avertissement bandeau-temporaire', '', { 'data-bandeau': cle, role: 'status', title: prefixe + texte });
+    // r1 : le préfixe (« Échéance : ») est un morceau à part : à 200 % de texte il devient invisible (lu quand même par les lecteurs d'écran) pour que la ligne unique montre d'abord le texte utile
+    const t = creer('span', 'bandeau-texte');
+    if (prefixe) t.append(creer('span', 'bandeau-prefixe', prefixe));
+    t.append(document.createTextNode(texte));
+    b.append(t, bouton('OK', 'bouton', () => b.remove()));
     zone.append(b);
     setTimeout(() => b.remove(), dureeMs);
   }

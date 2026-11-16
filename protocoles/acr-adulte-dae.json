@@ -3,7 +3,7 @@
   "id": "acr-adulte-dae",
   "titre": "Arrêt cardio-respiratoire de l'adulte, avec défibrillateur automatisé externe",
   "titre_court": "Arrêt cardiaque adulte",
-  "version": "0.4.16",
+  "version": "0.4.17",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/acr-adulte-dae.md",
@@ -86,6 +86,11 @@
         "par": "agent recherche-reco (Opus 5.5 / high), lancé par « urgences - pilote 5 »",
         "le": "2026-11-16",
         "objet": "Version 0.4.16 (non contrôlée). (identifiant « insufflations-noyade », distinct de l'étape « insufflations-initiales » de l'ACR de l'enfant, dont le libellé diffère : coches gardées entre ACR, test p4d m2) (1) D-78 : étape insufflations, libellé « 30:2 si formé » → « 30:2 », titre de fiche « Insufflations 30:2 », consigne guidée sans « Si vous êtes formé aux insufflations » ; précision, détail (citation ERC conservée telle quelle), sources et statut inchangés. (2) D-77 : nouvelle étape de premier niveau insufflations-initiales (« Noyade : 5 insufflations », ordre 23, juste avant « Masser », intertitre Secourir, non vitale, cochable), statut A_VALIDER (✱) : 5 insufflations initiales CITÉES pour la noyade seulement (ERC circonstances particulières p. 11, fig. 9 p. 13, p. 36 ; ERC premiers secours p. 8 et p. 22 ; synthèse ERC p. 27 ; pages p. 11 et p. 13 et p. 8 lues sur les images locales) ; divergence avec les références françaises (PSE fiche Noyade p. 273-274 : aucune insufflation initiale ; logigramme PSE p. 16 : RCP « en commençant par les compressions » ; PSC p. 27 : cycles 30/2 d'emblée) ; extension à tout arrêt d'origine hypoxique de l'adulte (D-77) : aucune source lue (V33, V34, V35). Pas de marque `provisoire` : D-77 n'est pas un CHOIX PROVISOIRE au registre (R6). Champ ordre renuméroté 1..72 (étapes compressions à apres-intervention : +1) ; identifiants, parent et ref_fiche existants inchangés. Source ajoutée : DGSCGC-LOGI-PSE-2026. Ajouts : decisions_appliquees D-77 et D-78, phases_et_sections, recapitulatif_chiffre, divergences_fiche, points V33 à V35, remarque du hors champ (noyade)."
+      },
+      {
+        "par": "agent code « lot I » (Sonnet 5.5 / high), lancé par « urgences - pilote 5 »",
+        "le": "2026-11-16",
+        "objet": "Version 0.4.17 (lot I, décision D-81 de Laurent) : ajout du champ `parametres.metronome.battements_avant_insufflations` (30) — le nombre de battements entre deux affichages « 2 insufflations » vient désormais du protocole : rapport 30:2, rapport déjà écrit dans le protocole (« Alternez 30 compressions et 2 insufflations », étape des compressions). Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.4.17 non contrôlée."
       }
     ]
   },
@@ -2443,6 +2448,7 @@
   "parametres": {
     "metronome": {
       "frequence_par_min": 110,
+      "battements_avant_insufflations": 30,
       "fourchette_citee_par_min": [100, 120],
       "statut": "DEDUIT",
       "decision": "D-11",

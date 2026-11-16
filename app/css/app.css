@@ -227,9 +227,17 @@ body[data-texte="grand"] .outils .outil-appel b { font-size: 0.75rem; }
 .insuf-affichage { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; padding: 0.125rem; background: var(--accent-fond); color: var(--sur-accent-fond); font-weight: 800; line-height: 1.05; pointer-events: none; }
 .insuf-affichage[hidden] { display: none; }
 .outil .insuf-affichage b { font-size: 1.5rem; line-height: 1; }
-.insuf-affichage span { font-size: 0.75rem; overflow-wrap: anywhere; }
+.insuf-affichage span { font-size: min(0.6875rem, 2.9vw); white-space: nowrap; overflow-wrap: normal; }   /* m-4 : le mot n'est jamais coupé */
 body[data-texte="grand"] .outil .insuf-affichage b { font-size: 0.75rem; }
 body[data-texte="grand"] .insuf-affichage span { font-size: 0.5rem; }
+
+/* H-3 : la taille est aussi bornée par la hauteur de la case (24cqh : le calque fait ~3,75 fois la taille du texte) pour ne jamais couper le mot ni le chiffre, même avec le bandeau d échéance à 200 %. */
+/* D-79 : « 2 insufflations » en TRÈS grand au centre de la zone centrale. Même case de grille que #contenu (entre l'en-tête et la barre ; à gauche de la barre en paysage) : il ne pousse rien, ne recouvre ni
+   l'en-tête ni la barre (z-index sous celle-ci), et ne capte aucun toucher. Tailles en vmin (pas en rem : à 200 % de texte elles resteraient bornées par la zone) ; le mot ne se coupe jamais ; jetons d'un aplat d'action. */
+#insuf-centre { grid-area: contenu; container-type: size; z-index: 25; min-width: 0; min-height: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.insuf-centre-texte { display: flex; flex-direction: column; align-items: center; padding: 0.25em 0.3em; border-radius: 0.25em; background: var(--accent-fond); color: var(--sur-accent-fond); font-weight: 800; line-height: 1; text-align: center; font-size: min(12.5vmin, 3.25rem, 24cqh); box-shadow: 0 0.25rem 1.5rem rgba(0, 0, 0, 0.35); }
+.insuf-centre-chiffre { font-size: 2.25em; line-height: 1; }
+.insuf-centre-mot { white-space: nowrap; overflow-wrap: normal; }
 
 @media (orientation: landscape) and (max-height: 600px) {
   .gabarit {
@@ -1089,6 +1097,8 @@ body[data-mode="intervention"] .bandeau.bandeau-temporaire { display: flex; alig
 .bandeau-temporaire::before { flex: none; }
 .bandeau-temporaire .bandeau-texte { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bandeau-temporaire .bouton { flex: none; }
+/* r1 : texte agrandi (ligne unique coupée par « … ») : « Échéance : » ne prend plus de place (masqué à la vue, gardé pour les lecteurs d'écran) : le texte utile passe en premier */
+body[data-agrandi="oui"] .bandeau-prefixe, body[data-texte="grand"] .bandeau-prefixe { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 @media (orientation: portrait) {
   body[data-mode="intervention"]:not([data-agrandi="oui"]):not([data-texte="grand"]) .bandeau.bandeau-temporaire { white-space: normal; overflow: visible; }
   body[data-mode="intervention"]:not([data-agrandi="oui"]):not([data-texte="grand"]) .bandeau-temporaire .bandeau-texte { white-space: normal; overflow: visible; overflow-wrap: anywhere; }

@@ -161,6 +161,7 @@ export class Intervention {
     this.protocole = protocole; this.protocoleEtat = 'ok'; this.raisons = [];
     this.definitions = lireChronometres(protocole);
     this.metronome = lireMetronome(protocole);
+    if (this.metronome) this.son.reglerInsufflations?.(this.metronome.battementsAvantInsufflations);   // D-81 : « 2 insufflations » suit le rapport du protocole (même si le métronome tourne déjà : changement d'ACR)
     this.gestion = new GestionChronos({
       horloge: this.horloge, chronometres: this.fiche.chronometres, definitions: this.definitions,
       journaliser: (t, d) => this.journaliser(t, d), ecrire: () => this.ecrire(),
@@ -400,13 +401,14 @@ export class Intervention {
     return saisiePermise(p, item.etape);
   }
 
-  etapeSaisie(id) {
+  /** `decocherSeulement` (m-2) : au retour du volet « Fiche », ne fait QUE décocher une étape cochée par la saisie dont la valeur a été vidée ; ne coche jamais. */
+  etapeSaisie(id, { decocherSeulement = false } = {}) {
     const item = this.itemChecklist(id);
     const saisie = item?.etape?.saisie;
     if (!item || !this.saisiePermise(item)) return { valeur: '', coche: false };
     const valeur = valeurEtape(this.fiche, saisie);
     // m1 : jamais pour une étape que le protocole déclare non cochable (cochable: false), ni pour une étape que la profession ne peut pas cocher, ni « sur demande du 15 » (D-58) : la valeur est gardée, la case reste ce qu'elle est
-    if (valeur !== '') { if (!item.cochee && item.cochable && !item.surDemande) this.cocher(id, { saisie: true, silencieux: true }); }
+    if (valeur !== '') { if (!decocherSeulement && !item.cochee && item.cochable && !item.surDemande) this.cocher(id, { saisie: true, silencieux: true }); }
     else if (item.cochee && this.fiche.checklist[id]?.saisie === true) this.decocher(id, { silencieux: true });
     this.emettre('saisie', { id });
     return { valeur, coche: this.estCochee(id) };

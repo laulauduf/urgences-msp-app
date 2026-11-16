@@ -3,7 +3,7 @@
   "id": "acr-enfant",
   "titre": "Arrêt cardiaque de l'enfant et du nourrisson (réanimation de base pédiatrique, avec défibrillateur automatisé externe)",
   "titre_court": "Arrêt cardiaque enfant",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/acr-enfant.md",
@@ -56,6 +56,11 @@
         "par": "agent code « urgences - code 6 » (Sonnet 5.5 / high), lancé par « urgences - pilote 4 »",
         "le": "2026-11-16",
         "objet": "Version 0.1.8 (lot V2, décision D-65 de Laurent, test de la version 0.2.6) : ajout du champ `precision_visible: true` à l'étape repartir-taches (« À plusieurs : répartir ») — sa précision reste toujours affichée, en petit, sous le libellé, sans dépliage, comme « Se protéger » et « Respire ? » (D-61 étendue). Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.1.8 non contrôlée."
+      },
+      {
+        "par": "agent code « lot I » (Sonnet 5.5 / high), lancé par « urgences - pilote 5 »",
+        "le": "2026-11-16",
+        "objet": "Version 0.1.9 (lot I, décision D-81 de Laurent) : ajout du champ `parametres.metronome.battements_avant_insufflations` (15) — le nombre de battements entre deux affichages « 2 insufflations » vient désormais du protocole : rapport 15:2, ERC 2025 pédiatrie p. 13 (étape rapport-15-2 du protocole). Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.1.9 non contrôlée."
       }
     ]
   },
@@ -2076,6 +2081,7 @@
   "parametres": {
     "metronome": {
       "frequence_par_min": 110,
+      "battements_avant_insufflations": 15,
       "fourchette_citee_par_min": [100, 120],
       "statut": "DEDUIT",
       "decision": "D-11",

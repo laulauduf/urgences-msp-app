@@ -9,6 +9,8 @@ import { champDe, pucesDe, typesProposes, aJeton, basculerJeton, poserHeure, lir
 import { PUCES_ANTECEDENTS, PUCES_TRAITEMENTS, victimePriseEnCharge } from '../victimes.js';
 
 const SANS_AUTO = { autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false' };
+/** E-2 : durée pendant laquelle un second « Maintenant » corrige l'heure que le premier a posée (double toucher) ; passé ce délai, les deux heures sont gardées. */
+const FENETRE_CORRECTION_MS = 2 * 60 * 1000;
 
 /**
  * @param {{intervention: object, item: object, auSaisie: () => void}} options  `auSaisie` : à appeler après chaque écriture dans la fiche
@@ -65,8 +67,13 @@ export function construireZoneSaisie({ intervention, item, auSaisie }) {
     const ecrire = (valeur) => { intervention.definirChamp(def.bloc, def.cle, valeur, PEC); intervention.etapeSaisie(item.id); };
     if (def.heure) {
       // M3 : « Maintenant » n'ajoute qu'en tête ; il ne remplace que l'heure qu'il a posée lui-même (gardée ici), jamais une heure écrite à la main
-      let posee = null;
-      const b = bouton('Maintenant', 'bouton saisie-maintenant', () => { const h = heureLocale(Date.now()); ecrire(poserHeure(lire(), h, posee)); posee = h; apres(); }, { 'data-maintenant': item.id });
+      // m-5 : `poserHeure` n'ajoute jamais une heure déjà en tête. H-2 : l'heure posée n'est PAS gardée hors de la zone (replier puis redéplier plus tard ne doit jamais effacer une heure enregistrée)
+      // E-2 : le remplacement ne sert qu'à corriger un double toucher : au-delà de FENETRE_CORRECTION_MS, l'heure posée est gardée et la nouvelle s'ajoute en tête (zone restée dépliée longtemps)
+      let posee = null; let poseeA = 0;
+      const b = bouton('Maintenant', 'bouton saisie-maintenant', () => {
+        const maintenant = Date.now(); const h = heureLocale(maintenant);
+        ecrire(poserHeure(lire(), h, posee !== null && maintenant - poseeA < FENETRE_CORRECTION_MS ? posee : null)); posee = h; poseeA = maintenant; apres();
+      }, { 'data-maintenant': item.id });
       const rang = creer('div', 'saisie-bloc'); rang.append(b); zone.append(rang);
     }
     const puces = pucesDe(s);

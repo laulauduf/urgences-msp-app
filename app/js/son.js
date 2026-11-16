@@ -84,7 +84,7 @@ export function genererWav({ frequence = 880, dureeS = 0.15, sampleRate = 22050,
   return octets;
 }
 
-/** D-76 (INSUF-1) : un affichage « 2 insufflations » tous les 30 battements (rapport 30:2 de l'ERC, déjà sourcé dans le protocole ACR), pendant environ 5 secondes. */
+/** D-76 (INSUF-1) : un affichage « 2 insufflations » tous les 30 battements par défaut, pendant environ 5 secondes. D-81 : le nombre réel vient du protocole (`battements_avant_insufflations` : 30 adulte, 15 enfant), réglé par `reglerInsufflations`. */
 export const BATTEMENTS_PAR_SERIE = 30;
 export const DUREE_AFFICHAGE_INSUFFLATIONS_MS = 5000;
 
@@ -132,7 +132,9 @@ export class Son {
   }
 
   /** D-76 : l'affichage « 2 insufflations » est-il à montrer à cet instant ? (le son n'est jamais touché) */
-  insufflationsAffichees(maintenantPerf = this.perf()) { return this.insuf.affiche(maintenantPerf); }
+  insufflationsAffichees(maintenantPerf = this.perf()) { return this.metronome.actif && this.insuf.affiche(maintenantPerf); }   // m-3 : métronome en pause = rien à montrer (le calque s'éteint aussitôt)
+  /** D-81 : règle le nombre de battements entre deux affichages sur le rapport du protocole (30:2 adulte, 15:2 enfant). Valeur invalide : rien ne change. Le comptage en cours n'est pas remis à zéro. */
+  reglerInsufflations(tous) { if (Number.isInteger(tous) && tous > 0) this.insuf.tous = tous; }
   /** Nombre de battements comptés depuis le dernier départ (ou la fin du dernier affichage). */
   get compteInsufflations() { return this.insuf.n; }
 
