@@ -46,8 +46,6 @@ export function afficherCloture(conteneur, ctx) {
     const titre = creer('div', 'panneau-titre');
     titre.append(creer('h1', 'cloture-titre', 'Clôture et export'), ...(ctx.auUrgence ? [bouton('URGENCE', 'bouton bouton-urgence', () => { demonter(); ctx.auUrgence(); }, { id: 'cloture-urgence' })] : []), bouton(ctx.libelleFermer ?? 'Fermer', 'bouton', () => { demonter(); ctx.auFermer(); }, { id: 'fermer-cloture' }));
     page.append(titre);
-    // D-89 (n-1) : tout toucher dans la clôture est une action du soignant sur CET écran : il le dit à l'appelant (qui invalide alors une ouverture lente d'un autre écran, restée en cours)
-    page.addEventListener('click', () => { try { ctx.auAction?.(); } catch { /* l'écran ne dépend jamais de ce rappel */ } }, true);
 
     // 1. remise en main propre : d'abord
     const main = creer('div', 'cloture-groupe cloture-main');
@@ -186,7 +184,13 @@ export function afficherCloture(conteneur, ctx) {
     rendre();
   }
 
-  function demonter() { detruit = true; retirerImpression(); }
+  // D-89 (n-1), D-90 (m-2) : tout toucher dans la clôture ET dans son aperçu « Montrer au SMUR » est une action du soignant sur CET écran : il le dit à l'appelant (qui invalide alors une ouverture lente
+  // d'un autre écran, restée en cours). Un seul écouteur sur le conteneur, posé ici (hors de `rendre`, que l'aperçu ne traverse pas) et retiré par `demonter`.
+  // D-90b (m-1) : filet — si l'écran a été remplacé sans passer par `demonter`, le toucher suivant retire l'écouteur au lieu d'appeler `auAction` (la clôture et son aperçu portent chacun leur page).
+  const auToucher = () => { if (!conteneur.querySelector('.ecran-cloture, .ecran-transmission')) { demonter(); return; } try { ctx.auAction?.(); } catch { /* l'écran ne dépend jamais de ce rappel */ } };
+  conteneur.addEventListener('click', auToucher, true);
+
+  function demonter() { detruit = true; conteneur.removeEventListener('click', auToucher, true); retirerImpression(); }
 
   rendre();
   return { demonter };

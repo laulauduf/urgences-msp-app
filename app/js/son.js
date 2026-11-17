@@ -340,7 +340,15 @@ export class Son {
     try { if (this.signalInsufflationsPermis?.() === false) return false; } catch { return false; }
     try {
       const maintenant = this.ctx.currentTime;
-      const depart = Number.isFinite(debutClic) ? Math.max(maintenant, debutClic + DELAI_APRES_CLIC_S) : maintenant;
+      let depart = maintenant;
+      if (Number.isFinite(debutClic)) {
+        // m-1 (revue D-89) : départ borné — 45 ms après le clic du battement ; si ce moment est passé (battement détecté en retard), 45 ms après le clic SUIVANT
+        // (jamais pendant un clic, jamais plus d'une période après maintenant)
+        const periodeS = this.metronome.frequence > 0 ? 60 / this.metronome.frequence : 0;
+        depart = debutClic + DELAI_APRES_CLIC_S;
+        if (periodeS > 0) depart += Math.max(0, Math.ceil((maintenant - depart) / periodeS - 1e-9)) * periodeS;
+        if (!(depart >= maintenant - 1e-6)) depart = maintenant;   // garde-fou (valeur incohérente) : tout de suite, comme avant
+      }
       NOTES_SIGNAL_INSUFFLATIONS.forEach(({ t, d, f, a, r }) => {
         const o = this.ctx.createOscillator(); const g = this.ctx.createGain();
         const debut = depart + t; const fin = debut + d;

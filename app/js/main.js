@@ -76,7 +76,8 @@ function montrerAccueil() {
     auxReglages: ouvrirReglages,
     auGlossaire: ouvrirGlossaire,
     auMateriel: ouvrirMateriel,
-    auAPropos: ouvrirAPropos,
+    auAPropos: () => ouvrirAPropos(),
+    auCredits: () => ouvrirAPropos({ versCredits: true }),
     auTester: testerLaPreparation,
     auToucher: () => { app.accueilTouche = true; },
   });
@@ -211,6 +212,7 @@ async function reprendreFiche(resume, { automatique = false } = {}) {
   if (app.intervention || (automatique && app.accueilTouche)) { i.detruire(); return; }
   // D-89 (n-5) : l'intervention remplace l'écran courant (clôture d'une autre fiche, par exemple) : celui-ci est quitté par sa sortie propre (marque « affichée », impression, effacement en cours qui ne ramènera plus l'accueil)
   sortirEcranCourant(); nouveauJeton();
+  stockage.definirAffichee(i.fiche.id);   // D-90 (m-3) : la sortie de la clôture de la MÊME fiche vient de retirer la marque que la reprise avait posée : on la repose (synchrone)
   ouvrirInterface(i);
 }
 
@@ -315,11 +317,12 @@ function ouvrirMateriel() {
 }
 
 /** « À propos » depuis l'accueil (4.15). */
-function ouvrirAPropos() {
+function ouvrirAPropos({ versCredits = false } = {}) {
   nouveauJeton();
   const contenu = document.getElementById('contenu');
   afficherAPropos(contenu, { chargerProtocole: () => chargerProtocole(PROTOCOLE_PAR_DEFAUT), stockage, auFermer: () => { montrerAccueil(); } });
   contenu.focus({ preventScroll: true }); window.scrollTo(0, 0);   // m1 (revue aval) : le nouvel écran s'ouvre en haut de page, sinon le bandeau BROUILLON sort de la vue
+  if (versCredits) document.getElementById('apropos-credits')?.scrollIntoView?.({ block: 'start' });   // D-90 (D-90b M-1 : ici, pas dans ouvrirCloture) : le message de l'accueil amène à la rubrique « Crédits »
 }
 
 const NOTE_NON_TESTE = "Son et écran : pas encore testés sur ce téléphone (tuile « Préparer ce téléphone » de l'accueil).";

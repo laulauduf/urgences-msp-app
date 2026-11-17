@@ -337,6 +337,8 @@ body[data-texte="grand"] .insuf-affichage span { font-size: 0.5rem; }
 .confirmation:empty, .en-attente:empty { display: none; }
 .accueil-liens { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem var(--espace); }
 .accueil-liens .gros { min-height: 48px; flex: 0 1 auto; padding: 0 0.75rem; border: 0; background: transparent; box-shadow: none; font-size: 0.9375rem; color: var(--texte-attenue); text-decoration: underline; }
+/* D-90 : message discret des crédits, tout en bas de l'accueil (après tous les boutons) ; même couleur atténuée que les liens du bas, plus petit ; jamais un bouton vital */
+.credits-discret { align-self: center; max-width: 100%; min-height: 44px; padding: 0.25rem 0.5rem; border: 0; background: transparent; box-shadow: none; font-size: 0.75rem; line-height: 1.3; color: var(--texte-attenue); text-align: center; text-decoration: none; overflow-wrap: anywhere; cursor: pointer; }
 .ligne-attente { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0.5rem; border: 0.0625rem solid var(--ligne); border-radius: var(--rayon); background: var(--surface); }
 .ligne-attente-titre { flex: 1 1 10rem; font-weight: 700; }
 @media (orientation: landscape) and (max-height: 600px) {

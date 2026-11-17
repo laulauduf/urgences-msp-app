@@ -12,6 +12,7 @@ self.URGENCES_LISTE_CACHE = [
   "app/js/bilan.js",
   "app/js/catalogue.js",
   "app/js/checklist.js",
+  "app/js/credits.js",
   "app/js/dom.js",
   "app/js/ecran-allume.js",
   "app/js/ecrans/a-propos.js",

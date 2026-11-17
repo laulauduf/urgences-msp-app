@@ -9,6 +9,7 @@ import {
 import { estInstallee, lireEnvironnement } from '../installation.js';
 import { verifierMisesAJour, ETATS_MAJ } from '../mise-a-jour.js';
 import { MARQUE_PROVISOIRE } from '../horloge.js';
+import { CREDITS_TITRE, CREDITS_LIGNES } from '../credits.js';
 
 const TEXTE_MAJ = {
   [ETATS_MAJ.aucune]: "L'appli est à jour (ou aucune vérification n'est possible hors ligne).",
@@ -28,6 +29,10 @@ export function afficherAPropos(conteneur, { chargerProtocole, stockage, auFerme
 
   const section = (titreSection, id) => { const s = creer('section', 'info-section', '', { id }); s.append(creer('h2', 'info-sous-titre', titreSection)); page.append(s); return s; };
   const liste = (parent, textes, classe = 'info-liste') => { const ul = creer('ul', classe); for (const t of textes) ul.append(creer('li', 'info-ligne', t)); parent.append(ul); return ul; };
+
+  // D-90 : auteur et accord de diffusion (textes : credits.js)
+  const credits = section(CREDITS_TITRE, 'apropos-credits');
+  for (const ligneCredit of CREDITS_LIGNES) credits.append(creer('p', null, ligneCredit));
 
   // versions, statut du protocole, mises à jour
   const versions = section('Versions', 'apropos-versions');

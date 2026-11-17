@@ -6,6 +6,7 @@ import { creer, bouton, heureLocale } from '../dom.js';
 import { etatTest, confirmerSon } from '../test-appareil.js';
 import { PROTOCOLES_ACR, CONDUITES } from '../catalogue.js';
 import { protocolePublie } from '../protocole-commun.js';
+import { CREDITS_MESSAGE_ACCUEIL } from '../credits.js';
 
 export const PRESENTATION = "Aide-mémoire interne à la MSP APSIS, qui affiche des recommandations publiées et aide à noter et transmettre les informations d'une intervention.";
 
@@ -14,7 +15,7 @@ export const PRESENTATION = "Aide-mémoire interne à la MSP APSIS, qui affiche 
  * @param {{auUrgence: () => void, auAutre?: () => void, auSimulation: () => void, auxReglages: () => void, auGlossaire?: () => void, auToucher?: () => void}} actions
  * @returns {{afficherEnAttente: (lignes: object[], actions: {reprendre: Function, effacer: Function}) => void}}
  */
-export function afficherAccueil(conteneur, { auUrgence, auProtocole = null, auAutre = null, auSimulation, auxReglages, auGlossaire = null, auMateriel = null, auAPropos = null, auTester = null, auToucher = () => {} }) {
+export function afficherAccueil(conteneur, { auUrgence, auProtocole = null, auAutre = null, auSimulation, auxReglages, auGlossaire = null, auMateriel = null, auAPropos = null, auCredits = null, auTester = null, auToucher = () => {} }) {
   const page = creer('section', 'accueil');
   page.addEventListener('pointerdown', auToucher, { capture: true, passive: true }); // « l'utilisateur a touché l'accueil » : plus de reprise directe
   page.append(creer('h1', 'accueil-titre', 'Urgences MSP APSIS'));
@@ -76,6 +77,8 @@ export function afficherAccueil(conteneur, { auUrgence, auProtocole = null, auAu
   // M5 (L9c étape 2, cahier 2.5, 2.6, 2.8, 4.1) : préparer son téléphone la veille — le test du son et de l'écran, et la demande de stockage persistant, sans lancer d'intervention
   if (auAPropos) liens.append(bouton('À propos', 'bouton gros gros-petit', auAPropos, { id: 'ouvrir-apropos' }));
   page.append(liens);
+  // D-90 : message discret en BAS de l'accueil (après tous les boutons) ; un toucher ouvre la rubrique « Crédits » de « À propos » ; jamais au-dessus ni à la place d'un bouton vital
+  if (auCredits) page.append(bouton(CREDITS_MESSAGE_ACCUEIL, 'credits-discret', auCredits, { id: 'credits-accueil' }));
   conteneur.replaceChildren(page);
   // taille de texte (200 %) : l'accueil suit la même règle que les écrans d'intervention (body[data-texte]) pour que le bouton d'urgence reste entièrement visible
   const majTaille = () => { const racine = parseFloat(getComputedStyle(document.documentElement).fontSize); document.body.dataset.texte = racine >= 22 ? 'grand' : 'normal'; document.body.dataset.agrandi = racine >= 18 ? 'oui' : 'non'; };
