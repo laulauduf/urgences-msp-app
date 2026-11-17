@@ -59,20 +59,24 @@ function garderChampVisible(page) {
   }
   vv?.addEventListener('resize', placer); vv?.addEventListener('scroll', placer);
   page.addEventListener('focusin', apresFocus);
+  return placer;   // D-88c (m-4) : rappelée quand le texte de l'en-tête change (l'en-tête grandit : le champ actif doit être replacé)
 }
 
 /**
  * @param {HTMLElement} conteneur
  * @param {{stockage: object, structure?: object|null, onRetour: () => void, onUrgence?: (() => void)|null, onChangement?: (cle: string, valeur: any) => void, peutAfficher?: () => boolean}} options
  *   `structure` = l'analyse du FICHIER (valeurs par défaut proposées en grisé), pas la fusion. `peutAfficher` (D-88b) : revérifié APRÈS la lecture des réglages (qui peut être lente) ; faux = on
- *   n'affiche rien (une intervention a démarré entre-temps : l'écran ne la remplace jamais).
+ *   n'affiche rien (une intervention a démarré, ou un autre écran a été demandé, entre-temps : l'écran ne remplace jamais ce qui est à l'écran).
+ *   `avantAffichage` (D-88c, m-1) : appelée juste AVANT de remplacer l'écran courant (jamais si l'on n'affiche finalement rien) : c'est là que l'écran quitté (la clôture) est quitté par sa sortie propre.
+ *   `onLu(reglages)` (D-88c, m-7) : appelée quand les réglages ont été lus avec succès dans la base (la structure rejoint alors Mon cabinet, même si la lecture du démarrage avait échoué).
  * @returns {Promise<boolean>} vrai si l'écran (ou son message d'échec) a été affiché
  */
 export async function afficherMonCabinet(conteneur, options) {
-  const { stockage, structure = null, onRetour, onUrgence = null, onChangement = () => {}, peutAfficher = () => true } = options;
+  const { stockage, structure = null, onRetour, onUrgence = null, onChangement = () => {}, peutAfficher = () => true, avantAffichage = () => {}, onLu = () => {} } = options;
   // D-88b (m-5) : lecture SÛRE. Si les réglages n'ont pas pu être lus, on n'ouvre PAS des cases vides (la première frappe écraserait tout Mon cabinet) : message, aucun champ, aucune écriture.
   const lecture = await stockage.lireReglagesSurs();
   if (!peutAfficher()) return false;
+  if (lecture.ok) { try { onLu(lecture.reglages); } catch { /* jamais bloquant */ } }
   const reglages = lecture.reglages;
   const cabinet = lireCabinet(reglages.mon_cabinet);
   const prives = { ...(reglages.champs_sensibles ?? {}) };
@@ -88,6 +92,7 @@ export async function afficherMonCabinet(conteneur, options) {
     page.append(creer('p', 'bandeau bandeau-avertissement cabinet-lecture-impossible',
       "Lecture impossible : les informations enregistrées sur ce téléphone n'ont pas pu être lues. Rien n'a été modifié ni effacé. Réessayez dans un instant ; si cela persiste, fermez puis rouvrez l'appli.", { role: 'alert' }));
     page.append(bouton('Réessayer', 'bouton bouton-accent bouton-plein', () => { afficherMonCabinet(conteneur, options); }, { id: 'mon-cabinet-reessayer' }));
+    try { avantAffichage(); } catch { /* la sortie ne doit jamais empêcher d'afficher */ }
     conteneur.replaceChildren(page);
     return true;
   }
@@ -102,11 +107,13 @@ export async function afficherMonCabinet(conteneur, options) {
 
   // Chaque frappe est enregistrée (réglage de l'appareil). On appelle `ecrireReglage` d'abord : la valeur est prise en compte tout de suite en mémoire, puis `onChangement`
   // met à jour l'écran « Lieu », la transmission et la ligne d'état ; on attend ensuite la fin de l'écriture pour le dire.
+  let replacer = () => {};   // D-88c (m-4) : posée par garderChampVisible, une fois l'écran affiché
   const sauver = async (cle, valeur) => {
     const ecriture = stockage.ecrireReglage(cle, valeur);
     onChangement(cle, valeur);
     const ok = await ecriture;
     etat.textContent = ok ? 'Enregistré sur cet appareil.' : "Pris en compte, mais non enregistré : le stockage de l'appareil ne répond pas.";
+    replacer();   // la phrase agrandit l'en-tête collé (clavier ouvert) : le champ actif est replacé sous lui et au-dessus du clavier
   };
 
   const liste = creer('div', 'cabinet-champs');
@@ -133,7 +140,8 @@ export async function afficherMonCabinet(conteneur, options) {
   page.append(sens);
 
   page.append(bouton('Terminé', 'bouton bouton-accent bouton-plein', onRetour, { id: 'mon-cabinet-termine' }));
+  try { avantAffichage(); } catch { /* la sortie ne doit jamais empêcher d'afficher */ }
   conteneur.replaceChildren(page);
-  garderChampVisible(page);
+  replacer = garderChampVisible(page);
   return true;
 }

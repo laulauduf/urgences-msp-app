@@ -50,6 +50,7 @@ export function creerStockage({
   let reglagesCache = null;
   let lectureReglages = null;
   let reglagesLusEnBase = false;   // vrai dès que les réglages ont été LUS dans la base de l'appareil (D-88b, m-5) ; un cache fabriqué par une écriture sans lecture réussie ne compte pas
+  const ecritsSansLecture = new Set();   // D-88c (m-3) : clés de réglage écrites tant que la base n'avait pas été lue (écriture échouée ou faite pendant la lecture) : elles priment sur la base à la première lecture réussie
   let afficheeId = null;
   let purgeFaite = false;
   let resoudrePurge;
@@ -147,7 +148,13 @@ export function creerStockage({
   async function lireReglagesSurs() {
     await lireReglages();
     if (!reglagesLusEnBase) {
-      try { const lus = await lireReglagesEnBase(); reglagesCache = lus; reglagesLusEnBase = true; }
+      try {
+        const lus = await lireReglagesEnBase();
+        // D-88c (m-3) : un réglage pris en compte « en mémoire seulement » pendant la panne (profession, délai d'effacement, personnes…) n'est pas écrasé sans le dire par celui de la base
+        const fusion = { ...lus };
+        for (const cle of ecritsSansLecture) if (reglagesCache && reglagesCache[cle] !== undefined) fusion[cle] = reglagesCache[cle];
+        reglagesCache = normaliser(fusion); reglagesLusEnBase = true; ecritsSansLecture.clear();
+      }
       catch { return { ok: false, reglages: structuredClone(reglagesCache ?? normaliser({})) }; }
     }
     return { ok: true, reglages: structuredClone(reglagesCache) };
@@ -175,6 +182,7 @@ export function creerStockage({
   async function ecrireReglage(cle, valeur) {
     if (!CLES_REGLAGES.includes(cle)) throw new Error(`réglage inconnu : ${cle}`);
     if (!reglagesCache) await lireReglages(); // cache présent : la valeur est prise en compte SYNCHRONEMENT (un lecteur qui suit ne voit jamais l'ancienne)
+    if (!reglagesLusEnBase) ecritsSansLecture.add(cle);
     reglagesCache = normaliser({ ...(reglagesCache ?? {}), [cle]: valeur });
     try { await executer(BASES.reglages, MAGASIN_REGLAGES, 'readwrite', (s) => s.put(reglagesCache[cle], cle)); return true; } catch { return false; }
   }
@@ -408,7 +416,7 @@ export function creerStockage({
     // (URGENCE compris). On refuse AVANT de toucher à quoi que ce soit ; à reprendre avec Laurent.
     if (globalThis.navigator?.onLine === false) return { ok: false, restes: ["hors ligne : réinitialisation refusée (l'appli ne pourrait plus se rouvrir) — recommencez avec du réseau"] };
     for (const s of suivi.values()) { s.efface = true; clearTimeout(s.minuteur); }
-    suivi.clear(); nonEnregistrees.clear(); reportees.clear(); reglagesCache = null; reglagesLusEnBase = false; afficheeId = null;
+    suivi.clear(); nonEnregistrees.clear(); reportees.clear(); reglagesCache = null; reglagesLusEnBase = false; ecritsSansLecture.clear(); afficheeId = null;
     const restes = [];
     try {
       fermerConnexions();
@@ -496,18 +504,20 @@ export function creerStockage({
     // fiches
     nouvelleFiche, modifier, journaliser, terminer, vider, lireFiche, listerResumes, trouverReprise,
     definirAffichee: (id) => { afficheeId = id; if (id) { reportees.delete(id); } },
+    /** D-88c (m-2) : retire la marque « affichée » SEULEMENT si elle désigne encore cette fiche (jamais celle d'une autre intervention). */
+    retirerAffichee: (id) => { if (afficheeId === id) afficheeId = null; },
     // effacement et purge
     effacerFiche, reinitialiser, purger, demarrer, arreter,
     configurer: ({ plancherH, repriseMaxH } = {}) => {
       if (Number.isFinite(plancherH)) config.plancherH = plancherH;
       if (Number.isFinite(repriseMaxH)) config.repriseMaxH = repriseMaxH;
-      reglagesCache = null; reglagesLusEnBase = false; // le délai effectif dépend du plancher : on relira
+      reglagesCache = null; reglagesLusEnBase = false; ecritsSansLecture.clear(); // le délai effectif dépend du plancher : on relira
     },
     acquitterHorloge: () => surveillance.acquitter(),
     // réglages
     lireReglages, lireReglagesSurs, ecrireReglage,
     // état
-    etat: () => ({ degrade: nonEnregistrees.size > 0, nonEnregistrees: [...nonEnregistrees], purgeFaite, horlogeSuspecte: surveillance.suspecte, plancherH: config.plancherH }),
+    etat: () => ({ degrade: nonEnregistrees.size > 0, nonEnregistrees: [...nonEnregistrees], purgeFaite, horlogeSuspecte: surveillance.suspecte, plancherH: config.plancherH, afficheeId }),
     purgeTerminee: () => purgeTerminee,
     ecouter: (f) => { auditeurs.add(f); return () => auditeurs.delete(f); },
     diagnostic: async () => {

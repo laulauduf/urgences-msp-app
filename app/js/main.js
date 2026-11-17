@@ -47,7 +47,15 @@ const PROTOCOLE_PAR_DEFAUT = PROTOCOLES_ACR[0].id;
 /** État de l'appli : une seule intervention à la fois, un seul son, un seul verrou d'écran. */
 // `sortieEcran` (D-88b, M-1) : la SORTIE PROPRE de l'écran affiché hors accueil et hors intervention, quand il en a besoin (aujourd'hui : la clôture ouverte depuis l'accueil, qui marque sa fiche « affichée »).
 // La ligne d'état (hors de `#contenu`) reste visible sur ces écrans : tout bouton qu'elle porte et qui change d'écran passe par `sortirEcranCourant()`.
-const app = { son: new Son(), ecran: new EcranAllume(), intervention: null, interface: null, accueilTouche: false, accueilUI: null, etatMaj: null, numeros: lireNumeros(null), sortieEcran: null };
+const app = { son: new Son(), ecran: new EcranAllume(), intervention: null, interface: null, accueilTouche: false, accueilUI: null, etatMaj: null, numeros: lireNumeros(null), sortieEcran: null, jeton: 0 };
+
+/**
+ * Jeton de navigation (D-88c, MAJ-1 et m-5) : chaque écran hors intervention qui LIT quelque chose avant de s'afficher (Réglages, Glossaire, Mon cabinet, clôture) prend un nouveau jeton en commençant ;
+ * l'accueil aussi, en s'affichant. Une lecture lente qui se termine n'affiche son écran que si le jeton est toujours le sien ET qu'aucune intervention n'a démarré : elle ne recouvre jamais une
+ * intervention, ni un autre écran demandé entre-temps. Jamais d'attente ajoutée : seul l'affichage tardif est refusé.
+ */
+const nouveauJeton = () => ++app.jeton;
+const jetonValide = (jeton) => jeton === app.jeton && !app.intervention;
 
 /** Quitte l'écran courant par sa sortie propre (marque « affichée » retirée, document d'impression retiré), puis l'oublie. Sans effet s'il n'en a pas. Ne lève jamais. */
 function sortirEcranCourant() {
@@ -58,8 +66,9 @@ function sortirEcranCourant() {
 
 /** Accueil : URGENCE immédiat ; les fiches en attente s'ajoutent quand le stockage a répondu (jamais attendues). */
 function montrerAccueil() {
+  nouveauJeton();   // une lecture lente d'un autre écran, encore en cours, ne viendra pas recouvrir l'accueil
   sortirEcranCourant();   // filet : revenir à l'accueil quitte toujours l'écran précédent par sa sortie propre (idempotent)
-  app.accueilUI =afficherEcranAccueil(document.getElementById('contenu'), {
+  app.accueilUI = afficherEcranAccueil(document.getElementById('contenu'), {
     auUrgence: () => demarrerUrgence('reel'),
     auProtocole: (id) => demarrerUrgence('reel', id),   // ACR enfant ou une conduite de l'accueil (P4a)
     auAutre: () => demarrerUrgence('reel', 'autre'),
@@ -102,8 +111,9 @@ async function rafraichirEnAttente() {
  */
 async function ouvrirCloture(resume) {
   const ui = app.accueilUI;
+  const jeton = nouveauJeton();
   const lu = await stockage.lireFiche(resume.mode, resume.id);
-  if (app.intervention || ui !== app.accueilUI) return;
+  if (!jetonValide(jeton) || ui !== app.accueilUI) return;
   if (!lu.ok) {
     ui?.afficherResultat?.(lu.raison === 'purge_en_attente' ? "Vérification d'effacement en cours : réessayez dans un instant." : "Cette fiche n'a pas pu être ouverte : elle reste sur l'appareil, vous pouvez l'effacer.");
     return;
@@ -111,7 +121,7 @@ async function ouvrirCloture(resume) {
   const fiche = lu.fiche;
   stockage.definirAffichee(fiche.id);
   const reglages = await stockage.lireReglages();
-  if (app.intervention || ui !== app.accueilUI) { stockage.definirAffichee(null); return; }
+  if (!jetonValide(jeton) || ui !== app.accueilUI) { stockage.retirerAffichee(fiche.id); return; }
   const contenu = document.getElementById('contenu');
   let sortie = null;   // D-88b (M-1) : la sortie propre de CET écran, qu'une action de la ligne d'état (« Remplir Mon cabinet ») appelle avant d'aller ailleurs
   const termine = () => { if (app.sortieEcran === sortie) app.sortieEcran = null; };
@@ -122,16 +132,17 @@ async function ouvrirCloture(resume) {
     // si l'écran a été quitté pendant l'effacement (ligne d'état), on ne ramène pas l'accueil par-dessus l'écran où l'on est allé
     apresEffacement: (res) => {
       const dejaQuitte = app.sortieEcran !== sortie;
-      termine(); stockage.definirAffichee(null);
-      if (dejaQuitte) return;
+      termine();
+      if (dejaQuitte) return;   // D-88c (m-2) : la sortie ou URGENCE a déjà retiré la marque de CETTE fiche ; on ne touche à rien d'autre (la marque est peut-être celle d'une autre intervention)
+      stockage.retirerAffichee(fiche.id);
       montrerAccueil(); app.accueilUI.afficherResultat(messageEffacement(res));
     },
-    auFermer: () => { termine(); stockage.definirAffichee(null); montrerAccueil(); },
+    auFermer: () => { termine(); stockage.retirerAffichee(fiche.id); montrerAccueil(); },
     // URGENCE reste à un toucher même sur cet écran (L8c, revue L8 m8) ; la fiche exportée reste en attente, intacte
-    auUrgence: () => { termine(); stockage.definirAffichee(null); demarrerUrgence('reel'); },
+    auUrgence: () => { termine(); stockage.retirerAffichee(fiche.id); demarrerUrgence('reel'); },
     libelleFermer: "Retour à l'accueil",
   });
-  sortie = () => { ecran?.demonter?.(); stockage.definirAffichee(null); };
+  sortie = () => { ecran?.demonter?.(); stockage.retirerAffichee(fiche.id); };
   app.sortieEcran = sortie;
   contenu.focus({ preventScroll: true }); window.scrollTo(0, 0);   // m1 (revue aval) : le nouvel écran s'ouvre en haut de page, sinon le bandeau BROUILLON sort de la vue
 }
@@ -218,15 +229,19 @@ function poserBandeauBrouillon() {
 const contexte = { structure: null, structureFichier: null, cabinet: {}, groupes: [], reglages: null };
 
 async function ouvrirReglages() {
+  if (app.intervention) return;
+  const jeton = nouveauJeton();
   const contenu = document.getElementById('contenu');
-  await afficherReglages(contenu, {
+  const affiche = await afficherReglages(contenu, {
     stockage,
     structure: contexte.structure,
     groupes: contexte.groupes,
     onRetour: () => { montrerAccueil(); },
     onChangement: (cle) => { if (cle === 'profession' || cle === 'champs_sensibles') majPointProfession(); },
     auxCabinet: () => ouvrirMonCabinet({ retour: ouvrirReglages }),
+    peutAfficher: () => jetonValide(jeton),   // D-88c (MAJ-1) : lecture lente → jamais par-dessus une intervention démarrée entre-temps, ni par-dessus un autre écran
   });
+  if (!affiche) return;
   contenu.focus({ preventScroll: true }); window.scrollTo(0, 0);   // m1 (revue aval) : le nouvel écran s'ouvre en haut de page, sinon le bandeau BROUILLON sort de la vue
 }
 
@@ -235,8 +250,9 @@ async function ouvrirReglages() {
  * de la ligne d'état. « Fermer » et « Terminé » ramènent là d'où l'on vient (`retour` : les Réglages ou l'accueil, D-88b m-11) ; URGENCE reste à un toucher (rien ne retarde un geste vital).
  * Jamais pendant une intervention (CABINET-4) : si une intervention démarre pendant la lecture des réglages, l'écran ne remplace pas l'intervention.
  */
-async function ouvrirMonCabinet({ retour = ouvrirReglages } = {}) {
+async function ouvrirMonCabinet({ retour = ouvrirReglages, avantAffichage = () => {} } = {}) {
   if (app.intervention) return;
+  const jeton = nouveauJeton();
   const contenu = document.getElementById('contenu');
   const affiche = await afficherMonCabinet(contenu, {
     stockage,
@@ -244,7 +260,9 @@ async function ouvrirMonCabinet({ retour = ouvrirReglages } = {}) {
     onRetour: () => retour(),
     onUrgence: () => demarrerUrgence('reel'),
     onChangement: (cle, valeur) => { if (cle === 'mon_cabinet') appliquerCabinet(valeur); else if (cle === 'champs_sensibles') majPointProfession(); },
-    peutAfficher: () => !app.intervention,
+    peutAfficher: () => jetonValide(jeton),
+    avantAffichage,   // D-88c (m-1) : l'écran précédent (la clôture) n'est quitté qu'au moment où Mon cabinet s'affiche, pas pendant la lecture
+    onLu: () => { majPointProfession(); },   // D-88c (m-7) : les réglages sont lisibles : la structure (Lieu, transmission, ligne d'état) rejoint Mon cabinet même si la lecture du démarrage avait échoué
   });
   if (!affiche) return;
   contenu.focus({ preventScroll: true }); window.scrollTo(0, 0);
@@ -259,8 +277,7 @@ function ouvrirMonCabinetDepuisEtat() {
   if (app.intervention) return;
   if (document.querySelector('#contenu section.mon-cabinet')) return;   // déjà là : rien à ouvrir, et on ne change pas son retour
   const depuisReglages = !!document.querySelector('#contenu section.reglages');
-  sortirEcranCourant();
-  return ouvrirMonCabinet({ retour: depuisReglages ? ouvrirReglages : montrerAccueil });
+  return ouvrirMonCabinet({ retour: depuisReglages ? ouvrirReglages : montrerAccueil, avantAffichage: sortirEcranCourant });
 }
 
 /**
@@ -277,14 +294,18 @@ function appliquerCabinet(cabinet) {
 
 /** Glossaire consulté depuis l'accueil (4.12) : lu à l'ouverture ; fichier illisible → message, jamais d'exception. */
 async function ouvrirGlossaire() {
+  if (app.intervention) return;
+  const jeton = nouveauJeton();
   const contenu = document.getElementById('contenu');
   const glossaire = await chargerGlossaire();
+  if (!jetonValide(jeton)) return;   // D-88c (MAJ-1) : lecture lente → jamais par-dessus une intervention démarrée entre-temps, ni par-dessus un autre écran
   afficherGlossaire(contenu, { glossaire, auFermer: () => { montrerAccueil(); } });
   contenu.focus({ preventScroll: true }); window.scrollTo(0, 0);   // m1 (revue aval) : le nouvel écran s'ouvre en haut de page, sinon le bandeau BROUILLON sort de la vue
 }
 
 /** « Matériel » depuis l'accueil (4.14) : les contenants et leurs emplacements, tirés de config/structure.json. */
 function ouvrirMateriel() {
+  nouveauJeton();
   const contenu = document.getElementById('contenu');
   afficherMateriel(contenu, { modele: construireMateriel({ protocole: null, structure: contexte.structure }), avecArticles: false, auFermer: () => { montrerAccueil(); } });
   contenu.focus({ preventScroll: true }); window.scrollTo(0, 0);   // m1 (revue aval) : le nouvel écran s'ouvre en haut de page, sinon le bandeau BROUILLON sort de la vue
@@ -292,6 +313,7 @@ function ouvrirMateriel() {
 
 /** « À propos » depuis l'accueil (4.15). */
 function ouvrirAPropos() {
+  nouveauJeton();
   const contenu = document.getElementById('contenu');
   afficherAPropos(contenu, { chargerProtocole: () => chargerProtocole(PROTOCOLE_PAR_DEFAUT), stockage, auFermer: () => { montrerAccueil(); } });
   contenu.focus({ preventScroll: true }); window.scrollTo(0, 0);   // m1 (revue aval) : le nouvel écran s'ouvre en haut de page, sinon le bandeau BROUILLON sort de la vue
@@ -337,10 +359,14 @@ async function majPointProfession() {
   contexte.reglages = r;
   appliquerCabinet(r.mon_cabinet);   // D-88 : Mon cabinet relu avec les réglages (rattrape une lecture lente au lancement) ; met aussi à jour le point des codes
   majPointCodes();
-  const groupe = contexte.groupes.find((g) => g.id === r.profession);
-  definirPoint('profession', r.profession === null
+  definirPointProfession(r.profession);
+}
+
+function definirPointProfession(profession) {
+  const groupe = contexte.groupes.find((g) => g.id === profession);
+  definirPoint('profession', profession === null
     ? { texte: 'Profession non réglée — à régler dans Réglages (comportement du groupe le plus restreint)', ok: false }
-    : { texte: `Profession : ${groupe ? groupe.libelle : r.profession} — modifiable dans Réglages`, ok: true });
+    : { texte: `Profession : ${groupe ? groupe.libelle : profession} — modifiable dans Réglages`, ok: true });
 }
 
 /** Bandeaux du stockage : non bloquants, jamais sur un bouton vital (écran ACR : lot L5a). */
@@ -367,7 +393,8 @@ function brancherStockage() {
     }
     // D-88b (m-2) : « Réinitialiser l'appli » a effacé Mon cabinet et les codes d'accès de la base : ils ne restent pas en mémoire jusqu'au rechargement (Lieu, transmission, document, ligne d'état).
     // On ne relit RIEN dans la base ici : elle vient d'être supprimée, la rouvrir la recréerait.
-    if (e.type === 'reinitialise') { contexte.reglages = null; appliquerCabinet({}); }
+    // D-88c : la profession aussi (le point de la ligne d'état revient à « non réglée », comme Mon cabinet)
+    if (e.type === 'reinitialise') { contexte.reglages = null; appliquerCabinet({}); definirPointProfession(null); }
     if (e.type === 'presse_papiers_non_vide') poserBandeau('presse', 'Une fiche effacée avait été copiée : videz le presse-papiers (la copie peut contenir des données de santé)');
     if (e.type === 'purge_reportee') poserBandeau('purge', 'Délai d\'effacement atteint — exportez maintenant ou effacez');
     if (e.type === 'horloge') poserBandeau('horloge', 'Horloge du téléphone modifiée — vérifier puis effacer', { bouton: { libelle: "J'ai vérifié l'heure", action: () => stockage.acquitterHorloge() } });

@@ -29,10 +29,13 @@ function groupe(titre, aide) {
 /**
  * @param {HTMLElement} conteneur
  * @param {{stockage: object, structure?: object, groupes?: {id: string, libelle: string}[], onRetour: () => void, onChangement?: (cle: string, valeur: any) => void, auxCabinet?: () => void}} options
- *   `auxCabinet` : ouvre l'écran « Mon cabinet » (D-88).
+ *   `auxCabinet` : ouvre l'écran « Mon cabinet » (D-88). `peutAfficher` (D-88c, MAJ-1) : revérifié APRÈS la lecture des réglages (qui peut être lente) ; faux = on n'affiche rien (une intervention a
+ *   démarré, ou un autre écran a été demandé entre-temps : l'écran ne remplace jamais ce qui est à l'écran).
+ * @returns {Promise<boolean>} vrai si l'écran a été affiché
  */
-export async function afficherReglages(conteneur, { stockage, structure, groupes = [], onRetour, onChangement = () => {}, auxCabinet = () => {} }) {
+export async function afficherReglages(conteneur, { stockage, structure, groupes = [], onRetour, onChangement = () => {}, auxCabinet = () => {}, peutAfficher = () => true }) {
   const reglages = await stockage.lireReglages();
+  if (!peutAfficher()) return false;
   const plancherH = stockage.etat().plancherH;
   const page = creer('section', 'page reglages');
   page.setAttribute('aria-label', 'Réglages');
@@ -133,4 +136,5 @@ export async function afficherReglages(conteneur, { stockage, structure, groupes
   page.append(rein);
 
   conteneur.replaceChildren(page);
+  return true;
 }
