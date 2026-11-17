@@ -106,8 +106,12 @@ export function creerStockage({
         catch { try { transaction = db.transaction(magasin, mode); } catch (e) { rejeter(e); return; } }
         let resultat;
         const requete = action(transaction.objectStore(magasin));
-        if (requete) requete.onsuccess = () => { resultat = requete.result; };
-        transaction.oncomplete = () => resoudre(resultat);
+        // D-89 (n-4) : `action` peut rendre PLUSIEURS requêtes (même transaction : une vue cohérente) ; le résultat est alors la liste de leurs résultats
+        if (Array.isArray(requete)) transaction.oncomplete = () => resoudre(requete.map((r) => r.result));
+        else {
+          if (requete) requete.onsuccess = () => { resultat = requete.result; };
+          transaction.oncomplete = () => resoudre(resultat);
+        }
         transaction.onerror = () => rejeter(transaction.error ?? new Error('transaction en erreur'));
         transaction.onabort = () => rejeter(transaction.error ?? new Error('transaction annulée'));
       });
@@ -136,8 +140,8 @@ export function creerStockage({
 
   /** Lecture brute des réglages dans la base (normalisés). Rejette si la base est indisponible, lente ou en erreur. */
   async function lireReglagesEnBase() {
-    const cles = await executer(BASES.reglages, MAGASIN_REGLAGES, 'readonly', (s) => s.getAllKeys());
-    const valeurs = await executer(BASES.reglages, MAGASIN_REGLAGES, 'readonly', (s) => s.getAll());
+    // D-89 (n-4) : clés et valeurs dans UNE SEULE transaction : une clé créée entre deux transactions décalerait toutes les valeurs
+    const [cles, valeurs] = await executer(BASES.reglages, MAGASIN_REGLAGES, 'readonly', (s) => [s.getAllKeys(), s.getAll()]);
     return normaliser(Object.fromEntries(cles.map((c, i) => [c, valeurs[i]])));
   }
 
@@ -153,7 +157,10 @@ export function creerStockage({
         // D-88c (m-3) : un réglage pris en compte « en mémoire seulement » pendant la panne (profession, délai d'effacement, personnes…) n'est pas écrasé sans le dire par celui de la base
         const fusion = { ...lus };
         for (const cle of ecritsSansLecture) if (reglagesCache && reglagesCache[cle] !== undefined) fusion[cle] = reglagesCache[cle];
+        // D-89 (n-3) : `personnes` est une LISTE : celle tapée pendant la panne COMPLÈTE celle de la base (la mémoire en tête), elle ne la remplace pas
+        if (ecritsSansLecture.has('personnes') && reglagesCache?.personnes) fusion.personnes = [...reglagesCache.personnes, ...lus.personnes];
         reglagesCache = normaliser(fusion); reglagesLusEnBase = true; ecritsSansLecture.clear();
+        emettre('reglages_lus');   // D-89 (n-2)
       }
       catch { return { ok: false, reglages: structuredClone(reglagesCache ?? normaliser({})) }; }
     }
@@ -169,6 +176,7 @@ export function creerStockage({
         const lus = await lireReglagesEnBase();
         reglagesCache ??= lus;
         reglagesLusEnBase = true;
+        emettre('reglages_lus');   // D-89 (n-2) : le cache est posé avant : un auditeur qui relit les réglages les a aussitôt
       } catch {
         // revue m7 : un ÉCHEC n'est pas gardé en cache (sinon le délai d'effacement et la profession réglés seraient ignorés toute la session) ;
         // on renvoie les valeurs par défaut cette fois-ci, la lecture suivante réessaiera

@@ -28,7 +28,7 @@ function avertissementReplie(id, resume, details) {
 /**
  * @param {HTMLElement} conteneur
  * @param {{fiche: object, stockage: object, structure: () => object|null, champsSensibles: () => object, appelant: () => object|null, protocoleId: string|null,
- *          effacer: () => Promise<object>, apresEffacement: (res: object) => void, auFermer: () => void, libelleFermer?: string}} ctx
+ *          effacer: () => Promise<object>, apresEffacement: (res: object) => void, auFermer: () => void, libelleFermer?: string, auAction?: () => void}} ctx
  *   `effacer` efface CETTE fiche (l'appelant la termine d'abord si elle est encore en cours) et renvoie le résultat du stockage ;
  *   `apresEffacement` n'est appelé qu'en cas de succès (retour à l'accueil, message « Fiche effacée à hh:mm »).
  * @returns {{demonter: () => void}}
@@ -46,6 +46,8 @@ export function afficherCloture(conteneur, ctx) {
     const titre = creer('div', 'panneau-titre');
     titre.append(creer('h1', 'cloture-titre', 'Clôture et export'), ...(ctx.auUrgence ? [bouton('URGENCE', 'bouton bouton-urgence', () => { demonter(); ctx.auUrgence(); }, { id: 'cloture-urgence' })] : []), bouton(ctx.libelleFermer ?? 'Fermer', 'bouton', () => { demonter(); ctx.auFermer(); }, { id: 'fermer-cloture' }));
     page.append(titre);
+    // D-89 (n-1) : tout toucher dans la clôture est une action du soignant sur CET écran : il le dit à l'appelant (qui invalide alors une ouverture lente d'un autre écran, restée en cours)
+    page.addEventListener('click', () => { try { ctx.auAction?.(); } catch { /* l'écran ne dépend jamais de ce rappel */ } }, true);
 
     // 1. remise en main propre : d'abord
     const main = creer('div', 'cloture-groupe cloture-main');

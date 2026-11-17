@@ -107,6 +107,19 @@ export class CompteurInsufflations {
   affiche(perf) { this.majAffichage(perf); return this.fin !== null; }
 }
 
+/**
+ * D-89 : le son des « 2 insufflations » = son D de la maquette (specs/maquette/maquette-son-insufflations-2026-11-17.html) à 120 % : deux notes montantes,
+ * onde triangle, enveloppe « plat » (attaque, palier, extinction). Niveau de crête de chaque note : 0,55 (maquette) × 1,2 (volume choisi) = 0,66.
+ * t : début (s) ; d : durée (s) ; a : attaque (s) ; r : extinction (s).
+ */
+export const NIVEAU_SIGNAL_INSUFFLATIONS = 0.55 * 1.2;
+export const NOTES_SIGNAL_INSUFFLATIONS = [
+  { t: 0, d: 0.2, f: 1500, a: 0.005, r: 0.05 },
+  { t: 0.22, d: 0.28, f: 2250, a: 0.005, r: 0.07 },
+];
+/** Le clic du métronome dure 40 ms (crête 0,8) : le son ne démarre qu'après lui, pour que clic et son ne s'additionnent jamais (somme > 1 = saturation). */
+export const DELAI_APRES_CLIC_S = 0.045;
+
 const MOTIFS = {
   discrete: { bips: 1, vibration: [120] },
   forte: { bips: 3, vibration: [200, 100, 200, 100, 200] },
@@ -289,7 +302,7 @@ export class Son {
           m.total += 1; emis = 1; m.dernierBattementPerf = maintenantPerf;
           const allume = this.insuf.battement(maintenantPerf);
           this.onBattement({ indice: m.total, source: 'audio', perf: maintenantPerf });
-          if (allume) this.jouerSignalInsufflations();   // D-82
+          if (allume) this.jouerSignalInsufflations(m.tAudio0 + (indice * 60) / m.frequence);   // D-82, D-89 : après la fin du clic de ce battement
         }
         m.prochainPerf = m.dernierBattementPerf + periode; // la phase visuelle repart du dernier battement émis
       }
@@ -315,24 +328,29 @@ export class Son {
   }
 
   /**
-   * D-82 : signal sonore de « 2 insufflations » — deux notes DESCENDANTES, plus graves et bien plus longues que le clic du métronome (1000 Hz, 40 ms), pour qu'on ne le confonde pas avec un battement. Même moteur
-   * (Web Audio) que le clic, aucun fichier son. Demandé une seule fois par affichage (par `avancer`, au battement qui allume l'affichage). Rien si le métronome est en pause, si le son est coupé (contexte non
-   * « running » : le repère visuel seul reste) ou si l'interface dit qu'on n'est pas en arrêt cardiaque (`signalInsufflationsPermis`). N'agit ni sur la boucle du métronome ni sur sa phase : il s'ajoute.
+   * D-82, D-89 : signal sonore de « 2 insufflations » — deux notes MONTANTES (triangle, 1 500 puis 2 250 Hz), bien plus fortes, plus aiguës et bien plus longues que le clic du métronome (1000 Hz, 40 ms), pour qu'on ne le
+   * confonde pas avec un battement. Même moteur (Web Audio) que le clic, aucun fichier son. Demandé une seule fois par affichage (par `avancer`, au battement qui allume l'affichage). Rien si le métronome est en pause,
+   * si le son est coupé (contexte non « running » : le repère visuel seul reste) ou si l'interface dit qu'on n'est pas en arrêt cardiaque (`signalInsufflationsPermis`). N'agit ni sur la boucle du métronome ni sur sa phase : il s'ajoute.
+   * Pas de saturation : il est demandé AU battement, donc pendant le clic ; le son démarre `DELAI_APRES_CLIC_S` après le clic (heure du clic sur l'horloge audio : `debutClic`), jamais plus tôt que maintenant.
+   * @param {number} [debutClic] heure (horloge audio) du clic du battement en cours ; absente (pas de clic joué), le son démarre tout de suite
    * @returns {boolean} vrai si le signal a été lancé
    */
-  jouerSignalInsufflations() {
+  jouerSignalInsufflations(debutClic = null) {
     if (!this.metronome.actif || this.ctx?.state !== 'running') return false;
     try { if (this.signalInsufflationsPermis?.() === false) return false; } catch { return false; }
     try {
       const maintenant = this.ctx.currentTime;
-      [[660, 0], [440, 0.3]].forEach(([frequence, decalage]) => {
+      const depart = Number.isFinite(debutClic) ? Math.max(maintenant, debutClic + DELAI_APRES_CLIC_S) : maintenant;
+      NOTES_SIGNAL_INSUFFLATIONS.forEach(({ t, d, f, a, r }) => {
         const o = this.ctx.createOscillator(); const g = this.ctx.createGain();
-        o.type = 'sine'; o.frequency.value = frequence;
-        g.gain.setValueAtTime(0.0001, maintenant + decalage);
-        g.gain.exponentialRampToValueAtTime(0.5, maintenant + decalage + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, maintenant + decalage + 0.28);
+        const debut = depart + t; const fin = debut + d;
+        o.type = 'triangle'; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, debut);
+        g.gain.exponentialRampToValueAtTime(NIVEAU_SIGNAL_INSUFFLATIONS, debut + a);
+        g.gain.setValueAtTime(NIVEAU_SIGNAL_INSUFFLATIONS, Math.max(debut + a, fin - r));   // palier
+        g.gain.exponentialRampToValueAtTime(0.0001, fin);
         o.connect(g); g.connect(this.ctx.destination);
-        o.start(maintenant + decalage); o.stop(maintenant + decalage + 0.3);
+        o.start(debut); o.stop(debut + d + 0.02);
       });
       return true;
     } catch { return false; }   // le moteur en panne ne doit jamais gêner le métronome

@@ -141,6 +141,7 @@ async function ouvrirCloture(resume) {
     // URGENCE reste à un toucher même sur cet écran (L8c, revue L8 m8) ; la fiche exportée reste en attente, intacte
     auUrgence: () => { termine(); stockage.retirerAffichee(fiche.id); demarrerUrgence('reel'); },
     libelleFermer: "Retour à l'accueil",
+    auAction: () => { nouveauJeton(); },   // D-89 (n-1) : un toucher dans la clôture (« Montrer au SMUR », « Imprimer »…) annule l'ouverture lente de Mon cabinet qui attendait : elle n'arrive pas par-dessus
   });
   sortie = () => { ecran?.demonter?.(); stockage.retirerAffichee(fiche.id); };
   app.sortieEcran = sortie;
@@ -208,6 +209,8 @@ async function reprendreFiche(resume, { automatique = false } = {}) {
     return;
   }
   if (app.intervention || (automatique && app.accueilTouche)) { i.detruire(); return; }
+  // D-89 (n-5) : l'intervention remplace l'écran courant (clôture d'une autre fiche, par exemple) : celui-ci est quitté par sa sortie propre (marque « affichée », impression, effacement en cours qui ne ramènera plus l'accueil)
+  sortirEcranCourant(); nouveauJeton();
   ouvrirInterface(i);
 }
 
@@ -395,6 +398,8 @@ function brancherStockage() {
     // On ne relit RIEN dans la base ici : elle vient d'être supprimée, la rouvrir la recréerait.
     // D-88c : la profession aussi (le point de la ligne d'état revient à « non réglée », comme Mon cabinet)
     if (e.type === 'reinitialise') { contexte.reglages = null; appliquerCabinet({}); definirPointProfession(null); }
+    // D-89 (n-2) : les réglages viennent d'être lus pour la première fois (la lecture du démarrage avait échoué, ou une lecture sûre l'a complétée) : Mon cabinet rejoint la structure sans attendre l'ouverture de l'écran
+    if (e.type === 'reglages_lus') majPointProfession();
     if (e.type === 'presse_papiers_non_vide') poserBandeau('presse', 'Une fiche effacée avait été copiée : videz le presse-papiers (la copie peut contenir des données de santé)');
     if (e.type === 'purge_reportee') poserBandeau('purge', 'Délai d\'effacement atteint — exportez maintenant ou effacez');
     if (e.type === 'horloge') poserBandeau('horloge', 'Horloge du téléphone modifiée — vérifier puis effacer', { bouton: { libelle: "J'ai vérifié l'heure", action: () => stockage.acquitterHorloge() } });
