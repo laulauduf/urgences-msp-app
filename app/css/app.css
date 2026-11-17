@@ -392,6 +392,8 @@ body[data-texte="grand"] .equipe .roles-court { display: inline; }
 }
 .etape[data-etat="faite"] .case { background: var(--ok); border-color: var(--ok); color: var(--sur-ok); }
 .case[disabled] { opacity: 0.45; }
+.etape-renvoi-texte { grid-template-columns: minmax(0, 1fr); min-height: 0; padding: 0.125rem 0.75rem; }
+.etape.etape-renvoi-texte .etape-texte, body[data-texte="grand"] .etape.etape-renvoi-texte .etape-texte { font-size: min(0.875rem, 18px); font-weight: 600; padding: 0.125rem 0; }   /* BILANVITAL-1 (provisoire) : une ligne de texte seule, sur toute la largeur, sans case ni bouton */
 .etape-renvoi { grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem; padding: 0.25rem 0.5rem 0.25rem 0.75rem; }
 .etape-renvoi .bouton-renvoi { min-height: 48px; padding: 0 1rem; font-weight: 800; }
 .etape-info { text-align: center; color: var(--texte-attenue); font-size: 1.125rem; }
@@ -888,8 +890,6 @@ body[data-texte="grand"] .etape-fleche { margin: 0 12px 4px 8px; }
 
 /* ───────── Lot R1e : écran « Autre situation » (style de l'accueil) et clôture allégée ───────── */
 .autre-situation { gap: 0.75rem; }
-.autre-situation .gros-urgence { min-height: max(5.5rem, 14vh); font-size: 1.5rem; }
-.autre-situation .gros-urgence small { font-size: 1rem; }
 .autre-outils > .gros:last-child:nth-child(odd) { grid-column: 1 / -1; }   /* trois outils en deux colonnes : le dernier prend toute la ligne */
 .autre-checklist:empty { display: none; }
 .checklist-commune { display: flex; flex-direction: column; gap: 0.5rem; }
@@ -897,11 +897,8 @@ body[data-texte="grand"] .etape-fleche { margin: 0 12px 4px 8px; }
 .autre-bientot { margin: 0; text-align: center; color: var(--texte-attenue); font-size: 0.875rem; font-weight: 500; }
 @media (orientation: landscape) and (max-height: 600px) {
   .autre-situation { gap: 0.5rem; }
-  .autre-situation .gros-urgence { min-height: 4rem; font-size: 1.25rem; }
-  .autre-situation .gros-urgence small { font-size: 0.875rem; }
   .autre-outils > .gros:last-child:nth-child(odd) { grid-column: auto; }   /* trois colonnes en paysage bas */
 }
-body[data-texte="grand"] .autre-situation .gros-urgence { min-height: min(4rem, 22vh); }
 body[data-texte="grand"] .autre-situation .autre-bientot { font-size: 0.625rem; }
 body[data-texte="grand"] .checklist-commune .pastilles { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
@@ -924,7 +921,6 @@ body[data-mode="intervention"][data-texte="grand"] .cloture-aide, body[data-mode
 .accueil-sous-titre { margin: 0.25rem 0 0; font-size: 1rem; font-weight: 800; color: var(--texte-attenue); }
 .accueil-autres-grille > .gros { min-height: 4.75rem; }
 .accueil-autres-grille > .gros:last-child:nth-child(odd) { grid-column: 1 / -1; }   /* nombre impair : la dernière tuile (Autre situation) prend toute la ligne */
-.autre-urgences-deux .gros-urgence { grid-column: auto; }
 .etape-renvoi-multi { grid-template-columns: minmax(0, 1fr); }
 .renvoi-boutons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
 .renvoi-boutons .bouton-renvoi { padding: 0 0.5rem; }
@@ -937,7 +933,6 @@ body[data-mode="intervention"][data-texte="grand"] .cloture-aide, body[data-mode
 body[data-texte="grand"] .accueil .gros-urgence-enfant { font-size: 0.875rem; min-height: 3rem; }
 body[data-texte="grand"] .accueil .accueil-sous-titre { font-size: 0.75rem; }
 body[data-texte="grand"] .accueil .accueil-autres-grille > .gros { min-height: 3rem; }
-body[data-texte="grand"] .autre-urgences-deux .gros-urgence { font-size: 0.875rem; }
 
 /* ───────── Lot V1 (D-61) : précision TOUJOURS affichée, en petit, sous le libellé (« Se protéger », « Respire ? ») ───────── */
 .etape-precision-visible { margin-top: -0.5rem; padding-bottom: 0.375rem; font-size: 0.75rem; line-height: 1.25; }   /* petit, mais lisible ; assez compact pour que 8 étapes tiennent encore à l'ouverture (reel.spec, D-43) */
@@ -1240,5 +1235,15 @@ body[data-texte="grand"] .etape-valeur { font-size: min(1.0625rem, 22px); }
 /* D-80 corrigé (lot J-b, M-1/M-2) : ligne « Métronome en marche — Arrêter · Continuer » dans le FLUX de l'écran « Autre situation » (sous la tuile rouge). Élément ordinaire : ni position, ni z-index, ni calque ;
    elle ne recouvre rien. Cibles de 48 px EN PIXELS (pas en rem : à 200 % ils doublent). Hauteur constante entre « Arrêter · Continuer » et « Arrêter » seul. Jetons de couleur seulement. */
 .ligne-metronome { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.375rem 0.5rem; min-height: calc(48px + 0.75rem); padding: 0.375rem 0.5rem; border: 0.125rem solid var(--bordure); border-radius: var(--rayon); background: var(--surface); color: var(--texte); font-size: min(1rem, 21px); font-weight: 700; }
-.ligne-metronome-texte { flex: 1 1 auto; min-width: 0; }
-.ligne-metronome .bouton { min-height: 48px; min-width: 48px; padding: 0.25rem 0.75rem; font-size: inherit; flex: 0 0 auto; }
+.ligne-metronome-texte { flex: 1 1 100%; min-width: 0; }
+.ligne-metronome .bouton { min-height: 48px; min-width: 48px; padding: 0.25rem 12px; font-size: inherit; flex: 1 1 0; white-space: nowrap; }   /* lot K (m-1) : le texte a sa propre rangée (100 %), les boutons se partagent UNE seule rangée dans les deux états : hauteur constante */
+
+/* ───────── Lot K — D-83 (ACR-UNIQUE = A) : UN SEUL accès à l'arrêt cardiaque en haut de chaque conduite : bandeau rouge bas « Arrêt cardiaque : adulte | enfant » ─────────
+   Collant (`sticky`, top 0 de la zone centrale) : il reste sous le doigt quand la liste défile, sans la recouvrir de façon permanente : `scroll-padding-top` ramène un élément amené en vue SOUS lui.
+   Il est dans le flux (ni calque ni position fixe) : il ne recouvre ni la barre ni l'en-tête, et ne bouge pas aux redessins. Cibles de 48 px EN PIXELS (pas en rem). Jetons de couleur seulement. */
+.bandeau-acr { position: sticky; top: 0; z-index: 3; display: flex; flex-wrap: nowrap; align-items: center; gap: 0.5rem; padding: 4px 8px; border-radius: var(--rayon); background: var(--urgence); color: var(--sur-urgence); font-size: min(1rem, 21px); font-weight: 800; box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.25); }
+.bandeau-acr-texte { flex: 0 0 auto; white-space: nowrap; }
+.bandeau-acr-compact .bandeau-acr-texte { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }   /* M-1 : quand la place manque, le libellé « Arrêt cardiaque : » n'est plus que lu à voix haute (nom accessible du groupe) ; décidé par la MESURE (`suivreBandeauAcr`), pas par une largeur d'écran (un media query compte les rem à 16 px, pas au texte agrandi) */
+.bandeau-acr-flux { position: static; }   /* M-1 : mesuré > 15 % de la zone de la liste : en tête de liste, dans le flux, plus collant */
+.bandeau-acr .bouton-acr { flex: 1 1 0; min-width: 0; white-space: nowrap; min-height: 48px; padding: 0 0.5rem; background: var(--urgence); color: var(--sur-urgence); border-color: var(--sur-urgence); font-size: inherit; }
+#contenu { scroll-padding-top: var(--marge-bandeau-acr, 0px); }   /* M-1 : hauteur RÉELLE du bandeau collant, posée par `suivreBandeauAcr` (0 s'il n'est pas collant ; plus de :has, m-7) */

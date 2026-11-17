@@ -39,6 +39,10 @@ import { PROTOCOLES_ACR, CONDUITES, titreDe } from '../catalogue.js';
 import { ID_COMMUN, protocolePublie } from '../protocole-commun.js';
 /** Après la bascule « Autre situation » → ACR, les touchers sur le contenu sont ignorés ce temps (R1f, M2). */
 const DELAI_REBOND_BASCULE_MS = 600;
+/** P-1 (revue du lot K) : à l'ARRIVÉE dans une conduite, un toucher du bandeau « Arrêt cardiaque » aussi proche est le 2e toucher d'un double toucher sur le menu : il est ignoré (les autres touchers, jamais). */
+const DELAI_REBOND_ARRIVEE_MS = 220;
+/** M-1 : au-delà de cette part de la zone de la liste, le bandeau « Arrêt cardiaque » n'est plus collant (il reste en tête de liste, dans le flux). */
+const PART_MAX_BANDEAU_ACR = 0.15;
 
 /**
  * ÉCRANS DE SAISIE : liste UNIQUE des panneaux où l'on tape. Ils ne sont JAMAIS reconstruits sur l'événement « changement » : sinon la
@@ -104,6 +108,10 @@ export class InterfaceIntervention {
     const ignorerRebond = (ev) => { if (this.panneau === null && performance.now() < this.touchesIgnoreesJusqua && !ouvreAlerte(ev.target)) { ev.stopPropagation(); ev.preventDefault(); } };
     this.zone.contenu.addEventListener('click', ignorerRebond, true);
     this.debranchements.push(() => this.zone.contenu.removeEventListener('click', ignorerRebond, true));
+    // (P-1 : seul le TOUCHER est visé — le double toucher du téléphone ; un clic de souris de poste de bureau ne l'est jamais. `pointerType` absent (vieux navigateur) : on protège par prudence.)
+    const ignorerBandeauArrivee = (ev) => { if (ev.pointerType !== 'mouse' && performance.now() < (this.bandeauIgnoreJusqua ?? 0) && ev.target.closest?.('#bandeau-acr')) { ev.stopPropagation(); ev.preventDefault(); } };
+    this.zone.contenu.addEventListener('click', ignorerBandeauArrivee, true);
+    this.debranchements.push(() => { this.zone.contenu.removeEventListener('click', ignorerBandeauArrivee, true); this.arreterBandeauAcr(); });
     const marquerToucher = () => { if (this.intervention.repriseDe) this.repriseRepliee = true; };
     const replier = () => { if (this.intervention.repriseDe && this.repriseRepliee) this.majBandeauxFixes(); };
     for (const zoneToucher of [this.zone.contenu, this.zone.barre]) {
@@ -245,7 +253,11 @@ export class InterfaceIntervention {
     if (entier(rCarte)) { hautProt = rCarte.top; basProt = rCarte.bottom; }
     else if (carteCommence) { hautProt = rCarte.top; basProt = entier(rRelance) ? rRelance.bottom : Math.min(rCarte.bottom, zc.bottom); }
     else if (entier(rRelance)) { hautProt = rRelance.top; basProt = rRelance.bottom; }
-    const apresEntete = this.zone.entete.getBoundingClientRect().bottom + 6;
+    let apresEntete = this.zone.entete.getBoundingClientRect().bottom + 6;
+    // P-2 (revue du lot K) : dans une conduite, le bandeau « Arrêt cardiaque » est épargné comme l'en-tête dès qu'il est entièrement visible (texte à 200 % : le volet le recouvrait et l'accès à l'ACR
+    // demandait de fermer le volet d'abord). Collant ou non, s'il est hors de la zone (liste défilée, bandeau dans le flux), il n'est plus à protéger.
+    const rBandeauAcr = document.getElementById('bandeau-acr')?.getBoundingClientRect();
+    if (entier(rBandeauAcr)) apresEntete = Math.max(apresEntete, rBandeauAcr.bottom + 6);
     // D-65 (c) : CLAVIER du téléphone ouvert (le visualViewport est plus court que la fenêtre) : le volet se pose AU-DESSUS du clavier et le champ en cours de saisie est amené dans la vue ; la barre peut être
     // masquée par le clavier (c'est le système), elle redevient visible à sa fermeture. Garde l'en-tête visible s'il reste ≥ 140 px, sinon le volet prend toute la hauteur visible.
     const vv = window.visualViewport;
@@ -722,6 +734,8 @@ export class InterfaceIntervention {
     // la clé inclut la situation : de « Autre situation » à l'ACR le panneau reste null, mais l'écran change (R1f, M2 : l'ACR s'ouvrait défilé, « Masser » sous le doigt)
     // (P4a : et le protocole choisi — de l'ACR adulte à l'ACR enfant, ou d'une conduite à l'autre, l'écran repart aussi du haut)
     const cle = `${this.panneau ?? 'principal'}|${this.intervention.situation ?? ''}|${this.intervention.situation === ACR ? this.intervention.protocoleActifId : this.intervention.situation === AUTRE ? this.intervention.conduiteId : ''}`;
+    const cleSituation = `${this.intervention.situation ?? ''}|${this.intervention.situation === AUTRE ? this.intervention.conduiteId : ''}`;
+    if (cleSituation !== this.cleSituation) { this.cleSituation = cleSituation; if (this.intervention.situation === AUTRE) this.bandeauIgnoreJusqua = performance.now() + DELAI_REBOND_ARRIVEE_MS; }   // P-1
     if (cle !== this.cleEcran) {
       if (this.situationAffichee === AUTRE && this.intervention.situation === ACR) this.touchesIgnoreesJusqua = performance.now() + DELAI_REBOND_BASCULE_MS;
       this.zone.contenu.scrollTop = 0; this.cleEcran = cle; this.situationAffichee = this.intervention.situation;
@@ -732,6 +746,7 @@ export class InterfaceIntervention {
     const i = this.intervention;
     const { contenu } = this.zone;
     this.secours?.arreter(); this.secours = null;
+    this.arreterBandeauAcr();   // M-1 : le bandeau de l'écran précédent n'est plus suivi
     document.body.dataset.panneau = this.panneau ?? '';   // l'en-tête se compacte pendant l'appel (app.css, L9c étape 2, M4)
     this.majResumeFiche();   // le résumé de la fiche se masque pendant la transmission (D-64b)
     this.majBandeauxFixes();
@@ -839,12 +854,17 @@ export class InterfaceIntervention {
     const page = creer('section', 'accueil autre-situation', '', { 'aria-label': i.conduiteId === ID_COMMUN ? 'Autre situation' : (i.protocoleCommun?.titre_court ?? titreDe(i.conduiteId) ?? 'Autre situation'), 'data-conduite': i.conduiteId });
     /** Grosse tuile : titre + sous-titre discret (comme l'accueil). */
     const gros = (titre, sous, classe, action, id, attrs = {}) => { const b = bouton(titre, classe, action, { id, ...attrs }); b.append(creer('small', null, sous)); return b; };
-    // la tuile rouge « Arrêt cardiaque » : toujours à UN toucher, quelle que soit la conduite ; deux tuiles (adulte, enfant) quand l'ACR enfant est publié — CHOIX PROVISOIRE (D-15, P4a)
-    const urgence = creer('div', 'accueil-grille autre-urgences');
+    // D-83 (ACR-UNIQUE = A) : UN SEUL accès à l'arrêt cardiaque, quelle que soit la conduite : un bandeau rouge bas « Arrêt cardiaque : adulte | enfant » tout en haut (collant : il reste sous le doigt
+    // quand la liste défile ; il fait partie du flux, donc ne recouvre ni la barre ni l'en-tête et ne bouge pas aux redessins). Un toucher = même effet que l'ancienne tuile (`choisirAcr`, journalisé).
+    // Un seul ACR publié : un seul bouton « Passer en ACR ». L'étape « Arrêt cardiaque ? » du protocole reste dans les données ; seul son affichage dans la liste est retiré (`masquerRenvois`).
+    const bandeau = creer('div', 'bandeau-acr', '', { id: 'bandeau-acr', role: 'group', 'aria-label': 'Arrêt cardiaque' });
     const acrs = PROTOCOLES_ACR.filter((p) => p.id === i.protocoleId || (i.protocolesAcr.includes(p.id) && protocolePublie(p.id)));
-    for (const p of acrs) urgence.append(gros(p.titre, acrs.length > 1 ? p.sous.split(' · ')[0] : 'passer en ACR', 'bouton bouton-urgence gros gros-urgence', () => { this.versPrincipal(); i.choisirAcr(p.id).catch(() => {}); }, p.id === i.protocoleId ? 'passer-acr' : `passer-${p.id}`, { 'data-vital': 'acr' }));   // commande vitale : agit tout de suite même volet ouvert (D-64c, N1)
-    if (acrs.length > 1) urgence.classList.add('autre-urgences-deux');
-    page.append(urgence);
+    bandeau.append(creer('span', 'bandeau-acr-texte', acrs.length > 1 ? 'Arrêt cardiaque :' : 'Arrêt cardiaque'));
+    for (const p of acrs) {
+      const mot = acrs.length > 1 ? `ACR ${p.sous.split(' · ')[0]}` : 'Passer en ACR';   // M-1 : libellé court (« ACR adulte | ACR enfant ») pour tenir sur une rangée ; le nom accessible reste « Arrêt cardiaque, adulte »
+      bandeau.append(bouton(mot, 'bouton bouton-acr', () => { this.versPrincipal(); i.choisirAcr(p.id).catch(() => {}); }, { id: p.id === i.protocoleId ? 'passer-acr' : `passer-${p.id}`, 'data-vital': 'acr', 'aria-label': `Arrêt cardiaque, ${p.sous.split(' · ')[0]}` }));   // commande vitale : agit tout de suite même volet ouvert (D-64c, N1)
+    }
+    page.append(bandeau);
     const ligneMetronome = this.construireLigneMetronome();   // D-80 corrigé (J-b) : dans le flux, sous la tuile rouge
     if (ligneMetronome) page.append(ligneMetronome);
     page.append(this.construireChecklistCommune());
@@ -857,7 +877,36 @@ export class InterfaceIntervention {
     page.append(outils);
     page.append(creer('p', 'presentation', "L'alerte, le chronomètre global, la fiche bilan et le mode transmission restent disponibles."));
     this.zone.contenu.replaceChildren(page);
+    this.suivreBandeauAcr(bandeau);
     this.majPuceEtRoles();
+  }
+
+  /**
+   * M-1 (revue du lot K) : le bandeau « Arrêt cardiaque » tient sur UNE rangée ; MESURÉ (jamais une valeur en dur) : s'il prend plus de 15 % de la zone de la liste, il cesse d'être collant (classe `bandeau-acr-flux` :
+   * il reste en tête de liste, dans le flux) ; sinon il est collant et la marge de défilement de la zone (`--marge-bandeau-acr`) vaut sa hauteur réelle : un élément amené en vue ne finit jamais dessous.
+   * Remesuré à chaque changement de taille (rotation, texte agrandi, clavier) ; arrêté dès que l'écran change.
+   */
+  suivreBandeauAcr(bandeau) {
+    this.arreterBandeauAcr();
+    const zone = this.zone.contenu;
+    const mesurer = () => {
+      if (!bandeau.isConnected) { this.arreterBandeauAcr(); return; }
+      bandeau.classList.remove('bandeau-acr-compact');   // d'abord avec le libellé ; il ne reste que si les deux boutons y tiennent sans que leur texte déborde
+      if ([...bandeau.querySelectorAll('.bouton-acr')].some((b) => b.scrollWidth > b.clientWidth + 1)) bandeau.classList.add('bandeau-acr-compact');
+      const h = bandeau.getBoundingClientRect().height; const z = zone.clientHeight;
+      const collant = z > 0 && h / z <= PART_MAX_BANDEAU_ACR;
+      bandeau.classList.toggle('bandeau-acr-flux', !collant);
+      zone.style.setProperty('--marge-bandeau-acr', collant ? `${Math.ceil(h) + 4}px` : '0px');
+    };
+    mesurer();
+    if (typeof ResizeObserver !== 'function') return;
+    this.suiviBandeauAcr = new ResizeObserver(mesurer);
+    this.suiviBandeauAcr.observe(bandeau); this.suiviBandeauAcr.observe(zone);
+  }
+
+  arreterBandeauAcr() {
+    this.suiviBandeauAcr?.disconnect(); this.suiviBandeauAcr = null;
+    this.zone?.contenu?.style.removeProperty('--marge-bandeau-acr');
   }
 
   /**
@@ -878,7 +927,7 @@ export class InterfaceIntervention {
       intervention: i, etat: this.clCommun, structure: this.structure, avantEcran: equipe.childElementCount > 0 ? [equipe] : [],
       auAlerte: () => this.ouvrirPanneau('alerte'), auRendre: () => this.rendre(), auRenvoi: (id) => this.renvoyerVers(id), renvoiPossible: (id) => i.protocolesAcr.includes(id),
       renvoiCibles: (id) => (i.protocolesAcr.includes(id) ? PROTOCOLES_ACR.filter((p) => p.id === id || (i.protocolesAcr.includes(p.id) && protocolePublie(p.id))).map((p) => ({ id: p.id, libelle: p.libelle })) : []),
-      vue: i.vueChecklistCommune, protocole: i.protocoleCommun, classe: 'checklist-commune', sansMateriel: true,
+      vue: i.vueChecklistCommune, protocole: i.protocoleCommun, classe: 'checklist-commune', sansMateriel: true, masquerRenvois: true,   // D-83 : le bandeau « Arrêt cardiaque » de l'écran remplace les étapes de renvoi vers l'ACR
     });
     hote.append(...zone.childNodes);
     return hote;

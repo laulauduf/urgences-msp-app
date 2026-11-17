@@ -3,7 +3,7 @@
   "id": "acr-enfant",
   "titre": "Arrêt cardiaque de l'enfant et du nourrisson (réanimation de base pédiatrique, avec défibrillateur automatisé externe)",
   "titre_court": "Arrêt cardiaque enfant",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/acr-enfant.md",
@@ -61,6 +61,11 @@
         "par": "agent code « lot I » (Sonnet 5.5 / high), lancé par « urgences - pilote 5 »",
         "le": "2026-11-16",
         "objet": "Version 0.1.9 (lot I, décision D-81 de Laurent) : ajout du champ `parametres.metronome.battements_avant_insufflations` (15) — le nombre de battements entre deux affichages « 2 insufflations » vient désormais du protocole : rapport 15:2, ERC 2025 pédiatrie p. 13 (étape rapport-15-2 du protocole). Seul ce champ est ajouté : aucun texte médical n'est modifié. Version 0.1.9 non contrôlée."
+      },
+      {
+        "par": "agent recherche-reco (Opus 5.5 / high), lancé par « urgences - pilote 5 »",
+        "le": "2026-11-16",
+        "objet": "Version 0.1.10 (non contrôlée) : décision D-84 de Laurent (16/11/2026, retirer les mentions de formation). Étape non-forme-30-2 (identifiant conservé) : libellé « Non formé : 30:2 » → « Régulateur : 30:2 », précision « Protocole simplifié du régulateur : 5 insufflations, puis 30:2 », consigne guidée et détail réécrits sans la notion de formation dans les textes affichés courts (la condition de l'ERC reste décrite dans le détail, c'est le texte de la source) ; source ajoutée (ERC pédiatrique p. 34) ; autorise_par D-84 ; statut A_VALIDER inchangé (VE6). Suppression de l'étape PROPOSÉE à Laurent, non faite. Mentions restantes non modifiées (citations ou descriptions de la source) : détail de insufflations-initiales (« pour le sauveteur formé », « pour le non-formé », figure 5 de l'ERC), détail de alerter, recapitulatif_chiffre « Rapport compressions/insufflations » (« 15:2 (formés) ; 30:2 (non formés, régulation) »). Ordre, identifiants, champs saisie et parametres.metronome inchangés."
       }
     ]
   },
@@ -79,6 +84,7 @@
     {"decision": "D-20", "question": "Q-32", "etat": "PROVISOIRE", "objet": "Relance du chronomètre de cycle au toucher, sans redémarrage automatique"},
     {"decision": "D-35", "etat": "REPONDUE", "objet": "Appel à l'aide juste après « ne répond pas » (réponse A du 15/11/2026) ; transposée à l'enfant : premiers secours citoyen p. 27 (tous âges), l'ERC fait appeler immédiatement (p. 12) ; DÉDUIT"},
     {"decision": "D-36", "etat": "REPONDUE", "objet": "L'appli est un aide-mémoire pour soignants formés AFGSU, pas un guide pas à pas (15/11/2026)"},
+    {"decision": "D-84", "etat": "REPONDUE", "objet": "Mentions de formation retirées des libellés (16/11/2026) : étape non-forme-30-2 devenue « Régulateur : 30:2 » (0.1.10) ; suppression de l'étape proposée à Laurent"},
     {"decision": "D-37", "etat": "REPONDUE", "objet": "Checklist en environ trois mots, quoi et jamais comment, au plus une précision d'une ligne dépliable (15/11/2026) : champs texte_court et precision"},
     {"decision": "D-38", "etat": "REPONDUE", "objet": "Métronome conservé, outil à un toucher, jamais imposé ; transposée à l'enfant : l'ERC pédiatrique ne parle pas des dispositifs de guidage (mots recherchés : « feedback », « metronome »), les références techniques nationales premiers secours en équipe (p. 141) admettent un métronome à tout âge ; DÉDUIT"},
     {"decision": "D-45", "etat": "REPONDUE_NON_TRANSPOSEE", "objet": "Défibrillateur à vue : aller le chercher avant de masser. NON transposée à l'enfant : contraire à l'ERC pédiatrique (seul, alerte et réanimation avant le défibrillateur ; ERC-PED p. 13, p. 35). Le point reste A_VALIDER (VE2) ; la partie « à plusieurs, un tiers le rapporte » reste valable"},
@@ -1323,22 +1329,25 @@
       "niveau": "detail",
       "premier_ecran": false,
       "critique": false,
-      "titre_fiche": "Non formé : 30:2",
-      "texte_court": "Non formé : 30:2",
-      "precision": "Rapport des non-formés et du régulateur",
-      "consigne_guidee": "Un sauveteur non formé à la réanimation pédiatrique utilise 30 compressions pour 2 insufflations, comme le régulateur le guide.",
-      "detail": "30:2 pour qui n'est pas formé à la réanimation pédiatrique ; le régulateur guide en 30:2 avec 5 insufflations initiales. Un soignant AFGSU 2 est-il « formé » au sens de l'ERC ? Non tranché par les sources.",
+      "titre_fiche": "Régulateur : 30:2",
+      "texte_court": "Régulateur : 30:2",
+      "precision": "Protocole simplifié du régulateur : 5 insufflations, puis 30:2",
+      "consigne_guidee": "Si le régulateur guide la réanimation, il suit un protocole simplifié : 5 insufflations, puis 30 compressions pour 2 insufflations.",
+      "detail": "ERC : le régulateur guide avec un protocole simplifié, 5 insufflations puis 30:2 (même rapport que l'adulte), destiné aux sauveteurs sans formation spécifique à la réanimation pédiatrique ; les autres utilisent 15:2. Un soignant AFGSU 2 relève-t-il du 15:2 au sens de l'ERC (cours ERC « or equivalent ») ? Non tranché par les sources (VE6).",
       "statut": "A_VALIDER",
-      "statut_fiche": "CITÉ ; application à l'AFGSU 2 : A_VALIDER (VE6)",
+      "statut_fiche": "CITÉ ; application à l'AFGSU 2 : A_VALIDER (VE6) ; libellé reformulé sans la notion de formation (D-84), suppression de l'étape proposée au médecin référent",
+      "autorise_par": "D-84",
       "sources": [
+        {"ref": "ERC-PED", "localisation": "p. 34 (protocole du régulateur)", "citation": "dispatchers use a simplified protocol with a compression to ventilation ratio of 30:2"},
         {"ref": "ERC-PED", "localisation": "p. 12-13 (lues sur l'image des pages) ; p. 34 ; fig. 5 p. 11", "citation": "otherwise use a ratio of 30:2"},
         {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, JO p. 7 (intégration des référentiels du PSC1)", "citation": "intègre l'ensemble des éléments des référentiels du PSC1"},
         {"ref": "DGSCGC-PSC-2026", "localisation": "p. 27", "citation": "enfant et nourrisson : 15 compressions thoraciques / 2 insufflations"}
       ],
-      "a_valider": "Un soignant formé à l'AFGSU de niveau 2 est-il « formé » au sens de l'ERC (cours ERC de réanimation de base pédiatrique « or equivalent »), donc en 15:2 ? L'AFGSU de niveau 2 intègre les référentiels du PSC1 (arrêté AFGSU, annexe 2, p. 7), qui enseignent 15/2 chez l'enfant et le nourrisson (premiers secours citoyen p. 27) ; aucune source ne dit si c'est l'équivalent du cours ERC. Choix médical. Cherché : ERC pédiatrique p. 11 (figure 5), p. 13, p. 34 ; arrêté AFGSU, annexe 2 ; premiers secours citoyen p. 27.",
+      "a_valider": "Un soignant formé à l'AFGSU de niveau 2 est-il « formé » au sens de l'ERC (cours ERC de réanimation de base pédiatrique « or equivalent »), donc en 15:2 ? L'AFGSU de niveau 2 intègre les référentiels du PSC1 (arrêté AFGSU, annexe 2, p. 7), qui enseignent 15/2 chez l'enfant et le nourrisson (premiers secours citoyen p. 27) ; aucune source ne dit si c'est l'équivalent du cours ERC. Choix médical. Cherché : ERC pédiatrique p. 11 (figure 5), p. 13, p. 34 ; arrêté AFGSU, annexe 2 ; premiers secours citoyen p. 27. Version 0.1.10 (D-84) : sans la condition « non formé », l'étape ne fait plus que décrire le protocole simplifié du régulateur ; suppression proposée au médecin référent (le rapport affiché reste 15:2, étape rapport-15-2 ; l'affichage « 2 insufflations » suit 15:2, D-81).",
       "ref_fiche": "§ 2, étape 13a ; § 7, Rapport 15:2 ; § 9, VE6",
       "qui_fiche": "Tous",
       "professions": {"geste": "insufflations_sans_materiel"},
+      "remarque": "Version 0.1.10 (D-84, 16/11/2026) : libellé « Non formé : 30:2 » → « Régulateur : 30:2 », précision et consigne guidée sans la notion de formation ; source ajoutée (ERC pédiatrique p. 34, protocole du régulateur). Identifiant non-forme-30-2 conservé (identifiant interne, peut être utilisé ailleurs). Étape de détail, non cochable, non critique : sa suppression est proposée au médecin référent, pas faite.",
       "cochable": false,
       "acronymes": [],
       "materiel": []

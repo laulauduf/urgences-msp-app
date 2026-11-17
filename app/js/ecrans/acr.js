@@ -30,9 +30,10 @@ const plein = (v) => typeof v === 'string' && v.trim() !== '';
  *   `avantEcran` : éléments posés AVANT les pastilles (équipe, annulation) ; `zoneCycle` : la carte du cycle, collée en haut de la liste.
  *   Réutilisation par la checklist COMMUNE de « Autre situation » (D-51), sans toucher à la logique de l'ACR : `vue` et `protocole` remplacent ceux de l'intervention
  *   (par défaut, l'ACR), `classe` est la classe de la section, `sansMateriel` retire la pastille Matériel (pas de matériel propre à une checklist commune),
+ *   `masquerRenvois` (D-83) : n'affiche pas les étapes de renvoi vers l'ACR dans la liste (le bandeau « Arrêt cardiaque » de l'écran les représente) ; données et Sources inchangées.
  *   `auRenvoi(idProtocole)` est appelée quand on TOUCHE le bouton « Passer en ACR » d'une étape qui porte `renvoi_protocole` (R1f, M1 : ce n'est PLUS une case) ; `renvoiPossible(idProtocole)` dit si l'interface sait ouvrir ce protocole (sinon l'étape reste une case ordinaire).
  */
-export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte, auRendre, avantEcran = [], zoneCycle = null, vue = intervention.vueChecklist, protocole = intervention.protocole, classe = 'ecran-acr', sansMateriel = false, auRenvoi = null, renvoiPossible = () => false, renvoiCibles = null }) {
+export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte, auRendre, avantEcran = [], zoneCycle = null, vue = intervention.vueChecklist, protocole = intervention.protocole, classe = 'ecran-acr', sansMateriel = false, auRenvoi = null, renvoiPossible = () => false, renvoiCibles = null, masquerRenvois = false }) {
   const page = creer('section', classe, '', { 'aria-label': protocole?.titre_court ?? 'ACR' });
   const debut = intervention.fiche.journal[0].t;
   const tPlus = (t) => `T+${formaterDuree(t - debut)}`;
@@ -212,6 +213,14 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
     const depliable = (precision !== '' && !visible) || noterDispo || saisie;
     const ouverte = depliable && (etat.deplies.has(item.id) || etat.notation?.id === item.id);
     const cibleRenvoi = renvoiDe(e);
+    if (cibleRenvoi !== null && masquerRenvois) {
+      // D-83 + BILANVITAL-1 ouverte (registre ; choix PROVISOIRE A du pilote, 17/11/2026) : l'accès à l'arrêt cardiaque est UNIQUEMENT le bandeau de l'écran (aucun bouton ici), mais le texte sourcé de l'étape
+      // (« Bilan vital d'abord », « Aucune réaction, respiration absente ou anormale… ») reste lu : UNE ligne de texte tirée du protocole, jamais écrite en dur.
+      const lt = creer('li', 'etape etape-renvoi-texte', '', { 'data-etape': item.id, 'data-etat': 'renvoi-texte' });
+      if (item.vitale) lt.dataset.vitale = 'oui';
+      lt.append(creer('span', 'etape-texte', precision !== '' ? `${e.texte_court} — ${precision}` : e.texte_court));
+      return lt;
+    }
     if (cibleRenvoi !== null) {
       // RENVOI (R1f, M1, CHOIX PROVISOIRE) : pas de case (cocher « vérifié » ne doit jamais déclarer un arrêt cardiaque) ; un bouton rouge net, un toucher, jamais « non faite ».
       const lr = creer('li', 'etape etape-renvoi', '', { 'data-etape': item.id, 'data-etat': 'renvoi' });
@@ -336,7 +345,7 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
   page.append(pastilles);
   if (illisibles) page.append(illisibles);
   if (zoneCycle) page.append(zoneCycle);   // la carte du cycle reste visible quelle que soit la pastille
-  if (etat.section === 'conduite') page.append(liste(enConduite));
+  if (etat.section === 'conduite') page.append(liste(enConduite));   // D-83 : le bandeau « Arrêt cardiaque » remplace les BOUTONS de l'étape de renvoi (`masquerRenvois`, voir `ligne`) ; l'étape reste dans le protocole, la fiche et les Sources
   else if (etat.section === 'reprise') page.append(liste(enReprise));
   else if (etat.section === 'materiel') page.append(sectionMateriel());
   else page.append(sectionSources());
