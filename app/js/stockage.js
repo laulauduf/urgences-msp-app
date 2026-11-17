@@ -13,6 +13,7 @@ import { creerFiche, ajouterJournal, verifierFiche, resumer, migrerFiche, TYPES_
 import { decisionPurge, delaiEffectif, SurveillanceHorloge, PLANCHER_DEFAUT_H, DELAI_DEFAUT_H } from './purge.js';
 import { choisirReprise, fichesEnAttente } from './reprise.js';
 import { normaliserPersonnes } from './roles.js';
+import { lireCabinet } from './mon-cabinet.js';
 import { BASE_REGLAGES, MAGASIN_REGLAGES, CLE_FICHE_OUVERTE } from './indicateur.js';   // contrat avec sw.js : UNE seule définition (revue aval H3)
 
 export const BASES = { reel: 'urgences-fiches', simulation: 'urgences-simulation', reglages: BASE_REGLAGES };
@@ -24,7 +25,8 @@ export const REGLAGES_PAR_DEFAUT = Object.freeze({
   delai_effacement_h: DELAI_DEFAUT_H,
   theme: 'auto',
   champs_sensibles: {},
-  personnes: [],           // prénoms ou fonctions de l'équipe, saisis une fois et réutilisables (rôles, 4.4) : aucune donnée patient
+  mon_cabinet: {},         // D-88 « Mon cabinet » : nom, adresse, accès, DAE, rappel… de CET appareil (jamais envoyé, jamais effacé par la purge des interventions ; effacé seulement par « Réinitialiser l'appli »)
+  personnes: [],          // prénoms ou fonctions de l'équipe, saisis une fois et réutilisables (rôles, 4.4) : aucune donnée patient
 });
 const CLES_REGLAGES = Object.keys(REGLAGES_PAR_DEFAUT);
 
@@ -47,6 +49,7 @@ export function creerStockage({
   const reportees = new Set();
   let reglagesCache = null;
   let lectureReglages = null;
+  let reglagesLusEnBase = false;   // vrai dès que les réglages ont été LUS dans la base de l'appareil (D-88b, m-5) ; un cache fabriqué par une écriture sans lecture réussie ne compte pas
   let afficheeId = null;
   let purgeFaite = false;
   let resoudrePurge;
@@ -118,15 +121,36 @@ export function creerStockage({
   // ───────── Réglages de l'appareil ─────────
 
   function normaliser(brut) {
-    const r = { ...REGLAGES_PAR_DEFAUT, champs_sensibles: {}, personnes: [] };
+    const r = { ...REGLAGES_PAR_DEFAUT, champs_sensibles: {}, mon_cabinet: {}, personnes: [] };
     for (const cle of CLES_REGLAGES) if (brut && brut[cle] !== undefined && brut[cle] !== null) r[cle] = brut[cle];
     if (brut && brut.profession === null) r.profession = null;
     if (typeof r.profession !== 'string' && r.profession !== null) r.profession = null;
     if (!['auto', 'clair', 'sombre'].includes(r.theme)) r.theme = 'auto';
     if (r.champs_sensibles === null || typeof r.champs_sensibles !== 'object' || Array.isArray(r.champs_sensibles)) r.champs_sensibles = {};
+    r.mon_cabinet = lireCabinet(r.mon_cabinet);
     r.personnes = normaliserPersonnes(r.personnes);
     r.delai_effacement_h = delaiEffectif(Number(r.delai_effacement_h), { plancherH: config.plancherH });
     return r;
+  }
+
+  /** Lecture brute des réglages dans la base (normalisés). Rejette si la base est indisponible, lente ou en erreur. */
+  async function lireReglagesEnBase() {
+    const cles = await executer(BASES.reglages, MAGASIN_REGLAGES, 'readonly', (s) => s.getAllKeys());
+    const valeurs = await executer(BASES.reglages, MAGASIN_REGLAGES, 'readonly', (s) => s.getAll());
+    return normaliser(Object.fromEntries(cles.map((c, i) => [c, valeurs[i]])));
+  }
+
+  /**
+   * Lecture SÛRE des réglages (D-88b, m-5) : `ok` n'est vrai que si les réglages ont réellement été lus dans la base. Sinon `reglages` ne porte que les valeurs par défaut (ou un cache partiel) :
+   * un écran qui réécrit un réglage ENTIER (Mon cabinet) ne doit alors rien écrire. Un échec précédent n'est pas retenu : chaque appel réessaie. Ne lève jamais.
+   */
+  async function lireReglagesSurs() {
+    await lireReglages();
+    if (!reglagesLusEnBase) {
+      try { const lus = await lireReglagesEnBase(); reglagesCache = lus; reglagesLusEnBase = true; }
+      catch { return { ok: false, reglages: structuredClone(reglagesCache ?? normaliser({})) }; }
+    }
+    return { ok: true, reglages: structuredClone(reglagesCache) };
   }
 
   /** Réglages courants (copie). Base indisponible : valeurs par défaut, `reglagesEnMemoire` vrai. Ne lève jamais. */
@@ -135,9 +159,9 @@ export function creerStockage({
     // une seule lecture à la fois : deux appels concurrents partagent la même, sinon la plus lente écraserait un réglage écrit entre-temps
     lectureReglages ??= (async () => {
       try {
-        const cles = await executer(BASES.reglages, MAGASIN_REGLAGES, 'readonly', (s) => s.getAllKeys());
-        const valeurs = await executer(BASES.reglages, MAGASIN_REGLAGES, 'readonly', (s) => s.getAll());
-        reglagesCache ??= normaliser(Object.fromEntries(cles.map((c, i) => [c, valeurs[i]])));
+        const lus = await lireReglagesEnBase();
+        reglagesCache ??= lus;
+        reglagesLusEnBase = true;
       } catch {
         // revue m7 : un ÉCHEC n'est pas gardé en cache (sinon le délai d'effacement et la profession réglés seraient ignorés toute la session) ;
         // on renvoie les valeurs par défaut cette fois-ci, la lecture suivante réessaiera
@@ -384,7 +408,7 @@ export function creerStockage({
     // (URGENCE compris). On refuse AVANT de toucher à quoi que ce soit ; à reprendre avec Laurent.
     if (globalThis.navigator?.onLine === false) return { ok: false, restes: ["hors ligne : réinitialisation refusée (l'appli ne pourrait plus se rouvrir) — recommencez avec du réseau"] };
     for (const s of suivi.values()) { s.efface = true; clearTimeout(s.minuteur); }
-    suivi.clear(); nonEnregistrees.clear(); reportees.clear(); reglagesCache = null; afficheeId = null;
+    suivi.clear(); nonEnregistrees.clear(); reportees.clear(); reglagesCache = null; reglagesLusEnBase = false; afficheeId = null;
     const restes = [];
     try {
       fermerConnexions();
@@ -477,11 +501,11 @@ export function creerStockage({
     configurer: ({ plancherH, repriseMaxH } = {}) => {
       if (Number.isFinite(plancherH)) config.plancherH = plancherH;
       if (Number.isFinite(repriseMaxH)) config.repriseMaxH = repriseMaxH;
-      reglagesCache = null; // le délai effectif dépend du plancher : on relira
+      reglagesCache = null; reglagesLusEnBase = false; // le délai effectif dépend du plancher : on relira
     },
     acquitterHorloge: () => surveillance.acquitter(),
     // réglages
-    lireReglages, ecrireReglage,
+    lireReglages, lireReglagesSurs, ecrireReglage,
     // état
     etat: () => ({ degrade: nonEnregistrees.size > 0, nonEnregistrees: [...nonEnregistrees], purgeFaite, horlogeSuspecte: surveillance.suspecte, plancherH: config.plancherH }),
     purgeTerminee: () => purgeTerminee,

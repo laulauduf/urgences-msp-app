@@ -1247,3 +1247,22 @@ body[data-texte="grand"] .etape-valeur { font-size: min(1.0625rem, 22px); }
 .bandeau-acr-flux { position: static; }   /* M-1 : mesuré > 15 % de la zone de la liste : en tête de liste, dans le flux, plus collant */
 .bandeau-acr .bouton-acr { flex: 1 1 0; min-width: 0; white-space: nowrap; min-height: 48px; padding: 0 0.5rem; background: var(--urgence); color: var(--sur-urgence); border-color: var(--sur-urgence); font-size: inherit; }
 #contenu { scroll-padding-top: var(--marge-bandeau-acr, 0px); }   /* M-1 : hauteur RÉELLE du bandeau collant, posée par `suivreBandeauAcr` (0 s'il n'est pas collant ; plus de :has, m-7) */
+
+/* ───────── Lot D-88 — « Mon cabinet » (Réglages) : un champ par information de la structure, saisi sur ce téléphone. Jetons de couleur seulement ; cibles de 48 px EN PIXELS. ───────── */
+.mon-cabinet .panneau-titre { flex-wrap: wrap; justify-content: space-between; }   /* titre, URGENCE et Fermer passent à la ligne plutôt que de déborder (texte à 200 %, 320 px) */
+.mon-cabinet .info-titre { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+/* D-88b (m-6) : clavier ouvert (classe posée par ecrans/mon-cabinet.js), l'en-tête est collé en haut de l'écran et réduit à URGENCE et Fermer : URGENCE reste en vue sur les derniers champs.
+   Clavier fermé : en-tête normal (il ne prend pas de place en permanence : texte à 200 %, paysage). La confirmation « Enregistré… » vit dans l'en-tête, plus collée à part. */
+.mon-cabinet .cabinet-haut .reglage-etat { position: static; }
+.mon-cabinet.clavier-ouvert .cabinet-haut { position: sticky; top: 0; z-index: 4; background: var(--fond); padding-bottom: 0.25rem; }
+.mon-cabinet.clavier-ouvert .cabinet-haut .info-titre { display: none; }
+.mon-cabinet.clavier-ouvert .cabinet-haut .panneau-titre { justify-content: space-between; }
+.cabinet-champs { display: flex; flex-direction: column; gap: 0.5rem; margin: 0 0 var(--espace); }
+.cabinet-champ .reglage-aide { margin: 0.125rem 0 0; }
+.mon-cabinet .reglage .cabinet-champ + .cabinet-champ { margin-top: 0.5rem; }
+.mon-cabinet .lieu-champ input { min-height: 52px; }
+/* le champ des codes d'accès est dans un groupe « .reglage » (règle « .reglage input[type=text] » avec « flex: 1 1 8rem ») : dans la colonne du libellé, cette base de 8 rem en faisait un champ de 128 px de haut (256 px à 200 %) */
+.mon-cabinet .reglage .lieu-champ input[type="text"] { flex: none; }
+.mon-cabinet .bouton-plein { margin-bottom: var(--espace); }
+.etat-action { margin: 0.25rem 0; min-height: 48px; }
+.lieu-cabinet-nom { margin: 0; font-weight: 700; }

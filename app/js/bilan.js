@@ -141,13 +141,16 @@ function pageLieu({ fiche, structure, champsSensibles }) {
   // donnée attendue au cabinet : dite « non renseigné », jamais masquée (4.8, 3.2)
   const attendu = (libelle, chemin) => ligneEd(`${libelle} : ${t(chemin)}`, edS(chemin, manque(chemin) ? '' : t(chemin)));
   // les autres codes que la structure déclare (portail, etc.) : sur ce téléphone seulement, et dits s'ils manquent
+  // D-88 / CABINET-1 (PROVISOIRE, le plus protecteur) : les lignes de CODE D'ACCÈS sont marquées `prive` — dites à l'écran de transmission (le 15 en a besoin, 4.8), JAMAIS écrites dans le document exporté
+  // ni dans le texte copié (export.js les retire) : ce sont des secrets du lieu, pas des données de la fiche.
+  const prive = (l) => ({ ...l, prive: true });
   const autresCodes = (Array.isArray(d.champs_sensibles_locaux) ? d.champs_sensibles_locaux : []).filter((c) => plein(c?.id) && c.id !== 'code_entree' && plein(c?.libelle))
-    .map((c) => (plein(champsSensibles?.[c.id]) ? ligne(`${c.libelle} : ${champsSensibles[c.id].trim()}`) : ligne(`${c.libelle} : non renseigné sur ce téléphone`)));
+    .map((c) => prive(plein(champsSensibles?.[c.id]) ? ligne(`${c.libelle} : ${champsSensibles[c.id].trim()}`) : ligne(`${c.libelle} : non renseigné sur ce téléphone`)));
   return {
     id: 'lieu', titre: 'Lieu', adresse: adresse || 'Adresse de la structure : non renseignée',
     lignes: lignes(
       // donnée de structure manquante sur ce téléphone : dite, jamais masquée (4.8)
-      plein(code) ? ligneEd(`Code d'entrée : ${code.trim()}`, edS('code_entree', code.trim())) : ligneEd("Code d'entrée : non renseigné sur ce téléphone", edS('code_entree', '')),
+      prive(plein(code) ? ligneEd(`Code d'entrée : ${code.trim()}`, edS('code_entree', code.trim())) : ligneEd("Code d'entrée : non renseigné sur ce téléphone", edS('code_entree', ''))),
       ...autresCodes,
       ligneEd(`Structure : ${t('structure.nom')}`, edS('structure.nom', manque('structure.nom') ? '' : t('structure.nom'))),
       ligneEd(`Adresse : ${adresse || 'non renseignée'}`, edS('adresse', adresse)),

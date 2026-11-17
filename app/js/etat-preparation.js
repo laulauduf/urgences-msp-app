@@ -8,9 +8,12 @@ let note = null; // ligne d'information sous le bouton (ex. « son et écran pas
 
 function racine() { return document.getElementById('etat-preparation'); }
 
-/** Déclare ou met à jour un point de la liste. `ok: true` = rien à signaler (le point reste dans la liste, coché). */
-export function definirPoint(id, { texte, ok }) {
-  points.set(id, { texte, ok });
+/**
+ * Déclare ou met à jour un point de la liste. `ok: true` = rien à signaler (le point reste dans la liste, coché).
+ * `action` (facultative, D-88) : `{ libelle, executer }` — un bouton sous le point, qui ouvre l'écran où se règle ce qui manque (ex. « Remplir Mon cabinet »). Elle ne s'affiche que tant que le point est à vérifier.
+ */
+export function definirPoint(id, { texte, ok, action = null }) {
+  points.set(id, { texte, ok, action });
   rendre();
 }
 
@@ -27,7 +30,7 @@ export function pointCodesLocaux(structure, valeurs) {
   const champs = Array.isArray(structure?.donnees?.champs_sensibles_locaux) ? structure.donnees.champs_sensibles_locaux.filter((c) => typeof c?.id === 'string') : [];
   if (champs.length === 0) return null;
   const remplis = champs.filter((c) => typeof valeurs?.[c.id] === 'string' && valeurs[c.id].trim() !== '').length;
-  return { ok: true, texte: `Codes d'accès du lieu : ${remplis} sur ${champs.length} renseignés sur ce téléphone (Réglages)` };
+  return { ok: true, texte: `Codes d'accès du lieu : ${remplis} sur ${champs.length} renseignés sur ce téléphone (Mon cabinet)` };
 }
 
 export function pointsAVerifier() { return [...points.values()].filter((p) => !p.ok); }
@@ -50,9 +53,15 @@ export function rendre() {
 
   if (ouvert) {
     const liste = document.createElement('ul');
-    for (const { texte, ok } of points.values()) {
+    for (const { texte, ok, action } of points.values()) {
       const li = document.createElement('li');
       li.textContent = `${ok ? '✓' : '⚠'} ${texte}`;
+      if (!ok && action && typeof action.executer === 'function') {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'bouton etat-action'; b.textContent = action.libelle;
+        b.addEventListener('click', action.executer);
+        li.append(document.createElement('br'), b);
+      }
       liste.append(li);
     }
     zone.append(liste);

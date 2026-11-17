@@ -30,7 +30,7 @@ const plein = (v) => typeof v === 'string' && v.trim() !== '';
  *   `avantEcran` : éléments posés AVANT les pastilles (équipe, annulation) ; `zoneCycle` : la carte du cycle, collée en haut de la liste.
  *   Réutilisation par la checklist COMMUNE de « Autre situation » (D-51), sans toucher à la logique de l'ACR : `vue` et `protocole` remplacent ceux de l'intervention
  *   (par défaut, l'ACR), `classe` est la classe de la section, `sansMateriel` retire la pastille Matériel (pas de matériel propre à une checklist commune),
- *   `masquerRenvois` (D-83) : n'affiche pas les étapes de renvoi vers l'ACR dans la liste (le bandeau « Arrêt cardiaque » de l'écran les représente) ; données et Sources inchangées.
+ *   `masquerRenvois` (D-83) : les étapes de renvoi vers l'ACR n'ont plus de bouton dans la liste (le bandeau « Arrêt cardiaque » de l'écran l'est) ; elles restent affichées en ligne de texte, sans case ni bouton (K-b, M-2) ; données et Sources inchangées.
  *   `auRenvoi(idProtocole)` est appelée quand on TOUCHE le bouton « Passer en ACR » d'une étape qui porte `renvoi_protocole` (R1f, M1 : ce n'est PLUS une case) ; `renvoiPossible(idProtocole)` dit si l'interface sait ouvrir ce protocole (sinon l'étape reste une case ordinaire).
  */
 export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte, auRendre, avantEcran = [], zoneCycle = null, vue = intervention.vueChecklist, protocole = intervention.protocole, classe = 'ecran-acr', sansMateriel = false, auRenvoi = null, renvoiPossible = () => false, renvoiCibles = null, masquerRenvois = false }) {

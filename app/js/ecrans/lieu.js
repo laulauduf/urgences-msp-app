@@ -1,6 +1,7 @@
 // Écran unique de saisie du lieu (cahier des charges 4.7) : cabinet (prérempli depuis la structure) ou visite à domicile (adresse, étage,
 // code d'accès, accès). AUCUN champ obligatoire : rien ne bloque jamais l'alerte. Pas de saisie automatique ni de correction sur ces champs.
 import { creer, bouton } from '../dom.js';
+import { NON_RENSEIGNE } from '../structure.js';
 
 const CHAMPS_DOMICILE = [
   ['adresse', 'Adresse'],
@@ -31,8 +32,16 @@ export function afficherLieu(conteneur, { intervention, structure, auRetour }) {
   page.append(choix);
 
   const cabinet = creer('div', 'lieu-cabinet');
-  const adresse = structure?.texte ? ['adresse.ligne1', 'adresse.code_postal', 'adresse.commune'].map((c) => structure.texte(c)) : [];
-  cabinet.append(creer('p', null, adresse.length > 0 ? adresse.join(' ') : "Adresse de la structure : non renseignée"));
+  // D-88 : `structure` est le fichier de configuration complété par « Mon cabinet » de ce téléphone (valeurs de l'intervention : écran de transmission, D-65 d) ; jamais « À REMPLIR »
+  // D-88b (m-3) : une valeur corrigée sur place pendant CETTE intervention (fiche.lieu.surcharges, D-65 d) prime, comme dans la transmission : intervention > Mon cabinet > fichier
+  const sur = lieu.surcharges ?? {};
+  const dit = (c) => { if (typeof sur[c] === 'string' && sur[c].trim() !== '') return sur[c].trim(); const v = structure?.texte ? structure.texte(c) : NON_RENSEIGNE; return v === NON_RENSEIGNE ? '' : v; };
+  const nom = dit('structure.nom');
+  const adresse = typeof sur.adresse === 'string' && sur.adresse.trim() !== '' ? sur.adresse.trim()
+    : [dit('adresse.ligne1'), dit('adresse.complement'), [dit('adresse.code_postal'), dit('adresse.commune')].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+  if (nom) cabinet.append(creer('p', 'lieu-cabinet-nom', nom));
+  cabinet.append(creer('p', null, adresse || "Adresse de la structure : non renseignée"));
+  if (!nom || !adresse) cabinet.append(creer('p', 'reglage-aide', "À remplir une fois sur ce téléphone : Réglages, « Mon cabinet » (hors intervention). Vous pouvez aussi corriger sur place dans le mode transmission."));
   page.append(cabinet);
 
   const domicile = creer('div', 'lieu-domicile');

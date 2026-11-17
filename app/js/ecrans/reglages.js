@@ -28,9 +28,10 @@ function groupe(titre, aide) {
 
 /**
  * @param {HTMLElement} conteneur
- * @param {{stockage: object, structure?: object, groupes?: {id: string, libelle: string}[], onRetour: () => void, onChangement?: (cle: string, valeur: any) => void}} options
+ * @param {{stockage: object, structure?: object, groupes?: {id: string, libelle: string}[], onRetour: () => void, onChangement?: (cle: string, valeur: any) => void, auxCabinet?: () => void}} options
+ *   `auxCabinet` : ouvre l'écran « Mon cabinet » (D-88).
  */
-export async function afficherReglages(conteneur, { stockage, structure, groupes = [], onRetour, onChangement = () => {} }) {
+export async function afficherReglages(conteneur, { stockage, structure, groupes = [], onRetour, onChangement = () => {}, auxCabinet = () => {} }) {
   const reglages = await stockage.lireReglages();
   const plancherH = stockage.etat().plancherH;
   const page = creer('section', 'page reglages');
@@ -90,31 +91,18 @@ export async function afficherReglages(conteneur, { stockage, structure, groupes
   }
   page.append(theme);
 
-  // Champs sensibles du lieu : saisis sur chaque appareil, jamais dans un fichier publié (3.2)
-  const declares = Array.isArray(structure?.donnees?.champs_sensibles_locaux) ? structure.donnees.champs_sensibles_locaux : [];
-  if (declares.length > 0) {
-    const sens = groupe('Informations du lieu (sur cet appareil seulement)', "Ces valeurs ne sont jamais envoyées ni publiées ; elles restent sur ce téléphone.");
-    sens.dataset.reglage = 'champs-sensibles';
-    for (const c of declares) {
-      if (typeof c?.id !== 'string' || typeof c?.libelle !== 'string') continue;
-      const label = creer('label', 'reglage-champ', `${c.libelle} : `);
-      const entree = creer('input');
-      entree.type = 'text'; entree.name = c.id; entree.value = reglages.champs_sensibles[c.id] ?? '';
-      // pas de saisie automatique, pas de correction ni de vérification orthographique (données qui ne doivent pas fuir, 4.6)
-      entree.autocomplete = 'off'; entree.autocapitalize = 'off'; entree.spellcheck = false; entree.setAttribute('autocorrect', 'off');
-      entree.addEventListener('change', async () => {
-        const courant = (await stockage.lireReglages()).champs_sensibles;
-        enregistrer('champs_sensibles', { ...courant, [c.id]: entree.value });
-      });
-      label.append(entree);
-      sens.append(label);
-      if (c.aide) sens.append(creer('p', 'reglage-aide', c.aide));
-    }
-    page.append(sens);
-  }
+  // « Mon cabinet » (D-88) : nom à dire au 15, adresse, accès, DAE, rappel et codes d'accès, saisis sur chaque appareil, jamais dans un fichier publié (3.2). Les codes d'accès, qui étaient ici
+  // (« Informations du lieu »), sont dans cet écran avec le reste : un seul endroit à remplir.
+  const cab = groupe('Mon cabinet', "Nom à dire au 15, adresse, accès, défibrillateur, numéro de rappel, codes d'accès : à remplir une fois sur ce téléphone. Ils restent sur ce téléphone, rien ne sort de l'appareil.");
+  cab.dataset.reglage = 'mon-cabinet';
+  const ouvrirCabinet = creer('button', 'bouton', 'Mon cabinet…');
+  ouvrirCabinet.type = 'button'; ouvrirCabinet.id = 'ouvrir-mon-cabinet';
+  ouvrirCabinet.addEventListener('click', () => auxCabinet());
+  cab.append(ouvrirCabinet);
+  page.append(cab);
 
   // Réinitialisation (avec confirmation)
-  const rein = groupe("Réinitialiser l'appli", "Efface toutes les fiches, tous les réglages et les fichiers hors ligne de cet appareil. Il faudra rouvrir l'appli avec du réseau.");
+  const rein = groupe("Réinitialiser l'appli", "Efface toutes les fiches, tous les réglages (Mon cabinet compris) et les fichiers hors ligne de cet appareil. Il faudra rouvrir l'appli avec du réseau, et remplir de nouveau Mon cabinet.");
   rein.dataset.reglage = 'reinitialisation';
   const bouton = creer('button', 'bouton', "Réinitialiser l'appli…");
   bouton.type = 'button';

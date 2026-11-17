@@ -51,7 +51,8 @@ export function modeleDocument({ fiche, structure = null, champsSensibles = {}, 
       `Document établi à ${hhmm(maintenant)} par l'appli Urgences MSP APSIS, version ${version}`,
       TEXTE_BROUILLON_DOCUMENT,
     ],
-    sections: pages.map((p) => ({ id: p.id, titre: p.titre, lignes: p.lignes.map((l) => l.valeur) })),
+    // D-88 / CABINET-1 (PROVISOIRE) : les lignes marquées `prive` (codes d'accès du lieu) restent à l'écran de transmission ; le document, qui peut sortir de l'appareil, ne les porte jamais
+    sections: pages.map((p) => ({ id: p.id, titre: p.titre, lignes: p.lignes.filter((l) => l.prive !== true).map((l) => l.valeur) })),
     journal: frise(fiche),
     pied: PIED_DOCUMENT,
   };

@@ -38,6 +38,11 @@ export const CHOIX_PROVISOIRES_APPLI = [
   { id: 'D-64-victime1', texte: "La victime 1 (la victime prise en charge : checklist, cycle, « ACR constaté ») ne se retire jamais ; seules les fiches ajoutées se retirent, avec confirmation." },
   { id: 'D-64-numeros', texte: "Le numéro d'une victime est stable : il vient de son identifiant et n'est jamais réattribué, même après un retrait (la page S, le journal et le document disent le même numéro)." },
   { id: 'L7c', texte: "Libellé « TRANSM. » du bouton de transmission en situation « Autre » (libellé définitif à décider)." },
+  { id: 'CABINET-1', texte: "Mon cabinet : les codes d'accès (code d'entrée…) sont dits à l'écran de transmission au 15, mais jamais écrits dans le document exporté ni dans le texte copié." },
+  { id: 'CABINET-2', texte: "Mon cabinet : le numéro de rappel est libre (aucun contrôle de format, un portable est accepté) ; il est dit au 15 et écrit dans le document." },
+  { id: 'CABINET-3', texte: "« Réinitialiser l'appli » efface aussi Mon cabinet (il n'y a pas de bouton pour l'effacer seul : on vide les cases)." },
+  { id: 'CABINET-4', texte: "Mon cabinet ne se remplit pas pendant une intervention : on y passe par les Réglages ; sur place, on corrige seulement pour l'intervention en cours (mode transmission)." },
+  { id: 'CABINET-5', texte: "Mon cabinet : les seuls champs privés sont le code d'entrée et les codes que le fichier de configuration nomme ; on ne peut pas en ajouter d'autres sur le téléphone." },
 ];
 
 /** Statut du protocole : « validé par … le … » SEULEMENT si le statut est validé ET le nom ET la date existent ; sinon BROUILLON (D-18). */
