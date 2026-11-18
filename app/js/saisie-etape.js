@@ -1,10 +1,10 @@
-// Saisie DANS une étape de recueil (lot G, décisions D-66 et D-69 variante A) : modèle PUR, sans DOM ni stockage.
+// Saisie DANS une étape de recueil (lot G, décisions D-66 et D-69 variante A ; D-92 : fiche de la victime de l'onglet ouvert) : modèle PUR, sans DOM ni stockage.
 // Une étape de recueil d'une conduite (« Heure de début », « Type de douleur », « Antécédents, traitements », « Constantes »…) porte dans le PROTOCOLE un champ `saisie`
-// qui dit OÙ va le renseignement dans la fiche de la victime prise en charge : `{ "champ": "debut_signes", "puces": ["continue", "intermittente"] }`.
+// qui dit OÙ va le renseignement dans la fiche de la victime de l'onglet ouvert (D-92) : `{ "champ": "debut_signes", "puces": ["continue", "intermittente"] }`.
 // Ce fichier est la table de correspondance (nom de champ → champ réel de la fiche, le MÊME que celui du volet « Fiche » : jamais deux copies d'une donnée).
 // RÈGLES : aucun texte médical ici (les puces viennent du protocole, qui les reprend de ses propres textes ; `tests/controle-json.mjs`, règle R20, le vérifie) ;
 // aucun calcul, aucun seuil (D-19) ; jamais pour une étape vitale ni pour une étape qui précède l'alerte (règle absolue 5 : rien ne s'interpose avant « Alerter », « Masser », le DAE).
-import { victimePriseEnCharge, libelleVictime, mentionVictime, PUCES_ANTECEDENTS, PUCES_TRAITEMENTS, texteListe } from './victimes.js';
+import { victimeActive, libelleVictime, mentionVictime, PUCES_ANTECEDENTS, PUCES_TRAITEMENTS, texteListe } from './victimes.js';
 import { estVitale } from './checklist.js';
 import { TYPES_CONSTANTE } from './bilan.js';
 import { avecUnite } from './unites.js';
@@ -96,14 +96,14 @@ export function poserHeure(texte, hhmm, precedente = null) {
 export function lireTexte(fiche, saisie) {
   const def = champDe(saisie);
   if (!def || def.genre !== 'texte') return '';
-  const v = victimePriseEnCharge(fiche);
+  const v = victimeActive(fiche);
   const source = def.bloc ? v?.[def.bloc] : v;
   return String(source?.[def.cle] ?? '');
 }
 
 /** Dernières valeurs de la victime ouverte, une par type proposé, dans l'ordre des types : [{ libelle, texte }]. */
 export function constantesDeLEtape(fiche, saisie) {
-  const v = victimePriseEnCharge(fiche);
+  const v = victimeActive(fiche);
   const types = typesProposes(saisie);
   const out = [];
   for (const t of types) {
@@ -115,7 +115,7 @@ export function constantesDeLEtape(fiche, saisie) {
 
 /** Toutes les valeurs de la victime ouverte pour les types proposés, dans l'ordre chronologique : [{ t, libelle, texte }] (la série d'une étape de constantes reste visible). */
 export function serieConstantes(fiche, saisie) {
-  const v = victimePriseEnCharge(fiche);
+  const v = victimeActive(fiche);
   const types = typesProposes(saisie);
   return (fiche?.constantes ?? []).filter((c) => c?.victime === v?.id && plein(String(c.valeur ?? '')) && types.some((t) => t.id === c.type)).sort((a, b) => a.t - b.t)
     .map((c) => ({ t: c.t, libelle: types.find((x) => x.id === c.type).libelle, texte: avecUnite(c.valeur, c.unite) }));
@@ -127,19 +127,31 @@ export function valeurEtape(fiche, saisie) {
   if (!def) return '';
   if (def.genre === 'texte') return lireTexte(fiche, saisie).trim();
   if (def.genre === 'antecedents') {
-    const v = victimePriseEnCharge(fiche) ?? {};
+    const v = victimeActive(fiche) ?? {};
     return [texteListe(PUCES_ANTECEDENTS, v.antecedents_puces, v.antecedents), texteListe(PUCES_TRAITEMENTS, v.traitements_puces, v.traitements)].filter(plein).join(' · ');
   }
   return constantesDeLEtape(fiche, saisie).map((c) => `${c.libelle} ${c.texte}`).join(' · ');
 }
 
+/** D-91b (M-1) : une victime AU MOINS a-t-elle une valeur pour cette étape ? La case d'une étape cochée par la saisie ne dépend pas de l'onglet ouvert : elle ne se décoche que si plus personne n'a de valeur. */
+export function uneVictimeAValeur(fiche, saisie) {
+  return (Array.isArray(fiche?.victimes) ? fiche.victimes : []).some((v) => valeurEtape({ ...fiche, victime_active: v.id }, saisie) !== '');
+}
+
+/** D-91b (m-2) : ce que la ligne de l'étape montre sous son libellé : la valeur de l'onglet ouvert, précédée de « Victime n : » dès deux victimes (la ligne repliée dit de qui elle parle). */
+export function valeurAffichee(fiche, saisie) {
+  const t = valeurEtape(fiche, saisie);
+  if (t === '' || (fiche?.victimes ?? []).length < 2) return t;
+  return `${libelleVictime(fiche, victimeActive(fiche).id)} : ${t}`;
+}
+
 /**
- * M2 (VICTIME-SAISIE ouverte, registre : choix PROVISOIRE du pilote) : la saisie dans une étape va TOUJOURS à la victime PRISE EN CHARGE (la première : celle de la checklist, D-64), jamais à l'onglet
- * ouvert du volet. Dès deux victimes, la zone le dit en une ligne : « → Victime 1 · H adulte » ; une seule victime : rien (chaîne vide).
+ * D-92 (VICTIME-SAISIE : B) : la saisie dans une étape va à la victime de l'ONGLET OUVERT du volet « Fiche ». Dès deux victimes, la zone le dit en une ligne : « → Victime 2 · H adulte » ;
+ * une seule victime : rien (chaîne vide).
  */
 export function cibleSaisie(fiche) {
   if ((fiche?.victimes ?? []).length < 2) return '';
-  const v = victimePriseEnCharge(fiche);
+  const v = victimeActive(fiche);
   const m = mentionVictime(v);
   return `→ ${libelleVictime(fiche, v.id)}${m ? ` · ${m}` : ''}`;
 }

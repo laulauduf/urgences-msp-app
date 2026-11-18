@@ -3,7 +3,7 @@
   "id": "acr-enfant",
   "titre": "Arrêt cardiaque de l'enfant et du nourrisson (réanimation de base pédiatrique, avec défibrillateur automatisé externe)",
   "titre_court": "Arrêt cardiaque enfant",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiche_source": "docs/reco/acr-enfant.md",
@@ -66,6 +66,11 @@
         "par": "agent recherche-reco (Opus 5.5 / high), lancé par « urgences - pilote 5 »",
         "le": "2026-11-16",
         "objet": "Version 0.1.10 (non contrôlée) : décision D-84 de Laurent (16/11/2026, retirer les mentions de formation). Étape non-forme-30-2 (identifiant conservé) : libellé « Non formé : 30:2 » → « Régulateur : 30:2 », précision « Protocole simplifié du régulateur : 5 insufflations, puis 30:2 », consigne guidée et détail réécrits sans la notion de formation dans les textes affichés courts (la condition de l'ERC reste décrite dans le détail, c'est le texte de la source) ; source ajoutée (ERC pédiatrique p. 34) ; autorise_par D-84 ; statut A_VALIDER inchangé (VE6). Suppression de l'étape PROPOSÉE à Laurent, non faite. Mentions restantes non modifiées (citations ou descriptions de la source) : détail de insufflations-initiales (« pour le sauveteur formé », « pour le non-formé », figure 5 de l'ERC), détail de alerter, recapitulatif_chiffre « Rapport compressions/insufflations » (« 15:2 (formés) ; 30:2 (non formés, régulation) »). Ordre, identifiants, champs saisie et parametres.metronome inchangés."
+      },
+      {
+        "par": "agent recherche-reco (Opus 5.5 / high), lancé par « urgences - pilote 6 »",
+        "le": "2026-11-18",
+        "objet": "Version 0.1.11 (non contrôlée) : décision D-95 de Laurent (18/11/2026, question REGULATEUR-1). Étape de détail non-forme-30-2 (« Régulateur : 30:2 », sous rapport-15-2, ordre 34) SUPPRIMÉE ; reste l'étape rapport-15-2 (« 15:2 »), inchangée. Champ ordre renuméroté sans trou : ballon-oxygene à apres-intervention passent de 35-61 à 34-60 (60 étapes) ; aucun autre identifiant, parent ni ref_fiche modifié ; l'identifiant non-forme-30-2 n'est pas réattribué. Identifiant retiré de protocoles/_commun/professions.json (0.3.1, geste insufflations_sans_materiel). Mis à jour : decisions_appliquees (D-84 ; ajout D-95 et D-93, cette dernière sans effet ici), ordre_etapes.remarque, divergences_fiche « Rapport 15:2 », points VE6 (affichage tranché par D-95) et VE15 (résultat de la recherche du seuil de 35 kg demandée par Laurent : non trouvé ; rien n'est changé à l'écran). Le récapitulatif chiffré « Rapport compressions/insufflations » (« 15:2 (formés) ; 30:2 (non formés, régulation) ») décrit la source ERC et reste tel quel. Champs saisie et parametres.metronome (15 battements) inchangés."
       }
     ]
   },
@@ -84,7 +89,9 @@
     {"decision": "D-20", "question": "Q-32", "etat": "PROVISOIRE", "objet": "Relance du chronomètre de cycle au toucher, sans redémarrage automatique"},
     {"decision": "D-35", "etat": "REPONDUE", "objet": "Appel à l'aide juste après « ne répond pas » (réponse A du 15/11/2026) ; transposée à l'enfant : premiers secours citoyen p. 27 (tous âges), l'ERC fait appeler immédiatement (p. 12) ; DÉDUIT"},
     {"decision": "D-36", "etat": "REPONDUE", "objet": "L'appli est un aide-mémoire pour soignants formés AFGSU, pas un guide pas à pas (15/11/2026)"},
-    {"decision": "D-84", "etat": "REPONDUE", "objet": "Mentions de formation retirées des libellés (16/11/2026) : étape non-forme-30-2 devenue « Régulateur : 30:2 » (0.1.10) ; suppression de l'étape proposée à Laurent"},
+    {"decision": "D-84", "etat": "REPONDUE", "objet": "Mentions de formation retirées des libellés (16/11/2026) : étape non-forme-30-2 devenue « Régulateur : 30:2 » (0.1.10) ; étape supprimée en 0.1.11 par D-95"},
+    {"decision": "D-95", "etat": "REPONDUE", "objet": "REGULATEUR-1 (18/11/2026) : l'étape « Régulateur : 30:2 » (identifiant non-forme-30-2) est supprimée ; reste le rapport 15:2 (étape rapport-15-2). Remarque de Laurent à vérifier (« de moins de 35 kg c'est 15:2 ») : aucun seuil de poids ni d'âge fixant le passage du 15:2 au 30:2 trouvé dans les sources lues (fiche docs/reco/acr-enfant.md, section datée du 18/11/2026) ; rien n'est changé à l'écran sur ce point"},
+    {"decision": "D-93", "etat": "REPONDUE_SANS_EFFET_ICI", "objet": "NOYADE-3 (18/11/2026) : exception à D-45 pour l'arrêt hypoxique de l'adulte, sauveteur seul. Sans effet sur ce protocole : D-45 n'y est pas transposée (voir ci-dessous), la précision de faire-chercher-defibrillateur suit déjà l'ERC pédiatrique (seul : alerte et réanimation d'abord, ERC-PED p. 13, p. 35)"},
     {"decision": "D-37", "etat": "REPONDUE", "objet": "Checklist en environ trois mots, quoi et jamais comment, au plus une précision d'une ligne dépliable (15/11/2026) : champs texte_court et precision"},
     {"decision": "D-38", "etat": "REPONDUE", "objet": "Métronome conservé, outil à un toucher, jamais imposé ; transposée à l'enfant : l'ERC pédiatrique ne parle pas des dispositifs de guidage (mots recherchés : « feedback », « metronome »), les références techniques nationales premiers secours en équipe (p. 141) admettent un métronome à tout âge ; DÉDUIT"},
     {"decision": "D-45", "etat": "REPONDUE_NON_TRANSPOSEE", "objet": "Défibrillateur à vue : aller le chercher avant de masser. NON transposée à l'enfant : contraire à l'ERC pédiatrique (seul, alerte et réanimation avant le défibrillateur ; ERC-PED p. 13, p. 35). Le point reste A_VALIDER (VE2) ; la partie « à plusieurs, un tiers le rapporte » reste valable"},
@@ -113,7 +120,7 @@
     "raisonnement": "Le PSC p. 27 donne une seule conduite à tenir pour tous les âges ; l'ordre de l'ACR adulte (D-6, D-35, D-52) est donc transposé à l'enfant (DÉDUIT). L'ERC pédiatrique fait alerter immédiatement et a renforcé ce point en 2025 : même divergence que pour l'adulte, conservée dans la fiche (§ 7). Les 5 insufflations initiales, propres à l'ERC pédiatrique, sont placées juste avant les compressions comme dans l'ERC ; absentes du PSC, du PSE et des logigrammes (VE1).",
     "ref_fiche": "§ 2, note en tête ; § 2 ter ; § 7, Moment de l'alerte",
     "etapes_concernees": ["liberer-voies-aeriennes", "evaluer-respiration", "criteres-arret", "pouls-non-fiable", "alerter", "seul-sans-telephone", "aide-regulateur"],
-    "remarque": "Les étapes listées portent decision « D-6 » : leur rang découle de D-6 (transposée), pas leur contenu. Marques posées par la transcription sur les mêmes blocs que l'ACR adulte ; la fiche enfant ne les détaille pas. L'étape appel-aide porte D-35 ; analyse-situation D-48 (place : D-52) ; repartir-taches D-57 depuis la version 0.1.2 (en tête, juste après analyse-situation ; D-52 avant) ; bilan-15 D-55 depuis la version 0.1.3, retirée en 0.1.7 par D-63 (le bilan à passer au 15 n'est pas une étape : les informations se recueillent dans la fiche bilan de l'appli et sont restituées par la transmission) ; champ ordre renuméroté sans trou (61 étapes)."
+    "remarque": "Les étapes listées portent decision « D-6 » : leur rang découle de D-6 (transposée), pas leur contenu. Marques posées par la transcription sur les mêmes blocs que l'ACR adulte ; la fiche enfant ne les détaille pas. L'étape appel-aide porte D-35 ; analyse-situation D-48 (place : D-52) ; repartir-taches D-57 depuis la version 0.1.2 (en tête, juste après analyse-situation ; D-52 avant) ; bilan-15 D-55 depuis la version 0.1.3, retirée en 0.1.7 par D-63 (le bilan à passer au 15 n'est pas une étape : les informations se recueillent dans la fiche bilan de l'appli et sont restituées par la transmission) ; champ ordre renuméroté sans trou (61 étapes). Version 0.1.11 : étape de détail non-forme-30-2 supprimée (D-95) ; champ ordre renuméroté sans trou (60 étapes)."
   },
   "phases_et_sections": {
     "statut": "DEDUIT",
@@ -1323,38 +1330,8 @@
       "materiel": []
     },
     {
-      "id": "non-forme-30-2",
-      "ordre": 34,
-      "parent": "rapport-15-2",
-      "niveau": "detail",
-      "premier_ecran": false,
-      "critique": false,
-      "titre_fiche": "Régulateur : 30:2",
-      "texte_court": "Régulateur : 30:2",
-      "precision": "Protocole simplifié du régulateur : 5 insufflations, puis 30:2",
-      "consigne_guidee": "Si le régulateur guide la réanimation, il suit un protocole simplifié : 5 insufflations, puis 30 compressions pour 2 insufflations.",
-      "detail": "ERC : le régulateur guide avec un protocole simplifié, 5 insufflations puis 30:2 (même rapport que l'adulte), destiné aux sauveteurs sans formation spécifique à la réanimation pédiatrique ; les autres utilisent 15:2. Un soignant AFGSU 2 relève-t-il du 15:2 au sens de l'ERC (cours ERC « or equivalent ») ? Non tranché par les sources (VE6).",
-      "statut": "A_VALIDER",
-      "statut_fiche": "CITÉ ; application à l'AFGSU 2 : A_VALIDER (VE6) ; libellé reformulé sans la notion de formation (D-84), suppression de l'étape proposée au médecin référent",
-      "autorise_par": "D-84",
-      "sources": [
-        {"ref": "ERC-PED", "localisation": "p. 34 (protocole du régulateur)", "citation": "dispatchers use a simplified protocol with a compression to ventilation ratio of 30:2"},
-        {"ref": "ERC-PED", "localisation": "p. 12-13 (lues sur l'image des pages) ; p. 34 ; fig. 5 p. 11", "citation": "otherwise use a ratio of 30:2"},
-        {"ref": "ARRETE-AFGSU-2019", "localisation": "annexe 2, JO p. 7 (intégration des référentiels du PSC1)", "citation": "intègre l'ensemble des éléments des référentiels du PSC1"},
-        {"ref": "DGSCGC-PSC-2026", "localisation": "p. 27", "citation": "enfant et nourrisson : 15 compressions thoraciques / 2 insufflations"}
-      ],
-      "a_valider": "Un soignant formé à l'AFGSU de niveau 2 est-il « formé » au sens de l'ERC (cours ERC de réanimation de base pédiatrique « or equivalent »), donc en 15:2 ? L'AFGSU de niveau 2 intègre les référentiels du PSC1 (arrêté AFGSU, annexe 2, p. 7), qui enseignent 15/2 chez l'enfant et le nourrisson (premiers secours citoyen p. 27) ; aucune source ne dit si c'est l'équivalent du cours ERC. Choix médical. Cherché : ERC pédiatrique p. 11 (figure 5), p. 13, p. 34 ; arrêté AFGSU, annexe 2 ; premiers secours citoyen p. 27. Version 0.1.10 (D-84) : sans la condition « non formé », l'étape ne fait plus que décrire le protocole simplifié du régulateur ; suppression proposée au médecin référent (le rapport affiché reste 15:2, étape rapport-15-2 ; l'affichage « 2 insufflations » suit 15:2, D-81).",
-      "ref_fiche": "§ 2, étape 13a ; § 7, Rapport 15:2 ; § 9, VE6",
-      "qui_fiche": "Tous",
-      "professions": {"geste": "insufflations_sans_materiel"},
-      "remarque": "Version 0.1.10 (D-84, 16/11/2026) : libellé « Non formé : 30:2 » → « Régulateur : 30:2 », précision et consigne guidée sans la notion de formation ; source ajoutée (ERC pédiatrique p. 34, protocole du régulateur). Identifiant non-forme-30-2 conservé (identifiant interne, peut être utilisé ailleurs). Étape de détail, non cochable, non critique : sa suppression est proposée au médecin référent, pas faite.",
-      "cochable": false,
-      "acronymes": [],
-      "materiel": []
-    },
-    {
       "id": "ballon-oxygene",
-      "ordre": 35,
+      "ordre": 34,
       "parent": "rapport-15-2",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1381,7 +1358,7 @@
     },
     {
       "id": "masque-de-poche",
-      "ordre": 36,
+      "ordre": 35,
       "parent": "rapport-15-2",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1403,7 +1380,7 @@
     },
     {
       "id": "bouche-a-bouche",
-      "ordre": 37,
+      "ordre": 36,
       "parent": "rapport-15-2",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1425,7 +1402,7 @@
     },
     {
       "id": "mettre-en-oeuvre-defibrillateur",
-      "ordre": 38,
+      "ordre": 37,
       "parent": null,
       "phase": "Secourir",
       "niveau": "vital",
@@ -1465,7 +1442,7 @@
     },
     {
       "id": "moins-25-kg",
-      "ordre": 39,
+      "ordre": 38,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1491,7 +1468,7 @@
     },
     {
       "id": "plus-25-kg",
-      "ordre": 40,
+      "ordre": 39,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1516,7 +1493,7 @@
     },
     {
       "id": "sans-electrodes-enfant",
-      "ordre": 41,
+      "ordre": 40,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1543,7 +1520,7 @@
     },
     {
       "id": "sans-mode-enfant",
-      "ordre": 42,
+      "ordre": 41,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1565,7 +1542,7 @@
     },
     {
       "id": "masser-pendant-pose",
-      "ordre": 43,
+      "ordre": 42,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1590,7 +1567,7 @@
     },
     {
       "id": "analyse-rythme",
-      "ordre": 44,
+      "ordre": 43,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1612,7 +1589,7 @@
     },
     {
       "id": "apres-analyse",
-      "ordre": 45,
+      "ordre": 44,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1637,7 +1614,7 @@
     },
     {
       "id": "defibrillateur-nourrisson",
-      "ordre": 46,
+      "ordre": 45,
       "parent": "mettre-en-oeuvre-defibrillateur",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1659,7 +1636,7 @@
     },
     {
       "id": "cycles",
-      "ordre": 47,
+      "ordre": 46,
       "parent": null,
       "phase": "Secourir",
       "niveau": "principal",
@@ -1686,7 +1663,7 @@
     },
     {
       "id": "cycles-avec-defibrillateur",
-      "ordre": 48,
+      "ordre": 47,
       "parent": "cycles",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1714,7 +1691,7 @@
     },
     {
       "id": "releve-masseur",
-      "ordre": 49,
+      "ordre": 48,
       "parent": "cycles",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1742,7 +1719,7 @@
     },
     {
       "id": "causes-reversibles",
-      "ordre": 50,
+      "ordre": 49,
       "parent": null,
       "phase": "Secourir",
       "niveau": "principal",
@@ -1769,7 +1746,7 @@
     },
     {
       "id": "causes-reversibles-cabinet",
-      "ordre": 51,
+      "ordre": 50,
       "parent": "causes-reversibles",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1795,7 +1772,7 @@
     },
     {
       "id": "signes-reprise",
-      "ordre": 52,
+      "ordre": 51,
       "parent": null,
       "phase": "Reprise",
       "section": "reprise",
@@ -1822,7 +1799,7 @@
     },
     {
       "id": "arret-du-massage",
-      "ordre": 53,
+      "ordre": 52,
       "parent": "signes-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1849,7 +1826,7 @@
     },
     {
       "id": "laisser-defibrillateur",
-      "ordre": 54,
+      "ordre": 53,
       "parent": "signes-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1871,7 +1848,7 @@
     },
     {
       "id": "apres-reprise",
-      "ordre": 55,
+      "ordre": 54,
       "parent": null,
       "phase": "Reprise",
       "section": "reprise",
@@ -1899,7 +1876,7 @@
     },
     {
       "id": "oxygene-apres-reprise",
-      "ordre": 56,
+      "ordre": 55,
       "parent": "apres-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1926,7 +1903,7 @@
     },
     {
       "id": "glycemie",
-      "ordre": 57,
+      "ordre": 56,
       "parent": "apres-reprise",
       "niveau": "detail",
       "premier_ecran": false,
@@ -1950,7 +1927,7 @@
     },
     {
       "id": "surveillance",
-      "ordre": 58,
+      "ordre": 57,
       "parent": null,
       "phase": "Reprise",
       "section": "reprise",
@@ -1978,7 +1955,7 @@
     },
     {
       "id": "recidive-arret",
-      "ordre": 59,
+      "ordre": 58,
       "parent": "surveillance",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2004,7 +1981,7 @@
     },
     {
       "id": "transmettre-bilan",
-      "ordre": 60,
+      "ordre": 59,
       "parent": "surveillance",
       "niveau": "detail",
       "premier_ecran": false,
@@ -2030,7 +2007,7 @@
     },
     {
       "id": "apres-intervention",
-      "ordre": 61,
+      "ordre": 60,
       "parent": null,
       "phase": "Après",
       "niveau": "principal",
@@ -2519,7 +2496,7 @@
     {"point": "DAE quand on est seul", "consequence": "ERC : alerte et réanimation avant d'aller chercher le DAE (rythmes non choquables plus fréquents ; p. 13, p. 35) ; premiers secours citoyen p. 27 note 2 : le chercher s'il l'a en 10 s au plus ; D-45 et D-46 (adulte) : à vue, le chercher avant de masser. D-45 et D-46 non transposées ; précision de l'étape selon l'ERC ; A_VALIDER (VE2).", "ref_fiche": "§ 7, ligne 4"},
     {"point": "Seul sans téléphone", "consequence": "ERC : 1 min de réanimation, puis chercher de l'aide (p. 15, p. 37) ; premiers secours citoyen p. 27 : quitter la victime pour alerter, puis revenir. Les deux sont écrits ; A_VALIDER (VE4).", "ref_fiche": "§ 7, ligne 5"},
     {"point": "Profondeur", "consequence": "ERC : au moins un tiers, sans valeur absolue (4 et 5 cm seulement approximatifs) ; jamais plus de 6 cm (p. 35). Premiers secours citoyen p. 30-31, premiers secours en équipe p. 142 : un tiers, « soit environ 4 cm » (nourrisson), « soit environ 5 cm » (enfant). Précision affichée : « au moins 1/3 du thorax » (ERC ; version 0.1.3) ; cm : A_VALIDER (VE5).", "ref_fiche": "§ 7, ligne 6"},
-    {"point": "Rapport 15:2", "consequence": "ERC : 15:2 seulement pour les formés « to the level of the ERC PBLS-course or equivalent », sinon 30:2 (p. 13) ; premiers secours citoyen p. 27 : 15/2 pour l'enfant et le nourrisson, enseigné au citoyen. 15:2 affiché (convergence pour un soignant formé) ; équivalence AFGSU 2 : A_VALIDER (VE6).", "ref_fiche": "§ 7, ligne 7"},
+    {"point": "Rapport 15:2", "consequence": "ERC : 15:2 seulement pour les formés « to the level of the ERC PBLS-course or equivalent », sinon 30:2 (p. 13) ; premiers secours citoyen p. 27 : 15/2 pour l'enfant et le nourrisson, enseigné au citoyen. 15:2 affiché (convergence pour un soignant formé) ; équivalence AFGSU 2 : A_VALIDER (VE6). Version 0.1.11 : D-95 supprime l'étape « Régulateur : 30:2 » ; seul le 15:2 reste affiché. Aucun seuil de poids ou d'âge de passage au 30:2 trouvé dans les sources lues (fiche § 11, 18/11/2026).", "ref_fiche": "§ 7, ligne 7"},
     {"point": "Définition de l'âge", "consequence": "ERC : nourrisson < 1 an, enfant 1-12 ans, adolescent 13-18 ans ; adolescent « adulte » : algorithme adulte (p. 2). Premiers secours citoyen p. 13, premiers secours en équipe p. 379 : morphologie (cuisse, avant-bras). Choix d'affichage (« nourrisson / enfant ») et bascule vers l'ACR adulte : A_VALIDER (VE13, VE15).", "ref_fiche": "§ 7, ligne 8"},
     {"point": "Électrodes pédiatriques", "consequence": "ERC : électrodes de taille adulte, antéro-postérieures < 25 kg, mode pédiatrique (p. 15, p. 50) ; électrodes pédiatriques antéro-latérales possibles chez l'enfant par des « competent providers » si elles ne se touchent pas (p. 15). Premiers secours citoyen p. 34 et premiers secours en équipe p. 154-156 : électrodes enfants, réducteur d'énergie ; sinon électrodes adultes milieu du thorax / milieu du dos. Compatibles : suivre le schéma du DAE ; repli adultes devant-dos. Version 0.1.3, original relu sur l'image de la page 15 : électrodes pédiatriques antéro-latérales possibles « in children ≤25 kg » (« competent providers ») ; seuil du mode pédiatrique écrit « less than 25 kg ».", "ref_fiche": "§ 7, ligne 9"},
     {"point": "Corps étranger dans la bouche", "consequence": "ERC : retirer une obstruction visible, « Do not perform a blind finger sweep » (p. 14) ; premiers secours citoyen p. 32 : « Le retirer avec les doigts, si nécessaire ». Compatibles si l'objet est visible ; précision de l'étape thorax-immobile : « pas à l'aveugle ».", "ref_fiche": "§ 7, ligne 10"},
@@ -2535,7 +2512,7 @@
     {"id": "VE3", "point": "Recherche du pouls par un soignant (nourrisson : fémoral)", "decision": "décision médicale"},
     {"id": "VE4", "point": "Seul sans téléphone : 1 min de réanimation (ERC) ou alerter d'abord (PSC)", "decision": "décision médicale"},
     {"id": "VE5", "point": "Profondeur : afficher « 1/3 » seul (ERC) ou aussi « ≈ 4 cm / ≈ 5 cm » (PSC)", "decision": "décision médicale"},
-    {"id": "VE6", "point": "Un soignant AFGSU 2 est-il « formé à la réanimation de base pédiatrique ou équivalent » (15:2) au sens de l'ERC ?", "decision": "décision médicale"},
+    {"id": "VE6", "point": "Un soignant AFGSU 2 est-il « formé à la réanimation de base pédiatrique ou équivalent » (15:2) au sens de l'ERC ?", "decision": "Affichage tranché par D-95 (18/11/2026) : l'étape « Régulateur : 30:2 » est supprimée, seul le 15:2 est affiché ; l'équivalence AFGSU 2 / cours ERC reste non établie par les sources (information)"},
     {"id": "VE7", "point": "Transposition de D-6 (alerte après la respiration) à l'enfant, alors que l'ERC 2025 a renforcé l'alerte immédiate", "decision": "confirmation de Laurent"},
     {"id": "VE8", "point": "Répartition des rôles au cabinet, dont le soignant dédié aux parents", "decision": "décision médicale"},
     {"id": "VE9", "point": "Arrêt de la réanimation : qui décide (chapitre ERC Éthique non lu)", "decision": "décision médicale"},
@@ -2544,7 +2521,7 @@
     {"id": "VE12", "point": "Largement levé en 0.1.3 : figures 5 à 15 et 20 relues sur les images de l'original (p. 11-15, 26), chiffres conformes ; symbole de la p. 15 lu (« ≤25 kg », phrase non affichée). Restent non relues : figures 2, 18 et 19 ; doses en microgrammes (section 8, non affichées)", "decision": "verificateur sur l'original"},
     {"id": "VE13", "point": "Seuil de 25 kg : comment l'utilisateur choisit le mode du DAE (poids estimé, ≈ 8 ans) ; choix « nourrisson / enfant » (âge ERC ou morphologie PSC)", "decision": "décision médicale"},
     {"id": "VE14", "point": "Bradycardie < 60/min avec mauvaise perfusion : compressions, à afficher pour des soignants libéraux (suppose une mesure de la fréquence cardiaque) ?", "decision": "décision médicale"},
-    {"id": "VE15", "point": "Adolescent d'allure adulte : bascule vers l'ACR adulte dans l'appli", "decision": "décision médicale (affichage)"},
+    {"id": "VE15", "point": "Adolescent d'allure adulte : bascule vers l'ACR adulte dans l'appli. 18/11/2026 (remarque de Laurent avec D-95 : « de moins de 35 kg c'est 15:2 ») : aucun seuil de poids (35 kg ou autre) ni d'âge ou de puberté fixant le passage du 15:2 au 30:2 n'a été trouvé ; ERC pédiatrie p. 2 : algorithme adulte si le sauveteur considère la personne comme un adulte ; premiers secours citoyen p. 13, premiers secours en équipe p. 379 : définitions morphologiques (fiche § 11)", "decision": "décision médicale (affichage) ; rien n'est changé à l'écran"},
     {"id": "VE16", "point": "Causes réversibles au cabinet au-delà de l'hypoxie", "decision": "décision médicale"},
     {"id": "VE17", "point": "LEVÉ en 0.1.3 : transmission du bilan citée mot pour mot par l'annexe 2 de l'arrêté AFGSU (JO p. 7, lue sur image) ; étape transmettre-bilan CITE, geste alerter_transmettre", "decision": "levé"},
     {"id": "VE18", "point": "Sources françaises autres que DGSCGC (HAS, SFMU, SFAR, Santé publique France) sur l'arrêt pédiatrique : non recherchées dans ce passage", "decision": "pilote (recherche complémentaire)"},

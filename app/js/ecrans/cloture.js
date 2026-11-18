@@ -37,6 +37,7 @@ export function afficherCloture(conteneur, ctx) {
   const { fiche, stockage } = ctx;
   const etat = { vue: 'cloture', tr: { page: 0, edition: false }, partage: false, question: false, moyen: null, message: '', erreur: '', confirmeEffacer: false, confirmeSans: false, occupe: false };
   let detruit = false;
+  let courante = null;   // la page que CETTE clôture (ou son aperçu) a posée dans le conteneur : le filet de l'écouteur la cherche, pas une classe (D-90b, n-1)
   const entree = () => ({ fiche, structure: ctx.structure(), champsSensibles: ctx.champsSensibles(), appelant: ctx.appelant(), protocoleId: ctx.protocoleId, maintenant: Date.now() });
 
   function rendre() {
@@ -143,7 +144,7 @@ export function afficherCloture(conteneur, ctx) {
       }
     }
     page.append(fin);
-    conteneur.replaceChildren(page);
+    conteneur.replaceChildren(page); courante = page;
   }
 
   /** Aperçu « Montrer au SMUR » : les pages du mode transmission, en gros caractères, SANS modification possible ici. */
@@ -154,6 +155,7 @@ export function afficherCloture(conteneur, ctx) {
       auFermer: () => { etat.vue = 'cloture'; etat.moyen = 'montre'; etat.question = true; rendre(); },   // au retour : « Le document a-t-il été remis ? »
       auRendre: rendre,
     });
+    courante = conteneur.firstElementChild;
   }
 
   /** « Oui » : la remise est enregistrée dans la fiche (moyen, heure) et au journal ; « Clôturer et effacer » devient actif. */
@@ -186,8 +188,8 @@ export function afficherCloture(conteneur, ctx) {
 
   // D-89 (n-1), D-90 (m-2) : tout toucher dans la clôture ET dans son aperçu « Montrer au SMUR » est une action du soignant sur CET écran : il le dit à l'appelant (qui invalide alors une ouverture lente
   // d'un autre écran, restée en cours). Un seul écouteur sur le conteneur, posé ici (hors de `rendre`, que l'aperçu ne traverse pas) et retiré par `demonter`.
-  // D-90b (m-1) : filet — si l'écran a été remplacé sans passer par `demonter`, le toucher suivant retire l'écouteur au lieu d'appeler `auAction` (la clôture et son aperçu portent chacun leur page).
-  const auToucher = () => { if (!conteneur.querySelector('.ecran-cloture, .ecran-transmission')) { demonter(); return; } try { ctx.auAction?.(); } catch { /* l'écran ne dépend jamais de ce rappel */ } };
+  // D-90b (m-1, n-1) : filet — si la page posée par cette clôture (ou son aperçu) n'est plus dans le conteneur, remplacée sans passer par `demonter` (même par un autre écran de même classe), le toucher suivant retire l'écouteur au lieu d'appeler `auAction`.
+  const auToucher = () => { if (!courante || !conteneur.contains(courante)) { demonter(); return; } try { ctx.auAction?.(); } catch { /* l'écran ne dépend jamais de ce rappel */ } };
   conteneur.addEventListener('click', auToucher, true);
 
   function demonter() { detruit = true; conteneur.removeEventListener('click', auToucher, true); retirerImpression(); }

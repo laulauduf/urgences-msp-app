@@ -2,7 +2,7 @@
   "format": 1,
   "id": "professions",
   "titre": "Groupes de professions et habilitations par geste",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "statut_validation": "BROUILLON",
   "date_redaction": "2026-11-15",
   "fiches_source": ["docs/reco/cadre-transversal.md", "docs/reco/acr-adulte-dae.md", "docs/reco/hypoglycemie.md", "docs/reco/avc.md", "docs/reco/anaphylaxie.md", "docs/reco/douleur-thoracique.md", "docs/reco/acr-enfant.md"],
@@ -24,6 +24,11 @@
         "le": "2026-11-15",
         "objet": "Phase 4 : treize gestes ajoutés (glycemie_capillaire, aide_mesure_glycemie_par_la_victime, sucre_per_os, glucagon, adrenaline_anaphylaxie, aide_auto_injecteur_prescrit, electrocardiogramme, aide_prise_traitement_prescrit, aspirine, oxygene_hors_arret, reconnaitre_malaise_grave, position_attente_confort, recherche_pouls_enfant) d'après _pilote/gestes-a-creer-2026-11-15.md, chaque valeur relue sur sa source le 15/11/2026 (Légifrance : arrêté infirmier du 26/06/2026, R4311-7, R4321-9, R4321-10, R4127-70, R4127-308 et R4127-317, annexe 41-4 ; annexe 2 de l'arrêté AFGSU sur le fac-similé du JO ; références techniques PSC et PSE sur le texte extrait). Champ etapes_protocole complété pour les protocoles de la phase 4.",
         "convention_etapes_protocole": "Pour chaque protocole, etapes_protocole liste les étapes qui relèvent du geste selon cette transcription. Pour les gestes existants, ce sont les étapes qui y renvoient aujourd'hui (champ professions.geste). Pour les gestes créés le 15/11/2026, ce sont les étapes qui portent encore leurs habilitations en ligne, ou qui renvoient à un geste voisin de mêmes valeurs : leur rattachement dans le protocole reste à faire (liste dans le champ remarque du geste), il n'est pas fait ici. Une étape n'apparaît que sous un seul geste."
+      },
+      {
+        "par": "agent recherche-reco (Opus 5.5 / high), lancé par « urgences - pilote 6 »",
+        "le": "2026-11-18",
+        "objet": "Version 0.3.1 (non contrôlée) : décision D-95 de Laurent (18/11/2026, question REGULATEUR-1) : l'étape non-forme-30-2 (« Régulateur : 30:2 ») est supprimée du protocole acr-enfant (0.1.11) ; son identifiant est retiré de la liste etapes_protocole du geste insufflations_sans_materiel. Aucune habilitation modifiée."
       }
     ]
   },
@@ -485,7 +490,7 @@
     {
       "id": "insufflations_sans_materiel",
       "libelle": "Insufflations sans matériel (bouche-à-bouche ; masque de poche)",
-      "etapes_protocole": {"acr-adulte-dae": ["insufflations", "technique-insufflation", "pause-insufflations", "echec-insufflations"], "acr-enfant": ["insufflations-initiales", "insufflation-technique", "thorax-immobile", "rapport-15-2", "non-forme-30-2", "masque-de-poche", "bouche-a-bouche"]},
+      "etapes_protocole": {"acr-adulte-dae": ["insufflations", "technique-insufflation", "pause-insufflations", "echec-insufflations"], "acr-enfant": ["insufflations-initiales", "insufflation-technique", "thorax-immobile", "rapport-15-2", "masque-de-poche", "bouche-a-bouche"]},
       "ref_fiche": "fiche ACR § 6, ligne 1 ; fiche ACR § 2, étape 7 (« Tous les formés (AFGSU 2) »)",
       "habilitations": {
         "medecin": {"valeur": "oui", "statut": "DEDUIT", "sources": [{"ref": "CSP-R4127-9", "localisation": "art. R4127-9"}, {"ref": "CSP-R4127-70", "localisation": "art. R4127-70, 1re phrase"}], "raisonnement": "Fiche ACR § 6, ligne 1 (insufflations sans matériel) : Oui (obligation d'assistance).", "ref_fiche": "fiche ACR § 6, ligne 1"},

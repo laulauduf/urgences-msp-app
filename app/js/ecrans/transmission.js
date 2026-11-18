@@ -3,6 +3,7 @@
 // La barre du bas, le chronomètre global et le métronome restent visibles (cet écran n'est qu'un contenu). Aucun voile ne le recouvre.
 import { creer, bouton } from '../dom.js';
 import { cleEdition } from '../edition.js';
+import { SUGGESTION_DEMANDE } from '../victimes.js';
 
 /**
  * @param {HTMLElement} conteneur
@@ -73,6 +74,8 @@ export function afficherTransmission(conteneur, { pages, etat, intervention, auF
       t.addEventListener('input', () => intervention.definirChamp(null, cle, t.value));      // enregistré à chaque frappe, sans redessiner
       ecran.append(t, bouton('Terminé', 'bouton bouton-accent', () => { etat.edition = false; auRendre(); }, { id: 'transmission-saisie-ok' }));
     } else {
+      // D-91 : page D vide, la phrase habituelle est PROPOSÉE (jamais écrite d'office) ; un toucher l'écrit dans la fiche, comme si l'équipe l'avait tapée
+      if (p.id === 'd' && p.lignes.length === 0) ecran.append(bouton(`Proposition : ${SUGGESTION_DEMANDE}`, 'bouton transmission-suggestion', () => { intervention.definirChamp(null, 'demande', SUGGESTION_DEMANDE); intervention.ecrire?.(); auRendre(); }, { id: 'transmission-suggestion-demande', 'aria-label': `Proposition, à toucher pour l'écrire : ${SUGGESTION_DEMANDE}` }));
       ecran.append(bouton(p.lignes.length > 0 ? 'Modifier' : p.id === 'e' ? 'Écrire mon évaluation' : 'Écrire ma demande', 'bouton', () => { etat.edition = true; auRendre(); }, { id: 'transmission-modifier' }));
     }
   }

@@ -6,7 +6,7 @@ import { formaterT } from './horloge.js';
 import { ROLES } from './roles.js';
 import { avecUnite } from './unites.js';
 import { titreDe } from './catalogue.js';
-import { PUCES_ANTECEDENTS, PUCES_TRAITEMENTS, TRANCHES_AGE, LIGNE_DEMANDE_PROVISOIRE, texteListe, numeroVictime } from './victimes.js';
+import { PUCES_ANTECEDENTS, PUCES_TRAITEMENTS, TRANCHES_AGE, texteListe, numeroVictime } from './victimes.js';
 
 /** Types de constantes de SPEC.md (déroulé 4), dans cet ordre. SpO₂ : sigle sourcé du glossaire ; les autres, en toutes lettres (D-10). */
 export const TYPES_CONSTANTE = [
@@ -269,9 +269,8 @@ export function construireTransmission({ fiche, structure, champsSensibles = {},
     pageS({ fiche, appelant, protocoleId, maintenant }),
     { id: 'a', titre: 'A — Antécédents', lignes: lignesA },
     { id: 'e', titre: 'E — Évaluation', lignes: lignes(plein(fiche.evaluation) ? ligne(fiche.evaluation.trim()) : null) },
-    // D : la demande écrite ; tant qu'elle ne l'est pas, la ligne PROVISOIRE de la maquette, marquée ✱ (D-64 : texte à revoir par Laurent)
-    // DEMANDE-1 ouverte (registre) : la ligne provisoire par défaut reste MARQUÉE « ✱ (texte provisoire) » à l'écran, dans le document et dans le texte copié (R15 : marque si et seulement si le contenu est provisoire) ; remise le 16/11/2026 (lot AF-b, M1), en attendant la réponse de Laurent
-    { id: 'd', titre: 'D — Demande', lignes: lignes(plein(fiche.demande) ? ligne(fiche.demande.trim()) : ligne(`${LIGNE_DEMANDE_PROVISOIRE} ✱ (texte provisoire)`)) },
+    // D : la demande écrite par l'équipe, rien d'autre (D-91, DEMANDE-1 : A). Aucune demande par défaut : la phrase proposée n'est qu'une suggestion à toucher (écran de transmission), elle ne s'écrit que si on la touche.
+    { id: 'd', titre: 'D — Demande', lignes: lignes(plein(fiche.demande) ? ligne(fiche.demande.trim()) : null) },
   ];
 }
 

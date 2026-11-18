@@ -14,7 +14,7 @@ import { detailHabilitation } from '../habilitations.js';
 import { construireDefinition } from './glossaire.js';
 import { afficherMateriel } from './materiel.js';
 import { construireMateriel } from '../materiel.js';
-import { valeurEtape } from '../saisie-etape.js';
+import { valeurAffichee } from '../saisie-etape.js';
 import { construireZoneSaisie } from './etape-saisie.js';
 
 /** État d'affichage de l'écran ACR, conservé par l'interface entre deux dessins. */
@@ -200,7 +200,7 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
     if (premier && (premier.classList.contains('case') || premier.classList.contains('etape-info'))) premier.replaceWith(marqueur(it));
     li.querySelector('.etape-marques')?.replaceWith(marques(it));
     const v = li.querySelector('[data-valeur]');
-    if (v) { const t = valeurEtape(intervention.fiche, it.etape.saisie); v.textContent = t; v.hidden = t === ''; }
+    if (v) { const t = valeurAffichee(intervention.fiche, it.etape.saisie); v.textContent = t; v.hidden = t === ''; }
   };
   const ligne = (item) => {
     const e = item.etape;
@@ -259,7 +259,7 @@ export function afficherAcr(conteneur, { intervention, etat, structure, auAlerte
     if (visible) li.append(creer('p', 'etape-precision etape-precision-visible', precision, { 'data-precision': item.id }));   // juste sous le libellé, avant les marques (fait à T+…)
     if (saisie) {
       // la valeur saisie sous le libellé (lue dans la fiche : jamais une seconde copie) ; masquée tant que rien n'est saisi
-      const v = valeurEtape(intervention.fiche, e.saisie);
+      const v = valeurAffichee(intervention.fiche, e.saisie);
       li.append(creer('p', 'etape-valeur', v, { 'data-valeur': item.id, ...(v === '' ? { hidden: '' } : {}) }));
     }
     li.append(marques(item));

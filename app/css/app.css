@@ -1221,6 +1221,13 @@ body[data-agrandi="oui"]:not([data-texte="grand"]) .bandeau-simulation { flex-wr
 .etape-saisie { grid-column: 1 / -1; display: grid; gap: 0.75em; padding: 0.625em 0.75em 0.75em; font-size: 1rem; border-top: 0.125rem solid var(--ligne); }
 .etape[data-etat="faite"] .etape-saisie { border-top-color: var(--ok); }
 .saisie-etiquette { display: block; margin: 0 0 0.375em; font-size: 0.875em; font-weight: 700; letter-spacing: 0.04em; color: var(--texte-attenue); }
+.saisie-cible-rang { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-block: 0.25rem; }
+.saisie-cible-rang .saisie-cible { margin: 0; flex: 1 1 auto; }
+.saisie-victimes { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.saisie-victimes .bouton { min-width: 48px; min-height: 48px; padding-inline: 0.75rem; }
+.transmission-suggestion { border-style: dashed; text-align: left; white-space: normal; font-weight: 400; }
+.saisie-victimes .bouton[aria-pressed="true"] { border-color: var(--accent-fond); background: var(--accent-fond); color: var(--sur-accent-fond); }
+.saisie-victimes .bouton[aria-pressed="true"]::before { content: "✓ "; }
 .etape-saisie .choix-rapides .bouton { min-height: 52px; font-size: 1.0625em; flex: 1 1 4em; }
 .etape-saisie .champ-fiche input, .etape-saisie .champ-fiche textarea, .saisie-valeur-rang input { width: 100%; min-height: 52px; font-size: 1.125em; box-sizing: border-box; }
 .etape-saisie .champ-fiche textarea { resize: vertical; }

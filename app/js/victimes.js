@@ -32,8 +32,8 @@ export const NIVEAUX_AVPU = [
   { lettre: 'P', sens: 'douleur', provisoire: true },
   { lettre: 'U', sens: 'aucune réaction', provisoire: true },
 ];
-/** Ligne « Demande » de la maquette : texte PROVISOIRE (✱), affiché dans la transmission tant que la demande n'est pas écrite. */
-export const LIGNE_DEMANDE_PROVISOIRE = "Envoi d'une équipe médicale et conseils du régulateur";
+/** D-91 (DEMANDE-1 : A) : phrase PROPOSÉE (suggestion à toucher) sur la page « D — Demande » de la transmission ; elle ne s'écrit dans la fiche que si l'équipe la touche. Jamais de demande par défaut. */
+export const SUGGESTION_DEMANDE = "Envoi d'une équipe médicale et conseils du régulateur";
 
 const plein = (v) => typeof v === 'string' && v.trim() !== '';
 const nonVideObjet = (o) => o && typeof o === 'object' && Object.values(o).some((x) => (typeof x === 'object' && x !== null ? nonVideObjet(x) : plein(String(x ?? ''))));
@@ -61,8 +61,8 @@ export function victimeActive(fiche) {
 }
 
 /**
- * La victime PRISE EN CHARGE : la première (la checklist, le chronomètre et le métronome sont les siens, D-64). La saisie faite DANS une étape de la checklist (lot G) va toujours à elle,
- * jamais à l'onglet ouvert du volet « Fiche ». VICTIME-SAISIE ouverte (registre) : choix PROVISOIRE du pilote, à confirmer par Laurent.
+ * La victime PRISE EN CHARGE : la première (la checklist, le chronomètre et le métronome sont les siens, D-64). D-92 : la saisie faite DANS une étape de la checklist ne va PLUS à elle
+ * mais à la victime de l'onglet ouvert (`victimeActive`) ; elle n'est plus appelée (le repère « suivie par la checklist » des onglets lit `victimes[0]`).
  */
 export const victimePriseEnCharge = (fiche) => (Array.isArray(fiche?.victimes) ? fiche.victimes[0] : undefined);
 
