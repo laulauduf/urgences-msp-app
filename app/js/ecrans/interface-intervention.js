@@ -866,14 +866,35 @@ export class InterfaceIntervention {
    */
   afficherAutre() {
     const i = this.intervention;
-    const page = creer('section', 'accueil autre-situation', '', { 'aria-label': i.conduiteId === ID_COMMUN ? 'Autre situation' : (i.protocoleCommun?.titre_court ?? titreDe(i.conduiteId) ?? 'Autre situation'), 'data-conduite': i.conduiteId });
+    const etiquette = i.conduiteId === ID_COMMUN ? 'Autre situation' : (i.protocoleCommun?.titre_court ?? titreDe(i.conduiteId) ?? 'Autre situation');
+    const acrs = PROTOCOLES_ACR.filter((p) => p.id === i.protocoleId || (i.protocolesAcr.includes(p.id) && protocolePublie(p.id)));
+    // « Toucher jamais perdu » (D-99b) : à la fin du chargement de la conduite, le SECOND dessin ne remplace PAS le bandeau « Arrêt cardiaque » ni ses boutons (un toucher commencé sur l'ancien bouton, terminé
+    // après le redessin, était perdu : il fallait toucher deux fois une commande vitale). Si l'écran « Autre situation » de la même conduite, avec les mêmes boutons ACR, est déjà là, on GARDE ces nœuds : le bandeau,
+    // la ligne « Métronome en marche » tant que son état est le même, et on ne reconstruit que la checklist. `suivreBandeauAcr` continue donc d'observer le bon élément.
+    const cleBandeau = acrs.map((p) => p.id).join(',') + '|' + i.protocoleId;
+    const existante = this.zone.contenu.querySelector(':scope > section.autre-situation');
+    const bandeauExistant = existante?.querySelector(':scope > #bandeau-acr');
+    if (existante && bandeauExistant?.isConnected && existante.dataset.conduite === i.conduiteId && existante.dataset.cleBandeau === cleBandeau) {
+      existante.setAttribute('aria-label', etiquette);
+      const etat = i.etatLigneMetronome();
+      const ligneActuelle = existante.querySelector(':scope > #ligne-metronome');
+      if ((ligneActuelle?.dataset.etat ?? null) !== etat) {
+        ligneActuelle?.remove();
+        const neuve = this.construireLigneMetronome();
+        if (neuve) bandeauExistant.after(neuve);
+      }
+      existante.querySelector(':scope > .autre-checklist')?.replaceWith(this.construireChecklistCommune());
+      this.suivreBandeauAcr(bandeauExistant);   // `dessiner` a arrêté le suivi : on le reprend sur le MÊME bandeau (mesure, observateur, collant, marge)
+      this.majPuceEtRoles();
+      return;
+    }
+    const page = creer('section', 'accueil autre-situation', '', { 'aria-label': etiquette, 'data-conduite': i.conduiteId, 'data-cle-bandeau': cleBandeau });
     /** Grosse tuile : titre + sous-titre discret (comme l'accueil). */
     const gros = (titre, sous, classe, action, id, attrs = {}) => { const b = bouton(titre, classe, action, { id, ...attrs }); b.append(creer('small', null, sous)); return b; };
     // D-83 (ACR-UNIQUE = A) : UN SEUL accès à l'arrêt cardiaque, quelle que soit la conduite : un bandeau rouge bas « Arrêt cardiaque : adulte | enfant » tout en haut (collant : il reste sous le doigt
     // quand la liste défile ; il fait partie du flux, donc ne recouvre ni la barre ni l'en-tête et ne bouge pas aux redessins). Un toucher = même effet que l'ancienne tuile (`choisirAcr`, journalisé).
     // Un seul ACR publié : un seul bouton « Passer en ACR ». L'étape « Arrêt cardiaque ? » du protocole reste dans les données ; seul son affichage dans la liste est retiré (`masquerRenvois`).
     const bandeau = creer('div', 'bandeau-acr', '', { id: 'bandeau-acr', role: 'group', 'aria-label': 'Arrêt cardiaque' });
-    const acrs = PROTOCOLES_ACR.filter((p) => p.id === i.protocoleId || (i.protocolesAcr.includes(p.id) && protocolePublie(p.id)));
     bandeau.append(creer('span', 'bandeau-acr-texte', acrs.length > 1 ? 'Arrêt cardiaque :' : 'Arrêt cardiaque'));
     for (const p of acrs) {
       const mot = acrs.length > 1 ? `ACR ${p.sous.split(' · ')[0]}` : 'Passer en ACR';   // M-1 : libellé court (« ACR adulte | ACR enfant ») pour tenir sur une rangée ; le nom accessible commence par le texte visible : « ACR adulte, arrêt cardiaque adulte »
