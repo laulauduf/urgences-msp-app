@@ -654,7 +654,10 @@ export class InterfaceIntervention {
     const zone = c.getBoundingClientRect();
     c.style.paddingBottom = `${Math.max(0, Math.round(zone.bottom - bas))}px`;   // de quoi défiler : le bas de la zone est sous le clavier
     const r = champ.getBoundingClientRect();
-    const limite = bas - 12; const haut = Math.max(zone.top, vv?.offsetTop ?? 0) + 8;
+    // D-98b (m-a) : la limite haute est le BAS du bandeau « Arrêt cardiaque » quand il est collant (il recouvre le haut de la zone), jamais le haut de la zone
+    const bandeau = c.querySelector('#bandeau-acr');
+    const sousBandeau = bandeau && getComputedStyle(bandeau).position === 'sticky' ? bandeau.getBoundingClientRect().bottom + 4 : 0;
+    const limite = bas - 12; const haut = Math.max(zone.top, vv?.offsetTop ?? 0, sousBandeau - 8) + 8;
     if (r.bottom > limite) c.scrollTop += r.bottom - limite;
     const r2 = champ.getBoundingClientRect();
     if (r2.top < haut) c.scrollTop -= haut - r2.top;   // un champ plus haut que la place libre : on garde son début en vue
@@ -873,8 +876,8 @@ export class InterfaceIntervention {
     const acrs = PROTOCOLES_ACR.filter((p) => p.id === i.protocoleId || (i.protocolesAcr.includes(p.id) && protocolePublie(p.id)));
     bandeau.append(creer('span', 'bandeau-acr-texte', acrs.length > 1 ? 'Arrêt cardiaque :' : 'Arrêt cardiaque'));
     for (const p of acrs) {
-      const mot = acrs.length > 1 ? `ACR ${p.sous.split(' · ')[0]}` : 'Passer en ACR';   // M-1 : libellé court (« ACR adulte | ACR enfant ») pour tenir sur une rangée ; le nom accessible reste « Arrêt cardiaque, adulte »
-      bandeau.append(bouton(mot, 'bouton bouton-acr', () => { this.versPrincipal(); i.choisirAcr(p.id).catch(() => {}); }, { id: p.id === i.protocoleId ? 'passer-acr' : `passer-${p.id}`, 'data-vital': 'acr', 'aria-label': `${mot} — arrêt cardiaque, ${p.sous.split(' · ')[0]}` }));   // commande vitale : agit tout de suite même volet ouvert (D-64c, N1)
+      const mot = acrs.length > 1 ? `ACR ${p.sous.split(' · ')[0]}` : 'Passer en ACR';   // M-1 : libellé court (« ACR adulte | ACR enfant ») pour tenir sur une rangée ; le nom accessible commence par le texte visible : « ACR adulte, arrêt cardiaque adulte »
+      bandeau.append(bouton(mot, 'bouton bouton-acr', () => { this.versPrincipal(); i.choisirAcr(p.id).catch(() => {}); }, { id: p.id === i.protocoleId ? 'passer-acr' : `passer-${p.id}`, 'data-vital': 'acr', 'aria-label': `${mot}, arrêt cardiaque ${p.sous.split(' · ')[0]}` }));   // commande vitale : agit tout de suite même volet ouvert (D-64c, N1)
     }
     page.append(bandeau);
     const ligneMetronome = this.construireLigneMetronome();   // D-80 corrigé (J-b) : dans le flux, sous la tuile rouge
@@ -903,32 +906,34 @@ export class InterfaceIntervention {
     const zone = this.zone.contenu;
     const mesurer = () => {
       if (!bandeau.isConnected) { this.arreterBandeauAcr(); return; }
-      // D-97b : priorité à la LARGEUR des boutons (commande vitale), décidée par la MESURE, du plus confortable au dernier recours ; on repart toujours de l'étape 1 (aucune dépendance à l'état précédent) :
-      //   1 libellé « Arrêt cardiaque : » visible, boutons sur UNE ligne ; 2 libellé masqué (toujours lu à voix haute), UNE ligne ; 3 libellé masqué, texte sur 2 lignes (coupé entre les mots) ;
-      //   4 texte réduit de 1 px en 1 px jusqu'à un plancher de 14 px, sans jamais couper un mot. Un bouton « déborde » quand son texte sort de sa case (position réelle des lignes, `texteDeborde`).
+      // D-97b / D-99 : priorité à la LARGEUR des boutons et à UNE ligne (le bandeau d'une ligne reste TOUJOURS collant, D-99), décidée par la MESURE ; on repart toujours de l'étape 1 :
+      //   1 libellé « Arrêt cardiaque : » visible + UNE ligne ; 2 libellé masqué (toujours lu à voix haute) + UNE ligne ; 4 texte réduit de 1 px en 1 px jusqu'à 14 px, toujours sur UNE ligne ;
+      //   3 seulement si même à 14 px une ligne ne suffit pas : 2 lignes coupées entre les mots (puis réduites si besoin). Jamais de mot coupé. Un bouton « déborde » quand son texte sort de sa case (`texteDeborde`).
       const boutons = [...bandeau.querySelectorAll('.bouton-acr')];
+      if (boutons.length === 0) return;
       bandeau.classList.remove('bandeau-acr-compact', 'bandeau-acr-deux-lignes');
       for (const bt of boutons) bt.style.removeProperty('font-size');
       const deborde = () => boutons.some(texteDeborde);
+      const base = parseFloat(getComputedStyle(boutons[0]).fontSize) || 16;
+      const reduire = (depuis) => { for (let t = depuis; t >= PLANCHER_TEXTE_ACR; t--) { for (const bt of boutons) bt.style.fontSize = `${t}px`; if (!deborde()) return true; } return false; };
       let etape = 1;
       if (deborde()) { bandeau.classList.add('bandeau-acr-compact'); etape = 2; }
-      const part = () => (zone.clientHeight > 0 ? bandeau.getBoundingClientRect().height / zone.clientHeight : Infinity);
-      const base = parseFloat(getComputedStyle(boutons[0]).fontSize) || 16;
-      const reduire = () => { for (let t = Math.floor(base) - 1; t >= PLANCHER_TEXTE_ACR; t--) { for (const bt of boutons) bt.style.fontSize = `${t}px`; if (!deborde()) return true; } return false; };
       if (etape === 2 && deborde()) {
-        // étape 3 : 2 lignes, seulement si le bandeau y reste COLLANT (part ≤ 15 % de la zone, D-97b M-2) : une commande vitale qui sort de l'écran au défilement vaut moins qu'un texte un peu plus petit
-        bandeau.classList.add('bandeau-acr-deux-lignes'); etape = 3;
-        if (deborde() || part() > PART_MAX_BANDEAU_ACR) {
-          // étape 4 : texte réduit, d'abord sur UNE ligne ; si même au plancher il déborde, retour à 2 lignes réduites (aucun mot coupé, jamais de débordement tant que 14 px suffit)
-          etape = 4; bandeau.classList.remove('bandeau-acr-deux-lignes');
-          if (!reduire()) { bandeau.classList.add('bandeau-acr-deux-lignes'); for (const bt of boutons) bt.style.removeProperty('font-size'); reduire(); }
+        etape = 4;
+        if (!reduire(Math.floor(base) - 1)) {
+          // même à 14 px, une ligne ne suffit pas : 2 lignes à pleine taille, sinon réduites (étape 3)
+          etape = 3; for (const bt of boutons) bt.style.removeProperty('font-size');
+          bandeau.classList.add('bandeau-acr-deux-lignes');
+          if (deborde()) reduire(Math.floor(base) - 1);
         }
       }
       bandeau.dataset.etapeAcr = String(etape);   // lu par les tests (1 à 4)
+      // D-99 : une ligne = TOUJOURS collant, quelle que soit sa part de la zone ; la règle des 15 % (M-1 du lot K) ne vaut plus que pour le bandeau sur plusieurs lignes
       const h = bandeau.getBoundingClientRect().height; const z = zone.clientHeight;
-      const collant = z > 0 && h / z <= PART_MAX_BANDEAU_ACR;
+      const unePleineLigne = !bandeau.classList.contains('bandeau-acr-deux-lignes');
+      const collant = z > 0 && (unePleineLigne || h / z <= PART_MAX_BANDEAU_ACR);
       bandeau.classList.toggle('bandeau-acr-flux', !collant);
-      zone.style.setProperty('--marge-bandeau-acr', collant ? `${Math.ceil(h) + 4}px` : '0px');
+      zone.style.setProperty('--marge-bandeau-acr', collant ? `${Math.ceil(h) + 4}px` : '0px');   // hauteur RÉELLE + marge basse de 4 px : un élément amené en vue ne finit jamais dessous
     };
     mesurer();
     if (typeof ResizeObserver !== 'function') return;

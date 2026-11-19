@@ -108,7 +108,7 @@ body {
   overscroll-behavior: none;
 }
 button, a, input, select, textarea { font: inherit; touch-action: manipulation; }
-:focus-visible { outline: 0.1875rem solid var(--focus); outline-offset: 0.125rem; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }   /* D-98b (r-a) : en px, jamais plus grand que les 8 px de marge du bandeau « Arrêt cardiaque » même au texte 200 % */
 [hidden] { display: none !important; }
 
 /* ───────── Boutons : grandes cibles, retour immédiat ───────── */
@@ -1250,11 +1250,11 @@ body[data-texte="grand"] .etape-valeur { font-size: min(1.0625rem, 22px); }
 /* ───────── Lot K — D-83 (ACR-UNIQUE = A) : UN SEUL accès à l'arrêt cardiaque en haut de chaque conduite : bandeau rouge bas « Arrêt cardiaque : adulte | enfant » ─────────
    Collant (`sticky`, top 0 de la zone centrale) : il reste sous le doigt quand la liste défile, sans la recouvrir de façon permanente : `scroll-padding-top` ramène un élément amené en vue SOUS lui.
    Il est dans le flux (ni calque ni position fixe) : il ne recouvre ni la barre ni l'en-tête, et ne bouge pas aux redessins. Cibles de 48 px EN PIXELS (pas en rem). Jetons de couleur seulement. */
-.bandeau-acr { position: sticky; top: 0; z-index: 3; display: flex; flex-wrap: nowrap; align-items: center; gap: 0.5rem; padding: 0 8px; margin-bottom: 4px; border-radius: var(--rayon); background: var(--urgence); color: var(--sur-urgence); font-size: min(1rem, 21px); font-weight: 800; box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.25); }
-.bandeau-acr-texte { flex: 0 0 auto; white-space: nowrap; }   /* D-97 / D-97b : le texte d'un BOUTON ne déborde jamais ; ordre MESURÉ par suivreBandeauAcr : 1 libellé visible + une ligne, 2 libellé masqué + une ligne, 3 deux lignes entre deux mots (si le bandeau reste collant), 4 texte réduit jusqu'à 14 px */
+.bandeau-acr { position: sticky; top: 0; z-index: 3; display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; padding: 8px; margin-bottom: 4px; border-radius: var(--rayon); background: var(--urgence); color: var(--sur-urgence); font-size: min(1rem, 21px); font-weight: 800; box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.25); }
+.bandeau-acr-texte { flex: 0 0 auto; white-space: nowrap; }   /* D-97b / D-99 : le texte d'un BOUTON ne déborde jamais ; ordre MESURÉ par suivreBandeauAcr : 1 libellé visible + une ligne, 2 libellé masqué + une ligne, 4 texte réduit jusqu'à 14 px (une ligne), 3 deux lignes entre deux mots seulement si une ligne ne suffit pas. D-98 : 8 px de marge partout (remplissage et écart), donc le contour de focus (5 px) n'est jamais coupé */
 .bandeau-acr-compact .bandeau-acr-texte { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }   /* M-1 : quand la place manque, le libellé « Arrêt cardiaque : » n'est plus que lu à voix haute (nom accessible du groupe) ; décidé par la MESURE (`suivreBandeauAcr`), pas par une largeur d'écran (un media query compte les rem à 16 px, pas au texte agrandi) */
 .bandeau-acr.bandeau-acr-deux-lignes .bouton-acr { white-space: normal; }   /* D-97b : 2 lignes seulement en dernier recours (étape 3) ; remplissage, bordure et interligne en PX (comme les cibles de 48 px) pour que le bandeau reste collant au texte 200 % */
-.bandeau-acr-flux { position: static; }   /* M-1 : mesuré > 15 % de la zone de la liste : en tête de liste, dans le flux, plus collant */
+.bandeau-acr-flux { position: static; }   /* D-99 : seulement un bandeau sur PLUSIEURS lignes mesuré > 15 % de la zone de la liste : en tête de liste, dans le flux ; un bandeau d'une ligne reste toujours collant */
 .bandeau-acr .bouton-acr { flex: 1 1 0; min-width: 0; white-space: nowrap; overflow-wrap: normal; word-break: normal; hyphens: none; line-height: 1.1; min-height: 48px; padding: 4px 6px; border-width: 2px; background: var(--urgence); color: var(--sur-urgence); border-color: var(--sur-urgence); font-size: inherit; }
 #contenu { scroll-padding-top: var(--marge-bandeau-acr, 0px); }   /* M-1 : hauteur RÉELLE du bandeau collant, posée par `suivreBandeauAcr` (0 s'il n'est pas collant ; plus de :has, m-7) */
 
